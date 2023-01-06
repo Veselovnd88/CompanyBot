@@ -1,0 +1,23 @@
+server:
+  port: 9090
+
+bot:
+  name: ${PL_BOT_NAME}
+  token: ${PL_BOT_TOKEN}
+  webhookpath:  https://dc1e-93-179-122-84.eu.ngrok.io
+  adminId: 101516610
+
+
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/companybot
+    username: ${POSTGRES_NAME}
+    password: ${POSTGRES_PASSWORD}
+  jpa:
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+        show_sql: true
+        hbm2ddl:
+          auto: create
