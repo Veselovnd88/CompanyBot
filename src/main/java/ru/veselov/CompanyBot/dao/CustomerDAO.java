@@ -1,7 +1,5 @@
 package ru.veselov.CompanyBot.dao;
 
-
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,6 +12,7 @@ import java.util.Optional;
 @Repository
 @Transactional(readOnly = true)
 public class CustomerDAO {
+    //#FIXME в дальнейшем перенести в абстрактный класс
     @PersistenceContext
     private final EntityManager entityManager;
     @Autowired
@@ -28,10 +27,27 @@ public class CustomerDAO {
 
     }
 
-    public Optional<Customer> getById(Integer id){
+    public Optional<Customer> findOne(Long id){
         Customer customer = entityManager.find(Customer.class,id);
-        return Optional.of(customer);
+        return Optional.ofNullable(customer);
     }
+    @Transactional
+    public Customer update(Customer customer){
+        return entityManager.merge(customer);
+    }
+
+    @Transactional
+    public void delete(Customer customer){
+        entityManager.remove(customer);
+    }
+
+    public void deleteById(Long id){
+        Optional<Customer> optionalCustomer = findOne(id);
+        optionalCustomer.ifPresent(this::delete);
+    }
+
+
+
 
 
 

@@ -19,9 +19,9 @@ class CustomerDAOTest {
     @Transactional
     void DAOTest() {
         Customer customer = new Customer();
-        customer.setName("Test");
+        customer.setFirstName("Test");
         Customer save = customerDAO.save(customer);
-        Optional<Customer> byId = customerDAO.getById(save.getId());
+        Optional<Customer> byId = customerDAO.findOne(save.getId());
         assertTrue(byId.isPresent());
         assertEquals(save.getId(),byId.get().getId());
     }

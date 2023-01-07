@@ -1,0 +1,106 @@
+package ru.veselov.CompanyBot.bot.handler;
+
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.User;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+import ru.veselov.CompanyBot.bot.BotState;
+import ru.veselov.CompanyBot.bot.UpdateHandler;
+import ru.veselov.CompanyBot.cache.UserDataCache;
+import ru.veselov.CompanyBot.service.CustomerService;
+import ru.veselov.CompanyBot.util.MessageUtils;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@Component
+@Slf4j
+public class CommandHandler implements UpdateHandler {
+    private final UserDataCache userDataCache;
+    private final CustomerService customerService;
+    @Autowired
+    public CommandHandler(UserDataCache userDataCache, CustomerService customerService) {
+        this.userDataCache = userDataCache;
+        this.customerService = customerService;
+    }
+
+    @Override
+    public BotApiMethod<?> processUpdate(Update update) {
+        Long userId = update.getMessage().getFrom().getId();
+        User user = update.getMessage().getFrom();
+        String receivedCommand = update.getMessage().getText();
+        log.info("Нажата команда {}, пользователь {}", receivedCommand,userId);
+        BotState botState=userDataCache.getUserBotState(userId);
+        switch (receivedCommand){
+            case "/start":
+                if(botState==BotState.BEGIN){
+                    customerService.save(user);
+                }
+                userDataCache.setUserBotState(userId,BotState.READY);
+                return SendMessage.builder().chatId(userId)
+                        .text(MessageUtils.GREETINGS).build();
+            case "/inquiry":
+                if(botState==BotState.READY){
+                    userDataCache.setUserBotState(userId,BotState.AWAIT_DIVISION);
+                    return divisionMessageInlineKeyBoard(userId);
+                }
+                else{
+                    return SendMessage.builder().chatId(userId)
+                            .text(MessageUtils.NOT_READY).build();
+                }
+            case "/call":
+                if(botState==BotState.READY){
+                    log.info("Отправляю заявку на обратный звонок");
+                    break;
+                }
+                else{
+                    return SendMessage.builder().chatId(userId)
+                            .text(MessageUtils.NOT_READY).build();
+                }
+            case "/info":
+                return SendMessage.builder().chatId(userId)
+                        .text(MessageUtils.INFO).build();
+        }
+        return null;
+    }
+
+
+
+    private SendMessage divisionMessageInlineKeyBoard(Long userId){
+        InlineKeyboardButton leuze = new InlineKeyboardButton();
+        leuze.setText("Оптические, ультразвуковые датчики LEUZE");
+        leuze.setCallbackData("leuze");
+        List<InlineKeyboardButton> row1 = new ArrayList<>();
+        row1.add(leuze);
+        InlineKeyboardButton lpkf = new InlineKeyboardButton();
+        lpkf.setText("Станки для производства печатных плат LPKF");
+        lpkf.setCallbackData("lpkf");
+        List<InlineKeyboardButton> row2 = new ArrayList<>();
+        row2.add(lpkf);
+        InlineKeyboardButton pressure = new InlineKeyboardButton();
+        pressure.setText("Датчики давления, температуры, расхода");
+        pressure.setCallbackData("pressure");
+        List<InlineKeyboardButton> row3 = new ArrayList<>();
+        row3.add(pressure);
+        InlineKeyboardButton common = new InlineKeyboardButton();
+        common.setText("Общие вопросы");
+        common.setCallbackData("common");
+        List<InlineKeyboardButton> row4= new ArrayList<>();
+        row4.add(common);
+
+        InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+        List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
+        rowList.add(row1);
+        rowList.add(row2);
+        rowList.add(row3);
+        rowList.add(row4);
+        markup.setKeyboard(rowList);
+        return SendMessage.builder().chatId(userId).text("Выберите направление")
+                .replyMarkup(markup).build();
+    }
+}
