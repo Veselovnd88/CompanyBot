@@ -82,7 +82,8 @@ public class CompanyBot extends TelegramWebhookBot {
         BotCommand startCommand = new BotCommand("/start","Приветствие, начало работы с ботом");
         BotCommand inquiryCommand = new BotCommand("/inquiry","Отправить заявку боту");
         BotCommand callMeCommand = new BotCommand("/call", "Оставить заявку на звонок");
-        BotCommand infoCommand = new BotCommand("/info","Информация о компании");
+        BotCommand aboutCommand = new BotCommand("/about", "Информация о компании");
+        BotCommand infoCommand = new BotCommand("/info","Информация о боте");
         return List.of(startCommand,inquiryCommand,callMeCommand,infoCommand );
     }
 

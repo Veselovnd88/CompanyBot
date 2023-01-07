@@ -46,8 +46,8 @@ public class CommandHandler implements UpdateHandler {
                         .text(MessageUtils.GREETINGS).build();
             case "/inquiry":
                 if(botState==BotState.READY){
-                    userDataCache.setUserBotState(userId,BotState.AWAIT_DIVISION);
-                    return divisionMessageInlineKeyBoard(userId);
+                    userDataCache.setUserBotState(userId,BotState.AWAIT_DEPARTMENT);
+                    return departmentMessageInlineKeyBoard(userId);
                 }
                 else{
                     return SendMessage.builder().chatId(userId)
@@ -62,6 +62,10 @@ public class CommandHandler implements UpdateHandler {
                     return SendMessage.builder().chatId(userId)
                             .text(MessageUtils.NOT_READY).build();
                 }
+
+            case "/about":
+                return SendMessage.builder().chatId(userId)
+                        .text(MessageUtils.ABOUT).build();
             case "/info":
                 return SendMessage.builder().chatId(userId)
                         .text(MessageUtils.INFO).build();
@@ -71,7 +75,7 @@ public class CommandHandler implements UpdateHandler {
 
 
 
-    private SendMessage divisionMessageInlineKeyBoard(Long userId){
+    private SendMessage departmentMessageInlineKeyBoard(Long userId){
         InlineKeyboardButton leuze = new InlineKeyboardButton();
         leuze.setText("Оптические, ультразвуковые датчики LEUZE");
         leuze.setCallbackData("leuze");

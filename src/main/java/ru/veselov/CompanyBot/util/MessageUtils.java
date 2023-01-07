@@ -4,6 +4,7 @@ public class MessageUtils {
     public static String GREETINGS="Здравствуйте, я бот-помощник компании, я могу принять и передать Ваш запрос " +
             "или заявку на обратный звонок";
     public static String NOT_READY = "Бот не готов к работе, нажмите /start для обновления состояния";
+    public static String ABOUT="Информация о компании:";
     public static String INFO = "О боте: \n" +
             "Бот принимает заявки и перенаправляет их ответственному менеджеру: \n" +
             "/start - начало работы с ботом \n" +
