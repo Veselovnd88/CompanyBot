@@ -17,23 +17,47 @@ import java.util.Optional;
 public class TelegramUpdateHandler implements UpdateHandler {
     private final CommandHandler commandHandler;
     private final DepartmentCallbackHandler departmentCallbackHandler;
+    private final InquiryMessageHandler inquiryMessageHandler;
+    private final ContactCallbackHandler contactCallbackHandler;
     private final UserDataCache userDataCache;
     @Autowired
-    public TelegramUpdateHandler(CommandHandler commandHandler, DepartmentCallbackHandler departmentCallbackHandler, UserDataCache userDataCache) {
+    public TelegramUpdateHandler(CommandHandler commandHandler, DepartmentCallbackHandler departmentCallbackHandler, InquiryMessageHandler inquiryMessageHandler, ContactCallbackHandler contactCallbackHandler, UserDataCache userDataCache) {
         this.commandHandler = commandHandler;
         this.departmentCallbackHandler = departmentCallbackHandler;
+        this.inquiryMessageHandler = inquiryMessageHandler;
+        this.contactCallbackHandler = contactCallbackHandler;
         this.userDataCache = userDataCache;
     }
 
     @Override
     public BotApiMethod<?> processUpdate(Update update) {
+
+        //TODO hasChatMember - если добавили в чат - то сохранить чат, сюда Sender будет отправлять сообщения + Mentions
+        //по умолчанию - будет слать Админу
         if(update.hasMessage()&&isCommand(update)){
             return commandHandler.processUpdate(update);
         }
+        if(update.hasMessage()){
+            BotState botState = userDataCache.getUserBotState(update.getMessage().getFrom().getId());
+            if(botState==BotState.AWAIT_MESSAGE){
+                return inquiryMessageHandler.processUpdate(update);
+            }
+        }
+        /*TODO hasMessage.hasContact или hasMessage. hasText в состоянии AWAIT CONTACT
+        отдается в новый хендлер, который будет обрабатывать эти случаи и прикреплять контакт к Customer
+        новое поле в сущности Customer - Contact - Message. при передаче в чат или админу - проверять
+        есть ли там контакт и делать соответствующую конвертацию
+        отдавать 2 инлайн кнопки - сохранить контакт, или - ввести контакт по новой
+        Спросить как удобней будет связаться - email, звонок, написать в ТГ
+        после того как пользователь сохранит - отправляем всё в БД
+        и сразу отбивка в сервис по передаче в чат*/
         if(update.hasCallbackQuery()){
             BotState botState = userDataCache.getUserBotState(update.getCallbackQuery().getFrom().getId());
             if(botState==BotState.AWAIT_DEPARTMENT){
                 return departmentCallbackHandler.processUpdate(update);
+            }
+            if(botState==BotState.AWAIT_MESSAGE){//при нажатии кнопки Ввести данные об обратной связи
+                return contactCallbackHandler.processUpdate(update);
             }
         }
 

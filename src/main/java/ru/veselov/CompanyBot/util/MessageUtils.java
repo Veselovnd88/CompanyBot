@@ -12,4 +12,11 @@ public class MessageUtils {
             "/call - отправить заявку на обратный звонок\n" +
             "/info - справка по основным командам\n" +
             "Отзывы и предложения: https://t.me/VeselovND";
+
+    public static String CAPTION_TOO_LONG="Текст подписи превышает длину 1024 символа, сократите размер подписи," +
+            " или отправьте текст отдельно";
+
+    public static String NO_CUSTOM_EMOJI="Я не поддерживаю кастомные эмодзи";
+    public static String CANT_GET_PICTURE="Не удалось сохранить изображение";
+    public static String AWAIT_CONTENT_MESSAGE="Ожидаю сообщений для формирования запроса";
 }

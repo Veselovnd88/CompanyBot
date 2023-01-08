@@ -27,7 +27,7 @@ public class InquiryService {
     }
 
     public Inquiry save(CustomerInquiry inquiry){
-        Optional<Customer> customerEntity = customerDAO.findOne(inquiry.getUser().getId());
+        Optional<Customer> customerEntity = customerDAO.findOne(inquiry.getUserId());
         if(customerEntity.isPresent()){
             Inquiry inquiryEntity = toInquiryEntity(inquiry);
             inquiryEntity.setCustomer(customerEntity.get());
