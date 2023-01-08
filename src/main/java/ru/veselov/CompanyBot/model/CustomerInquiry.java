@@ -1,11 +1,16 @@
 package ru.veselov.CompanyBot.model;
 
-import org.aspectj.bridge.Message;
+import lombok.Getter;
+import lombok.Setter;
+import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.User;
 
 import java.util.LinkedList;
 import java.util.List;
-
+@Getter
+@Setter
 public class CustomerInquiry {
     private Department department;
-    private final List<Message> messages= new LinkedList<>();
+    private List<Message> messages= new LinkedList<>();
+    private User user;
 }

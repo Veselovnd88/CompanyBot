@@ -28,6 +28,7 @@ public class CustomerDAO {
     }
 
     public Optional<Customer> findOne(Long id){
+        //Стандартный тип инициализации - Lazy - не получает привязанные к нему Inquiry
         Customer customer = entityManager.find(Customer.class,id);
         return Optional.ofNullable(customer);
     }

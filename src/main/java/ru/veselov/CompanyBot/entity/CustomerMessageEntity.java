@@ -6,10 +6,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
-import org.springframework.data.annotation.Id;
 import org.telegram.telegrambots.meta.api.objects.Message;
 
 import javax.persistence.*;
+import java.util.Objects;
 
 @Entity
 @Getter
@@ -18,6 +18,7 @@ import javax.persistence.*;
 @TypeDef(name="jsonb",typeClass = JsonBinaryType.class)
 @Table(name = "message")
 public class CustomerMessageEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
@@ -28,9 +29,20 @@ public class CustomerMessageEntity {
     private Message message;
 
     @ManyToOne
-    @JoinColumn(name = "inquiry_id",referencedColumnName = "id")
+    @JoinColumn(name = "inquiry_id",referencedColumnName = "inquiry_id")
     private Inquiry inquiry;
 
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        CustomerMessageEntity that = (CustomerMessageEntity) o;
+        return message.equals(that.message);
+    }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(message);
+    }
 }

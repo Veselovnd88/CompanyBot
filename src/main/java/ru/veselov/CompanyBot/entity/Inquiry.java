@@ -6,14 +6,13 @@ import lombok.Setter;
 import ru.veselov.CompanyBot.model.Department;
 
 import javax.persistence.*;
-import java.util.Date;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 @Entity
 @NoArgsConstructor
 @Setter
 @Getter
+@Table(name = "inquiry")
 public class Inquiry {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,8 +28,27 @@ public class Inquiry {
     private Department department;
 
     @OneToMany(mappedBy = "inquiry",orphanRemoval = true,cascade = CascadeType.ALL)
-    private List<CustomerMessageEntity> messages = new LinkedList<>();
+    private final Set<CustomerMessageEntity> messages = new LinkedHashSet<>();
 
-    //TODO привязать к Customer
+    @ManyToOne
+    @JoinColumn(name = "customer_id", referencedColumnName = "id")
+    private Customer customer;
 
+    public void addMessage(CustomerMessageEntity message){
+        messages.add(message);
+        message.setInquiry(this);
+    }
+    //Так как объект помещается в сет - переопределили
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Inquiry inquiry = (Inquiry) o;
+        return date.equals(inquiry.date) && department == inquiry.department && messages.equals(inquiry.messages) && customer.equals(inquiry.customer);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(date, department, messages, customer);
+    }
 }
