@@ -2,8 +2,10 @@ package ru.veselov.CompanyBot.bot.handler;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.MessageEntity;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.veselov.CompanyBot.bot.BotState;
@@ -15,27 +17,43 @@ import java.util.Optional;
 @Component
 @Slf4j
 public class TelegramUpdateHandler implements UpdateHandler {
+    @Value("${bot.adminId}")
+    private String adminId;
     private final CommandHandler commandHandler;
     private final DepartmentCallbackHandler departmentCallbackHandler;
     private final InquiryMessageHandler inquiryMessageHandler;
     private final ContactCallbackHandler contactCallbackHandler;
     private final ContactMessageHandler contactMessageHandler;
+    private final ChannelConnectHandler channelConnectHandler;
     private final UserDataCache userDataCache;
     @Autowired
-    public TelegramUpdateHandler(CommandHandler commandHandler, DepartmentCallbackHandler departmentCallbackHandler, InquiryMessageHandler inquiryMessageHandler, ContactCallbackHandler contactCallbackHandler, ContactMessageHandler contactMessageHandler, UserDataCache userDataCache) {
+    public TelegramUpdateHandler(CommandHandler commandHandler,
+                                 DepartmentCallbackHandler departmentCallbackHandler,
+                                 InquiryMessageHandler inquiryMessageHandler, ContactCallbackHandler contactCallbackHandler, ContactMessageHandler contactMessageHandler, ChannelConnectHandler channelConnectHandler, UserDataCache userDataCache) {
         this.commandHandler = commandHandler;
         this.departmentCallbackHandler = departmentCallbackHandler;
         this.inquiryMessageHandler = inquiryMessageHandler;
         this.contactCallbackHandler = contactCallbackHandler;
         this.contactMessageHandler = contactMessageHandler;
+        this.channelConnectHandler = channelConnectHandler;
         this.userDataCache = userDataCache;
     }
 
     @Override
     public BotApiMethod<?> processUpdate(Update update) {
+        //Обработка апдейтов, связанных с присоединением бота к чату
+        if(update.hasMyChatMember()){
+            if(update.getMyChatMember().getFrom().getId().toString().equals(adminId)){
+                return channelConnectHandler.processUpdate(update);
+            }
+            else{
+                return SendMessage.builder().chatId(update.getMyChatMember().getFrom().getId())
+                        .text("Я работаю только в тех каналах, куда меня добавил администратор")
+                        .build();
+            }
+        }
 
-        //TODO hasChatMember - если добавили в чат - то сохранить чат, сюда Sender будет отправлять сообщения + Mentions
-        //по умолчанию - будет слать Админу
+
         if(update.hasMessage()&&isCommand(update)){
             return commandHandler.processUpdate(update);
         }
