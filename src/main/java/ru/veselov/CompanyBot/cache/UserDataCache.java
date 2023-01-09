@@ -5,7 +5,7 @@ import ru.veselov.CompanyBot.bot.BotState;
 import ru.veselov.CompanyBot.model.CustomerInquiry;
 import ru.veselov.CompanyBot.model.Department;
 
-public interface UserDataCache {
+public interface UserDataCache extends Cache {
     BotState getUserBotState(Long id);
     void setUserBotState(Long id, BotState botState);
 

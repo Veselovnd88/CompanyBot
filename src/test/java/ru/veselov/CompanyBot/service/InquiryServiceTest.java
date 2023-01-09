@@ -43,7 +43,7 @@ class InquiryServiceTest {
         message = new Message();
         message.setText("Test");
         inquiry.setMessages(List.of(message));
-        inquiry.setUser(user);
+        inquiry.setUserId(user.getId());
     }
 
     @Test
@@ -53,7 +53,7 @@ class InquiryServiceTest {
         for(int i=0; i<10; i++){
             CustomerInquiry inq = new CustomerInquiry();
             inq.setDepartment(Department.COMMON);
-            inq.setUser(user);
+            inq.setUserId(user.getId());
             message = new Message();
             message.setText("Test "+i);
             inquiry.setMessages(List.of(message));

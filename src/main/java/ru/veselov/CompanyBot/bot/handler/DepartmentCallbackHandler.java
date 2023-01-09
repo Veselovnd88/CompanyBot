@@ -3,6 +3,7 @@ package ru.veselov.CompanyBot.bot.handler;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -10,6 +11,7 @@ import ru.veselov.CompanyBot.bot.BotState;
 import ru.veselov.CompanyBot.bot.UpdateHandler;
 import ru.veselov.CompanyBot.cache.UserDataCache;
 import ru.veselov.CompanyBot.model.Department;
+import ru.veselov.CompanyBot.util.MessageUtils;
 
 @Component
 @Slf4j
@@ -47,7 +49,7 @@ public class DepartmentCallbackHandler implements UpdateHandler {
         }
 
 
-        return SendMessage.builder().chatId(userId)
-                .text("Произошла ошибка").build();
+        return AnswerCallbackQuery.builder().callbackQueryId(update.getCallbackQuery().getId())
+                .text(MessageUtils.ERROR).build();
     }
 }

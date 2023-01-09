@@ -13,8 +13,9 @@ import java.util.HashMap;
 @Slf4j
 public class UserDataCacheImpl implements UserDataCache {
 
-    private HashMap<Long, BotState> currentUserBotState = new HashMap<>();
-    private HashMap<Long, CustomerInquiry> inquiryCache = new HashMap<>();
+    private final HashMap<Long, BotState> currentUserBotState = new HashMap<>();
+    private final HashMap<Long, CustomerInquiry> inquiryCache = new HashMap<>();
+
     @Override
     public BotState getUserBotState(Long id) {
         BotState botState = currentUserBotState.get(id);
@@ -27,6 +28,7 @@ public class UserDataCacheImpl implements UserDataCache {
 
     @Override
     public void setUserBotState(Long id,BotState botState) {
+        log.info("Установлен статус бота {} для пользователя {}",botState,id);
         currentUserBotState.put(id,botState);
     }
 
@@ -40,5 +42,12 @@ public class UserDataCacheImpl implements UserDataCache {
     @Override
     public CustomerInquiry getInquiry(Long userId) {
         return inquiryCache.get(userId);
+    }
+
+    @Override
+    public void clear(Long userId) {
+        inquiryCache.remove(userId);
+        currentUserBotState.put(userId,BotState.READY);
+        log.info("Запрос пользователя {} удален из кеша, статус переведен в {}",userId,BotState.READY);
     }
 }

@@ -19,4 +19,9 @@ public class MessageUtils {
     public static String NO_CUSTOM_EMOJI="Я не поддерживаю кастомные эмодзи";
     public static String CANT_GET_PICTURE="Не удалось сохранить изображение";
     public static String AWAIT_CONTENT_MESSAGE="Ожидаю сообщений для формирования запроса";
+    public static String SAVE_MESSAGE="Запрос будет сохранен и передан менеджеру на обработку";
+    public static String INPUT_CONTACT = "Введите ФИО и контактные данные для обратной связи или контакт Телеграм";
+    public static String SAVED="Запрос сохранен и передан менеджеру на обработку, спасибо!";
+
+    public static String ERROR="Что-то пошло не так";
 }

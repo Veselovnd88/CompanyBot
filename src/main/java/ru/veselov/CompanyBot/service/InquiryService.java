@@ -31,6 +31,7 @@ public class InquiryService {
         if(customerEntity.isPresent()){
             Inquiry inquiryEntity = toInquiryEntity(inquiry);
             inquiryEntity.setCustomer(customerEntity.get());
+            log.info("Запрос пользователя {} сохранен в БД",inquiry.getUserId());
             return inquiryDAO.save(inquiryEntity);
         }
         else return null;

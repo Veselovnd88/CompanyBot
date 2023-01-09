@@ -6,7 +6,6 @@ import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.*;
 import org.telegram.telegrambots.meta.api.objects.games.Animation;
-import org.telegram.telegrambots.meta.api.objects.polls.Poll;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import ru.veselov.CompanyBot.bot.UpdateHandler;
@@ -16,7 +15,6 @@ import ru.veselov.CompanyBot.util.MessageUtils;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Set;
 
 @Component
 @Slf4j
@@ -59,7 +57,6 @@ public class InquiryMessageHandler implements UpdateHandler {
             userDataCache.getInquiry(userId).addMessage(message);
             log.info("Сохранен текст с разметкой для пользователя {}",userId);
         }
-        //TODO сохранение файлов в форме byte[] в базе данных если решим сохранять файлы
         if(update.getMessage().hasPhoto()){
             Message message = createMessageWithMedia(update);
             //Получаем список из нескольких вариантов картинки разных размеров
@@ -109,7 +106,9 @@ public class InquiryMessageHandler implements UpdateHandler {
         finishMessages.setText("Ввести данные для обратной связи");
         finishMessages.setCallbackData("contact");
         List<InlineKeyboardButton> row1 = new ArrayList<>();
+        row1.add(finishMessages);
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+        keyboard.add(row1);
         InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
         inlineKeyboardMarkup.setKeyboard(keyboard);
         return SendMessage.builder().chatId(userId).text(MessageUtils.AWAIT_CONTENT_MESSAGE)
