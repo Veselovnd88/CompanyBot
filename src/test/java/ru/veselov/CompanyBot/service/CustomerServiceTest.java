@@ -31,11 +31,13 @@ class CustomerServiceTest {
         user.setUserName("UserName");
     }
     @Test
-    void save() {
+    void saveAndDeleteTest() {
         //Проверка сохранения в бд
         customerService.save(user);
         assertTrue(customerService.findOne(100L).isPresent());
         assertEquals("UserName",customerService.findOne(100L).get().getUserName());
+        customerService.remove(user);
+        assertFalse(customerService.findOne(user.getId()).isPresent());
     }
 
     @Test

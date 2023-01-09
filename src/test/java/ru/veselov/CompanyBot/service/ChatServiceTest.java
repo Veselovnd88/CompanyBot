@@ -28,7 +28,12 @@ class ChatServiceTest {
     }
     @Test
     void saveTest(){
+        chatService.save(chat);
+        assertEquals(1,chatService.findAll().size());
+        assertEquals(-100L,chatService.findAll().get(0).getId());
+        chatService.remove(chat.getId());
 
+        assertEquals(0,chatService.findAll().size());
     }
 
 

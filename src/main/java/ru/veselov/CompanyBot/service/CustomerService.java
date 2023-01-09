@@ -46,6 +46,9 @@ public class CustomerService {
     public Optional<Customer> findOne(Long userId){
         return customerDAO.findOne(userId);
     }
+    public void remove(User user){
+        customerDAO.deleteById(user.getId());
+    }
 
     private Customer toCustomer(User user){
         return modelMapper.map(user, Customer.class);

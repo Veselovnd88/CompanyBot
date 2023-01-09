@@ -51,7 +51,7 @@ public class InquiryDAO {
     public void delete(Inquiry inquiry){
         entityManager.remove(inquiry);
     }
-
+    @Transactional
     public void deleteById(Integer id){
         Optional<Inquiry> optionalInquiry = findOne(id);
         optionalInquiry.ifPresent(this::delete);

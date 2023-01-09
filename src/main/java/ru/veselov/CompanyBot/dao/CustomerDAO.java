@@ -41,7 +41,7 @@ public class CustomerDAO {
     public void delete(Customer customer){
         entityManager.remove(customer);
     }
-
+    @Transactional
     public void deleteById(Long id){
         Optional<Customer> optionalCustomer = findOne(id);
         optionalCustomer.ifPresent(this::delete);

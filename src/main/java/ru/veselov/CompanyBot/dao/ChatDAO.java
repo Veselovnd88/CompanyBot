@@ -30,10 +30,11 @@ public class ChatDAO {
         ChatEntity chat= entityManager.find(ChatEntity.class, chatId);
         return Optional.ofNullable(chat);
     }
-
+    @Transactional
     public void delete(ChatEntity chat){
         entityManager.remove(chat);
     }
+    @Transactional
     public void deleteById(Long chatId) {
         Optional<ChatEntity> chat = findOne(chatId);
         chat.ifPresent(this::delete);
