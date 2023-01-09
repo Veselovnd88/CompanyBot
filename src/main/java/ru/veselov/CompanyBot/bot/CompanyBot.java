@@ -47,7 +47,7 @@ public class CompanyBot extends TelegramWebhookBot {
             this.execute(new SetMyCommands(setUpAdminCommands(),botCommandScopeChat,null));
             log.info("Меню установлено");
             botId=this.getMe().getId();
-            log.info("Id бота{}", botId);
+            log.info("Id бота {}", botId);
         } catch (TelegramApiException e) {
             log.error("Произошла ошибка при запуске бота: {}", e.getMessage());
             throw new RuntimeException(e);
@@ -67,6 +67,12 @@ public class CompanyBot extends TelegramWebhookBot {
     @Override
     public BotApiMethod<?> onWebhookUpdateReceived(Update update) {
         if(update!=null){
+            //Проверка скорости отправки, чтобы не уходило более 30 сообщений в секунду
+            try {
+                Thread.sleep(50);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
             return telegramUpdateHandler.processUpdate(update);
         }
         return null;
@@ -84,7 +90,7 @@ public class CompanyBot extends TelegramWebhookBot {
         BotCommand callMeCommand = new BotCommand("/call", "Оставить заявку на звонок");
         BotCommand aboutCommand = new BotCommand("/about", "Информация о компании");
         BotCommand infoCommand = new BotCommand("/info","Информация о боте");
-        return List.of(startCommand,inquiryCommand,callMeCommand,infoCommand );
+        return List.of(startCommand,inquiryCommand,callMeCommand,aboutCommand,infoCommand );
     }
 
     private List<BotCommand> setUpAdminCommands(){

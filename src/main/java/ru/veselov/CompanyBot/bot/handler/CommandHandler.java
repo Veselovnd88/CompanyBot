@@ -11,6 +11,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import ru.veselov.CompanyBot.bot.BotState;
 import ru.veselov.CompanyBot.bot.UpdateHandler;
+import ru.veselov.CompanyBot.cache.ContactCache;
 import ru.veselov.CompanyBot.cache.UserDataCache;
 import ru.veselov.CompanyBot.service.CustomerService;
 import ru.veselov.CompanyBot.util.MessageUtils;
@@ -22,13 +23,15 @@ import java.util.List;
 @Slf4j
 public class CommandHandler implements UpdateHandler {
     private final UserDataCache userDataCache;
+    private final ContactCache contactCache;
     private final CustomerService customerService;
     @Autowired
-    public CommandHandler(UserDataCache userDataCache, CustomerService customerService) {
+    public CommandHandler(UserDataCache userDataCache, ContactCache contactCache, CustomerService customerService) {
         this.userDataCache = userDataCache;
+        this.contactCache = contactCache;
         this.customerService = customerService;
     }
-
+    /*Класс обрабатывает все апдейты, который содержат команды*/
     @Override
     public BotApiMethod<?> processUpdate(Update update) {
         Long userId = update.getMessage().getFrom().getId();
@@ -42,6 +45,8 @@ public class CommandHandler implements UpdateHandler {
                     customerService.save(user);
                 }
                 userDataCache.setUserBotState(userId,BotState.READY);
+                userDataCache.clear(userId);
+                contactCache.clear(userId);
                 return SendMessage.builder().chatId(userId)
                         .text(MessageUtils.GREETINGS).build();
             case "/inquiry":
@@ -55,8 +60,8 @@ public class CommandHandler implements UpdateHandler {
                 }
             case "/call":
                 if(botState==BotState.READY){
-                    log.info("Отправляю заявку на обратный звонок");
-                    break;
+                    userDataCache.setUserBotState(userId,BotState.AWAIT_CONTACT);
+                    return contactMessage(userId);
                 }
                 else{
                     return SendMessage.builder().chatId(userId)
@@ -70,7 +75,8 @@ public class CommandHandler implements UpdateHandler {
                 return SendMessage.builder().chatId(userId)
                         .text(MessageUtils.INFO).build();
         }
-        return null;
+        return SendMessage.builder().chatId(userId)
+                .text(MessageUtils.UNKNOWN_COMMAND).build();
     }
 
 
@@ -104,7 +110,23 @@ public class CommandHandler implements UpdateHandler {
         rowList.add(row3);
         rowList.add(row4);
         markup.setKeyboard(rowList);
-        return SendMessage.builder().chatId(userId).text("Выберите направление")
+        return SendMessage.builder().chatId(userId).text(MessageUtils.CHOOSE_DEP)
                 .replyMarkup(markup).build();
     }
+
+    private SendMessage contactMessage(Long userId) {
+        InlineKeyboardButton finishMessages = new InlineKeyboardButton();
+        finishMessages.setText("Ввести данные для обратной связи");
+        finishMessages.setCallbackData("contact");
+        List<InlineKeyboardButton> row1 = new ArrayList<>();
+        row1.add(finishMessages);
+        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+        keyboard.add(row1);
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        inlineKeyboardMarkup.setKeyboard(keyboard);
+        return SendMessage.builder().chatId(userId).text(MessageUtils.INPUT_CONTACT)
+                .replyMarkup(inlineKeyboardMarkup)
+                .build();
+    }
+
 }
