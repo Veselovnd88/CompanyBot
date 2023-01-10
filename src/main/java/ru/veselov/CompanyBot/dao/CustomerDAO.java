@@ -1,12 +1,15 @@
 package ru.veselov.CompanyBot.dao;
 
+import org.checkerframework.checker.units.qual.C;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import ru.veselov.CompanyBot.entity.Customer;
+import ru.veselov.CompanyBot.entity.Inquiry;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import java.util.List;
 import java.util.Optional;
 
 @Repository
@@ -19,7 +22,9 @@ public class CustomerDAO {
     public CustomerDAO(EntityManager entityManager) {
         this.entityManager = entityManager;
     }
-
+    public List<Customer> findAll(){
+        return entityManager.createQuery(" SELECT c from Customer c ").getResultList();
+    }
     @Transactional
     public Customer save(Customer customer){
         entityManager.persist(customer);

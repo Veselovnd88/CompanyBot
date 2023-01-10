@@ -45,12 +45,13 @@ public class ContactMessageHandler implements UpdateHandler {
         }
 
         if(message!=null){
-            message.setEntities(update.getMessage().getEntities());
+            if(message.getEntities()!=null){
+                message.setEntities(update.getMessage().getEntities());}
             contactCache.addContact(userId,message);
             userDataCache.setUserBotState(userId, BotState.AWAIT_SAVING);
             return saveContactMessage(userId);
         }
-        return SendMessage.builder().chatId(userId).text(MessageUtils.ERROR).build();
+        return SendMessage.builder().chatId(userId).text(MessageUtils.WRONG_CONTACT_FORMAT).build();
     }
 
     private SendMessage saveContactMessage(Long userId) {

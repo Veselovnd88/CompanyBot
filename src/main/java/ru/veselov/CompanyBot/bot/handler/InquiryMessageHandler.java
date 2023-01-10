@@ -28,6 +28,7 @@ public class InquiryMessageHandler implements UpdateHandler {
     @Override
     public BotApiMethod<?> processUpdate(Update update) {
         Long userId=update.getMessage().getFrom().getId();
+
         if(userDataCache.getInquiry(userId).getMessages().size()>14){
             SendMessage addContentMessage = askAddContent(userId);
             addContentMessage.setText("Превышено максимальное количество сообщений (15)");

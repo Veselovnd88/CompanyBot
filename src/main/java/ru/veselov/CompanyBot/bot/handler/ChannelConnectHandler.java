@@ -13,6 +13,9 @@ import ru.veselov.CompanyBot.bot.CompanyBot;
 import ru.veselov.CompanyBot.bot.UpdateHandler;
 import ru.veselov.CompanyBot.service.ChatService;
 
+import java.util.ArrayList;
+import java.util.List;
+
 @Component
 @Slf4j
 public class ChannelConnectHandler implements UpdateHandler {

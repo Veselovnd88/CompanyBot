@@ -3,6 +3,7 @@ package ru.veselov.CompanyBot.bot;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramWebhookBot;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
@@ -33,7 +34,7 @@ public class CompanyBot extends TelegramWebhookBot {
     private final BotProperties botProperties;
     private final TelegramUpdateHandler telegramUpdateHandler;
 
-    public CompanyBot(TelegramBotsApi telegramBotsApi, SetWebhook setWebhook, BotProperties botProperties, TelegramUpdateHandler telegramUpdateHandler){
+    public CompanyBot(TelegramBotsApi telegramBotsApi, SetWebhook setWebhook, BotProperties botProperties, @Lazy TelegramUpdateHandler telegramUpdateHandler){
         this.telegramBotsApi = telegramBotsApi;
         this.setWebhook = setWebhook;
         this.botProperties = botProperties;

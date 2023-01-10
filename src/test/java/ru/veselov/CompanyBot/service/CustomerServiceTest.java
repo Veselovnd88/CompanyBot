@@ -58,5 +58,7 @@ class CustomerServiceTest {
         customerService.saveContact(user.getId(),message);
         assertTrue(customerService.findOne(100L).isPresent());
         assertEquals("Text",customerService.findOne(100L).get().getContact().getText());
+        customerService.remove(user);
+        assertEquals(0,customerService.findAll().size());
     }
 }

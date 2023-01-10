@@ -27,7 +27,7 @@ class ChatServiceTest {
         chat.setTitle("TestChannel");
     }
     @Test
-    void saveTest(){
+    void saveAndRemoveTest(){
         chatService.save(chat);
         assertEquals(1,chatService.findAll().size());
         assertEquals(-100L,chatService.findAll().get(0).getId());

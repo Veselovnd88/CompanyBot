@@ -9,6 +9,7 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import ru.veselov.CompanyBot.dao.CustomerDAO;
 import ru.veselov.CompanyBot.entity.Customer;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -48,6 +49,9 @@ public class CustomerService {
     }
     public void remove(User user){
         customerDAO.deleteById(user.getId());
+    }
+    public List<Customer> findAll(){
+        return customerDAO.findAll();
     }
 
     private Customer toCustomer(User user){

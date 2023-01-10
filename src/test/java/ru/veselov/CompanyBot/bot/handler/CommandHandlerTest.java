@@ -34,25 +34,28 @@ class CommandHandlerTest {
     @MockBean
     private CustomerService customerService;
 
-    Update update= spy(Update.class);
-    User user= spy(User.class);
-    Message message=spy(Message.class);
+    Update update;
+    User user;
+    Message message;
     @BeforeEach
     void init(){
-        when(update.getMessage()).thenReturn(message);
-        when(message.getFrom()).thenReturn(user);
-        when(user.getId()).thenReturn(100L);
+        update= spy(Update.class);
+        message=spy(Message.class);
+        user = spy(User.class);
+        update.setMessage(message);
+        message.setFrom(user);
+        user.setId(100L);
     }
 
     @Test
     void startCommandNoStateTest(){
         /*Проверка входа в case с отсутствием статуса */
-        userDataCache.setUserBotState(100L, null);
+        userDataCache.setUserBotState(user.getId(), null);
         when(message.getText()).thenReturn("/start");
         BotApiMethod<?> botApiMethod = commandHandler.processUpdate(update);
         verify(customerService,times(1)).save(user);
         assertEquals(MessageUtils.GREETINGS,((SendMessage) botApiMethod).getText());
-        assertEquals(BotState.READY,userDataCache.getUserBotState(100L));
+        assertEquals(BotState.READY,userDataCache.getUserBotState(user.getId()));
     }
 
     @Test
@@ -61,12 +64,12 @@ class CommandHandlerTest {
         when(message.getText()).thenReturn("/start");
         for(BotState b: BotState.values()){
             if(b!=BotState.BEGIN){
-                userDataCache.setUserBotState(100L, b);
+                userDataCache.setUserBotState(user.getId(), b);
                 BotApiMethod<?> botApiMethod = commandHandler.processUpdate(update);
                 verify(customerService,times(0)).save(user);
                 assertEquals(MessageUtils.GREETINGS,((SendMessage) botApiMethod).getText());
-                assertEquals(BotState.READY,userDataCache.getUserBotState(100L));
-                assertNull(userDataCache.getInquiry(100L));
+                assertEquals(BotState.READY,userDataCache.getUserBotState(user.getId()));
+                assertNull(userDataCache.getInquiry(user.getId()));
             }
         }
     }
@@ -75,10 +78,10 @@ class CommandHandlerTest {
     void inquiryCommandWithStateTest(){
         /*Проверка входа в case с правильным статусом*/
         when(message.getText()).thenReturn("/inquiry");
-        userDataCache.setUserBotState(100L,BotState.READY);
+        userDataCache.setUserBotState(user.getId(), BotState.READY);
         BotApiMethod<?> botApiMethod = commandHandler.processUpdate(update);
         assertEquals(MessageUtils.CHOOSE_DEP,((SendMessage) botApiMethod).getText());
-        assertEquals(BotState.AWAIT_DEPARTMENT,userDataCache.getUserBotState(100L));
+        assertEquals(BotState.AWAIT_DEPARTMENT,userDataCache.getUserBotState(user.getId()));
     }
 
     @Test
@@ -87,10 +90,10 @@ class CommandHandlerTest {
         when(message.getText()).thenReturn("/inquiry");
         for(var b: BotState.values()){
             if(b!=BotState.READY){
-                userDataCache.setUserBotState(100L,b);
+                userDataCache.setUserBotState(user.getId(), b);
                 BotApiMethod<?> botApiMethod = commandHandler.processUpdate(update);
                 assertEquals(MessageUtils.NOT_READY,((SendMessage) botApiMethod).getText());
-                assertEquals(b,userDataCache.getUserBotState(100L));
+                assertEquals(b,userDataCache.getUserBotState(user.getId()));
             }
         }
     }
@@ -100,10 +103,10 @@ class CommandHandlerTest {
         /*Проверка входа в case с любым статусом*/
         when(message.getText()).thenReturn("/about");
         for(var b: BotState.values()){
-            userDataCache.setUserBotState(100L,b);
+            userDataCache.setUserBotState(user.getId(), b);
             BotApiMethod<?> botApiMethod = commandHandler.processUpdate(update);
             assertEquals(MessageUtils.ABOUT,((SendMessage) botApiMethod).getText());
-            assertEquals(b,userDataCache.getUserBotState(100L));
+            assertEquals(b,userDataCache.getUserBotState(user.getId()));
         }
     }
 
@@ -112,10 +115,10 @@ class CommandHandlerTest {
         /*Проверка входа в case с любым статусом*/
         when(message.getText()).thenReturn("/info");
         for(var b: BotState.values()){
-            userDataCache.setUserBotState(100L,b);
+            userDataCache.setUserBotState(user.getId(),b);
             BotApiMethod<?> botApiMethod = commandHandler.processUpdate(update);
             assertEquals(MessageUtils.INFO,((SendMessage) botApiMethod).getText());
-            assertEquals(b,userDataCache.getUserBotState(100L));
+            assertEquals(b,userDataCache.getUserBotState(user.getId()));
         }
     }
 

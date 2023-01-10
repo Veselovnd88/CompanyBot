@@ -47,9 +47,9 @@ public class ContactCallbackHandler implements UpdateHandler {
                 if(userDataCache.getInquiry(userId)!=null){
                     inquiryService.save(userDataCache.getInquiry(userId));
                 }
+                //TODO отсюда будет запускаться сервис по отправке сообщений от клиентов в чат и админу
                 contactCache.clear(userId);
                 userDataCache.clear(userId);
-                //TODO отсюда будет запускаться сервис по отправке сообщений от клиентов в чат и админу
                 return AnswerCallbackQuery.builder().callbackQueryId(update.getCallbackQuery().getId())
                         .text(MessageUtils.SAVED).build();
         }
