@@ -6,6 +6,7 @@ bot:
   token: ${PL_BOT_TOKEN}
   webhookpath:  https://dc1e-93-179-122-84.eu.ngrok.io
   adminId: 101516610
+  chat-interval: 5000
 
 
 spring:

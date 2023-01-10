@@ -7,12 +7,14 @@ import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.veselov.CompanyBot.bot.BotState;
 import ru.veselov.CompanyBot.bot.UpdateHandler;
 import ru.veselov.CompanyBot.cache.ContactCache;
 import ru.veselov.CompanyBot.cache.UserDataCache;
 import ru.veselov.CompanyBot.service.CustomerService;
 import ru.veselov.CompanyBot.service.InquiryService;
+import ru.veselov.CompanyBot.service.SenderService;
 import ru.veselov.CompanyBot.util.MessageUtils;
 
 @Component
@@ -22,12 +24,15 @@ public class ContactCallbackHandler implements UpdateHandler {
     private final ContactCache contactCache;
     private final CustomerService customerService;
     private final InquiryService inquiryService;
+
+    private final SenderService senderService;
     @Autowired
-    public ContactCallbackHandler(UserDataCache userDataCache, ContactCache contactCache, CustomerService customerService, InquiryService inquiryService) {
+    public ContactCallbackHandler(UserDataCache userDataCache, ContactCache contactCache, CustomerService customerService, InquiryService inquiryService, SenderService senderService) {
         this.userDataCache = userDataCache;
         this.contactCache = contactCache;
         this.customerService = customerService;
         this.inquiryService = inquiryService;
+        this.senderService = senderService;
     }
 
     @Override
@@ -46,6 +51,11 @@ public class ContactCallbackHandler implements UpdateHandler {
                 customerService.saveContact(userId,contactCache.getContact(userId));
                 if(userDataCache.getInquiry(userId)!=null){
                     inquiryService.save(userDataCache.getInquiry(userId));
+                }
+                try {
+                    senderService.send(userId);
+                } catch (TelegramApiException e) {
+                    throw new RuntimeException(e);
                 }
                 //TODO отсюда будет запускаться сервис по отправке сообщений от клиентов в чат и админу
                 contactCache.clear(userId);
