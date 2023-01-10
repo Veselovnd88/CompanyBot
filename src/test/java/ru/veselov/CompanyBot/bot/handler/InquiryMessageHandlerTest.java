@@ -43,19 +43,42 @@ class InquiryMessageHandlerTest {
         messageEntity.setOffset(0);
         messageEntity.setLength(0);
         message.setEntities(List.of(messageEntity));
+        userDataCache.createInquiry(user.getId(), Department.COMMON);
     }
 
     @Test
     void longCaptionTest(){
         /*Проверка на длинное описание*/
-        userDataCache.createInquiry(user.getId(), Department.COMMON);
-        StringBuilder sb = new StringBuilder();
-        for(int i=0; i<1025; i++){
-            sb.append("i");
-        }
-        message.setCaption(sb.toString());
+        message.setCaption("i".repeat(1025));//метод стринги
         assertEquals(MessageUtils.CAPTION_TOO_LONG,
                 ((SendMessage)inquiryMessageHandler.processUpdate(update)).getText());
+    }
+    @Test
+    void manyMessagesTest(){
+        for(int i=0; i<15;i++){
+            userDataCache.getInquiry(user.getId()).addMessage(new Message());
+        }
+        assertTrue(((SendMessage) inquiryMessageHandler.processUpdate(update)).getText()
+                .startsWith("Превышено"));
+    }
+
+    @Test
+    void customEmojiTest(){
+        MessageEntity messageEntity = new MessageEntity();
+        messageEntity.setType("custom_emoji");
+        message.setEntities(List.of(messageEntity));
+        assertEquals(MessageUtils.NO_CUSTOM_EMOJI,
+                ((SendMessage) inquiryMessageHandler.processUpdate(update)).getText());
+    }
+
+    @Test
+    void messageWithText(){
+        message.setEntities(null);
+        message.setText("Test");
+        assertEquals(MessageUtils.AWAIT_CONTENT_MESSAGE,
+                ((SendMessage) inquiryMessageHandler.processUpdate(update)).getText());
+        assertEquals(1,userDataCache.getInquiry(user.getId()).getMessages().size());
+
     }
 
 

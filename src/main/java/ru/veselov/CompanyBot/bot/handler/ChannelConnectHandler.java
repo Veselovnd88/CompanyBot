@@ -13,9 +13,6 @@ import ru.veselov.CompanyBot.bot.CompanyBot;
 import ru.veselov.CompanyBot.bot.UpdateHandler;
 import ru.veselov.CompanyBot.service.ChatService;
 
-import java.util.ArrayList;
-import java.util.List;
-
 @Component
 @Slf4j
 public class ChannelConnectHandler implements UpdateHandler {
@@ -36,18 +33,18 @@ public class ChannelConnectHandler implements UpdateHandler {
         Long addedUserId = addedUser.getId();
         if(addedUserId.equals(companyBot.getBotId())){
             Chat chat = update.getMyChatMember().getChat();
-            if(newChatMember.getStatus().equals("administrator")){
+            if(newChatMember.getStatus().equalsIgnoreCase("administrator")){
                 chatService.save(chat);
                 return SendMessage.builder().chatId(userId)
                         .text("Вы добавили меня к каналу "+chat.getTitle()).build();
             }
-            if(newChatMember.getStatus().equals("left")){
+            if(newChatMember.getStatus().equalsIgnoreCase("left")){
                 chatService.remove(chat.getId());
                 return SendMessage.builder().chatId(userId)
                         .text("Вы удалили меня из канала "+chat.getTitle()).build();
 
             }
-            if(newChatMember.getStatus().equals("kicked")){
+            if(newChatMember.getStatus().equalsIgnoreCase("kicked")){
                 chatService.remove(chat.getId());
                 return SendMessage.builder().chatId(userId)
                         .text("Вы кикнули меня с канала "+chat.getTitle()).build();
