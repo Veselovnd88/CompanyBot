@@ -24,6 +24,7 @@ public class MessageUtils {
     public static String AWAIT_CONTENT_MESSAGE="Ожидаю сообщений для формирования запроса";
     public static String SAVE_MESSAGE="Запрос будет сохранен и передан менеджеру на обработку";
     public static String INPUT_CONTACT = "Введите ФИО и контактные данные для обратной связи или контакт Телеграм";
+
     public static String SAVED="Запрос сохранен и передан менеджеру на обработку, спасибо!";
 
     public static String WRONG_CONTACT_FORMAT="Не могу принять контакт в таком формате";
