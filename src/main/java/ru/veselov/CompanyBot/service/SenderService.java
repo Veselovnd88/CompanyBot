@@ -42,7 +42,7 @@ public class SenderService {
     }
 
 
-    public synchronized void send(Long userId) throws TelegramApiException {
+    public synchronized void send(Long userId) throws TelegramApiException {//сюда должно быть передано полноценное DTO чтобы из него забирать все данные
         Map<String, SendMediaGroup> groupsCache = new HashMap<>();
         removeOldChats();
         List<Chat> allChats = chatService.findAll();
@@ -50,28 +50,28 @@ public class SenderService {
         toAdmin.setTitle("Администратору");
         toAdmin.setId(Long.valueOf(adminId));
         List<Chat> sending = new ArrayList<>(allChats);
-        sending.add(toAdmin);//TODO не идут сообщения только с контактом, без запроса
+        sending.add(toAdmin);
         for(Chat chat: sending) {
-            if(chatTimers.containsKey(chat.getId())){
+            if (chatTimers.containsKey(chat.getId())) {
                 //Если в кеше с таймерами есть наш чат, то проверяем время отправки, если время + 60 секунд
                 //позже текущей даты(отправка была меньше минуту назад), то запускаем эту отправку в новом треде
                 //с задержкой +- 60 сек, и обновляем время отправки данного чата
-                Date chatDate = new Date(chatTimers.get(chat.getId()).getTime()+chatInterval);
-                if((chatDate).after(new Date())){
+                Date chatDate = new Date(chatTimers.get(chat.getId()).getTime() + chatInterval);
+                if ((chatDate).after(new Date())) {
                     Thread delayedStart = new Thread(() -> {
                         try {
-                            log.info("Отправлю запрос пользователя {} через {} мс",userId,
+                            log.info("Отправлю запрос пользователя {} через {} мс", userId,
                                     chatInterval);
                             Thread.sleep(chatInterval);
                             send(userId);
                             chatTimers.put(chat.getId(), chatDate);
                         } catch (TelegramApiException e) {
                             log.error("Не удалось отправить сообщение {}", e.getMessage());
-                            try{
+                            try {
                                 bot.execute(SendMessage.builder().chatId(userId)
                                         .text(MessageUtils.ERROR).build());
                             } catch (TelegramApiException ex) {
-                                log.error("Не удалось отправить сообщение об ошибке пользователя {}", userId );
+                                log.error("Не удалось отправить сообщение об ошибке пользователя {}", userId);
                             }
                         } catch (InterruptedException e) {
                             log.error(e.getMessage());
@@ -81,49 +81,51 @@ public class SenderService {
                     return;
                 }
             }
-            chatTimers.put(chat.getId(),new Date());
+            chatTimers.put(chat.getId(), new Date());
             CustomerInquiry inquiry = userDataCache.getInquiry(userId);
-            log.info("Отправляю запрос пользователя {} в канал {}",userId, chat.getTitle());
-            for(var message: inquiry.getMessages()){
+            if (inquiry != null){
+                log.info("Отправляю запрос пользователя {} в канал {}", userId, chat.getTitle());
+                bot.execute(SendMessage.builder().chatId(chat.getId())
+                        .text("Направлен следующий запрос по тематике "+inquiry.getDepartment()).build());
+
+                for (var message : inquiry.getMessages()) {
                 try {
                     Thread.sleep(100);
                 } catch (InterruptedException e) {
                     log.error(e.getMessage());
                 }
-                if(message.hasText()){
+                if (message.hasText()) {
                     bot.execute(SendMessage.builder()
                             .chatId(chat.getId())
                             .text(message.getText()).entities(message.getEntities()).build());
                 }
-                if (message.hasPhoto()){
-                    if(message.getMediaGroupId()==null){
+                if (message.hasPhoto()) {
+                    if (message.getMediaGroupId() == null) {
                         SendPhoto sendPhoto = new SendPhoto();
                         sendPhoto.setChatId(chat.getId());
                         sendPhoto.setCaption(message.getCaption());
                         sendPhoto.setCaptionEntities(message.getCaptionEntities());
                         sendPhoto.setPhoto(new InputFile(message.getPhoto().get(0).getFileId()));
                         bot.execute(sendPhoto);
-                    }
-                    else{
+                    } else {
                         String mediaGroupId = message.getMediaGroupId();
                         InputMediaPhoto inputMediaPhoto = new InputMediaPhoto(message.getPhoto().get(0).getFileId());
                         inputMediaPhoto.setCaption(message.getCaption());
                         inputMediaPhoto.setCaptionEntities(message.getCaptionEntities());
-                        if(groupsCache.containsKey(message.getMediaGroupId())){
+                        if (groupsCache.containsKey(message.getMediaGroupId())) {
                             groupsCache.get(mediaGroupId).getMedias().add(inputMediaPhoto);
-                        }
-                        else{
+                        } else {
                             SendMediaGroup sendMediaGroup = createSendMediaGroup(chat, inputMediaPhoto);
                             groupsCache.put(mediaGroupId, sendMediaGroup);
                         }
                         //Проверяем, что все посты из этой группы выбраны, и если да - отправляем группу
-                        if(checkIfMediaGroupReadyToSend(inquiry,message,groupsCache.get(mediaGroupId))){
+                        if (checkIfMediaGroupReadyToSend(inquiry, message, groupsCache.get(mediaGroupId))) {
                             bot.execute(groupsCache.get(mediaGroupId));
                         }
                     }
                 }
-                if (message.hasDocument()){
-                    if(message.getMediaGroupId()==null){
+                if (message.hasDocument()) {
+                    if (message.getMediaGroupId() == null) {
                         SendDocument sendDocument = new SendDocument();
                         sendDocument.setChatId(chat.getId());
                         sendDocument.setCaption(message.getCaption());
@@ -131,119 +133,99 @@ public class SenderService {
                         sendDocument.setDocument(new InputFile(message.getDocument().getFileId()));
                         bot.execute(sendDocument);
 
-                    }
-                    else{
+                    } else {
                         String mediaGroupId = message.getMediaGroupId();
                         InputMediaDocument inputMediaDocument = new InputMediaDocument(message.getDocument().getFileId());
                         inputMediaDocument.setCaption(message.getCaption());
                         inputMediaDocument.setCaptionEntities(message.getCaptionEntities());
-                        if(groupsCache.containsKey(message.getMediaGroupId())){
+                        if (groupsCache.containsKey(message.getMediaGroupId())) {
                             groupsCache.get(mediaGroupId).getMedias().add(inputMediaDocument);
-                        }
-                        else{
+                        } else {
                             SendMediaGroup sendMediaGroup = createSendMediaGroup(chat, inputMediaDocument);
                             groupsCache.put(mediaGroupId, sendMediaGroup);
                         }
-                        if(checkIfMediaGroupReadyToSend(inquiry,message,groupsCache.get(mediaGroupId))){
+                        if (checkIfMediaGroupReadyToSend(inquiry, message, groupsCache.get(mediaGroupId))) {
                             bot.execute(groupsCache.get(mediaGroupId));
                         }
                     }
                 }
-                if (message.hasAudio()){
-                    if(message.getMediaGroupId()==null){
+                if (message.hasAudio()) {
+                    if (message.getMediaGroupId() == null) {
                         SendAudio sendAudio = new SendAudio();
                         sendAudio.setChatId(chat.getId());
                         sendAudio.setCaption(message.getCaption());
                         sendAudio.setCaptionEntities(message.getCaptionEntities());
                         sendAudio.setAudio(new InputFile(message.getAudio().getFileId()));
                         bot.execute(sendAudio);
-                    }
-                    else{
+                    } else {
                         String mediaGroupId = message.getMediaGroupId();
                         InputMediaAudio inputMediaAudio = new InputMediaAudio(message.getAudio().getFileId());
                         inputMediaAudio.setCaption(message.getCaption());
                         inputMediaAudio.setCaptionEntities(message.getCaptionEntities());
-                        if(groupsCache.containsKey(message.getMediaGroupId())){
+                        if (groupsCache.containsKey(message.getMediaGroupId())) {
                             groupsCache.get(mediaGroupId).getMedias().add(inputMediaAudio);
-                        }
-                        else{
+                        } else {
                             SendMediaGroup sendMediaGroup = createSendMediaGroup(chat, inputMediaAudio);
                             groupsCache.put(mediaGroupId, sendMediaGroup);
                         }
-                        if(checkIfMediaGroupReadyToSend(inquiry,message,groupsCache.get(mediaGroupId))){
+                        if (checkIfMediaGroupReadyToSend(inquiry, message, groupsCache.get(mediaGroupId))) {
                             bot.execute(groupsCache.get(mediaGroupId));
                         }
                     }
                 }
-                if (message.hasVideo()){
-                    if(message.getMediaGroupId()==null){
+                if (message.hasVideo()) {
+                    if (message.getMediaGroupId() == null) {
                         SendVideo sendVideo = new SendVideo();
                         sendVideo.setChatId(chat.getId());
                         sendVideo.setCaption(message.getCaption());
                         sendVideo.setCaptionEntities(message.getCaptionEntities());
                         sendVideo.setVideo(new InputFile(message.getVideo().getFileId()));
                         bot.execute(sendVideo);
-                    }
-                    else{
+                    } else {
                         String mediaGroupId = message.getMediaGroupId();
-                        InputMediaVideo inputMediaVideo= new InputMediaVideo(message.getVideo().getFileId());
+                        InputMediaVideo inputMediaVideo = new InputMediaVideo(message.getVideo().getFileId());
                         inputMediaVideo.setCaption(message.getCaption());
                         inputMediaVideo.setCaptionEntities(message.getCaptionEntities());
-                        if(groupsCache.containsKey(message.getMediaGroupId())){
+                        if (groupsCache.containsKey(message.getMediaGroupId())) {
                             groupsCache.get(mediaGroupId).getMedias().add(inputMediaVideo);
-                        }
-                        else{
+                        } else {
                             SendMediaGroup sendMediaGroup = createSendMediaGroup(chat, inputMediaVideo);
                             groupsCache.put(mediaGroupId, sendMediaGroup);
                         }
-                        if(checkIfMediaGroupReadyToSend(inquiry,message,groupsCache.get(mediaGroupId))){
+                        if (checkIfMediaGroupReadyToSend(inquiry, message, groupsCache.get(mediaGroupId))) {
                             bot.execute(groupsCache.get(mediaGroupId));
                         }
                     }
                 }
-                if (message.hasAnimation()){
-                    if(message.getMediaGroupId()==null){
+                if (message.hasAnimation()) {
+                    if (message.getMediaGroupId() == null) {
                         SendAnimation sendAnimation = new SendAnimation();
                         sendAnimation.setChatId(chat.getId());
                         sendAnimation.setCaption(message.getCaption());
                         sendAnimation.setCaptionEntities(message.getCaptionEntities());
                         sendAnimation.setAnimation(new InputFile(message.getAnimation().getFileId()));
                         bot.execute(sendAnimation);
-                    }
-                    else{
+                    } else {
                         String mediaGroupId = message.getMediaGroupId();
-                        InputMediaAnimation inputMediaAnimation= new InputMediaAnimation(message.getAnimation().getFileId());
+                        InputMediaAnimation inputMediaAnimation = new InputMediaAnimation(message.getAnimation().getFileId());
                         inputMediaAnimation.setCaption(message.getCaption());
                         inputMediaAnimation.setCaptionEntities(message.getCaptionEntities());
-                        if(groupsCache.containsKey(message.getMediaGroupId())){
+                        if (groupsCache.containsKey(message.getMediaGroupId())) {
                             groupsCache.get(mediaGroupId).getMedias().add(inputMediaAnimation);
-                        }
-                        else{
+                        } else {
                             SendMediaGroup sendMediaGroup = createSendMediaGroup(chat, inputMediaAnimation);
                             groupsCache.put(mediaGroupId, sendMediaGroup);
                         }
-                        if(checkIfMediaGroupReadyToSend(inquiry,message,groupsCache.get(mediaGroupId))){
+                        if (checkIfMediaGroupReadyToSend(inquiry, message, groupsCache.get(mediaGroupId))) {
                             bot.execute(groupsCache.get(mediaGroupId));
                         }
                     }
                 }
             }
-            Message contact = contactCache.getContact(userId);
-            if(contact.hasText()){
-                bot.execute(SendMessage.builder().chatId(chat.getId())
-                        .text("Контактные данные: "+contact.getText())
-                        .entities(contact.getEntities()).build());
-            }
-            else if(contact.hasContact()){
-                bot.execute(SendContact.builder().chatId(chat.getId())
-                        .firstName(contact.getContact().getFirstName())
-                        .lastName(contact.getContact().getLastName())
-                        .phoneNumber(contact.getContact().getPhoneNumber())
-                        .vCard(contact.getContact().getVCard())
-                        .build());
-            }
+        }
         }
     }
+
 
     /*Функция проверяет, что все сообщения с одной медиагруппой собраны в объект SendMediaGroup
      * и что пора ее отправлять*/
