@@ -9,12 +9,12 @@ import org.springframework.test.context.ActiveProfiles;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
-import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import ru.veselov.CompanyBot.bot.BotState;
 import ru.veselov.CompanyBot.cache.ContactCache;
 import ru.veselov.CompanyBot.cache.UserDataCache;
+import ru.veselov.CompanyBot.model.CustomerContact;
 import ru.veselov.CompanyBot.model.CustomerInquiry;
 import ru.veselov.CompanyBot.model.Department;
 import ru.veselov.CompanyBot.service.CustomerService;
@@ -70,13 +70,13 @@ class ContactCallbackHandlerTest {
     void saveWithInquiryDataTest(){
         /*Проверка сохранения контакта и запроса*/
         callbackQuery.setData("save");
-        Message message = new Message();
-        contactCache.addContact(user.getId(),message);
+        CustomerContact contact = CustomerContact.builder().userId(user.getId()).email("vasya").build();
+        contactCache.addContact(user.getId(),contact);
         userDataCache.createInquiry(user.getId(), Department.COMMON);
         CustomerInquiry inquiry = userDataCache.getInquiry(user.getId());
         assertNotNull(contactCallbackHandler.processUpdate(update));
         assertEquals(BotState.READY,userDataCache.getUserBotState(user.getId()));
-        verify(customerService).saveContact(user.getId(),message);
+        verify(customerService).saveContact(contact);
         verify(inquiryService).save(inquiry);
         assertNull(contactCache.getContact(user.getId()));
         assertNull(userDataCache.getInquiry(user.getId()));
@@ -86,12 +86,12 @@ class ContactCallbackHandlerTest {
     void saveWithoutInquiryDataTest(){
         /*Проверка сохранения без запроса*/
         callbackQuery.setData("save");
-        Message message = new Message();
-        contactCache.addContact(user.getId(),message);
+        CustomerContact contact = CustomerContact.builder().userId(user.getId()).email("vasya").build();
+        contactCache.addContact(user.getId(),contact);
         CustomerInquiry inquiry = userDataCache.getInquiry(user.getId());
         assertNotNull(contactCallbackHandler.processUpdate(update));
         assertEquals(BotState.READY,userDataCache.getUserBotState(user.getId()));
-        verify(customerService).saveContact(user.getId(),message);
+        verify(customerService).saveContact(contact);
         verify(inquiryService,times(0)).save(inquiry);
         assertNull(contactCache.getContact(user.getId()));
         assertNull(userDataCache.getInquiry(user.getId()));

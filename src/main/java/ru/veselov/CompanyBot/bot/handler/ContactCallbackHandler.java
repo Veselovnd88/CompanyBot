@@ -47,21 +47,28 @@ public class ContactCallbackHandler implements UpdateHandler {
 
         switch (data){
             case "email":
-
-            case "contact":
+                userDataCache.setUserBotState(userId,BotState.AWAIT_EMAIL);
+            case "phone":
+                userDataCache.setUserBotState(userId,BotState.AWAIT_PHONE);
+            case "shared":
+                userDataCache.setUserBotState(userId,BotState.AWAIT_SHARED);
+            case "name":
+                userDataCache.setUserBotState(userId,BotState.AWAIT_NAME);
+            case "contact"://приходит из InquiryMessageHandler
             case "repeat":
                 userDataCache.setUserBotState(userId, BotState.AWAIT_CONTACT);
+                contactCache.createContact(userId);
                 return SendMessage.builder().chatId(userId)
                         .text(MessageUtils.INPUT_CONTACT)
                         .replyMarkup(contactKeyBoard())
                         .build();
             case "save":
-                customerService.saveContact(userId,contactCache.getContact(userId));
+                customerService.saveContact(contactCache.getContact(userId));
                 if(userDataCache.getInquiry(userId)!=null){
                     inquiryService.save(userDataCache.getInquiry(userId));
                 }
                 try {
-                    senderService.send(userId);
+                    senderService.send(userDataCache.getInquiry(userId),contactCache.getContact(userId));
                 } catch (TelegramApiException e) {
                     throw new RuntimeException(e);
                 }
@@ -79,22 +86,22 @@ public class ContactCallbackHandler implements UpdateHandler {
     private InlineKeyboardMarkup contactKeyBoard(){
         var inputName = new InlineKeyboardButton();
         inputName.setText("Введите ФИО");
-        inputName.setCallbackData("contact:name");
+        inputName.setCallbackData("name");
         List<InlineKeyboardButton> row1 = new ArrayList<>();
         row1.add(inputName);
         InlineKeyboardButton inputEmail = new InlineKeyboardButton();
         inputEmail.setText("Ввести email");
-        inputEmail.setCallbackData("contact:email");
+        inputEmail.setCallbackData("email");
         List<InlineKeyboardButton> row2 = new ArrayList<>();
         row2.add(inputEmail);
         var inputPhone = new InlineKeyboardButton();
         inputPhone.setText("Ввести номер телефона");
-        inputPhone.setCallbackData("contact:phone");
+        inputPhone.setCallbackData("phone");
         List<InlineKeyboardButton> row3 = new ArrayList<>();
         row3.add(inputPhone);
         var inputContact = new InlineKeyboardButton();
         inputContact.setText("Прикрепите контакт");
-        inputContact.setCallbackData("contact:shared");
+        inputContact.setCallbackData("shared");
         List<InlineKeyboardButton> row4 = new ArrayList<>();
         row4.add(inputContact);
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
