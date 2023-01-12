@@ -42,19 +42,53 @@ class ContactMessageHandlerTest {
         messageEntity.setOffset(0);
         messageEntity.setLength(0);
         message.setEntities(List.of(messageEntity));
-        contactCache.clear(user.getId());
+        contactCache.createContact(user.getId());
     }
 
 
     @Test
-    void textTest(){
+    void nameTest(){
         /*Проверка ввода контакта текстом*/
-        message.setText("Text");
+        userDataCache.setUserBotState(user.getId(),BotState.AWAIT_NAME);
+        message.setText(" Ivanov Ivan Ivanovich");
         BotApiMethod<?> botApiMethod = contactMessageHandler.processUpdate(update);
-        assertEquals(MessageUtils.SAVE_MESSAGE,((SendMessage)botApiMethod).getText());
-        assertEquals(BotState.AWAIT_SAVING,userDataCache.getUserBotState(user.getId()));
+        assertEquals(MessageUtils.INPUT_CONTACT,((SendMessage)botApiMethod).getText());
+        assertEquals(BotState.AWAIT_CONTACT,userDataCache.getUserBotState(user.getId()));
+        assertNotNull(contactCache.getContact(user.getId()));
+        //FIXME добавить еще проверки
+
+    }
+    @Test
+    void phoneTest(){
+        /*Проверка ввода контакта текстом*/
+        userDataCache.setUserBotState(user.getId(),BotState.AWAIT_PHONE);
+        message.setText("+7 916 555 88 33");
+        BotApiMethod<?> botApiMethod = contactMessageHandler.processUpdate(update);
+        assertEquals(MessageUtils.INPUT_CONTACT,((SendMessage)botApiMethod).getText());
+        assertEquals(BotState.AWAIT_CONTACT,userDataCache.getUserBotState(user.getId()));
         assertNotNull(contactCache.getContact(user.getId()));
     }
+
+    @Test
+    void emailTest(){//FIXME parametrized test
+        /*Проверка ввода электронной почты*/
+        userDataCache.setUserBotState(user.getId(),BotState.AWAIT_EMAIL);
+        message.setText("veselovnd@gmail.com");
+        BotApiMethod<?> botApiMethod = contactMessageHandler.processUpdate(update);
+        assertEquals(MessageUtils.INPUT_CONTACT,((SendMessage)botApiMethod).getText());
+        assertEquals(BotState.AWAIT_CONTACT,userDataCache.getUserBotState(user.getId()));
+        assertNotNull(contactCache.getContact(user.getId()));
+    }
+    @Test
+    void wrongEmailTest(){//FIXME parametrized test
+        userDataCache.setUserBotState(user.getId(),BotState.AWAIT_EMAIL);
+        message.setText("veselovnd-gmail.com");
+        BotApiMethod<?> botApiMethod = contactMessageHandler.processUpdate(update);
+        assertEquals(MessageUtils.WRONG_EMAIL,((SendMessage)botApiMethod).getText());
+        assertEquals(BotState.AWAIT_CONTACT,userDataCache.getUserBotState(user.getId()));
+
+    }
+
 
     @Test
     void textNoEntitiesTest(){

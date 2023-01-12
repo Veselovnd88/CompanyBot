@@ -71,7 +71,7 @@ class ContactCallbackHandlerTest {
         /*Проверка сохранения контакта и запроса*/
         callbackQuery.setData("save");
         CustomerContact contact = CustomerContact.builder().userId(user.getId()).email("vasya").build();
-        contactCache.addContact(user.getId(),contact);
+        contactCache.createContact(user.getId());
         userDataCache.createInquiry(user.getId(), Department.COMMON);
         CustomerInquiry inquiry = userDataCache.getInquiry(user.getId());
         assertNotNull(contactCallbackHandler.processUpdate(update));
@@ -87,7 +87,7 @@ class ContactCallbackHandlerTest {
         /*Проверка сохранения без запроса*/
         callbackQuery.setData("save");
         CustomerContact contact = CustomerContact.builder().userId(user.getId()).email("vasya").build();
-        contactCache.addContact(user.getId(),contact);
+        contactCache.createContact(user.getId());
         CustomerInquiry inquiry = userDataCache.getInquiry(user.getId());
         assertNotNull(contactCallbackHandler.processUpdate(update));
         assertEquals(BotState.READY,userDataCache.getUserBotState(user.getId()));

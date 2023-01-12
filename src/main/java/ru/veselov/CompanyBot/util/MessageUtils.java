@@ -28,6 +28,11 @@ public class MessageUtils {
     public static String SAVED="Запрос сохранен и передан менеджеру на обработку, спасибо!";
 
     public static String WRONG_CONTACT_FORMAT="Не могу принять контакт в таком формате";
+    public static String WRONG_NAME_FORMAT = "Не правильный формат имени, введите ФИО разделенные пробелом";
+    public static String NAME_TOO_LONG = "ФИО слишком длинное, не должно превышать 250 знаков";
+    public static String WRONG_PHONE = "Неправильный формат номер телефона";
+    public static String WRONG_EMAIL="Неправильный формат электронной почты";
+    public static String NOT_ENOUGH_CONTACT = "Недостаточно данных для обратной связи (отсутствует e-mail или номер телефона)";
 
 
     public static String ERROR="Что-то пошло не так";
