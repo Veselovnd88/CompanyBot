@@ -30,10 +30,9 @@ public class Customer {
 
     @Column(name="username")
     private String userName;
-
-    @Type(type = "jsonb")
-    @Column(name = "contact",columnDefinition = "jsonb")
-    private Message contact;
+    @OneToMany(mappedBy = "customer",orphanRemoval = true,cascade = CascadeType.ALL)
+    @Column(name = "contact")
+    private Set<ContactEntity> contacts=new HashSet<>();
 
     //mappedBy - имя объекта, к которому привязан список
     @OneToMany(mappedBy = "customer", orphanRemoval = true, cascade = CascadeType.ALL)

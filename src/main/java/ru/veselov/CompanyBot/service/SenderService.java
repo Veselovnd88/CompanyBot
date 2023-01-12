@@ -7,6 +7,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.*;
 import org.telegram.telegrambots.meta.api.objects.Chat;
+import org.telegram.telegrambots.meta.api.objects.Contact;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.media.*;
@@ -42,7 +43,8 @@ public class SenderService {
     }
 
 
-    public synchronized void send(Long userId) throws TelegramApiException {//сюда должно быть передано полноценное DTO чтобы из него забирать все данные
+
+    public synchronized void send(CustomerInquiry inquiry,) throws TelegramApiException {//сюда должно быть передано полноценное DTO чтобы из него забирать все данные
         Map<String, SendMediaGroup> groupsCache = new HashMap<>();
         removeOldChats();
         List<Chat> allChats = chatService.findAll();
@@ -60,7 +62,8 @@ public class SenderService {
                 if ((chatDate).after(new Date())) {
                     Thread delayedStart = new Thread(() -> {
                         try {
-                            log.info("Отправлю запрос пользователя {} через {} мс", userId,
+
+                            log.info("Отправлю запрос пользователя {} через {} мс", u,
                                     chatInterval);
                             Thread.sleep(chatInterval);
                             send(userId);
@@ -222,7 +225,11 @@ public class SenderService {
                     }
                 }
             }
+
+                Contact contact = new Contact();
+
         }
+
         }
     }
 

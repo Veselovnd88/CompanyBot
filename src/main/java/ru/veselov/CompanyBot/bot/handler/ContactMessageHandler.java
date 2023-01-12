@@ -13,6 +13,7 @@ import ru.veselov.CompanyBot.bot.BotState;
 import ru.veselov.CompanyBot.bot.UpdateHandler;
 import ru.veselov.CompanyBot.cache.ContactCache;
 import ru.veselov.CompanyBot.cache.UserDataCache;
+import ru.veselov.CompanyBot.model.CustomerContact;
 import ru.veselov.CompanyBot.service.CustomerService;
 import ru.veselov.CompanyBot.util.MessageUtils;
 
@@ -33,21 +34,18 @@ public class ContactMessageHandler implements UpdateHandler {
     @Override
     public BotApiMethod<?> processUpdate(Update update) {
         Long userId = update.getMessage().getFrom().getId();
-        Message message =null;
+        CustomerContact contact = new CustomerContact();
         if(update.getMessage().hasText()){
-            message = new Message();
             String text = update.getMessage().getText();
-            message.setText(text);
+
         }
         if(update.getMessage().hasContact()){
-            message= new Message();
-            message.setContact(update.getMessage().getContact());
+            contact.setContact(update.getMessage().getContact());
         }
 
         if(message!=null){
-            if(message.getEntities()!=null){
-                message.setEntities(update.getMessage().getEntities());}
-            contactCache.addContact(userId,message);
+
+            contactCache.addContact(userId,contact);
             userDataCache.setUserBotState(userId, BotState.AWAIT_SAVING);
             return saveContactMessage(userId);
         }

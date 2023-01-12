@@ -104,7 +104,7 @@ public class InquiryMessageHandler implements UpdateHandler {
 
     private SendMessage askAddContent(Long userId) {
         InlineKeyboardButton finishMessages = new InlineKeyboardButton();
-        finishMessages.setText("Ввести данные для обратной связи");
+        finishMessages.setText("Приступить к вводу данных для обратной связи");
         finishMessages.setCallbackData("contact");
         List<InlineKeyboardButton> row1 = new ArrayList<>();
         row1.add(finishMessages);
