@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import ru.veselov.CompanyBot.cache.ContactCache;
 import ru.veselov.CompanyBot.model.CustomerContact;
+import ru.veselov.CompanyBot.model.CustomerInquiry;
 
 import java.util.HashMap;
 
@@ -19,8 +20,11 @@ public class ContactCacheImpl implements ContactCache {
     }
 
     @Override
-    public void addContact(Long userId, CustomerContact contact) {
-        contactCache.put(userId,contact);
+    public void createContact(Long userId) {
+        log.info("Создан объект Inquiry для пользователя {}", userId);
+        CustomerContact customerContact = new CustomerContact();
+        customerContact.setUserId(userId);
+        contactCache.put(userId,customerContact);
     }
 
     @Override

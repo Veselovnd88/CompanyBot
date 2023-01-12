@@ -4,6 +4,6 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import ru.veselov.CompanyBot.model.CustomerContact;
 
 public interface ContactCache extends Cache{
-    void addContact(Long userId, CustomerContact contact);
+    void createContact(Long userId);
     CustomerContact getContact(Long userId);
 }

@@ -34,21 +34,17 @@ public class ContactMessageHandler implements UpdateHandler {
     @Override
     public BotApiMethod<?> processUpdate(Update update) {
         Long userId = update.getMessage().getFrom().getId();
-        CustomerContact contact = new CustomerContact();
-        if(update.getMessage().hasText()){
-            String text = update.getMessage().getText();
+        BotState botState = userDataCache.getUserBotState(userId);
 
+        if(update.getMessage().hasText()&&botState==BotState.AWAIT_NAME){
+            String name = update.getMessage().getText();
+            //TODO name.split()
+            contactCache.getContact(userId).setFirstName();
         }
         if(update.getMessage().hasContact()){
             contact.setContact(update.getMessage().getContact());
         }
 
-        if(message!=null){
-
-            contactCache.addContact(userId,contact);
-            userDataCache.setUserBotState(userId, BotState.AWAIT_SAVING);
-            return saveContactMessage(userId);
-        }
         return SendMessage.builder().chatId(userId).text(MessageUtils.WRONG_CONTACT_FORMAT).build();
     }
 

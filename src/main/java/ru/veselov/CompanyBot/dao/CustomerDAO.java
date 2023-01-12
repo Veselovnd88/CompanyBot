@@ -1,6 +1,7 @@
 package ru.veselov.CompanyBot.dao;
 
 import org.checkerframework.checker.units.qual.C;
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -35,6 +36,14 @@ public class CustomerDAO {
     public Optional<Customer> findOne(Long id){
         //Стандартный тип инициализации - Lazy - не получает привязанные к нему Inquiry
         Customer customer = entityManager.find(Customer.class,id);
+        return Optional.ofNullable(customer);
+    }
+
+    public Optional<Customer> findOneWithContacts(Long id){
+        Customer customer = entityManager.find(Customer.class,id);
+        if(customer!=null){
+            Hibernate.initialize(customer.getContacts());
+        }
         return Optional.ofNullable(customer);
     }
     @Transactional

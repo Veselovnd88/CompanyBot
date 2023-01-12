@@ -42,6 +42,9 @@ public class CustomerService {
     public Optional<Customer> findOne(Long userId){
         return customerDAO.findOne(userId);
     }
+    public Optional<Customer> findOneWithContacts(Long userId){
+        return customerDAO.findOneWithContacts(userId);
+    }
     public void remove(User user){
         customerDAO.deleteById(user.getId());
     }

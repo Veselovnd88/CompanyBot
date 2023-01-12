@@ -15,6 +15,8 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.veselov.CompanyBot.bot.CompanyBot;
 import ru.veselov.CompanyBot.cache.ContactCache;
 import ru.veselov.CompanyBot.cache.UserDataCache;
+import ru.veselov.CompanyBot.entity.ContactEntity;
+import ru.veselov.CompanyBot.model.CustomerContact;
 import ru.veselov.CompanyBot.model.CustomerInquiry;
 import ru.veselov.CompanyBot.util.MessageUtils;
 
@@ -45,8 +47,10 @@ public class SenderService {
 
 
 
-    public synchronized void send(CustomerInquiry inquiry) throws TelegramApiException {//сюда должно быть передано полноценное DTO чтобы из него забирать все данные
+    public synchronized void send(CustomerInquiry inquiry, CustomerContact contact) throws TelegramApiException {//сюда должно быть передано полноценное DTO чтобы из него забирать все данные
+
         Map<String, SendMediaGroup> groupsCache = new HashMap<>();
+        Long userId = contact.getUserId();
         removeOldChats();
         List<Chat> allChats = chatService.findAll();
         Chat toAdmin =new Chat();
@@ -64,11 +68,10 @@ public class SenderService {
                     Thread delayedStart = new Thread(() -> {
                         try {
 
-                            log.info("Отправлю запрос пользователя {} через {} мс",inquiry.getUserId() ,
-
+                            log.info("Отправлю запрос пользователя {} через {} мс", userId,
                                     chatInterval);
                             Thread.sleep(chatInterval);
-                            send(inquiry.getUserId());
+                            send(inquiry,contact);
                             chatTimers.put(chat.getId(), chatDate);
                         } catch (TelegramApiException e) {
                             log.error("Не удалось отправить сообщение {}", e.getMessage());
@@ -87,7 +90,6 @@ public class SenderService {
                 }
             }
             chatTimers.put(chat.getId(), new Date());
-            inquiry = userDataCache.getInquiry(inquiry.getUserId());
             if (inquiry != null){
                 log.info("Отправляю запрос пользователя {} в канал {}", inquiry.getUserId(), chat.getTitle());
                 bot.execute(SendMessage.builder().chatId(chat.getId())
@@ -227,10 +229,6 @@ public class SenderService {
                     }
                 }
             }
-        }
-
-                Contact contact = new Contact();
-
         }
 
         }
