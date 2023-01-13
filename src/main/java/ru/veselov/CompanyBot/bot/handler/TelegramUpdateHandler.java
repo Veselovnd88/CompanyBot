@@ -62,7 +62,7 @@ public class TelegramUpdateHandler implements UpdateHandler {
             if(botState==BotState.AWAIT_MESSAGE){
                 return inquiryMessageHandler.processUpdate(update);
             }
-            if(botState==BotState.AWAIT_CONTACT){
+            if(botState==BotState.AWAIT_CONTACT||botState==BotState.AWAIT_NAME){//FIXME собрать в лист и проверять по листу
                 return contactMessageHandler.processUpdate(update);
             }
         }
@@ -74,7 +74,9 @@ public class TelegramUpdateHandler implements UpdateHandler {
             if(botState==BotState.AWAIT_DEPARTMENT){
                 return departmentCallbackHandler.processUpdate(update);
             }
-            if(botState==BotState.AWAIT_MESSAGE||botState==BotState.AWAIT_SAVING){//при нажатии кнопки Ввести данные об обратной связи
+            if(botState==BotState.AWAIT_MESSAGE||botState==BotState.AWAIT_SAVING||
+                    botState==BotState.AWAIT_CONTACT||botState==BotState.AWAIT_NAME
+            ||botState==BotState.AWAIT_EMAIL||botState==BotState.AWAIT_PHONE||botState==BotState.AWAIT_SHARED){//при нажатии кнопки Ввести данные об обратной связи
                 return contactCallbackHandler.processUpdate(update);
             }
         }

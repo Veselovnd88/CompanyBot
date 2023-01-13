@@ -6,6 +6,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.Contact;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.veselov.CompanyBot.bot.BotState;
 import ru.veselov.CompanyBot.bot.UpdateHandler;
@@ -54,14 +56,27 @@ public class ContactMessageHandler implements UpdateHandler {
         }
 
         if(update.getMessage().hasContact()){
-            contact.setContact(update.getMessage().getContact());
+            Contact messageContact = update.getMessage().getContact();
+            contact.setContact(messageContact);
+            if(contact.getFirstName()==null){
+                contact.setFirstName(messageContact.getFirstName());
+            }
+            if(contact.getLastName()==null){
+                contact.setLastName(messageContact.getLastName());
+            }
+            if(contact.getPhone()==null){
+                contact.setPhone(messageContact.getPhoneNumber());
+            }
+            return SendMessage.builder().chatId(contact.getUserId())
+                    .text(MessageUtils.INPUT_CONTACT).replyMarkup(keyBoardUtils.contactKeyBoard())
+                    .build();
         }
 
         return SendMessage.builder().chatId(userId).text(MessageUtils.WRONG_CONTACT_FORMAT).build();
     }
 
 
-    private SendMessage processName(CustomerContact contact, String name){
+    private BotApiMethod<?> processName(CustomerContact contact, String name, Update update){
         if(name.length()>250){
             return SendMessage.builder().chatId(contact.getUserId())
                     .text(MessageUtils.NAME_TOO_LONG).replyMarkup(keyBoardUtils.contactKeyBoard())
@@ -84,9 +99,7 @@ public class ContactMessageHandler implements UpdateHandler {
             }
             contact.setSecondName(sb.toString());
         }
-        return SendMessage.builder().chatId(contact.getUserId())
-                .text(MessageUtils.INPUT_CONTACT).replyMarkup(keyBoardUtils.contactKeyBoard())
-                .build();
+        return keyBoardUtils.editMessageSavedField(update,"name");//FIXME - айди сообщения тут забирается по другому
     }
 
     private SendMessage processPhone(CustomerContact contact, String phone){

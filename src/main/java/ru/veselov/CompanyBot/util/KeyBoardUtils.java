@@ -1,6 +1,8 @@
 package ru.veselov.CompanyBot.util;
 
 import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
+import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
@@ -45,6 +47,31 @@ public class KeyBoardUtils {
         var markup = new InlineKeyboardMarkup();
         markup.setKeyboard(keyboard);
         return markup;
+    }
+
+    //FIXME определить выборку корректной команды
+    public EditMessageReplyMarkup editMessageChooseField(Update update, String field){
+        InlineKeyboardMarkup inlineKeyboardMarkup = contactKeyBoard();
+        List<InlineKeyboardButton> buttons = inlineKeyboardMarkup.getKeyboard().get(0);
+        InlineKeyboardButton inlineKeyboardButton = buttons.get(0);
+        inlineKeyboardButton.setText("<<"+inlineKeyboardButton.getText()+">>");
+        return  EditMessageReplyMarkup.builder()
+                .chatId(update.getCallbackQuery().getMessage().getChatId().toString())
+                .messageId(update.getCallbackQuery().getMessage().getMessageId())
+                .replyMarkup(inlineKeyboardMarkup)
+                .build();
+    }
+
+    public EditMessageReplyMarkup editMessageSavedField(Update update, String field){
+        InlineKeyboardMarkup inlineKeyboardMarkup = contactKeyBoard();
+        List<InlineKeyboardButton> buttons = inlineKeyboardMarkup.getKeyboard().get(0);
+        InlineKeyboardButton inlineKeyboardButton = buttons.get(0);
+        inlineKeyboardButton.setText("OK: "+inlineKeyboardButton.getText());//FIXME заменить на смайл с галочкой
+        return  EditMessageReplyMarkup.builder()
+                .chatId(update.getCallbackQuery().getMessage().getChatId().toString())
+                .messageId(update.getCallbackQuery().getMessage().getMessageId())
+                .replyMarkup(inlineKeyboardMarkup)
+                .build();
     }
 
 }

@@ -105,7 +105,7 @@ public class InquiryMessageHandler implements UpdateHandler {
     private SendMessage askAddContent(Long userId) {
         InlineKeyboardButton finishMessages = new InlineKeyboardButton();
         finishMessages.setText("Приступить к вводу данных для обратной связи");
-        finishMessages.setCallbackData("contact");
+        finishMessages.setCallbackData("contact");//-> отсюда сообщение уходит в ContactCallbackHandler
         List<InlineKeyboardButton> row1 = new ArrayList<>();
         row1.add(finishMessages);
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();

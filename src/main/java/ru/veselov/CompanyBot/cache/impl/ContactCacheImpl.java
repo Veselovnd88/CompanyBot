@@ -21,7 +21,7 @@ public class ContactCacheImpl implements ContactCache {
 
     @Override
     public void createContact(Long userId) {
-        log.info("Создан объект Inquiry для пользователя {}", userId);
+        log.info("Создан объект Contact для пользователя {}", userId);
         CustomerContact customerContact = new CustomerContact();
         customerContact.setUserId(userId);
         contactCache.put(userId,customerContact);
