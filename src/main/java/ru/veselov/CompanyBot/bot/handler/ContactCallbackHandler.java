@@ -6,7 +6,10 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.veselov.CompanyBot.bot.BotState;
 import ru.veselov.CompanyBot.bot.UpdateHandler;
@@ -17,6 +20,8 @@ import ru.veselov.CompanyBot.service.InquiryService;
 import ru.veselov.CompanyBot.service.SenderService;
 import ru.veselov.CompanyBot.util.KeyBoardUtils;
 import ru.veselov.CompanyBot.util.MessageUtils;
+
+import java.util.List;
 
 @Component
 @Slf4j
@@ -46,12 +51,16 @@ public class ContactCallbackHandler implements UpdateHandler {
         switch (data){
             case "email":
                 userDataCache.setUserBotState(userId,BotState.AWAIT_EMAIL);
+                return keyBoardUtils.editMessageChooseField(update,"email");
             case "phone":
                 userDataCache.setUserBotState(userId,BotState.AWAIT_PHONE);
+                return keyBoardUtils.editMessageChooseField(update,"phone");
             case "shared":
                 userDataCache.setUserBotState(userId,BotState.AWAIT_SHARED);
+                return keyBoardUtils.editMessageChooseField(update,"shared");
             case "name":
                 userDataCache.setUserBotState(userId,BotState.AWAIT_NAME);
+                return keyBoardUtils.editMessageChooseField(update,"name");
             case "contact"://приходит из InquiryMessageHandler
             case "repeat":
                 userDataCache.setUserBotState(userId, BotState.AWAIT_CONTACT);
@@ -79,6 +88,7 @@ public class ContactCallbackHandler implements UpdateHandler {
         return AnswerCallbackQuery.builder().callbackQueryId(update.getCallbackQuery().getId())
                 .text(MessageUtils.ERROR).build();
     }
+
 
 
 

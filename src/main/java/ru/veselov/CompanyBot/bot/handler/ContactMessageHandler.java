@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.Contact;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.veselov.CompanyBot.bot.BotState;
 import ru.veselov.CompanyBot.bot.UpdateHandler;
@@ -42,33 +43,45 @@ public class ContactMessageHandler implements UpdateHandler {
             String text = update.getMessage().getText();
             switch (botState){
                 case AWAIT_NAME :
-                    userDataCache.setUserBotState(userId,BotState.AWAIT_CONTACT);
                     return processName(contact,text);
                 case AWAIT_PHONE:
-                    userDataCache.setUserBotState(userId,BotState.AWAIT_CONTACT);
+
                     return processPhone(contact,text);
                 case AWAIT_EMAIL:
-                    userDataCache.setUserBotState(userId,BotState.AWAIT_CONTACT);
                     return processEmail(contact,text);
             }
         }
 
         if(update.getMessage().hasContact()){
-            contact.setContact(update.getMessage().getContact());
+            Contact messageContact = update.getMessage().getContact();
+            contact.setContact(messageContact);
+            if(contact.getFirstName()==null){
+                contact.setFirstName(messageContact.getFirstName());
+            }
+            if(contact.getLastName()==null){
+                contact.setLastName(messageContact.getLastName());
+            }
+            if(contact.getPhone()==null){
+                contact.setPhone(messageContact.getPhoneNumber());
+            }
+            return keyBoardUtils.editMessageSavedField(contact.getUserId(), "shared");
         }
-
+        //Сюда придет если попало неправильное значение
+        log.info("{}: неправильный формат контакта", update.getMessage().getFrom().getId());
         return SendMessage.builder().chatId(userId).text(MessageUtils.WRONG_CONTACT_FORMAT).build();
     }
 
 
-    private SendMessage processName(CustomerContact contact, String name){
+    private BotApiMethod<?> processName(CustomerContact contact, String name){
         if(name.length()>250){
+            log.info("{}: Попытка ввести имя более 250 знаков", contact.getUserId());
             return SendMessage.builder().chatId(contact.getUserId())
                     .text(MessageUtils.NAME_TOO_LONG).replyMarkup(keyBoardUtils.contactKeyBoard())
                     .build();
         }
         String[] s = name.split(" ");
         if(s.length==0){
+            log.info("{}: строка не разбилась по пробелам",contact.getUserId());
             return SendMessage.builder().chatId(contact.getUserId())
                     .text(MessageUtils.WRONG_NAME_FORMAT).replyMarkup(keyBoardUtils.contactKeyBoard())
                     .build();
@@ -84,38 +97,38 @@ public class ContactMessageHandler implements UpdateHandler {
             }
             contact.setSecondName(sb.toString());
         }
-        return SendMessage.builder().chatId(contact.getUserId())
-                .text(MessageUtils.INPUT_CONTACT).replyMarkup(keyBoardUtils.contactKeyBoard())
-                .build();
+        log.info("{}: добавлено имя в контакт {}", contact.getUserId(), name);
+        userDataCache.setUserBotState(contact.getUserId(),BotState.AWAIT_CONTACT);
+        return keyBoardUtils.editMessageSavedField(contact.getUserId(),"name");
     }
 
-    private SendMessage processPhone(CustomerContact contact, String phone){
+    private BotApiMethod<?> processPhone(CustomerContact contact, String phone){
         Pattern pattern = Pattern.compile("^[+]?[-. 0-9{}]{11,18}$");
         Matcher matcher = pattern.matcher(phone);
         if(matcher.matches()){
             contact.setPhone(phone);
-            return SendMessage.builder().chatId(contact.getUserId())
-                    .text(MessageUtils.INPUT_CONTACT).replyMarkup(keyBoardUtils.contactKeyBoard())
-                    .build();
+            log.info("{}: установлен телефонный номер {}", contact.getUserId(), phone);
+            userDataCache.setUserBotState(contact.getUserId(),BotState.AWAIT_CONTACT);
+            return keyBoardUtils.editMessageSavedField(contact.getUserId(), "phone");
         }
         else {
+            log.info("{}: не корректный телефонный номер", contact.getUserId());
             return SendMessage.builder().chatId(contact.getUserId())
-                    .text(MessageUtils.WRONG_PHONE).replyMarkup(keyBoardUtils.contactKeyBoard())
+                    .text(MessageUtils.WRONG_PHONE)
                     .build();
         }
     }
 
-    private SendMessage processEmail(CustomerContact contact, String email){
+    private BotApiMethod<?> processEmail(CustomerContact contact, String email){
         if(emailValidator.isValid(email,null)){
             contact.setEmail(email);
-            return SendMessage.builder().chatId(contact.getUserId())
-                    .text(MessageUtils.INPUT_CONTACT)
-                    .replyMarkup(keyBoardUtils.contactKeyBoard())
-                    .build();
+            log.info("{}: email добавлен {}",contact.getUserId(),email);
+            userDataCache.setUserBotState(contact.getUserId(),BotState.AWAIT_CONTACT);
+            return keyBoardUtils.editMessageSavedField(contact.getUserId(), "email");
         }else{
+            log.info("{}: Некорректный ввод email",contact.getUserId());
             return SendMessage.builder().chatId(contact.getUserId())
                     .text(MessageUtils.WRONG_EMAIL)
-                    .replyMarkup(keyBoardUtils.contactKeyBoard())
                     .build();
         }
     }

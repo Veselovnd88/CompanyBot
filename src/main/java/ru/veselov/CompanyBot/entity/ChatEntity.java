@@ -17,7 +17,8 @@ import javax.persistence.Table;
 public class ChatEntity {
 
     @Id
-    private Long id;
+    @Column(name = "chat_id")
+    private Long chatId;
 
     @Column
     private String title;

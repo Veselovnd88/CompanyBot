@@ -1,6 +1,7 @@
 package ru.veselov.CompanyBot.entity;
 
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
+import lombok.CustomLog;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -19,7 +20,9 @@ import java.util.Objects;
 @TypeDef(name="jsonb",typeClass = JsonBinaryType.class)
 public class ContactEntity {
     @Id
-    private int id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "contact_id")
+    private int contactId;
     @Column(name = "last_name")
     private String lastName;
     @Column(name = "first_name")

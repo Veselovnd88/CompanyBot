@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.telegram.telegrambots.meta.api.objects.User;
 import ru.veselov.CompanyBot.dao.ContactDAO;
 import ru.veselov.CompanyBot.dao.CustomerDAO;
@@ -51,9 +52,9 @@ public class CustomerService {
     public List<Customer> findAll(){
         return customerDAO.findAll();
     }
-
+    @Transactional
     public void saveContact(CustomerContact contact){
-        Optional<Customer> one = customerDAO.findOne(contact.getUserId());
+        Optional<Customer> one = customerDAO.findOneWithContacts(contact.getUserId());
         if(one.isPresent()){
             ContactEntity contactEntity = toContactEntity(contact);
             contactEntity.setCustomer(one.get());

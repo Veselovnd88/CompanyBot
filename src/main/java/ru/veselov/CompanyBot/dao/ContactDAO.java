@@ -19,6 +19,7 @@ public class ContactDAO {
     public ContactDAO(EntityManager entityManager) {
         this.entityManager = entityManager;
     }
+
     @Transactional
     public void save(ContactEntity contact){
         entityManager.persist(contact);
