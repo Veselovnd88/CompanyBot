@@ -1,20 +1,33 @@
 package ru.veselov.CompanyBot.util;
 
 import com.vdurmont.emoji.EmojiParser;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+import ru.veselov.CompanyBot.cache.Cache;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 @Component
-public class KeyBoardUtils {
+@Slf4j
+public class KeyBoardUtils implements Cache {
     private final HashMap<Long,EditMessageReplyMarkup> keyboardMessageCache = new HashMap<>();
+
+    private final HashMap<String,Integer> rowsIndexes = new HashMap<>();
+
+    public KeyBoardUtils(){
+        rowsIndexes.put("name",0);
+        rowsIndexes.put("email",1);
+        rowsIndexes.put("phone",2);
+        rowsIndexes.put("shared",3);
+
+    }
     public InlineKeyboardMarkup contactKeyBoard(){
         var inputName = new InlineKeyboardButton();
         inputName.setText("Введите ФИО");
@@ -90,31 +103,27 @@ public class KeyBoardUtils {
     }
 
     private int rowIndex(String field){
-        switch (field){
-            case "name":
-                return 0;
-            case "email":
-                return 1;
-            case "phone":
-                return 2;
-            case "shared":
-                return 3;
-            default:
-                return -1;
-        }
+        return rowsIndexes.get(field);
     }
 
     private String removeBracers(String string){
-        return string.substring(2,string.length()-2);
-    }
-    @Profile("test")
-    public int getRowIndexForTest(String string){
-        return rowIndex(string);
+        String replaceOne = string.replace("<", "").replace("<","");
+        return replaceOne.replace(">", "").replace(">","");
     }
 
+
+    @Override
+    public void clear(Long userId) {
+        log.info("{}: клавиатура кнопок для контактов удалена",userId);
+        keyboardMessageCache.remove(userId);
+    }
     @Profile("test")
     public HashMap<Long,EditMessageReplyMarkup> getKeyboardMessageCache(){
         return keyboardMessageCache;
     }
 
+    @Profile("test")
+    public int getRowIndexForTest(String string){
+        return rowIndex(string);
+    }
 }

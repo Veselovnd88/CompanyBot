@@ -16,12 +16,12 @@ public class ContactCacheImpl implements ContactCache {
     @Override
     public void clear(Long userId) {
         contactCache.remove(userId);
-        log.info("Контакт пользователя {} удален из кеша", userId);
+        log.info("{}: контакт пользователя удален из кеша", userId);
     }
 
     @Override
     public void createContact(Long userId) {
-        log.info("Создан объект Contact для пользователя {}", userId);
+        log.info("{}: создан объект Contact для пользователя", userId);
         CustomerContact customerContact = new CustomerContact();
         customerContact.setUserId(userId);
         contactCache.put(userId,customerContact);
