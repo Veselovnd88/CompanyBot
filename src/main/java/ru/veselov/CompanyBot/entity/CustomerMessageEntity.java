@@ -21,7 +21,8 @@ public class CustomerMessageEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    @Column(name = "message_id")
+    private Integer messageId;
 
     //Сразу сохраняем в json со всеми разметками и ссылками, для более удобной пересылки в чат
     @Type(type = "jsonb")

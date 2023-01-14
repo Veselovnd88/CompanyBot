@@ -51,13 +51,13 @@ public class ContactCallbackHandler implements UpdateHandler {
         switch (data){
             case "email":
                 userDataCache.setUserBotState(userId,BotState.AWAIT_EMAIL);
-                break;
+                return keyBoardUtils.editMessageChooseField(update,"email");
             case "phone":
                 userDataCache.setUserBotState(userId,BotState.AWAIT_PHONE);
-                break;
+                return keyBoardUtils.editMessageChooseField(update,"phone");
             case "shared":
                 userDataCache.setUserBotState(userId,BotState.AWAIT_SHARED);
-                break;
+                return keyBoardUtils.editMessageChooseField(update,"shared");
             case "name":
                 userDataCache.setUserBotState(userId,BotState.AWAIT_NAME);
                 return keyBoardUtils.editMessageChooseField(update,"name");

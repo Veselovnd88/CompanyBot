@@ -12,6 +12,7 @@ import ru.veselov.CompanyBot.bot.BotState;
 import ru.veselov.CompanyBot.bot.UpdateHandler;
 import ru.veselov.CompanyBot.cache.UserDataCache;
 
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -62,7 +63,7 @@ public class TelegramUpdateHandler implements UpdateHandler {
             if(botState==BotState.AWAIT_MESSAGE){
                 return inquiryMessageHandler.processUpdate(update);
             }
-            if(botState==BotState.AWAIT_CONTACT||botState==BotState.AWAIT_NAME){//FIXME собрать в лист и проверять по листу
+            if(isContactInputState(botState)){
                 return contactMessageHandler.processUpdate(update);
             }
         }
@@ -74,9 +75,7 @@ public class TelegramUpdateHandler implements UpdateHandler {
             if(botState==BotState.AWAIT_DEPARTMENT){
                 return departmentCallbackHandler.processUpdate(update);
             }
-            if(botState==BotState.AWAIT_MESSAGE||botState==BotState.AWAIT_SAVING||
-                    botState==BotState.AWAIT_CONTACT||botState==BotState.AWAIT_NAME
-            ||botState==BotState.AWAIT_EMAIL||botState==BotState.AWAIT_PHONE||botState==BotState.AWAIT_SHARED){//при нажатии кнопки Ввести данные об обратной связи
+            if(isContactInputCallbackState(botState)){//при нажатии кнопки Ввести данные об обратной связи
                 return contactCallbackHandler.processUpdate(update);
             }
         }
@@ -92,5 +91,19 @@ public class TelegramUpdateHandler implements UpdateHandler {
             return commandEntity.isPresent();
         }
         return false;
+    }
+
+    private boolean isContactInputState(BotState botState){
+        List<BotState> states = List.of(BotState.AWAIT_NAME,BotState.AWAIT_SHARED,BotState.AWAIT_PHONE,
+                BotState.AWAIT_EMAIL,BotState.AWAIT_CONTACT);
+        return states.contains(botState);
+    }
+
+    private boolean isContactInputCallbackState(BotState botState){
+        List<BotState> states = List.of(
+                BotState.AWAIT_NAME,BotState.AWAIT_SHARED,BotState.AWAIT_PHONE,BotState.AWAIT_EMAIL,
+                BotState.AWAIT_CONTACT,BotState.AWAIT_MESSAGE,BotState.AWAIT_SAVING
+        );
+        return states.contains(botState);
     }
 }
