@@ -28,13 +28,13 @@ public class UserDataCacheImpl implements UserDataCache {
 
     @Override
     public void setUserBotState(Long id,BotState botState) {
-        log.info("Установлен статус бота {} для пользователя {}",botState,id);
+        log.info("{}: установлен статус бота {} для пользователя",id,botState);
         currentUserBotState.put(id,botState);
     }
 
     @Override
     public void createInquiry(Long userId, Department department) {
-        log.info("Создан объект Inquiry для пользователя {}", userId);
+        log.info("{}: создан объект Inquiry для пользователя ", userId);
         CustomerInquiry customerInquiry = new CustomerInquiry(userId,department);
         inquiryCache.put(userId,customerInquiry);
     }
@@ -48,6 +48,6 @@ public class UserDataCacheImpl implements UserDataCache {
     public void clear(Long userId) {
         inquiryCache.remove(userId);
         currentUserBotState.put(userId,BotState.READY);
-        log.info("Запрос пользователя {} удален из кеша, статус переведен в {}",userId,BotState.READY);
+        log.info("{}: запрос пользователя  удален из кеша, статус переведен в {}",userId,BotState.READY);
     }
 }

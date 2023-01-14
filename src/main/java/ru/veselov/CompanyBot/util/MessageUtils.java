@@ -32,7 +32,7 @@ public class MessageUtils {
     public static String NAME_TOO_LONG = "ФИО слишком длинное, не должно превышать 250 знаков";
     public static String WRONG_PHONE = "Неправильный формат номер телефона";
     public static String WRONG_EMAIL="Неправильный формат электронной почты";
-    public static String NOT_ENOUGH_CONTACT = "Недостаточно данных для обратной связи (отсутствует e-mail или номер телефона)";
+    public static String NOT_ENOUGH_CONTACT = "Недостаточно данных для обратной связи (отсутствует e-mail, номер телефона, ФИО)";
 
 
     public static String ERROR="Что-то пошло не так";

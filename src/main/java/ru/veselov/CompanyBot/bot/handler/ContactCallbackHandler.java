@@ -2,30 +2,29 @@ package ru.veselov.CompanyBot.bot.handler;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.veselov.CompanyBot.bot.BotState;
+import ru.veselov.CompanyBot.bot.CompanyBot;
 import ru.veselov.CompanyBot.bot.UpdateHandler;
 import ru.veselov.CompanyBot.cache.ContactCache;
 import ru.veselov.CompanyBot.cache.UserDataCache;
+import ru.veselov.CompanyBot.model.CustomerContact;
 import ru.veselov.CompanyBot.service.CustomerService;
 import ru.veselov.CompanyBot.service.InquiryService;
 import ru.veselov.CompanyBot.service.SenderService;
 import ru.veselov.CompanyBot.util.KeyBoardUtils;
 import ru.veselov.CompanyBot.util.MessageUtils;
 
-import java.util.List;
-
 @Component
 @Slf4j
 public class ContactCallbackHandler implements UpdateHandler {
+    private final CompanyBot bot;
     private final UserDataCache userDataCache;
     private final ContactCache contactCache;
     private final CustomerService customerService;
@@ -33,8 +32,11 @@ public class ContactCallbackHandler implements UpdateHandler {
 
     private final SenderService senderService;
     private final KeyBoardUtils keyBoardUtils;
+    @Value("${bot.adminId}")
+    private String adminId;
     @Autowired
-    public ContactCallbackHandler(UserDataCache userDataCache, ContactCache contactCache, CustomerService customerService, InquiryService inquiryService, SenderService senderService, KeyBoardUtils keyBoardUtils) {
+    public ContactCallbackHandler(CompanyBot bot, UserDataCache userDataCache, ContactCache contactCache, CustomerService customerService, InquiryService inquiryService, SenderService senderService, KeyBoardUtils keyBoardUtils) {
+        this.bot = bot;
         this.userDataCache = userDataCache;
         this.contactCache = contactCache;
         this.customerService = customerService;
@@ -70,26 +72,45 @@ public class ContactCallbackHandler implements UpdateHandler {
                         .replyMarkup(keyBoardUtils.contactKeyBoard())
                         .build();
             case "save":
-                customerService.saveContact(contactCache.getContact(userId));
-                if(userDataCache.getInquiry(userId)!=null){
-                    inquiryService.save(userDataCache.getInquiry(userId));
+                if(checkIsContactOK(contactCache.getContact(userId))){
+                    customerService.saveContact(contactCache.getContact(userId));
+                    if(userDataCache.getInquiry(userId)!=null){
+                        inquiryService.save(userDataCache.getInquiry(userId));
+                    }
+                    //В сервис отправки передаются оба параметра, контакт и запрос, нуллы определяются внутри
+                    try {
+                        senderService.send(userDataCache.getInquiry(userId),contactCache.getContact(userId));
+                    } catch (TelegramApiException e) {
+                        log.error(e.getMessage());
+                        log.error("{}: не удалось отправить сообщение пользователя", userId);
+                        try {
+                            bot.execute(SendMessage.builder().chatId(adminId)
+                                    .text(MessageUtils.ERROR).build());
+                        } catch (TelegramApiException ex) {
+                            log.error("Не удалось отправить сообщение об ошибке администратору");
+                        }
+                    }
+                    contactCache.clear(userId);
+                    userDataCache.clear(userId);
+                    keyBoardUtils.clear(userId);
+                    return AnswerCallbackQuery.builder().callbackQueryId(update.getCallbackQuery().getId())
+                            .text(MessageUtils.SAVED).build();}
+                else{
+                    return SendMessage.builder().chatId(userId)
+                            .text(MessageUtils.NOT_ENOUGH_CONTACT)
+                            .build();
                 }
-                try {
-                    senderService.send(userDataCache.getInquiry(userId),contactCache.getContact(userId));
-                } catch (TelegramApiException e) {
-                    throw new RuntimeException(e);
-                }
-                //TODO отсюда будет запускаться сервис по отправке сообщений от клиентов в чат и админу
-                contactCache.clear(userId);
-                userDataCache.clear(userId);
-                return AnswerCallbackQuery.builder().callbackQueryId(update.getCallbackQuery().getId())
-                        .text(MessageUtils.SAVED).build();
         }
         return AnswerCallbackQuery.builder().callbackQueryId(update.getCallbackQuery().getId())
                 .text(MessageUtils.ERROR).build();
     }
 
 
-
+    private boolean checkIsContactOK(CustomerContact contact){
+        if(contact.getLastName()==null&&contact.getFirstName()==null&&contact.getSecondName()==null){
+            return false;
+        }
+        return contact.getEmail() != null || contact.getPhone() != null || contact.getContact() != null;
+    }
 
 }
