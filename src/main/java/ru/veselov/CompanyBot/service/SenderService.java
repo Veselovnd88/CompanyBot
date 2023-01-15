@@ -230,6 +230,7 @@ public class SenderService {
                 sendContact.setPhoneNumber(contact.getContact().getPhoneNumber());
                 bot.execute(sendContact);
             }
+            //TODO bot.execute Сообщение с отмеченным менеджером
             chatTimers.put(chat.getId(), new Date());
         }
     }

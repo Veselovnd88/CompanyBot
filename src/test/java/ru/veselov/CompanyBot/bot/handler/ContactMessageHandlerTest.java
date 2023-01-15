@@ -2,8 +2,11 @@ package ru.veselov.CompanyBot.bot.handler;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -11,18 +14,22 @@ import org.telegram.telegrambots.meta.api.objects.*;
 import ru.veselov.CompanyBot.bot.BotState;
 import ru.veselov.CompanyBot.cache.ContactCache;
 import ru.veselov.CompanyBot.cache.UserDataCache;
+import ru.veselov.CompanyBot.model.CustomerContact;
+import ru.veselov.CompanyBot.util.KeyBoardUtils;
 import ru.veselov.CompanyBot.util.MessageUtils;
 
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.*;
 
 @SpringBootTest
 @ActiveProfiles("test")
 class ContactMessageHandlerTest {
     @Autowired
     private UserDataCache userDataCache;
+    @MockBean
+    KeyBoardUtils keyBoardUtils;
     @Autowired
     private ContactCache contactCache;
     @Autowired
@@ -58,35 +65,50 @@ class ContactMessageHandlerTest {
         //FIXME добавить еще проверки
 
     }
-    @Test
-    void phoneTest(){
+    @ParameterizedTest
+    @ValueSource(strings = {"+79175550335","89167861234","8-495-250-23-93","+2 234 345-24-66"})
+    void phoneTest(String phone){
         /*Проверка ввода контакта текстом*/
         userDataCache.setUserBotState(user.getId(),BotState.AWAIT_PHONE);
-        message.setText("+7 916 555 88 33");
+        message.setText(phone);
         BotApiMethod<?> botApiMethod = contactMessageHandler.processUpdate(update);
-        assertEquals(MessageUtils.INPUT_CONTACT,((SendMessage)botApiMethod).getText());
+        verify(keyBoardUtils).editMessageSavedField(user.getId(),"phone");
         assertEquals(BotState.AWAIT_CONTACT,userDataCache.getUserBotState(user.getId()));
         assertNotNull(contactCache.getContact(user.getId()));
     }
+    @ParameterizedTest
+    @ValueSource(strings = {"+7a9175550335","891","8-495asdf-250-23-93","+99999992 234 345-24-66"})
+    void wrongPhoneTest(String phone){
+        /*Проверка ввода контакта текстом*/
+        userDataCache.setUserBotState(user.getId(),BotState.AWAIT_PHONE);
+        message.setText(phone);
+        BotApiMethod<?> botApiMethod = contactMessageHandler.processUpdate(update);
+        verify(keyBoardUtils,never()).editMessageSavedField(user.getId(),"phone");
+        assertEquals(BotState.AWAIT_PHONE,userDataCache.getUserBotState(user.getId()));
+        assertNotNull(contactCache.getContact(user.getId()));
+    }
 
-    @Test
-    void emailTest(){//FIXME parametrized test
+    @ParameterizedTest
+    @ValueSource(strings = {"veselovnd@gmail.com","123@123.com","sfd@asdf.ru"})
+    void emailTest(String email){
         /*Проверка ввода электронной почты*/
         userDataCache.setUserBotState(user.getId(),BotState.AWAIT_EMAIL);
-        message.setText("veselovnd@gmail.com");
+        message.setText(email);
         BotApiMethod<?> botApiMethod = contactMessageHandler.processUpdate(update);
-        assertEquals(MessageUtils.INPUT_CONTACT,((SendMessage)botApiMethod).getText());
+        verify(keyBoardUtils).editMessageSavedField(user.getId(),"email");
         assertEquals(BotState.AWAIT_CONTACT,userDataCache.getUserBotState(user.getId()));
         assertNotNull(contactCache.getContact(user.getId()));
     }
-    @Test
-    void wrongEmailTest(){//FIXME parametrized test
+    @ParameterizedTest
+    @ValueSource(strings = {"gmail.com","asdf@","hate@."})
+    void wrongEmailTest(String email){
+        /*Неправильные адреса*/
         userDataCache.setUserBotState(user.getId(),BotState.AWAIT_EMAIL);
-        message.setText("veselovnd-gmail.com");
+        message.setText(email);
         BotApiMethod<?> botApiMethod = contactMessageHandler.processUpdate(update);
+        verify(keyBoardUtils,never()).editMessageSavedField(user.getId(),"email");
         assertEquals(MessageUtils.WRONG_EMAIL,((SendMessage)botApiMethod).getText());
-        assertEquals(BotState.AWAIT_CONTACT,userDataCache.getUserBotState(user.getId()));
-
+        assertEquals(BotState.AWAIT_EMAIL,userDataCache.getUserBotState(user.getId()));
     }
 
 
@@ -122,6 +144,50 @@ class ContactMessageHandlerTest {
         BotApiMethod<?> botApiMethod = contactMessageHandler.processUpdate(update);
         assertEquals(MessageUtils.WRONG_CONTACT_FORMAT,((SendMessage)botApiMethod).getText());
         assertNull(contactCache.getContact(user.getId()));
+    }
+
+    @Test
+    void processNameTestFull(){
+        String name = "Pipkov Vasya Petrovich";
+        CustomerContact contact = new CustomerContact();
+        contactMessageHandler.getProcessedName(contact, name);
+        assertEquals("Pipkov",contact.getLastName());
+        assertEquals("Vasya",contact.getFirstName());
+        assertEquals("Petrovich",contact.getSecondName());
+    }
+
+    @Test
+    void processNameTestOnlyLastName(){
+        String name = "Pipkov";
+        CustomerContact contact = new CustomerContact();
+        contactMessageHandler.getProcessedName(contact, name);
+        assertEquals("Pipkov",contact.getLastName());
+    }
+    @Test
+    void processNameTestOnlyFirstLast(){
+        String name = "Pipkov Ivan";
+        CustomerContact contact = new CustomerContact();
+        contactMessageHandler.getProcessedName(contact, name);
+        assertEquals("Pipkov",contact.getLastName());
+        assertEquals("Ivan",contact.getFirstName());
+    }
+
+    @Test
+    void processNameTestMoreThanThreeParts(){
+        String name = "Pipkov Ivan Petrovich Vasiliy Evil";
+        CustomerContact contact = new CustomerContact();
+        contactMessageHandler.getProcessedName(contact, name);
+        assertEquals("Pipkov",contact.getLastName());
+        assertEquals("Ivan",contact.getFirstName());
+        assertEquals("Petrovich Vasiliy Evil",contact.getSecondName());
+    }
+    @ParameterizedTest
+    @ValueSource(strings = {""," "})
+    void processNameTestWithIncorrectName(String name){
+        CustomerContact contact = new CustomerContact();
+        contact.setUserId(100L);
+        contactMessageHandler.getProcessedName(contact, name);
+        assertNull(contact.getLastName());
     }
 
 }

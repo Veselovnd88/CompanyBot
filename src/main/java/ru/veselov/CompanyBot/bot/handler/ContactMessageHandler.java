@@ -3,6 +3,7 @@ package ru.veselov.CompanyBot.bot.handler;
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.validator.internal.constraintvalidators.bv.EmailValidator;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -80,22 +81,22 @@ public class ContactMessageHandler implements UpdateHandler {
                     .build();
         }
         String[] s = name.split(" ");
-        if(s.length==0){
-            log.info("{}: строка не разбилась по пробелам",contact.getUserId());
+        if(s.length==0||name.length()==0){
+            log.info("{}: введена пустая строка",contact.getUserId());
             return SendMessage.builder().chatId(contact.getUserId())
                     .text(MessageUtils.WRONG_NAME_FORMAT).replyMarkup(keyBoardUtils.contactKeyBoard())
                     .build();
         }
-        contact.setLastName(s[0]);
+        contact.setLastName(s[0].trim());
         if(s.length>1){
-            contact.setFirstName(s[1]);
+            contact.setFirstName(s[1].trim());
         }
         if(s.length>2){
             StringBuilder sb=new StringBuilder();
             for(int i=2; i<s.length;i++){
                 sb.append(s[i]).append(" ");
             }
-            contact.setSecondName(sb.toString());
+            contact.setSecondName(sb.toString().trim());
         }
         log.info("{}: добавлено имя в контакт {}", contact.getUserId(), name);
         userDataCache.setUserBotState(contact.getUserId(),BotState.AWAIT_CONTACT);
@@ -133,5 +134,9 @@ public class ContactMessageHandler implements UpdateHandler {
         }
     }
 
+    @Profile("test")
+    public BotApiMethod<?> getProcessedName(CustomerContact contact, String name){
+        return processName(contact,name);
+    }
 
 }
