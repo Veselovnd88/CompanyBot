@@ -19,7 +19,7 @@ public class Division {
     @Column(name = "division_id")
     private Integer divisionId;
 
-    @Column
+    @Column(unique = true)
     private String name;
 
     @Override

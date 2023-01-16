@@ -52,7 +52,7 @@ public class CustomerService {
     public List<Customer> findAll(){
         return customerDAO.findAll();
     }
-    @Transactional
+    //@Transactional
     public void saveContact(CustomerContact contact){
         Optional<Customer> one = customerDAO.findOneWithContacts(contact.getUserId());
         if(one.isPresent()){

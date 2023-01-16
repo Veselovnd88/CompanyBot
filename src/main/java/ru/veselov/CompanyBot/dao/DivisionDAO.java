@@ -7,6 +7,7 @@ import ru.veselov.CompanyBot.entity.Division;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import java.util.List;
 import java.util.Optional;
 
@@ -27,6 +28,13 @@ public class DivisionDAO {
         entityManager.persist(division);
         return division;
 
+    }
+
+    public Optional<Division> findByName(String name){
+        Query query = entityManager.createQuery("select d from Division d where name = :param");
+        query.setParameter("param",name);
+        List<Division> resultList = query.getResultList();
+        return resultList.stream().findFirst();
     }
 
     public Optional<Division> findOne(Integer id){

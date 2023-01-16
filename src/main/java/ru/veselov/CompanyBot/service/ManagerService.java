@@ -6,9 +6,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.telegram.telegrambots.meta.api.objects.User;
 import ru.veselov.CompanyBot.dao.ManagerDAO;
+import ru.veselov.CompanyBot.entity.Division;
 import ru.veselov.CompanyBot.entity.ManagerEntity;
 
 import java.util.Optional;
+import java.util.Set;
 
 @Service
 @Slf4j
@@ -23,7 +25,6 @@ public class ManagerService {
         this.managerDAO = managerDAO;
     }
 
-    @Transactional
     public void save(User user){
         Optional<ManagerEntity> one = findOne(user.getId());
         if(one.isEmpty()){
@@ -31,7 +32,21 @@ public class ManagerService {
             log.info("{}: новый менеджер сохранен в БД", user.getId());}
         else{
             managerDAO.update(toEntity(user));
-            log.info("Данные пользователя {} обновлены в БД", user.getId());
+            log.info("{} данные менеджера обновлены в БД", user.getId());
+        }
+    }
+
+    public void saveWithDivisions(User user, Set<Division> divs){
+        Optional<ManagerEntity> one = findOne(user.getId());
+        ManagerEntity managerEntity = toEntity(user);
+        managerEntity.setDivisions(divs);
+        if(one.isEmpty()){
+            managerDAO.save(managerEntity);
+            log.info("{}: сохранен менеджер с набором отделов", user.getId());
+        }
+        else{
+            managerDAO.update(managerEntity);
+            log.info("{}: обновлен менеджер с набором отделов", user.getId());
         }
     }
 
@@ -44,6 +59,7 @@ public class ManagerService {
     }
 
     public void remove(User user){
+        log.info("{}: менеджер удален из БД", user.getId());
         managerDAO.deleteById(user.getId());
     }
 

@@ -27,8 +27,8 @@ public class ManagerEntity {
 
     @Column(name="username")
     private String userName;
-    @OneToMany
-    @JoinColumn(name = "manager_id")
+    @OneToMany(cascade = CascadeType.ALL)
+    @JoinColumn(name = "manager_id")//FIXME One to Many but Bidirectional
     private Set<Division> divisions = new HashSet<>();
 
 }
