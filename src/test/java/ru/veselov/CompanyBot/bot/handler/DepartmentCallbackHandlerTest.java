@@ -52,6 +52,7 @@ class DepartmentCallbackHandlerTest {
 
     @Test
     void departmentWrongTest(){
+        userDataCache.clear(user.getId());
         callbackQuery.setData("wrong");
         BotApiMethod<?> botApiMethod = departmentCallbackHandler.processUpdate(update);
         assertInstanceOf(AnswerCallbackQuery.class,botApiMethod);

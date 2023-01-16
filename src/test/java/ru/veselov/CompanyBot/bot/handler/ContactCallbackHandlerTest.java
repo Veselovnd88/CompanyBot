@@ -12,6 +12,7 @@ import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import ru.veselov.CompanyBot.bot.BotState;
+import ru.veselov.CompanyBot.bot.CompanyBot;
 import ru.veselov.CompanyBot.cache.ContactCache;
 import ru.veselov.CompanyBot.cache.UserDataCache;
 import ru.veselov.CompanyBot.model.CustomerContact;
@@ -27,6 +28,9 @@ import static org.mockito.Mockito.*;
 @SpringBootTest
 @ActiveProfiles("test")
 class ContactCallbackHandlerTest {
+
+    @MockBean
+    CompanyBot bot;
 
     @Autowired
     private UserDataCache userDataCache;
@@ -70,8 +74,10 @@ class ContactCallbackHandlerTest {
     void saveWithInquiryDataTest(){
         /*Проверка сохранения контакта и запроса*/
         callbackQuery.setData("save");
-        CustomerContact contact = CustomerContact.builder().userId(user.getId()).email("vasya").build();
         contactCache.createContact(user.getId());
+        CustomerContact contact = contactCache.getContact(user.getId());
+        contact.setEmail("vasya@vasya.ru");
+        contact.setLastName("Petrov");
         userDataCache.createInquiry(user.getId(), Department.COMMON);
         CustomerInquiry inquiry = userDataCache.getInquiry(user.getId());
         assertNotNull(contactCallbackHandler.processUpdate(update));
@@ -86,8 +92,10 @@ class ContactCallbackHandlerTest {
     void saveWithoutInquiryDataTest(){
         /*Проверка сохранения без запроса*/
         callbackQuery.setData("save");
-        CustomerContact contact = CustomerContact.builder().userId(user.getId()).email("vasya").build();
         contactCache.createContact(user.getId());
+        CustomerContact contact = contactCache.getContact(user.getId());
+        contact.setEmail("vasya@vasya.ru");
+        contact.setLastName("Petrov");
         CustomerInquiry inquiry = userDataCache.getInquiry(user.getId());
         assertNotNull(contactCallbackHandler.processUpdate(update));
         assertEquals(BotState.READY,userDataCache.getUserBotState(user.getId()));

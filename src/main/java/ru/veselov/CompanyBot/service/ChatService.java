@@ -36,10 +36,14 @@ public class ChatService {
     }
 
     private ChatEntity toChatEntity(Chat chat){
-        return modelMapper.map(chat,ChatEntity.class);
+        ChatEntity mapped = modelMapper.map(chat, ChatEntity.class);
+        mapped.setChatId(chat.getId());
+        return mapped;
     }
     private Chat toChat(ChatEntity chatEntity){
-        return modelMapper.map(chatEntity,Chat.class);
+        Chat mapped = modelMapper.map(chatEntity, Chat.class);
+        mapped.setId(chatEntity.getChatId());
+        return mapped;
     }
 
 }

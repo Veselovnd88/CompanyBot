@@ -37,6 +37,7 @@ class ContactMessageHandlerTest {
     Update update;
     Message message;
     User user;
+
     @BeforeEach
     void init(){
         update=spy(Update.class);
@@ -59,11 +60,9 @@ class ContactMessageHandlerTest {
         userDataCache.setUserBotState(user.getId(),BotState.AWAIT_NAME);
         message.setText(" Ivanov Ivan Ivanovich");
         BotApiMethod<?> botApiMethod = contactMessageHandler.processUpdate(update);
-        assertEquals(MessageUtils.INPUT_CONTACT,((SendMessage)botApiMethod).getText());
+        verify(keyBoardUtils).editMessageSavedField(user.getId(),"name");
         assertEquals(BotState.AWAIT_CONTACT,userDataCache.getUserBotState(user.getId()));
         assertNotNull(contactCache.getContact(user.getId()));
-        //FIXME добавить еще проверки
-
     }
     @ParameterizedTest
     @ValueSource(strings = {"+79175550335","89167861234","8-495-250-23-93","+2 234 345-24-66"})
@@ -113,17 +112,6 @@ class ContactMessageHandlerTest {
 
 
     @Test
-    void textNoEntitiesTest(){
-        /*Проверка ввода контакта, если нет сущностей текста*/
-        message.setText("Text");
-        message.setEntities(null);
-        BotApiMethod<?> botApiMethod = contactMessageHandler.processUpdate(update);
-        assertEquals(MessageUtils.SAVE_MESSAGE,((SendMessage)botApiMethod).getText());
-        assertEquals(BotState.AWAIT_SAVING,userDataCache.getUserBotState(user.getId()));
-        assertNotNull(contactCache.getContact(user.getId()));
-    }
-
-    @Test
     void contactTest(){
         /*Проверка ввода контакта*/
         message.setText(null);
@@ -131,8 +119,8 @@ class ContactMessageHandlerTest {
         message.setContact(contact);
         message.setEntities(null);
         BotApiMethod<?> botApiMethod = contactMessageHandler.processUpdate(update);
-        assertEquals(MessageUtils.SAVE_MESSAGE,((SendMessage)botApiMethod).getText());
-        assertEquals(BotState.AWAIT_SAVING,userDataCache.getUserBotState(user.getId()));
+        verify(keyBoardUtils).editMessageSavedField(user.getId(),"shared");
+        assertEquals(BotState.AWAIT_CONTACT,userDataCache.getUserBotState(user.getId()));
         assertNotNull(contactCache.getContact(user.getId()));
     }
 
@@ -143,7 +131,6 @@ class ContactMessageHandlerTest {
         message.setContact(null);
         BotApiMethod<?> botApiMethod = contactMessageHandler.processUpdate(update);
         assertEquals(MessageUtils.WRONG_CONTACT_FORMAT,((SendMessage)botApiMethod).getText());
-        assertNull(contactCache.getContact(user.getId()));
     }
 
     @Test

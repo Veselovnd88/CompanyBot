@@ -8,6 +8,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.telegram.telegrambots.meta.api.objects.Chat;
 import ru.veselov.CompanyBot.bot.CompanyBot;
+import ru.veselov.CompanyBot.service.ChatService;
 
 import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
@@ -32,7 +33,6 @@ class ChatServiceTest {
         assertEquals(1,chatService.findAll().size());
         assertEquals(-100L,chatService.findAll().get(0).getId());
         chatService.remove(chat.getId());
-
         assertEquals(0,chatService.findAll().size());
     }
 

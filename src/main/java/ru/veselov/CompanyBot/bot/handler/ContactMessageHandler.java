@@ -65,6 +65,7 @@ public class ContactMessageHandler implements UpdateHandler {
             if(contact.getPhone()==null){
                 contact.setPhone(messageContact.getPhoneNumber());
             }
+            userDataCache.setUserBotState(contact.getUserId(),BotState.AWAIT_CONTACT);
             return keyBoardUtils.editMessageSavedField(contact.getUserId(), "shared");
         }
         //Сюда придет если попало неправильное значение

@@ -9,6 +9,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.telegram.telegrambots.meta.api.objects.User;
 import ru.veselov.CompanyBot.bot.CompanyBot;
 import ru.veselov.CompanyBot.model.CustomerContact;
+import ru.veselov.CompanyBot.service.CustomerService;
 
 import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest

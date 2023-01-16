@@ -13,6 +13,8 @@ import ru.veselov.CompanyBot.bot.CompanyBot;
 import ru.veselov.CompanyBot.entity.Inquiry;
 import ru.veselov.CompanyBot.model.CustomerInquiry;
 import ru.veselov.CompanyBot.model.Department;
+import ru.veselov.CompanyBot.service.CustomerService;
+import ru.veselov.CompanyBot.service.InquiryService;
 
 import java.util.List;
 

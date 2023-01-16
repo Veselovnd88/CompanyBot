@@ -18,7 +18,7 @@ import ru.veselov.CompanyBot.model.Department;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
@@ -64,6 +64,11 @@ class SenderServiceTest {
 
     @Test
     void sendContactTest() throws TelegramApiException {
+        try {
+            Thread.sleep(chatInterval);
+        } catch (InterruptedException e) {
+            throw new RuntimeException(e);
+        }
         senderService.send(null,customerContact);
         verify(bot).execute(any(SendMessage.class));
         verify(bot,never()).execute(any(SendContact.class));

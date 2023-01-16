@@ -19,6 +19,7 @@ class CustomerDAOTest {
     @Transactional
     void DAOTest() {
         Customer customer = new Customer();
+        customer.setId(100L);
         customer.setFirstName("Test");
         Customer save = customerDAO.save(customer);
         Optional<Customer> byId = customerDAO.findOne(save.getId());
