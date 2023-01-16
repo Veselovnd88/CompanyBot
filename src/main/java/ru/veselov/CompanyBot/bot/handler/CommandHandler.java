@@ -74,6 +74,11 @@ public class CommandHandler implements UpdateHandler {
             case "/info":
                 return SendMessage.builder().chatId(userId)
                         .text(MessageUtils.INFO).build();
+
+            case "/manage":
+                userDataCache.setUserBotState(userId,BotState.AWAIT_MANAGER);
+                return SendMessage.builder().chatId(userId)
+                            .text(MessageUtils.AWAIT_MANAGER).build();
         }
         return SendMessage.builder().chatId(userId)
                 .text(MessageUtils.UNKNOWN_COMMAND).build();

@@ -29,7 +29,7 @@ class InquiryServiceTest {
     @Autowired
     private InquiryService inquiryService;
     @Autowired
-            private CustomerService customerService;
+    private CustomerService customerService;
     User user;
     CustomerInquiry inquiry;
     Message message;

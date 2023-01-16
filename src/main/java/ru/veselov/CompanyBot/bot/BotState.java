@@ -10,6 +10,6 @@ public enum BotState {
     AWAIT_SHARED,
     AWAIT_DEPARTMENT,
     AWAIT_MESSAGE,
-    AWAIT_SAVING
-
+    AWAIT_SAVING,
+    AWAIT_MANAGER
 }

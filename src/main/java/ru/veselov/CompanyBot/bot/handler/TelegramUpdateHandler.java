@@ -18,23 +18,26 @@ import java.util.Optional;
 @Component
 @Slf4j
 public class TelegramUpdateHandler implements UpdateHandler {
+    //Фасад
     @Value("${bot.adminId}")
     private String adminId;
     private final CommandHandler commandHandler;
     private final DepartmentCallbackHandler departmentCallbackHandler;
     private final InquiryMessageHandler inquiryMessageHandler;
     private final ContactCallbackHandler contactCallbackHandler;
+    private final AddManagerByAdminMessageHandler addManagerByAdminMessageHandler;
     private final ContactMessageHandler contactMessageHandler;
     private final ChannelConnectHandler channelConnectHandler;
     private final UserDataCache userDataCache;
     @Autowired
     public TelegramUpdateHandler(CommandHandler commandHandler,
                                  DepartmentCallbackHandler departmentCallbackHandler,
-                                 InquiryMessageHandler inquiryMessageHandler, ContactCallbackHandler contactCallbackHandler, ContactMessageHandler contactMessageHandler, ChannelConnectHandler channelConnectHandler, UserDataCache userDataCache) {
+                                 InquiryMessageHandler inquiryMessageHandler, ContactCallbackHandler contactCallbackHandler, AddManagerByAdminMessageHandler addManagerByAdminMessageHandler, ContactMessageHandler contactMessageHandler, ChannelConnectHandler channelConnectHandler, UserDataCache userDataCache) {
         this.commandHandler = commandHandler;
         this.departmentCallbackHandler = departmentCallbackHandler;
         this.inquiryMessageHandler = inquiryMessageHandler;
         this.contactCallbackHandler = contactCallbackHandler;
+        this.addManagerByAdminMessageHandler = addManagerByAdminMessageHandler;
         this.contactMessageHandler = contactMessageHandler;
         this.channelConnectHandler = channelConnectHandler;
         this.userDataCache = userDataCache;
@@ -65,6 +68,9 @@ public class TelegramUpdateHandler implements UpdateHandler {
             }
             if(isContactInputState(botState)){
                 return contactMessageHandler.processUpdate(update);
+            }
+            if(botState==BotState.AWAIT_CONTACT){
+                return addManagerByAdminMessageHandler.processUpdate(update);
             }
         }
         /* при передаче в чат или админу - проверять

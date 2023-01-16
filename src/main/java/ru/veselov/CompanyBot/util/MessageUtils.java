@@ -1,18 +1,20 @@
 package ru.veselov.CompanyBot.util;
 
 public class MessageUtils {
+
     public static String GREETINGS="Здравствуйте, я бот-помощник компании, я могу принять и передать Ваш запрос " +
             "или заявку на обратный звонок";
     public static String NOT_READY = "Бот не готов к работе, нажмите /start для обновления состояния";
     public static String BOT_WAITING_FOR_DPT="Бот ожидает выбор направления для запроса, нажмите /start для сброса";//FIXME
     public static String ABOUT="Информация о компании:";
-    public static String INFO = "О боте: \n" +
-            "Бот принимает заявки и перенаправляет их ответственному менеджеру: \n" +
-            "/start - начало работы с ботом \n" +
-            "/inquiry - отправить заявку \n" +
-            "/call - отправить заявку на обратный звонок\n" +
-            "/info - справка по основным командам\n" +
-            "Отзывы и предложения: https://t.me/VeselovND";
+    public static String INFO = """
+            О боте:\s
+            Бот принимает заявки и перенаправляет их ответственному менеджеру:\s
+            /start - начало работы с ботом\s
+            /inquiry - отправить заявку\s
+            /call - отправить заявку на обратный звонок
+            /info - справка по основным командам
+            Отзывы и предложения: https://t.me/VeselovND""";
 
     public static String CAPTION_TOO_LONG="Текст подписи превышает длину 1024 символа, сократите размер подписи," +
             " или отправьте текст отдельно";
@@ -34,6 +36,6 @@ public class MessageUtils {
     public static String WRONG_EMAIL="Неправильный формат электронной почты";
     public static String NOT_ENOUGH_CONTACT = "Недостаточно данных для обратной связи (отсутствует e-mail, номер телефона, ФИО)";
 
-
+    public static final String AWAIT_MANAGER = "Перешлите любое сообщение от назначаемого менеджера";
     public static String ERROR="Что-то пошло не так";
 }
