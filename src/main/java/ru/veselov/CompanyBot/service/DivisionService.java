@@ -22,7 +22,10 @@ public class DivisionService{
     }
 
     public void save(Division division){
-        if(dao.findByName(division.getName()).isEmpty()){
+        if(dao.findOne(division.getDivisionId()).isPresent()){
+            dao.update(division);
+        }
+        else{
             dao.save(division);
         }
     }

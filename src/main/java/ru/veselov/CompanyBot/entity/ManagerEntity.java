@@ -27,8 +27,22 @@ public class ManagerEntity {
 
     @Column(name="username")
     private String userName;
-    @OneToMany(cascade = CascadeType.ALL)
-    @JoinColumn(name = "manager_id")//FIXME One to Many but Bidirectional
+
+    @ManyToMany(cascade = {CascadeType.PERSIST,CascadeType.MERGE,CascadeType.REFRESH})
+    @JoinTable(
+            name="manager_division",
+            joinColumns = @JoinColumn(name="manager_id"),
+            inverseJoinColumns = @JoinColumn(name = "division_id")
+    )
     private Set<Division> divisions = new HashSet<>();
+    //Bidirectional relations for ManyToMany
+    public void addDivision(Division division){
+        this.divisions.add(division);
+        division.getManagers().add(this);
+    }
+    public void removeDivision(Division division){
+        this.divisions.remove(division);
+        division.getManagers().remove(division);
+    }
 
 }

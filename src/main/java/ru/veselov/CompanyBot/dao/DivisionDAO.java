@@ -23,6 +23,7 @@ public class DivisionDAO {
     public List<Division> findAll(){
         return entityManager.createQuery(" SELECT d from Division d ").getResultList();
     }
+
     @Transactional
     public Division save(Division division){
         entityManager.persist(division);
@@ -37,7 +38,7 @@ public class DivisionDAO {
         return resultList.stream().findFirst();
     }
 
-    public Optional<Division> findOne(Integer id){
+    public Optional<Division> findOne(String id){
         //Стандартный тип инициализации - Lazy - не получает привязанные к нему Inquiry
         Division division = entityManager.find(Division.class,id);
         return Optional.ofNullable(division);
@@ -54,7 +55,7 @@ public class DivisionDAO {
     }
 
     @Transactional
-    public void deleteById(Integer id){
+    public void deleteById(String id){
         Optional<Division> division = findOne(id);
         division.ifPresent(this::delete);
     }

@@ -5,7 +5,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import javax.persistence.*;
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 @Entity
 @Table(name = "division")
@@ -15,23 +17,22 @@ import java.util.Objects;
 public class Division {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "division_id")
-    private Integer divisionId;
+    private String divisionId;
 
     @Column(unique = true)
     private String name;
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        Division division = (Division) o;
-        return name.equals(division.name);
+    @ManyToMany(mappedBy = "divisions",cascade = {CascadeType.PERSIST,CascadeType.MERGE, CascadeType.REFRESH})
+    private Set<ManagerEntity> managers = new HashSet<>();
+
+    public void addManagers(ManagerEntity manager){
+        this.managers.add(manager);
+        manager.getDivisions().add(this);
+    }
+    public void removeManager(ManagerEntity manager){
+        this.managers.remove(manager);
+        manager.getDivisions().remove(this);
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(name);
-    }
 }

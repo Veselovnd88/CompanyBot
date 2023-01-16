@@ -3,8 +3,8 @@ package ru.veselov.CompanyBot.service;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.telegram.telegrambots.meta.api.objects.User;
+import ru.veselov.CompanyBot.dao.DivisionDAO;
 import ru.veselov.CompanyBot.dao.ManagerDAO;
 import ru.veselov.CompanyBot.entity.Division;
 import ru.veselov.CompanyBot.entity.ManagerEntity;
@@ -20,9 +20,12 @@ public class ManagerService {
 
     private final ManagerDAO managerDAO;
 
-    public ManagerService(ModelMapper modelMapper, ManagerDAO managerDAO) {
+    private final DivisionService divisionService;
+
+    public ManagerService(ModelMapper modelMapper, ManagerDAO managerDAO, DivisionService divisionService) {
         this.modelMapper = modelMapper;
         this.managerDAO = managerDAO;
+        this.divisionService = divisionService;
     }
 
     public void save(User user){
@@ -41,6 +44,7 @@ public class ManagerService {
         ManagerEntity managerEntity = toEntity(user);
         managerEntity.setDivisions(divs);
         if(one.isEmpty()){
+            //FIXME неправильно сохраняет
             managerDAO.save(managerEntity);
             log.info("{}: сохранен менеджер с набором отделов", user.getId());
         }

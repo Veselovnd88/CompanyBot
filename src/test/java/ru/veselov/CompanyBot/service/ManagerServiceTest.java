@@ -49,9 +49,11 @@ class ManagerServiceTest {
     @Test
     void saveWithDivisions(){
         Division division = new Division();
+        division.setDivisionId("VS");
         division.setName("Vasya");
         divisionService.save(division);
         Division division1 = new Division();
+        division1.setDivisionId("PT");
         division1.setName("Petya");
         divisionService.save(division1);
         managerService.saveWithDivisions(user, new HashSet<>(divisionService.findAll()));
