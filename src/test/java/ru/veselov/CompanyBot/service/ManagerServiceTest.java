@@ -12,7 +12,6 @@ import ru.veselov.CompanyBot.entity.Division;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
@@ -47,7 +46,7 @@ class ManagerServiceTest {
     }
 
     @Test
-    void saveWithDivisions(){
+    void saveWithDivisionsFromDB(){
         Division division = new Division();
         division.setDivisionId("VS");
         division.setName("Vasya");
@@ -59,10 +58,94 @@ class ManagerServiceTest {
         managerService.saveWithDivisions(user, new HashSet<>(divisionService.findAll()));
         assertTrue(managerService.findOne(100L).isPresent());
         assertEquals("UserName",managerService.findOne(100L).get().getUserName());
-        System.out.println(managerService.findOneWithDivisions(user.getId()).get().getDivisions());
         assertEquals(2,managerService.findOneWithDivisions(user.getId()).get().getDivisions().size());
-
     }
+
+    @Test
+    void saveWithDivisionsWithoutDB(){
+        Division division = new Division();
+        division.setDivisionId("VS");
+        division.setName("Vasya");
+        Division division1 = new Division();
+        division1.setDivisionId("PT");
+        division1.setName("Petya");
+        managerService.saveWithDivisions(user,Set.of(division,division1));
+        assertTrue(managerService.findOne(100L).isPresent());
+        assertEquals("UserName",managerService.findOne(100L).get().getUserName());
+        assertEquals(2,managerService.findOneWithDivisions(user.getId()).get().getDivisions().size());
+    }
+
+    @Test
+    void saveWithDivisionsMixed(){
+        Division division = new Division();
+        division.setDivisionId("VS");
+        division.setName("Vasya");
+        Division division1 = new Division();
+        division1.setDivisionId("PT");
+        division1.setName("Petya");
+        divisionService.save(division1);
+        Set<Division> dbSet = new HashSet<>(divisionService.findAll());
+        dbSet.add(division);
+        managerService.saveWithDivisions(user,dbSet);
+        assertTrue(managerService.findOne(100L).isPresent());
+        assertEquals("UserName",managerService.findOne(100L).get().getUserName());
+        assertEquals(2,managerService.findOneWithDivisions(user.getId()).get().getDivisions().size());
+    }
+
+    @Test
+    void updateWithDivisionsFromDB(){
+        Division division = new Division();
+        division.setDivisionId("VS");
+        division.setName("Vasya");
+        divisionService.save(division);
+        Division division1 = new Division();
+        division1.setDivisionId("PT");
+        division1.setName("Petya");
+        divisionService.save(division1);
+        managerService.saveWithDivisions(user, new HashSet<>(divisionService.findAll()));
+        managerService.saveWithDivisions(user,Set.of(division1));
+        assertTrue(managerService.findOne(100L).isPresent());
+        assertEquals("UserName",managerService.findOne(100L).get().getUserName());
+        System.out.println(managerService.findOneWithDivisions(user.getId()).get().getDivisions());
+        assertEquals(1,managerService.findOneWithDivisions(user.getId()).get().getDivisions().size());
+    }
+
+    @Test
+    void removeDivisionsTest(){
+        Division division = new Division();
+        division.setDivisionId("VS");
+        division.setName("Vasya");
+        divisionService.save(division);
+        Division division1 = new Division();
+        division1.setDivisionId("PT");
+        division1.setName("Petya");
+        divisionService.save(division1);
+        managerService.saveWithDivisions(user, new HashSet<>(divisionService.findAll()));
+        managerService.removeDivisions(user);
+        assertTrue(managerService.findOne(100L).isPresent());
+        assertEquals("UserName",managerService.findOne(100L).get().getUserName());
+        assertEquals(0,managerService.findOneWithDivisions(user.getId()).get().getDivisions().size());
+    }
+
+    @Test
+    void removeManagerTest(){
+        Division division = new Division();
+        division.setDivisionId("VS");
+        division.setName("Vasya");
+        divisionService.save(division);
+        Division division1 = new Division();
+        division1.setDivisionId("PT");
+        division1.setName("Petya");
+        divisionService.save(division1);
+        managerService.saveWithDivisions(user, new HashSet<>(divisionService.findAll()));
+        managerService.remove(user);
+        assertFalse(managerService.findOne(100L).isPresent());
+        boolean hasManager = divisionService.findOneWithManagers(division).get()
+                .getManagers().stream().anyMatch(x -> x.getManagerId().equals(user.getId()));
+        assertFalse(hasManager);
+    }
+
+
 
 
 }

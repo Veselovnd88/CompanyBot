@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.User;
-import ru.veselov.CompanyBot.dao.DivisionDAO;
 import ru.veselov.CompanyBot.dao.ManagerDAO;
 import ru.veselov.CompanyBot.entity.Division;
 import ru.veselov.CompanyBot.entity.ManagerEntity;
@@ -42,14 +41,12 @@ public class ManagerService {
     public void saveWithDivisions(User user, Set<Division> divs){
         Optional<ManagerEntity> one = findOne(user.getId());
         ManagerEntity managerEntity = toEntity(user);
-        managerEntity.setDivisions(divs);
         if(one.isEmpty()){
-            //FIXME неправильно сохраняет
-            managerDAO.save(managerEntity);
+            managerDAO.saveWithDivisions(managerEntity,divs);
             log.info("{}: сохранен менеджер с набором отделов", user.getId());
         }
         else{
-            managerDAO.update(managerEntity);
+            managerDAO.updateWithDivisions(managerEntity, divs);
             log.info("{}: обновлен менеджер с набором отделов", user.getId());
         }
     }
@@ -65,6 +62,11 @@ public class ManagerService {
     public void remove(User user){
         log.info("{}: менеджер удален из БД", user.getId());
         managerDAO.deleteById(user.getId());
+    }
+
+    public void removeDivisions(User user){
+        log.info("{}: удалены все отделы у менеджера", user.getId());
+        managerDAO.removeDivisions(toEntity(user));
     }
 
 

@@ -32,10 +32,10 @@ public class CustomerService {
         Optional<Customer> one = findOne(user.getId());
         if(one.isEmpty()){
             customerDAO.save(toCustomer(user));
-            log.info("Новый пользователь {} сохранен в БД", user.getId());}
+            log.info("{}: новый пользователь  сохранен в БД", user.getId());}
         else{
             customerDAO.update(toCustomer(user));
-            log.info("Данные пользователя {} обновлены в БД", user.getId());
+            log.info("{}: данные пользователя  обновлены в БД", user.getId());
         }
     }
 
@@ -60,6 +60,7 @@ public class CustomerService {
             contactEntity.setCustomer(one.get());
             contactDAO.save(contactEntity);
         }
+        log.info("{}: новый контакт  сохранен в БД", contact.getUserId());
     }
     private Customer toCustomer(User user){
         return modelMapper.map(user, Customer.class);

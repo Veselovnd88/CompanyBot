@@ -49,7 +49,7 @@ public class ContactCallbackHandler implements UpdateHandler {
     public BotApiMethod<?> processUpdate(Update update) {
         Long userId = update.getCallbackQuery().getFrom().getId();
         String data = update.getCallbackQuery().getData();
-
+        log.info("{}: меню ввода контактов через Callback", userId);
         switch (data){
             case "email":
                 userDataCache.setUserBotState(userId,BotState.AWAIT_EMAIL);
@@ -94,7 +94,8 @@ public class ContactCallbackHandler implements UpdateHandler {
                     userDataCache.clear(userId);
                     keyBoardUtils.clear(userId);
                     return AnswerCallbackQuery.builder().callbackQueryId(update.getCallbackQuery().getId())
-                            .text(MessageUtils.SAVED).build();}
+                            .text(MessageUtils.SAVED).showAlert(true)
+                            .build();}
                 else{
                     return SendMessage.builder().chatId(userId)
                             .text(MessageUtils.NOT_ENOUGH_CONTACT)
@@ -102,7 +103,8 @@ public class ContactCallbackHandler implements UpdateHandler {
                 }
         }
         return AnswerCallbackQuery.builder().callbackQueryId(update.getCallbackQuery().getId())
-                .text(MessageUtils.ERROR).build();
+                .text(MessageUtils.ERROR)
+                .build();
     }
 
 

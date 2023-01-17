@@ -5,13 +5,15 @@ import org.hibernate.Hibernate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import ru.veselov.CompanyBot.entity.ChatEntity;
-import ru.veselov.CompanyBot.entity.Customer;
+import ru.veselov.CompanyBot.entity.Division;
 import ru.veselov.CompanyBot.entity.ManagerEntity;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
+import javax.swing.plaf.SpinnerUI;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Repository
 @Transactional(readOnly = true)
@@ -20,16 +22,53 @@ public class ManagerDAO {
 
     @PersistenceContext
     private final EntityManager entityManager;
+    private final DivisionDAO divisionDAO;
 
-    public ManagerDAO(EntityManager entityManager) {
+    public ManagerDAO(EntityManager entityManager, DivisionDAO divisionDAO) {
         this.entityManager = entityManager;
+        this.divisionDAO = divisionDAO;
+    }
+
+
+    @Transactional
+    public void save(ManagerEntity managerEntity){
+        entityManager.persist(managerEntity);
+    }
+    @Transactional
+    public void saveWithDivisions(ManagerEntity managerEntity, Set<Division> divisionSet){
+        for(Division d: divisionSet){
+            Optional<Division> one = divisionDAO.findOne(d.getDivisionId());
+            if(one.isPresent()){
+                managerEntity.addDivision(one.get());
+            }
+            else{
+                managerEntity.addDivision(d);
+            }
+        }
+        entityManager.persist(managerEntity);
     }
 
     @Transactional
-    public ManagerEntity save(ManagerEntity managerEntity){
-        entityManager.persist(managerEntity);
-        return managerEntity;
+    public void updateWithDivisions(ManagerEntity managerEntity, Set<Division> divisionSet){
+        Optional<ManagerEntity> one = findOne(managerEntity.getManagerId());
+        if(one.isPresent()){
+            ManagerEntity manager = one.get();
+            List<Division> allDivs = divisionDAO.findAll();
+            for(Division d: allDivs){
+                    if(divisionSet.contains(d)){
+                        manager.addDivision(d);
+                    }
+                    else{
+                        manager.removeDivision(d);
+                }
+            }
+            entityManager.persist(manager);
+        }
     }
+
+
+
+    @SuppressWarnings("unchecked")
     public List<ChatEntity> findAll(){
         return entityManager.createQuery(" SELECT m from ManagerEntity m ").getResultList();
     }
@@ -39,7 +78,17 @@ public class ManagerDAO {
     }
     @Transactional
     public ManagerEntity update(ManagerEntity manager){
-        return entityManager.merge(manager);
+        for(Division d: manager.getDivisions()){
+            Optional<Division> one = divisionDAO.findOne(d.getDivisionId());
+            if(one.isPresent()){
+                manager.addDivision(one.get());
+            }
+            else{
+                manager.addDivision(d);
+            }
+        }
+        entityManager.persist(manager);
+        return manager;
     }
 
 
@@ -52,6 +101,7 @@ public class ManagerDAO {
     }
     @Transactional
     public void delete(ManagerEntity manager){
+        removeDivisions(manager);
         entityManager.remove(manager);
     }
 
@@ -59,6 +109,21 @@ public class ManagerDAO {
     public void deleteById(Long managerId) {
         Optional<ManagerEntity> manager = findOne(managerId);
         manager.ifPresent(this::delete);
+    }
+
+    @Transactional
+    public void removeDivisions(ManagerEntity manager){
+        Optional<ManagerEntity> optManager = findOne(manager.getManagerId());
+        if(optManager.isPresent()) {
+            ManagerEntity managerEntity = optManager.get();
+            Set<Division> divisions = Set.copyOf(managerEntity.getDivisions());
+            for (Division d : divisions) {
+                Optional<Division> one = divisionDAO.findOne(d.getDivisionId());
+                if (one.isPresent()) {
+                    managerEntity.removeDivision(d);
+                }
+            }entityManager.persist(managerEntity);
+        }
     }
 
 }

@@ -37,7 +37,7 @@ public class CommandHandler implements UpdateHandler {
         Long userId = update.getMessage().getFrom().getId();
         User user = update.getMessage().getFrom();
         String receivedCommand = update.getMessage().getText();
-        log.info("Нажата команда {}, пользователь {}", receivedCommand,userId);
+        log.info("{}: нажата команда {}", userId, receivedCommand);
         BotState botState=userDataCache.getUserBotState(userId);
         switch (receivedCommand){
             case "/start":

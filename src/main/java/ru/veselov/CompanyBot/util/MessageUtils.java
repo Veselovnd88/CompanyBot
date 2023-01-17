@@ -37,5 +37,6 @@ public class MessageUtils {
     public static String NOT_ENOUGH_CONTACT = "Недостаточно данных для обратной связи (отсутствует e-mail, номер телефона, ФИО)";
 
     public static final String AWAIT_MANAGER = "Перешлите любое сообщение от назначаемого менеджера";
+    public static final String AWAIT_DEPARTMENT="Выберите направление";
     public static String ERROR="Что-то пошло не так";
 }

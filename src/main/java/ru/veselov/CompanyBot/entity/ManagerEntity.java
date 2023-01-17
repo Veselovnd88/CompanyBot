@@ -42,7 +42,7 @@ public class ManagerEntity {
     }
     public void removeDivision(Division division){
         this.divisions.remove(division);
-        division.getManagers().remove(division);
+        division.getManagers().remove(this);
     }
 
 }

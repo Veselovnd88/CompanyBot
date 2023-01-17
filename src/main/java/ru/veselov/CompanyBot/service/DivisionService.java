@@ -7,27 +7,36 @@ import ru.veselov.CompanyBot.dao.DivisionDAO;
 import ru.veselov.CompanyBot.entity.Division;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @Slf4j
 public class DivisionService{
-    private final DivisionDAO dao;
+    private final DivisionDAO divisionDAO;
     @Autowired
-    public DivisionService(DivisionDAO dao) {
-        this.dao = dao;
+    public DivisionService(DivisionDAO divisionDAO) {
+        this.divisionDAO = divisionDAO;
     }
 
     public List<Division> findAll(){
-        return dao.findAll();
+        return divisionDAO.findAll();
     }
 
     public void save(Division division){
-        if(dao.findOne(division.getDivisionId()).isPresent()){
-            dao.update(division);
+        if(divisionDAO.findOne(division.getDivisionId()).isPresent()){
+            divisionDAO.update(division);
         }
         else{
-            dao.save(division);
+            divisionDAO.save(division);
         }
+    }
+
+    public Optional<Division> findOneWithManagers(Division division){
+        return divisionDAO.findOneWithManagers(division.getDivisionId());
+    }
+
+    public Optional<Division> findOne(Division division){
+        return divisionDAO.findOne(division.getDivisionId());
     }
 
 

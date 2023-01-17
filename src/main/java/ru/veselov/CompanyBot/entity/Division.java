@@ -1,8 +1,6 @@
 package ru.veselov.CompanyBot.entity;
 
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 import java.util.HashSet;
@@ -14,6 +12,8 @@ import java.util.Set;
 @Getter
 @Setter
 @NoArgsConstructor
+@Builder
+@AllArgsConstructor
 public class Division {
 
     @Id
@@ -26,13 +26,25 @@ public class Division {
     @ManyToMany(mappedBy = "divisions",cascade = {CascadeType.PERSIST,CascadeType.MERGE, CascadeType.REFRESH})
     private Set<ManagerEntity> managers = new HashSet<>();
 
-    public void addManagers(ManagerEntity manager){
-        this.managers.add(manager);
-        manager.getDivisions().add(this);
-    }
-    public void removeManager(ManagerEntity manager){
-        this.managers.remove(manager);
-        manager.getDivisions().remove(this);
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Division division = (Division) o;
+        return divisionId.equals(division.divisionId) && name.equals(division.name);
     }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(divisionId, name);
+    }
+
+    @Override
+    public String toString() {
+        return "Division{" +
+                "divisionId='" + divisionId + '\'' +
+                ", name='" + name + '\'' +
+                '}';
+    }
 }

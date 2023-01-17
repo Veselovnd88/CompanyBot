@@ -69,7 +69,7 @@ public class TelegramUpdateHandler implements UpdateHandler {
             if(isContactInputState(botState)){
                 return contactMessageHandler.processUpdate(update);
             }
-            if(botState==BotState.AWAIT_CONTACT){
+            if(botState==BotState.AWAIT_MANAGER){
                 return addManagerByAdminMessageHandler.processUpdate(update);
             }
         }

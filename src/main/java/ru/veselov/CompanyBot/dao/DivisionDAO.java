@@ -1,5 +1,6 @@
 package ru.veselov.CompanyBot.dao;
 
+import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
@@ -41,6 +42,14 @@ public class DivisionDAO {
     public Optional<Division> findOne(String id){
         //Стандартный тип инициализации - Lazy - не получает привязанные к нему Inquiry
         Division division = entityManager.find(Division.class,id);
+        return Optional.ofNullable(division);
+    }
+
+    public Optional<Division> findOneWithManagers(String id){
+        Division division = entityManager.find(Division.class,id);
+        if(division!=null){
+            Hibernate.initialize(division.getManagers());
+        }
         return Optional.ofNullable(division);
     }
 
