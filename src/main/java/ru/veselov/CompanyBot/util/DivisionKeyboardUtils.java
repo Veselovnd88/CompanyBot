@@ -7,9 +7,7 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import ru.veselov.CompanyBot.cache.Cache;
 import ru.veselov.CompanyBot.entity.Division;
 import ru.veselov.CompanyBot.service.DivisionService;
@@ -23,7 +21,6 @@ import java.util.List;
 public class DivisionKeyboardUtils implements Cache {//FIXME возможно есть смысл сделать общего предка у клавиатурных классов
 
     private final DivisionService divisionService;
-
 
     private final HashMap<Long, EditMessageReplyMarkup> departmentKeyboardCache = new HashMap<>();
     @Autowired
@@ -43,6 +40,15 @@ public class DivisionKeyboardUtils implements Cache {//FIXME возможно е
             row.add(button);
             keyboard.add(row);
         }
+        InlineKeyboardButton noDivisionButton = new InlineKeyboardButton();
+        noDivisionButton.setCallbackData("none");
+        noDivisionButton.setText("Отписать от направлений");
+        InlineKeyboardButton saveButton = new InlineKeyboardButton();
+        saveButton.setCallbackData("save");
+        saveButton.setText("Сохранить");
+        keyboard.add(List.of(noDivisionButton));
+        keyboard.add(List.of(saveButton));
+
         markup.setKeyboard(keyboard);
         return markup;
     }
@@ -51,20 +57,33 @@ public class DivisionKeyboardUtils implements Cache {//FIXME возможно е
     public EditMessageReplyMarkup divisionChooseField(Update update, String field){
         Long userId = update.getCallbackQuery().getFrom().getId();
         InlineKeyboardMarkup inlineKeyboardMarkup;
+        //Отдаем чистую клавиатуру, или достаем из кеша
         if(departmentKeyboardCache.containsKey(userId)){
             inlineKeyboardMarkup = departmentKeyboardCache.get(userId).getReplyMarkup();
         }
         else{
             inlineKeyboardMarkup = departmentKeyboard();
         }
-        for(var keyboard: inlineKeyboardMarkup.getKeyboard()){
-            if(keyboard.get(0).getText().startsWith("<<")){
-                keyboard.get(0).setText(removeBracers(keyboard.get(0).getText()));
+        if(field.equalsIgnoreCase("none")){
+            for(var keyboard :inlineKeyboardMarkup.getKeyboard()){
+                keyboard.get(0).setText(removeMark(keyboard.get(0).getText()));
             }
         }
-        List<InlineKeyboardButton> buttons = inlineKeyboardMarkup.getKeyboard().get(rowIndex(field));
-        InlineKeyboardButton inlineKeyboardButton = buttons.get(0);
-        inlineKeyboardButton.setText("<<"+inlineKeyboardButton.getText()+">>");
+        else{
+            for(var keyboard: inlineKeyboardMarkup.getKeyboard()){
+                //находим кнопку на которую нажали
+                if(keyboard.get(0).getText().equalsIgnoreCase(field)){
+                    //если она уже была помечена, то снимаем галочку
+                    if(isMarked(keyboard.get(0).getText())){
+                        keyboard.get(0).setText(removeMark(keyboard.get(0).getText()));
+                    }
+                    else{
+                        keyboard.get(0).setText(EmojiParser.parseToUnicode(
+                                ":white_check_mark:"+keyboard.get(0).getText()));
+                    }
+                }
+            }
+        }
         EditMessageReplyMarkup editedKeyboard = EditMessageReplyMarkup.builder()
                 .chatId(update.getCallbackQuery().getMessage().getChatId().toString())
                 .messageId(update.getCallbackQuery().getMessage().getMessageId())
@@ -74,32 +93,12 @@ public class DivisionKeyboardUtils implements Cache {//FIXME возможно е
         return editedKeyboard;
     }
 
-    public EditMessageReplyMarkup editMessageSavedField(Long userId, String field){
-        InlineKeyboardMarkup inlineKeyboardMarkup = departmentKeyboardCache.get(userId).getReplyMarkup();
-        List<InlineKeyboardButton> buttons = inlineKeyboardMarkup.getKeyboard().get(rowIndex(field));
-        InlineKeyboardButton inlineKeyboardButton = buttons.get(0);
-        String buttonText = inlineKeyboardButton.getText();
-        String newText = removeBracers(buttonText);
-        if(!EmojiParser.parseToAliases(newText).startsWith(":white_check_mark:")){
-            inlineKeyboardButton.setText(EmojiParser.parseToUnicode(":white_check_mark:"+newText));}
-        return keyboardMessageCache.get(userId);
+
+    private String removeMark(String string){
+        return EmojiParser.parseToAliases(string).replace(":white_check_mark:","");
     }
-
-
-    private String removeBracers(String string){
-        String replaceOne = string.replace("<", "").replace("<","");
-        return replaceOne.replace(">", "").replace(">","");
-    }
-
-
-    public boolean isMarked(InlineKeyboardMarkup markup, String field){
-        List<List<InlineKeyboardButton>> keyboard = markup.getKeyboard();
-        for(var row: keyboard){
-            if(row.get(0).getText().contains(field)){
-                return EmojiParser.parseToAliases(row.get(0).getText()).startsWith(":white_check_mark:");
-            }
-        }
-        return false;
+    public boolean isMarked(String text){
+        return EmojiParser.parseToAliases(text).startsWith(":white_check_mark:");
     }
 
 

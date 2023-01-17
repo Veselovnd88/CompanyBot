@@ -38,10 +38,6 @@ public class AddManagerByAdminMessageHandler implements UpdateHandler {
         Long userId = update.getMessage().getFrom().getId();
         adminCache.addManager(adminId,from);
         InlineKeyboardMarkup inlineKeyboardMarkup = divisionKeyboardUtils.departmentKeyboard();
-        InlineKeyboardButton noDivisionButton = new InlineKeyboardButton();
-        noDivisionButton.setCallbackData("NONE");
-        noDivisionButton.setText("Отписать от направлений");
-        inlineKeyboardMarkup.getKeyboard().add(List.of(noDivisionButton));
         log.info("{}: принято пересланное сообщение от назначаемого менеджера", userId);
         return SendMessage.builder().chatId(userId)
                 .text(MessageUtils.AWAIT_DEPARTMENT)

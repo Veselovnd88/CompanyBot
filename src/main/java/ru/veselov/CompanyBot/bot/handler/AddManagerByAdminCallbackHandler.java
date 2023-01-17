@@ -37,23 +37,20 @@ public class AddManagerByAdminCallbackHandler implements UpdateHandler {
     @Override
     public BotApiMethod<?> processUpdate(Update update) {
         List<Division> all = divisionDAO.findAll();
+        List<String> ids = all.stream().map(Division::getDivisionId).toList();
         Long userId = update.getCallbackQuery().getFrom().getId();
         String data = update.getCallbackQuery().getData();
-        if(all.contains(data)) {
+        if(ids.contains(data)) {
             Optional<Division> one = divisionDAO.findOne(data);
             if (one.isPresent()) {
-                EditMessageReplyMarkup editMessageReplyMarkup = divisionKeyboardUtils.divisionChooseField(update, data);
-                if(divisionKeyboardUtils.isMarked(editMessageReplyMarkup.getReplyMarkup(),data)){
-                    adminCache.addDivision(userId, one.get());}
-                //FIXME else remove from cache
-                return null;
-
+                return divisionKeyboardUtils.divisionChooseField(update, data);
             }
         }
-        if(data.equalsIgnoreCase("NONE")){
-            return SendMessage.builder().chatId(userId)
-                    .text("Менеджер отписан от упоминаний, вы можете удалить его из базы")
-                    .build();
+        if(data.equalsIgnoreCase("none")){
+            return divisionKeyboardUtils.divisionChooseField(update,data);
+        }
+        if(data.equalsIgnoreCase("save")){
+            //TODO save взять клавиатуру, пройти по каждой строке и узнать какие тру
         }
 
         return AnswerCallbackQuery.builder().callbackQueryId(update.getCallbackQuery().getId())
