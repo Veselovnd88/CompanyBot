@@ -12,6 +12,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
+import ru.veselov.CompanyBot.bot.BotState;
 import ru.veselov.CompanyBot.bot.CompanyBot;
 import ru.veselov.CompanyBot.cache.AdminCache;
 import ru.veselov.CompanyBot.cache.ContactCache;
@@ -23,6 +24,7 @@ import ru.veselov.CompanyBot.service.ManagerService;
 import ru.veselov.CompanyBot.util.DivisionKeyboardUtils;
 
 import java.util.HashMap;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -46,7 +48,7 @@ class AddManagerByAdminCallbackHandlerTest {
     private UserDataCache userDataCache;
     @MockBean
     private ManagerService managerService;
-    @MockBean
+    @Autowired
     private AdminCache adminCache;
     Update update;
     CallbackQuery callbackQuery;
@@ -59,7 +61,7 @@ class AddManagerByAdminCallbackHandlerTest {
         callbackQuery=spy(CallbackQuery.class);
         update.setCallbackQuery(callbackQuery);
         user=spy(User.class);
-        user.setId(100L);
+        user.setId(adminId);
         callbackQuery.setFrom(user);
         callbackQuery.setId("100");
 
@@ -81,12 +83,13 @@ class AddManagerByAdminCallbackHandlerTest {
     @Test
     void saveButtonTest(){
         callbackQuery.setData("save");
-        addManagerByAdminCallbackHandler.processUpdate(update);
         User manager = new User();
         manager.setId(200L);
+        when(divisionKeyboardUtils.getMarkedDivisions(anyLong())).thenReturn(Set.of(new Division()));
         manager.setUserName("VVasya");
-        when(adminCache.getManager(200L)).thenReturn(manager);
-        verify(managerService).saveWithDivisions(manager,anySet());
-        //FIXME проверить второй аргумент в сервисе
+        adminCache.addManager(adminId,manager);
+        addManagerByAdminCallbackHandler.processUpdate(update);
+        verify(managerService).saveWithDivisions(manager,divisionKeyboardUtils.getMarkedDivisions(200L));
+        assertEquals(BotState.READY,userDataCache.getUserBotState(adminId));
     }
 }

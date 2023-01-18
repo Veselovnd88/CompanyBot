@@ -11,5 +11,6 @@ public enum BotState {
     AWAIT_DEPARTMENT,
     AWAIT_MESSAGE,
     AWAIT_SAVING,
-    AWAIT_MANAGER
+    AWAIT_MANAGER,
+    ASSIGN_DIV;
 }
