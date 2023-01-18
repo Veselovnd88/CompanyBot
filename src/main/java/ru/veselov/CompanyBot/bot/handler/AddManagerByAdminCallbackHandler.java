@@ -7,28 +7,36 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.User;
+import ru.veselov.CompanyBot.bot.BotState;
 import ru.veselov.CompanyBot.bot.UpdateHandler;
 import ru.veselov.CompanyBot.cache.AdminCache;
-import ru.veselov.CompanyBot.dao.DivisionDAO;
+import ru.veselov.CompanyBot.cache.UserDataCache;
 import ru.veselov.CompanyBot.entity.Division;
+import ru.veselov.CompanyBot.service.DivisionService;
+import ru.veselov.CompanyBot.service.ManagerService;
 import ru.veselov.CompanyBot.util.DivisionKeyboardUtils;
 import ru.veselov.CompanyBot.util.MessageUtils;
 
 import java.util.HashMap;
-import java.util.Optional;
+import java.util.Set;
 
 @Component
 @Slf4j
 public class AddManagerByAdminCallbackHandler implements UpdateHandler {
     @Value("${bot.adminId}")
     private Long adminId;
-    private final DivisionDAO divisionDAO;
+    private final DivisionService divisionService;
+    private final UserDataCache userDataCache;
     private final DivisionKeyboardUtils divisionKeyboardUtils;
+    private final ManagerService managerService;
     private final AdminCache adminCache;
     @Autowired
-    public AddManagerByAdminCallbackHandler(DivisionDAO divisionDAO, DivisionKeyboardUtils divisionKeyboardUtils, AdminCache adminCache) {
-        this.divisionDAO = divisionDAO;
+    public AddManagerByAdminCallbackHandler(DivisionService divisionService, UserDataCache userDataCache, DivisionKeyboardUtils divisionKeyboardUtils, ManagerService managerService, AdminCache adminCache) {
+        this.divisionService = divisionService;
+        this.userDataCache = userDataCache;
         this.divisionKeyboardUtils = divisionKeyboardUtils;
+        this.managerService = managerService;
         this.adminCache = adminCache;
     }
 
@@ -38,14 +46,20 @@ public class AddManagerByAdminCallbackHandler implements UpdateHandler {
         Long userId = update.getCallbackQuery().getFrom().getId();
         String data = update.getCallbackQuery().getData();
         log.info("{}: нажата кнопка {}",userId,data);
-        if(keyboardDivs.containsKey(data)|| data.endsWith("+marked")) {
-                return divisionKeyboardUtils.divisionChooseField(update, data);
-            }
-
-        if(data.equalsIgnoreCase("save")){
-            //TODO save взять клавиатуру, пройти по каждой строке и узнать какие тру
+        if(keyboardDivs.containsKey(data)) {
+            return divisionKeyboardUtils.divisionChooseField(update, data);
         }
 
+        if(data.equalsIgnoreCase("save")){
+            Set<Division> markedDivisions = divisionKeyboardUtils.getMarkedDivisions(userId);
+            User manager = adminCache.getManager(adminId);
+            managerService.saveWithDivisions(manager,markedDivisions);
+            log.info("{}: отделы менеджера обновлены", userId);
+            userDataCache.setUserBotState(userId, BotState.READY);
+            return AnswerCallbackQuery.builder().callbackQueryId(update.getCallbackQuery().getId())
+                    .text(MessageUtils.SAVED)
+                    .build();
+        }
         return AnswerCallbackQuery.builder().callbackQueryId(update.getCallbackQuery().getId())
                 .text(MessageUtils.ERROR)
                 .build();

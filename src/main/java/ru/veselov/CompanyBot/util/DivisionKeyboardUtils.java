@@ -17,12 +17,9 @@ import java.util.*;
 @Component
 @Slf4j
 public class DivisionKeyboardUtils implements Cache {//FIXME возможно есть смысл сделать общего предка у клавиатурных классов
-
+    private final String mark="+marked";
     private final DivisionService divisionService;
     private final HashMap<String, Division> nameToDivision =new HashMap<>();
-
-    private final String mark="+marked";
-
     private final HashMap<Long, EditMessageReplyMarkup> divisionKeyboardCache = new HashMap<>();
     @Autowired
     public DivisionKeyboardUtils(DivisionService divisionService) {
@@ -97,7 +94,6 @@ public class DivisionKeyboardUtils implements Cache {//FIXME возможно е
         return editedKeyboard;
     }
 
-
     private void removeMark(InlineKeyboardButton button){
         button.setText(EmojiParser.parseToAliases(button.getText()).replace(":white_check_mark:",""));
         button.setCallbackData(button.getCallbackData().replace(mark,""));
@@ -124,12 +120,17 @@ public class DivisionKeyboardUtils implements Cache {//FIXME возможно е
     }
 
     public HashMap<String, Division> getKeyboardDivs() {
-        return nameToDivision;
+        HashMap<String, Division> withMarked= new HashMap<>();
+        nameToDivision.forEach((x,y)->{
+            withMarked.put(x,y);
+            withMarked.put(x+mark,y);
+                });
+        return withMarked;
     }
 
     @Override
     public void clear(Long userId) {
-        //FIXME clear
+        divisionKeyboardCache.remove(userId);
+        nameToDivision.clear();
     }
-
 }

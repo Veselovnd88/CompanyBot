@@ -3,6 +3,8 @@ package ru.veselov.CompanyBot.util;
 import com.vdurmont.emoji.EmojiParser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -15,7 +17,7 @@ import ru.veselov.CompanyBot.bot.CompanyBot;
 import ru.veselov.CompanyBot.entity.Division;
 import ru.veselov.CompanyBot.service.DivisionService;
 
-import javax.annotation.PostConstruct;
+import java.util.HashMap;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -70,6 +72,27 @@ class DivisionKeyboardUtilsTest {
         assertEquals(3,inlineKeyboardMarkup.getKeyboard().size());
     }
 
+
+    @ParameterizedTest
+    @ValueSource(strings = {"T","T2"})
+    void chooseButtonTest(String field){
+        //При нажатии на кнопку к тексту прибавляется/убирается галочка, к коллбэку - пометка
+        EditMessageReplyMarkup firstPress = divisionKeyboardUtils.divisionChooseField(update, field);
+        var firstKeyboard=firstPress.getReplyMarkup().getKeyboard();
+        for(var row : firstKeyboard) {
+            if(row.get(0).getCallbackData().equals(field)){
+                assertTrue(EmojiParser.parseToAliases(row.get(0).getText()).startsWith(":white"));
+                assertTrue(row.get(0).getCallbackData().endsWith("marked"));}
+        }
+        var secondPress =divisionKeyboardUtils.divisionChooseField(update,field+"+marked");
+        var secondKeyboard = secondPress.getReplyMarkup().getKeyboard();
+        for(var row : secondKeyboard) {
+            if(row.get(0).getCallbackData().equals(field)){
+                assertFalse(EmojiParser.parseToAliases(row.get(0).getText()).startsWith(":white"));
+                assertFalse(row.get(0).getCallbackData().endsWith("marked"));}
+        }
+    }
+
     @Test
     void pressNoneButtonWithMarksTest(){
         //Нажатие кнопки "none" должно убирать пометки со всех кнопок
@@ -95,6 +118,14 @@ class DivisionKeyboardUtilsTest {
         divisionKeyboardUtils.divisionChooseField(update,"T");
         divisionKeyboardUtils.divisionChooseField(update,"none");
         assertEquals(0,divisionKeyboardUtils.getMarkedDivisions(user.getId()).size());
+    }
+
+    @Test
+    void keyBoardDivsVars(){
+        //Проверка добавления в мапу всех возможных отделов *2 (с отметками)
+        divisionKeyboardUtils.divisionChooseField(update,"T");
+        HashMap<String, Division> keyboardDivs = divisionKeyboardUtils.getKeyboardDivs();
+        assertEquals(4,keyboardDivs.size());
     }
 
 
