@@ -9,14 +9,10 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import ru.veselov.CompanyBot.bot.UpdateHandler;
 import ru.veselov.CompanyBot.cache.AdminCache;
 import ru.veselov.CompanyBot.util.DivisionKeyboardUtils;
 import ru.veselov.CompanyBot.util.MessageUtils;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Component
 @Slf4j
@@ -37,7 +33,7 @@ public class AddManagerByAdminMessageHandler implements UpdateHandler {
         User from = update.getMessage().getForwardFrom();
         Long userId = update.getMessage().getFrom().getId();
         adminCache.addManager(adminId,from);
-        InlineKeyboardMarkup inlineKeyboardMarkup = divisionKeyboardUtils.departmentKeyboard();
+        InlineKeyboardMarkup inlineKeyboardMarkup = divisionKeyboardUtils.divisionKeyboard();
         log.info("{}: принято пересланное сообщение от назначаемого менеджера", userId);
         return SendMessage.builder().chatId(userId)
                 .text(MessageUtils.AWAIT_DEPARTMENT)

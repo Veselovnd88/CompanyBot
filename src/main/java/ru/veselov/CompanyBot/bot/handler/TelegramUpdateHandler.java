@@ -28,11 +28,12 @@ public class TelegramUpdateHandler implements UpdateHandler {
     private final AddManagerByAdminMessageHandler addManagerByAdminMessageHandler;
     private final ContactMessageHandler contactMessageHandler;
     private final ChannelConnectHandler channelConnectHandler;
+    private final AddManagerByAdminCallbackHandler addManagerByAdminCallbackHandler;
     private final UserDataCache userDataCache;
     @Autowired
     public TelegramUpdateHandler(CommandHandler commandHandler,
                                  DepartmentCallbackHandler departmentCallbackHandler,
-                                 InquiryMessageHandler inquiryMessageHandler, ContactCallbackHandler contactCallbackHandler, AddManagerByAdminMessageHandler addManagerByAdminMessageHandler, ContactMessageHandler contactMessageHandler, ChannelConnectHandler channelConnectHandler, UserDataCache userDataCache) {
+                                 InquiryMessageHandler inquiryMessageHandler, ContactCallbackHandler contactCallbackHandler, AddManagerByAdminMessageHandler addManagerByAdminMessageHandler, ContactMessageHandler contactMessageHandler, ChannelConnectHandler channelConnectHandler, AddManagerByAdminCallbackHandler addManagerByAdminCallbackHandler, UserDataCache userDataCache) {
         this.commandHandler = commandHandler;
         this.departmentCallbackHandler = departmentCallbackHandler;
         this.inquiryMessageHandler = inquiryMessageHandler;
@@ -40,6 +41,7 @@ public class TelegramUpdateHandler implements UpdateHandler {
         this.addManagerByAdminMessageHandler = addManagerByAdminMessageHandler;
         this.contactMessageHandler = contactMessageHandler;
         this.channelConnectHandler = channelConnectHandler;
+        this.addManagerByAdminCallbackHandler = addManagerByAdminCallbackHandler;
         this.userDataCache = userDataCache;
     }
 
@@ -83,6 +85,9 @@ public class TelegramUpdateHandler implements UpdateHandler {
             }
             if(isContactInputCallbackState(botState)){//при нажатии кнопки Ввести данные об обратной связи
                 return contactCallbackHandler.processUpdate(update);
+            }
+            if(botState==BotState.AWAIT_MANAGER){
+                return addManagerByAdminCallbackHandler.processUpdate(update);
             }
         }
 

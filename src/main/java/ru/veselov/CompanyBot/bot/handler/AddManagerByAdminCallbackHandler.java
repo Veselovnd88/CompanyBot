@@ -6,8 +6,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.veselov.CompanyBot.bot.UpdateHandler;
 import ru.veselov.CompanyBot.cache.AdminCache;
@@ -16,7 +14,7 @@ import ru.veselov.CompanyBot.entity.Division;
 import ru.veselov.CompanyBot.util.DivisionKeyboardUtils;
 import ru.veselov.CompanyBot.util.MessageUtils;
 
-import java.util.List;
+import java.util.HashMap;
 import java.util.Optional;
 
 @Component
@@ -36,19 +34,14 @@ public class AddManagerByAdminCallbackHandler implements UpdateHandler {
 
     @Override
     public BotApiMethod<?> processUpdate(Update update) {
-        List<Division> all = divisionDAO.findAll();
-        List<String> ids = all.stream().map(Division::getDivisionId).toList();
+        HashMap<String, Division> keyboardDivs = divisionKeyboardUtils.getKeyboardDivs();
         Long userId = update.getCallbackQuery().getFrom().getId();
         String data = update.getCallbackQuery().getData();
-        if(ids.contains(data)) {
-            Optional<Division> one = divisionDAO.findOne(data);
-            if (one.isPresent()) {
+        log.info("{}: нажата кнопка {}",userId,data);
+        if(keyboardDivs.containsKey(data)|| data.endsWith("+marked")) {
                 return divisionKeyboardUtils.divisionChooseField(update, data);
             }
-        }
-        if(data.equalsIgnoreCase("none")){
-            return divisionKeyboardUtils.divisionChooseField(update,data);
-        }
+
         if(data.equalsIgnoreCase("save")){
             //TODO save взять клавиатуру, пройти по каждой строке и узнать какие тру
         }

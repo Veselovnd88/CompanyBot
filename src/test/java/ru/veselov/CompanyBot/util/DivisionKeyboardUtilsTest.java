@@ -3,8 +3,6 @@ package ru.veselov.CompanyBot.util;
 import com.vdurmont.emoji.EmojiParser;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -17,6 +15,7 @@ import ru.veselov.CompanyBot.bot.CompanyBot;
 import ru.veselov.CompanyBot.entity.Division;
 import ru.veselov.CompanyBot.service.DivisionService;
 
+import javax.annotation.PostConstruct;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -26,10 +25,12 @@ import static org.mockito.Mockito.when;
 @SpringBootTest
 @ActiveProfiles("test")
 class DivisionKeyboardUtilsTest {
+
     @Autowired
-    private DivisionKeyboardUtils divisionKeyboardUtils;
+    DivisionKeyboardUtils divisionKeyboardUtils;
     @MockBean
     private DivisionService divisionService;
+
     @MockBean
     CompanyBot companyBot;
 
@@ -38,6 +39,7 @@ class DivisionKeyboardUtilsTest {
     User user;
     Message message;
     Chat chat;
+
 
     @BeforeEach
     void init(){
@@ -54,7 +56,6 @@ class DivisionKeyboardUtilsTest {
         update.setCallbackQuery(callbackQuery);
         callbackQuery.setFrom(user);
         user.setId(userId);
-
         when(divisionService.findAll()).thenReturn(List.of(
                 Division.builder().divisionId("T").name("Test").build(),
                 Division.builder().divisionId("T2").name("Test2").build()
@@ -64,23 +65,37 @@ class DivisionKeyboardUtilsTest {
 
     @Test
     void createKeyboardTest(){
-        InlineKeyboardMarkup inlineKeyboardMarkup = divisionKeyboardUtils.departmentKeyboard();
+        InlineKeyboardMarkup inlineKeyboardMarkup = divisionKeyboardUtils.divisionKeyboard();
         assertInstanceOf(InlineKeyboardMarkup.class, inlineKeyboardMarkup);
-        assertEquals(4,inlineKeyboardMarkup.getKeyboard().size());
+        assertEquals(3,inlineKeyboardMarkup.getKeyboard().size());
     }
 
-    @ParameterizedTest
-    @ValueSource(strings = {"Test","Test2"})
-    void pressButtonExceptNoneTest(String field){
-        EditMessageReplyMarkup editMessageReplyMarkup = divisionKeyboardUtils.divisionChooseField(update, field);
-        List<List<InlineKeyboardButton>> keyboard = editMessageReplyMarkup.getReplyMarkup().getKeyboard();
-        for(var row : keyboard){
-            if(row.get(0).getText().equalsIgnoreCase(field)){
-                assertTrue(EmojiParser.parseToAliases(row.get(0).getText()).startsWith(":white"));
-            }
+    @Test
+    void pressNoneButtonWithMarksTest(){
+        //Нажатие кнопки "none" должно убирать пометки со всех кнопок
+        divisionKeyboardUtils.divisionChooseField(update,"T");
+        divisionKeyboardUtils.divisionChooseField(update,"T2");
+        EditMessageReplyMarkup secondPress = divisionKeyboardUtils.divisionChooseField(update, "none");
+        List<List<InlineKeyboardButton>> secondPressKeyboard = secondPress.getReplyMarkup().getKeyboard();
+        for(var row : secondPressKeyboard){
+            assertFalse(EmojiParser.parseToAliases(row.get(0).getText()).startsWith(":white"));
         }
     }
 
-    //TODO продолжить тестирование клавиатуры
+    @Test
+    void getMarkedButtonsTest(){
+        //Проверка выдачи кнопок с отметками
+        divisionKeyboardUtils.divisionChooseField(update,"T");
+        divisionKeyboardUtils.divisionChooseField(update,"T2");
+        assertEquals(2,divisionKeyboardUtils.getMarkedDivisions(user.getId()).size());
+        divisionKeyboardUtils.divisionChooseField(update,"T+marked");
+        assertEquals(1,divisionKeyboardUtils.getMarkedDivisions(user.getId()).size());
+        divisionKeyboardUtils.divisionChooseField(update,"T2+marked");
+        assertEquals(0,divisionKeyboardUtils.getMarkedDivisions(user.getId()).size());
+        divisionKeyboardUtils.divisionChooseField(update,"T");
+        divisionKeyboardUtils.divisionChooseField(update,"none");
+        assertEquals(0,divisionKeyboardUtils.getMarkedDivisions(user.getId()).size());
+    }
+
 
 }
