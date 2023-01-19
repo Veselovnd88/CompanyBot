@@ -76,7 +76,10 @@ class ManagerServiceTest {
         assertTrue(managerService.findOne(100L).isPresent());
         assertEquals("UserName",managerService.findOne(100L).get().getUserName());
         assertEquals(2,managerService.findOneWithDivisions(user.getId()).get().getDivisions().size());
+        managerService.saveWithDivisions(user,new HashSet<>());
+        assertEquals(0,managerService.findOneWithDivisions(user.getId()).get().getDivisions().size());
     }
+    //FIXME при показе клавиатуры если пользователь уже есть - выдывавать ему не пустую клавиатуру а с отметками (подумать)
 
     @Test
     void saveWithDivisionsMixed(){
@@ -109,7 +112,6 @@ class ManagerServiceTest {
         managerService.saveWithDivisions(user,Set.of(division1));
         assertTrue(managerService.findOne(100L).isPresent());
         assertEquals("UserName",managerService.findOne(100L).get().getUserName());
-        System.out.println(managerService.findOneWithDivisions(user.getId()).get().getDivisions());
         assertEquals(1,managerService.findOneWithDivisions(user.getId()).get().getDivisions().size());
     }
 

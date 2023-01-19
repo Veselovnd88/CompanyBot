@@ -63,13 +63,7 @@ public class DivisionKeyboardUtils implements Cache {//FIXME возможно е
         else{
             inlineKeyboardMarkup = divisionKeyboard();
         }
-        if(field.equalsIgnoreCase("none")){
-            for(var keyboard :inlineKeyboardMarkup.getKeyboard()){
-                removeMark(keyboard.get(0));
-            }
-        }
-        else{
-            for(var keyboard: inlineKeyboardMarkup.getKeyboard()){
+        for(var keyboard: inlineKeyboardMarkup.getKeyboard()){
                 //находим кнопку на которую нажали
                 if(keyboard.get(0).getCallbackData().equalsIgnoreCase(field)){
                     //если маркер стоит - то снимаем
@@ -83,8 +77,8 @@ public class DivisionKeyboardUtils implements Cache {//FIXME возможно е
                         keyboard.get(0).setCallbackData(keyboard.get(0).getCallbackData()+mark);
                     }
                 }
-            }
         }
+
         EditMessageReplyMarkup editedKeyboard = EditMessageReplyMarkup.builder()
                 .chatId(update.getCallbackQuery().getMessage().getChatId().toString())
                 .messageId(update.getCallbackQuery().getMessage().getMessageId())

@@ -55,7 +55,9 @@ public class AddManagerByAdminCallbackHandler implements UpdateHandler {
             User manager = adminCache.getManager(adminId);
             managerService.saveWithDivisions(manager,markedDivisions);
             log.info("{}: отделы менеджера обновлены", userId);
+            adminCache.clear(adminId);
             userDataCache.setUserBotState(userId, BotState.READY);
+            divisionKeyboardUtils.clear(adminId);
             return AnswerCallbackQuery.builder().callbackQueryId(update.getCallbackQuery().getId())
                     .text(MessageUtils.SAVED)
                     .build();
