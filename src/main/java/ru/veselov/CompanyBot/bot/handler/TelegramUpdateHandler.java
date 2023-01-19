@@ -86,7 +86,7 @@ public class TelegramUpdateHandler implements UpdateHandler {
             if(isContactInputCallbackState(botState)){//при нажатии кнопки Ввести данные об обратной связи
                 return contactCallbackHandler.processUpdate(update);
             }
-            if(botState==BotState.ASSIGN_DIV){//FIXME проверить
+            if(botState==BotState.ASSIGN_DIV){
                 return addManagerByAdminCallbackHandler.processUpdate(update);
             }
         }

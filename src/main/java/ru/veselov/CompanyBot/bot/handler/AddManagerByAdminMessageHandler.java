@@ -34,8 +34,13 @@ public class AddManagerByAdminMessageHandler implements UpdateHandler {
 
     @Override
     public BotApiMethod<?> processUpdate(Update update) {
-        User from = update.getMessage().getForwardFrom();
         Long userId = update.getMessage().getFrom().getId();
+        if(update.getMessage().getForwardFrom()==null){
+            log.info("{}: не содержит пересланного сообщения", userId);
+            return SendMessage.builder().chatId(userId)
+                    .text(MessageUtils.AWAIT_MANAGER).build();
+        }
+        User from = update.getMessage().getForwardFrom();
         adminCache.addManager(adminId,from);
         InlineKeyboardMarkup inlineKeyboardMarkup = divisionKeyboardUtils.divisionKeyboard();
         log.info("{}: принято пересланное сообщение от назначаемого менеджера", userId);

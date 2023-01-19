@@ -3,6 +3,7 @@ package ru.veselov.CompanyBot.service;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
@@ -25,6 +26,8 @@ class ManagerServiceTest {
     private ManagerService managerService;
     @Autowired
     private DivisionService divisionService;
+    @MockBean
+    CommandLineRunner commandLineRunner;
     User user;
 
     @BeforeEach

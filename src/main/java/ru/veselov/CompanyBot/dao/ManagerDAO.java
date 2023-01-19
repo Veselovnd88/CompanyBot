@@ -32,40 +32,49 @@ public class ManagerDAO {
 
     @Transactional
     public void save(ManagerEntity managerEntity){
-        entityManager.persist(managerEntity);
-    }
-    @Transactional
-    public void saveWithDivisions(ManagerEntity managerEntity, Set<Division> divisionSet){
-        for(Division d: divisionSet){
-            Optional<Division> one = divisionDAO.findOne(d.getDivisionId());
-            if(one.isPresent()){
-                managerEntity.addDivision(one.get());
-            }
-            else{
-                managerEntity.addDivision(d);
-            }
-        }
-        entityManager.persist(managerEntity);
-    }
-
-    @Transactional
-    public void updateWithDivisions(ManagerEntity managerEntity, Set<Division> divisionSet){
-        Optional<ManagerEntity> one = findOne(managerEntity.getManagerId());
-        if(one.isPresent()){
-            ManagerEntity manager = one.get();
-            List<Division> allDivs = divisionDAO.findAll();
-            for(Division d: allDivs){
-                    if(divisionSet.contains(d)){
-                        manager.addDivision(d);
+        Optional<ManagerEntity> optionalManager = findOne(managerEntity.getManagerId());
+        if(optionalManager.isPresent()){
+            managerEntity=optionalManager.get();
+                for(Division d: managerEntity.getDivisions()){
+                    Optional<Division> one = divisionDAO.findOne(d.getDivisionId());
+                    if(one.isPresent()){
+                        managerEntity.addDivision(one.get());
                     }
                     else{
-                        manager.removeDivision(d);
-                }
+                        managerEntity.addDivision(d);
+                    }
             }
-            entityManager.persist(manager);
         }
+        entityManager.persist(managerEntity);
     }
 
+    @Transactional
+    public void saveWithDivisions(ManagerEntity managerEntity, Set<Division> divisionSet){
+        Optional<ManagerEntity> optManager = findOne(managerEntity.getManagerId());
+        if(optManager.isEmpty()) {
+            for (Division d : divisionSet) {
+                Optional<Division> one = divisionDAO.findOne(d.getDivisionId());
+                if (one.isPresent()) {
+                    managerEntity.addDivision(one.get());
+                } else {
+                    managerEntity.addDivision(d);
+                }
+            }
+        }
+        else{
+            managerEntity=optManager.get();
+            List<Division> allDivs = divisionDAO.findAll();
+            for(Division d: allDivs){
+                if(divisionSet.contains(d)){
+                    managerEntity.addDivision(d);
+                }
+                else{
+                    managerEntity.removeDivision(d);
+                }
+            }
+        }
+        entityManager.persist(managerEntity);
+    }
 
 
     @SuppressWarnings("unchecked")
