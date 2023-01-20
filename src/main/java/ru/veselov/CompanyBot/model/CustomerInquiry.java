@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.User;
+import ru.veselov.CompanyBot.entity.Division;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -12,13 +13,13 @@ import java.util.List;
 @Setter
 @NoArgsConstructor
 public class CustomerInquiry {
-    private Department department;
+    private Division division;
     private List<Message> messages= new LinkedList<>();
     private Long userId;
 
-    public CustomerInquiry(Long userId, Department department){
+    public CustomerInquiry(Long userId, Division division){
         this.userId = userId;
-        this.department = department;
+        this.division = division;
     }
     public void addMessage(Message message){
         messages.add(message);

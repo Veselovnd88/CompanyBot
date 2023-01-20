@@ -22,7 +22,7 @@ import java.util.*;
 public class DivisionKeyboardUtils implements Cache {//FIXME возможно есть смысл сделать общего предка у клавиатурных классов
     private final String mark="+marked";
     private final DivisionService divisionService;
-    private final HashMap<String, Division> nameToDivision =new HashMap<>();
+    private final HashMap<String, Division> idToDivision =new HashMap<>();
     private final HashMap<Long, EditMessageReplyMarkup> divisionKeyboardCache = new HashMap<>();
     private final ManagerService managerService;
     private final String emojiMark = ":white_check_mark:";
@@ -32,14 +32,10 @@ public class DivisionKeyboardUtils implements Cache {//FIXME возможно е
         this.managerService = managerService;
     }
 
-    public InlineKeyboardMarkup divisionKeyboard(User user){
-        //After creation ov keyboard all divisions placed in cache
-        List<Division> allDivisions = divisionService.findAll();
-        for(var d: allDivisions){
-            nameToDivision.put(d.getDivisionId(),d);
-        }
+    public InlineKeyboardMarkup getAdminDivisionKeyboard(Long fromId){
+        List<Division> allDivisions = refreshDivisions();
         //Checking if manager exists in db, for indicating owned divisions
-        Optional<ManagerEntity> oneWithDivisions = managerService.findOneWithDivisions(user.getId());
+        Optional<ManagerEntity> oneWithDivisions = managerService.findOneWithDivisions(fromId);
         Set<Division> managersDivision=new HashSet<>();
         if(oneWithDivisions.isPresent()){
             managersDivision=oneWithDivisions.get().getDivisions();
@@ -71,7 +67,26 @@ public class DivisionKeyboardUtils implements Cache {//FIXME возможно е
     }
 
 
-    public EditMessageReplyMarkup divisionChooseField(Update update, String field){
+    public InlineKeyboardMarkup getCustomerDivisionKeyboard(){
+        List<Division> allDivisions = refreshDivisions();
+        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+        InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+        for(var d: allDivisions){
+            String name = d.getName();
+            String callback = d.getDivisionId();
+            InlineKeyboardButton button = new InlineKeyboardButton();
+            button.setText(name);
+            button.setCallbackData(callback);
+            List<InlineKeyboardButton> row = new ArrayList<>();
+            row.add(button);
+            keyboard.add(row);
+        }
+        markup.setKeyboard(keyboard);
+        return markup;
+    }
+
+
+    public EditMessageReplyMarkup divisionChooseField(Update update, String field, Long fromId){
         Long userId = update.getCallbackQuery().getFrom().getId();
         InlineKeyboardMarkup inlineKeyboardMarkup;
         //Create new keyboard or send it from our cache
@@ -79,7 +94,7 @@ public class DivisionKeyboardUtils implements Cache {//FIXME возможно е
             inlineKeyboardMarkup = divisionKeyboardCache.get(userId).getReplyMarkup();
         }
         else{
-            inlineKeyboardMarkup = divisionKeyboard(update.getMessage().getForwardFrom());
+            inlineKeyboardMarkup = getAdminDivisionKeyboard(fromId);
         }
         for(var keyboard: inlineKeyboardMarkup.getKeyboard()){
                 //находим кнопку на которую нажали
@@ -126,21 +141,33 @@ public class DivisionKeyboardUtils implements Cache {//FIXME возможно е
     }
 
     private Division getDivisionByName(String name){
-        return nameToDivision.get(name);
+        return idToDivision.get(name);
     }
 
     public HashMap<String, Division> getKeyboardDivs() {
         HashMap<String, Division> withMarked= new HashMap<>();
-        nameToDivision.forEach((x,y)->{
+        idToDivision.forEach((x, y)->{
             withMarked.put(x,y);
             withMarked.put(x+mark,y);
                 });
         return withMarked;
     }
+    public HashMap<String, Division> getCachedDivisions() {
+        return idToDivision;
+    }
 
     @Override
     public void clear(Long userId) {
         divisionKeyboardCache.remove(userId);
-        nameToDivision.clear();//FIXME не очищать кеш будем использовать при выдаче клавиатуры
+        idToDivision.clear();
+    }
+
+    private List<Division> refreshDivisions(){
+        //After creation ov keyboard all divisions placed in cache
+        List<Division> allDivisions = divisionService.findAll();
+        for(var d: allDivisions){
+            idToDivision.put(d.getDivisionId(),d);
+        }
+        return allDivisions;
     }
 }

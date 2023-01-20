@@ -6,12 +6,11 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.*;
-import org.telegram.telegrambots.meta.api.objects.Chat;
-import org.telegram.telegrambots.meta.api.objects.InputFile;
-import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.*;
 import org.telegram.telegrambots.meta.api.objects.media.*;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.veselov.CompanyBot.bot.CompanyBot;
+import ru.veselov.CompanyBot.entity.Division;
 import ru.veselov.CompanyBot.model.CustomerContact;
 import ru.veselov.CompanyBot.model.CustomerInquiry;
 import ru.veselov.CompanyBot.util.MessageUtils;
@@ -26,12 +25,14 @@ public class SenderService {
     @Value("${bot.chat-interval}")
     private long chatInterval;
     private final CompanyBot bot;
+    private final DivisionService divisionService;
     private final ChatService chatService;
     private final Map<Long, Date> chatTimers = new HashMap<>();
     private Chat adminChat;
     @Autowired
-    public SenderService(CompanyBot bot, ChatService chatService) {
+    public SenderService(CompanyBot bot, DivisionService divisionService, ChatService chatService) {
         this.bot = bot;
+        this.divisionService = divisionService;
         this.chatService = chatService;
     }
 
@@ -77,9 +78,32 @@ public class SenderService {
                 }
             }
             if (inquiry != null){
-                log.info("Отправляю запрос пользователя {} в канал {}", inquiry.getUserId(), chat.getTitle());
+                log.info("{}: отправляю запрос пользователя в канал {}", inquiry.getUserId(), chat.getTitle());
+                Optional<Division> oneWithManagers = divisionService.findOneWithManagers(inquiry.getDivision());
+                if(oneWithManagers.isPresent()){
+                    if(oneWithManagers.get().getManagers().size()!=0) {
+                        List<MessageEntity> entities= new ArrayList<>();
+                        StringBuilder sb = new StringBuilder();
+                        int offset = 0;
+                        for (var manager : oneWithManagers.get().getManagers()) {
+                            User user = new User();
+                            user.setId(manager.getManagerId());
+                            user.setFirstName(manager.getFirstName());
+                            user.setLastName(manager.getLastName());
+                            user.setUserName(manager.getUserName());
+                            String name = manager.getLastName();
+                            sb.append(name).append("\n");
+                            MessageEntity messageEntity = new MessageEntity("text_mention", offset, name.length());//FIXME вот эту логику продумать
+                            entities.add(messageEntity);
+                            messageEntity.setUser(user);
+                            offset += name.length() + 1;
+                        }
+                        bot.execute(SendMessage.builder().chatId(chat.getId()).text(sb.toString()).entities(entities).build());
+                    }
+                }
+
                 bot.execute(SendMessage.builder().chatId(chat.getId())
-                        .text("Направлен следующий запрос по тематике "+inquiry.getDepartment()).build());
+                        .text("Направлен следующий запрос по тематике "+inquiry.getDivision().getName()).build());
                 /*TODO есть отделу забираем всех менеджеров - и составляем сообщение с отметкой каждого из них
                 “text_mention”
                 */
@@ -230,7 +254,6 @@ public class SenderService {
                 sendContact.setPhoneNumber(contact.getContact().getPhoneNumber());
                 bot.execute(sendContact);
             }
-            //TODO bot.execute Сообщение с отмеченным менеджером
             chatTimers.put(chat.getId(), new Date());
         }
     }

@@ -22,7 +22,7 @@ public class TelegramUpdateHandler implements UpdateHandler {
     @Value("${bot.adminId}")
     private String adminId;
     private final CommandHandler commandHandler;
-    private final DepartmentCallbackHandler departmentCallbackHandler;
+    private final DivisionCallbackHandler divisionCallbackHandler;
     private final InquiryMessageHandler inquiryMessageHandler;
     private final ContactCallbackHandler contactCallbackHandler;
     private final AddManagerByAdminMessageHandler addManagerByAdminMessageHandler;
@@ -32,10 +32,10 @@ public class TelegramUpdateHandler implements UpdateHandler {
     private final UserDataCache userDataCache;
     @Autowired
     public TelegramUpdateHandler(CommandHandler commandHandler,
-                                 DepartmentCallbackHandler departmentCallbackHandler,
+                                 DivisionCallbackHandler divisionCallbackHandler,
                                  InquiryMessageHandler inquiryMessageHandler, ContactCallbackHandler contactCallbackHandler, AddManagerByAdminMessageHandler addManagerByAdminMessageHandler, ContactMessageHandler contactMessageHandler, ChannelConnectHandler channelConnectHandler, AddManagerByAdminCallbackHandler addManagerByAdminCallbackHandler, UserDataCache userDataCache) {
         this.commandHandler = commandHandler;
-        this.departmentCallbackHandler = departmentCallbackHandler;
+        this.divisionCallbackHandler = divisionCallbackHandler;
         this.inquiryMessageHandler = inquiryMessageHandler;
         this.contactCallbackHandler = contactCallbackHandler;
         this.addManagerByAdminMessageHandler = addManagerByAdminMessageHandler;
@@ -81,7 +81,7 @@ public class TelegramUpdateHandler implements UpdateHandler {
         if(update.hasCallbackQuery()){
             BotState botState = userDataCache.getUserBotState(update.getCallbackQuery().getFrom().getId());
             if(botState==BotState.AWAIT_DEPARTMENT){
-                return departmentCallbackHandler.processUpdate(update);
+                return divisionCallbackHandler.processUpdate(update);
             }
             if(isContactInputCallbackState(botState)){//при нажатии кнопки Ввести данные об обратной связи
                 return contactCallbackHandler.processUpdate(update);

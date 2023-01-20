@@ -47,7 +47,7 @@ public class AddManagerByAdminCallbackHandler implements UpdateHandler {
         String data = update.getCallbackQuery().getData();
         log.info("{}: нажата кнопка {}",userId,data);
         if(keyboardDivs.containsKey(data)) {
-            return divisionKeyboardUtils.divisionChooseField(update, data);
+            return divisionKeyboardUtils.divisionChooseField(update, data,adminCache.getManager(adminId).getId());
         }
 
         if(data.equalsIgnoreCase("save")){
@@ -59,7 +59,7 @@ public class AddManagerByAdminCallbackHandler implements UpdateHandler {
             userDataCache.setUserBotState(userId, BotState.READY);
             divisionKeyboardUtils.clear(adminId);
             return AnswerCallbackQuery.builder().callbackQueryId(update.getCallbackQuery().getId())
-                    .text(MessageUtils.SAVED)
+                    .text(MessageUtils.SAVED)//FIXME не то сообщение
                     .build();
         }
         return AnswerCallbackQuery.builder().callbackQueryId(update.getCallbackQuery().getId())

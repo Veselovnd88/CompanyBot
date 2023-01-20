@@ -14,6 +14,7 @@ import ru.veselov.CompanyBot.bot.UpdateHandler;
 import ru.veselov.CompanyBot.cache.ContactCache;
 import ru.veselov.CompanyBot.cache.UserDataCache;
 import ru.veselov.CompanyBot.service.CustomerService;
+import ru.veselov.CompanyBot.util.DivisionKeyboardUtils;
 import ru.veselov.CompanyBot.util.MessageUtils;
 
 import java.util.ArrayList;
@@ -25,11 +26,13 @@ public class CommandHandler implements UpdateHandler {
     private final UserDataCache userDataCache;
     private final ContactCache contactCache;
     private final CustomerService customerService;
+    private final DivisionKeyboardUtils divisionKeyboardUtils;
     @Autowired
-    public CommandHandler(UserDataCache userDataCache, ContactCache contactCache, CustomerService customerService) {
+    public CommandHandler(UserDataCache userDataCache, ContactCache contactCache, CustomerService customerService, DivisionKeyboardUtils divisionKeyboardUtils) {
         this.userDataCache = userDataCache;
         this.contactCache = contactCache;
         this.customerService = customerService;
+        this.divisionKeyboardUtils = divisionKeyboardUtils;
     }
     /*Класс обрабатывает все апдейты, который содержат команды*/
     @Override
@@ -92,37 +95,9 @@ public class CommandHandler implements UpdateHandler {
 
 
     private SendMessage departmentMessageInlineKeyBoard(Long userId){
-        //TODO клавиатура будет забираться не отсюда а из базы данных
-        InlineKeyboardButton leuze = new InlineKeyboardButton();
-        leuze.setText("Оптические, ультразвуковые датчики LEUZE");
-        leuze.setCallbackData("leuze");
-        List<InlineKeyboardButton> row1 = new ArrayList<>();
-        row1.add(leuze);
-        InlineKeyboardButton lpkf = new InlineKeyboardButton();
-        lpkf.setText("Станки для производства печатных плат LPKF");
-        lpkf.setCallbackData("lpkf");
-        List<InlineKeyboardButton> row2 = new ArrayList<>();
-        row2.add(lpkf);
-        InlineKeyboardButton pressure = new InlineKeyboardButton();
-        pressure.setText("Датчики давления, температуры, расхода");
-        pressure.setCallbackData("pressure");
-        List<InlineKeyboardButton> row3 = new ArrayList<>();
-        row3.add(pressure);
-        InlineKeyboardButton common = new InlineKeyboardButton();
-        common.setText("Общие вопросы");
-        common.setCallbackData("common");
-        List<InlineKeyboardButton> row4= new ArrayList<>();
-        row4.add(common);
-
-        InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
-        List<List<InlineKeyboardButton>> rowList = new ArrayList<>();
-        rowList.add(row1);
-        rowList.add(row2);
-        rowList.add(row3);
-        rowList.add(row4);
-        markup.setKeyboard(rowList);
+        InlineKeyboardMarkup customerDivisionKeyboard = divisionKeyboardUtils.getCustomerDivisionKeyboard();
         return SendMessage.builder().chatId(userId).text(MessageUtils.CHOOSE_DEP)
-                .replyMarkup(markup).build();
+                .replyMarkup(customerDivisionKeyboard).build();
     }
 
     private SendMessage contactMessage(Long userId) {

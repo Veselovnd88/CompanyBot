@@ -3,10 +3,12 @@ package ru.veselov.CompanyBot.entity;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import ru.veselov.CompanyBot.model.Department;
 
 import javax.persistence.*;
-import java.util.*;
+import java.util.Date;
+import java.util.LinkedHashSet;
+import java.util.Objects;
+import java.util.Set;
 
 @Entity
 @NoArgsConstructor
@@ -22,10 +24,9 @@ public class Inquiry {
     @Temporal(TemporalType.TIMESTAMP)
     private Date date;
 
-
-    @Column
-    @Enumerated(EnumType.STRING)
-    private Department department;
+    @ManyToOne
+    @JoinColumn(name="division_id",referencedColumnName = "division_id")
+    private Division division;
 
     @OneToMany(mappedBy = "inquiry",orphanRemoval = true,cascade = CascadeType.ALL)
     private final Set<CustomerMessageEntity> messages = new LinkedHashSet<>();
@@ -44,11 +45,11 @@ public class Inquiry {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Inquiry inquiry = (Inquiry) o;
-        return date.equals(inquiry.date) && department == inquiry.department && messages.equals(inquiry.messages) && customer.equals(inquiry.customer);
+        return date.equals(inquiry.date) && division == inquiry.division && messages.equals(inquiry.messages) && customer.equals(inquiry.customer);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(date, department, messages, customer);
+        return Objects.hash(date, division, messages, customer);
     }
 }

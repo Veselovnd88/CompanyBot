@@ -78,7 +78,7 @@ class DivisionKeyboardUtilsTest {
 
     @Test
     void createKeyboardTestNoDivisions(){
-        InlineKeyboardMarkup inlineKeyboardMarkup = divisionKeyboardUtils.divisionKeyboard(userFrom);
+        InlineKeyboardMarkup inlineKeyboardMarkup = divisionKeyboardUtils.getAdminDivisionKeyboard(userFrom);
         assertInstanceOf(InlineKeyboardMarkup.class, inlineKeyboardMarkup);
         assertEquals(3,inlineKeyboardMarkup.getKeyboard().size());
         for(var row : inlineKeyboardMarkup.getKeyboard()) {
@@ -92,7 +92,7 @@ class DivisionKeyboardUtilsTest {
         managerEntity.setManagerId(1L);
         managerEntity.setDivisions(Set.of(Division.builder().divisionId("T").name("Test").build()));
         when(managerService.findOneWithDivisions(userFrom.getId())).thenReturn(Optional.of(managerEntity));
-        InlineKeyboardMarkup inlineKeyboardMarkup = divisionKeyboardUtils.divisionKeyboard(userFrom);
+        InlineKeyboardMarkup inlineKeyboardMarkup = divisionKeyboardUtils.getAdminDivisionKeyboard(userFrom);
         assertInstanceOf(InlineKeyboardMarkup.class, inlineKeyboardMarkup);
         assertEquals(3,inlineKeyboardMarkup.getKeyboard().size());
         for(var row : inlineKeyboardMarkup.getKeyboard()) {

@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.veselov.CompanyBot.bot.BotState;
 import ru.veselov.CompanyBot.cache.UserDataCache;
+import ru.veselov.CompanyBot.entity.Division;
 import ru.veselov.CompanyBot.model.CustomerInquiry;
 import ru.veselov.CompanyBot.model.Department;
 
@@ -33,9 +34,9 @@ public class UserDataCacheImpl implements UserDataCache {
     }
 
     @Override
-    public void createInquiry(Long userId, Department department) {
+    public void createInquiry(Long userId, Division division) {
         log.info("{}: создан объект Inquiry для пользователя ", userId);
-        CustomerInquiry customerInquiry = new CustomerInquiry(userId,department);
+        CustomerInquiry customerInquiry = new CustomerInquiry(userId,division);
         inquiryCache.put(userId,customerInquiry);
     }
 

@@ -24,7 +24,11 @@ public class Division {
     private String name;
 
     @ManyToMany(mappedBy = "divisions",cascade = {CascadeType.PERSIST,CascadeType.MERGE, CascadeType.REFRESH})
-    private Set<ManagerEntity> managers = new HashSet<>();
+    private final Set<ManagerEntity> managers = new HashSet<>();
+
+    @OneToMany(mappedBy = "division",orphanRemoval = false,
+            cascade = {CascadeType.PERSIST,CascadeType.REFRESH,CascadeType.MERGE})
+    private final Set<Inquiry> inquiries=new HashSet<>();
 
 
     @Override

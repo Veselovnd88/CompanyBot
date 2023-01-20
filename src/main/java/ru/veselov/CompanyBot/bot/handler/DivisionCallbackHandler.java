@@ -10,39 +10,31 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.veselov.CompanyBot.bot.BotState;
 import ru.veselov.CompanyBot.bot.UpdateHandler;
 import ru.veselov.CompanyBot.cache.UserDataCache;
-import ru.veselov.CompanyBot.model.Department;
+import ru.veselov.CompanyBot.entity.Division;
+import ru.veselov.CompanyBot.util.DivisionKeyboardUtils;
 import ru.veselov.CompanyBot.util.MessageUtils;
+
+import java.util.HashMap;
 
 @Component
 @Slf4j
-public class DepartmentCallbackHandler implements UpdateHandler {
+public class DivisionCallbackHandler implements UpdateHandler {
     private final UserDataCache userDataCache;
+    private final DivisionKeyboardUtils divisionKeyboardUtils;
     @Autowired
-    public DepartmentCallbackHandler(UserDataCache userDataCache) {
+    public DivisionCallbackHandler(UserDataCache userDataCache, DivisionKeyboardUtils divisionKeyboardUtils) {
         this.userDataCache = userDataCache;
+        this.divisionKeyboardUtils = divisionKeyboardUtils;
     }
 
     @Override
     public BotApiMethod<?> processUpdate(Update update) {
         Long userId = update.getCallbackQuery().getFrom().getId();
         String data = update.getCallbackQuery().getData();
-        Department department = null;
-        switch (data){
-            case "leuze":
-                department=Department.LEUZE;
-                break;
-            case "lpkf":
-                department=Department.LPKF;
-                break;
-            case "pressure":
-                department=Department.PRESSURE;
-                break;
-            case "common":
-                department=Department.COMMON;
-                break;
-        }
-        if(department!=null){
-            userDataCache.createInquiry(userId,department);
+        HashMap<String, Division> cachedDivisions = divisionKeyboardUtils.getCachedDivisions();
+        Division division=cachedDivisions.get(data);
+        if(division!=null){
+            userDataCache.createInquiry(userId,division);
             userDataCache.setUserBotState(userId, BotState.AWAIT_MESSAGE);
             return SendMessage.builder().chatId(userId)
                     .text("Введите ваш вопрос или перешлите мне сообщение").build();

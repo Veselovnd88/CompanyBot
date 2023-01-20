@@ -5,9 +5,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import ru.veselov.CompanyBot.dao.CustomerDAO;
+import ru.veselov.CompanyBot.dao.DivisionDAO;
 import ru.veselov.CompanyBot.dao.InquiryDAO;
 import ru.veselov.CompanyBot.entity.Customer;
 import ru.veselov.CompanyBot.entity.CustomerMessageEntity;
+import ru.veselov.CompanyBot.entity.Division;
 import ru.veselov.CompanyBot.entity.Inquiry;
 import ru.veselov.CompanyBot.model.CustomerInquiry;
 
@@ -20,21 +22,28 @@ import java.util.Optional;
 public class InquiryService {
     private final InquiryDAO inquiryDAO;
     private final CustomerDAO customerDAO;
+    private final DivisionDAO divisionDAO;
     @Autowired
-    public InquiryService(InquiryDAO inquiryDAO, CustomerDAO customerDAO) {
+    public InquiryService(InquiryDAO inquiryDAO, CustomerDAO customerDAO, DivisionDAO divisionDAO) {
         this.inquiryDAO = inquiryDAO;
         this.customerDAO = customerDAO;
+        this.divisionDAO = divisionDAO;
     }
 
     public Inquiry save(CustomerInquiry inquiry){
         Optional<Customer> customerEntity = customerDAO.findOne(inquiry.getUserId());
-        if(customerEntity.isPresent()){
+        Optional<Division> divisionOptional = divisionDAO.findOne(inquiry.getDivision().getDivisionId());
+        if(customerEntity.isPresent()&&divisionOptional.isPresent()){
             Inquiry inquiryEntity = toInquiryEntity(inquiry);
             inquiryEntity.setCustomer(customerEntity.get());
+            inquiryEntity.setDivision(divisionOptional.get());
             log.info("{}: запрос пользователя сохранен в БД",inquiry.getUserId());
             return inquiryDAO.save(inquiryEntity);
         }
-        else return null;
+
+        else{
+            log.info("{}: запрос не сохранен, т.к. в бд нет клиента или отдела",inquiry.getUserId());
+            return null;}
     }
     public Optional<Inquiry> findWithMessages(Integer id){
         return inquiryDAO.findOneWithMessages(id);
@@ -46,7 +55,6 @@ public class InquiryService {
 
     private Inquiry toInquiryEntity(CustomerInquiry customerInquiry){
         Inquiry inquiry = new Inquiry();
-        inquiry.setDepartment(customerInquiry.getDepartment());
         inquiry.setDate(new Date());
         for(Message message: customerInquiry.getMessages()){
             CustomerMessageEntity cme = new CustomerMessageEntity();

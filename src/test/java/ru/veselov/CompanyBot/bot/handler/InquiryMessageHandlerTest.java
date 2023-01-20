@@ -11,6 +11,7 @@ import org.telegram.telegrambots.meta.api.objects.MessageEntity;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import ru.veselov.CompanyBot.cache.UserDataCache;
+import ru.veselov.CompanyBot.entity.Division;
 import ru.veselov.CompanyBot.model.Department;
 import ru.veselov.CompanyBot.util.MessageUtils;
 
@@ -43,7 +44,7 @@ class InquiryMessageHandlerTest {
         messageEntity.setOffset(0);
         messageEntity.setLength(0);
         message.setEntities(List.of(messageEntity));
-        userDataCache.createInquiry(user.getId(), Department.COMMON);
+        userDataCache.createInquiry(user.getId(), Division.builder().divisionId("L").build());
     }
 
     @Test

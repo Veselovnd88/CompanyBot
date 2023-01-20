@@ -10,11 +10,9 @@ import org.springframework.test.context.ActiveProfiles;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.User;
 import ru.veselov.CompanyBot.bot.CompanyBot;
+import ru.veselov.CompanyBot.entity.Division;
 import ru.veselov.CompanyBot.entity.Inquiry;
 import ru.veselov.CompanyBot.model.CustomerInquiry;
-import ru.veselov.CompanyBot.model.Department;
-import ru.veselov.CompanyBot.service.CustomerService;
-import ru.veselov.CompanyBot.service.InquiryService;
 
 import java.util.List;
 
@@ -41,7 +39,7 @@ class InquiryServiceTest {
         user.setFirstName("First");
         user.setUserName("UserName");
         inquiry=new CustomerInquiry();
-        inquiry.setDepartment(Department.COMMON);
+        inquiry.setDivision(Division.builder().divisionId("LEUZE").build());
         message = new Message();
         message.setText("Test");
         inquiry.setMessages(List.of(message));
@@ -53,9 +51,7 @@ class InquiryServiceTest {
     void saveTest() {
         customerService.save(user);
         for(int i=0; i<10; i++){
-            CustomerInquiry inq = new CustomerInquiry();
-            inq.setDepartment(Department.COMMON);
-            inq.setUserId(user.getId());
+            inquiry.setUserId(user.getId());
             message = new Message();
             message.setText("Test "+i);
             inquiry.setMessages(List.of(message));

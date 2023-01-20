@@ -5,7 +5,6 @@ public class MessageUtils {
     public static String GREETINGS="Здравствуйте, я бот-помощник компании, я могу принять и передать Ваш запрос " +
             "или заявку на обратный звонок";
     public static String NOT_READY = "Бот не готов к работе, нажмите /start для обновления состояния";
-    public static String BOT_WAITING_FOR_DPT="Бот ожидает выбор направления для запроса, нажмите /start для сброса";//FIXME
     public static String ABOUT="Информация о компании:";
     public static String INFO = """
             О боте:\s

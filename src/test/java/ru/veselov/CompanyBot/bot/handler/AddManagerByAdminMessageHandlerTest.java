@@ -8,7 +8,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.telegram.telegrambots.meta.api.objects.Message;
-import org.telegram.telegrambots.meta.api.objects.MessageEntity;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -17,8 +16,6 @@ import ru.veselov.CompanyBot.bot.CompanyBot;
 import ru.veselov.CompanyBot.cache.AdminCache;
 import ru.veselov.CompanyBot.cache.UserDataCache;
 import ru.veselov.CompanyBot.util.DivisionKeyboardUtils;
-
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -55,7 +52,7 @@ class AddManagerByAdminMessageHandlerTest {
         user2.setUserName("Vasya");
         user2.setId(100L);
         message.setForwardFrom(user2);
-        when(divisionKeyboardUtils.divisionKeyboard(user2)).thenReturn(new InlineKeyboardMarkup());
+        when(divisionKeyboardUtils.getAdminDivisionKeyboard(user2)).thenReturn(new InlineKeyboardMarkup());
     }
 
 
@@ -64,7 +61,7 @@ class AddManagerByAdminMessageHandlerTest {
         //Test checks if status changes after transfering user's message
         addManagerByAdminMessageHandler.processUpdate(update);
         assertEquals(BotState.ASSIGN_DIV,userDataCache.getUserBotState(adminId));
-        verify(divisionKeyboardUtils).divisionKeyboard(user2);
+        verify(divisionKeyboardUtils).getAdminDivisionKeyboard(user2);
         verify(adminCache).addManager(adminId,user2);
     }
 
@@ -76,7 +73,7 @@ class AddManagerByAdminMessageHandlerTest {
         message.setForwardFrom(null);
         addManagerByAdminMessageHandler.processUpdate(update);
         assertEquals(BotState.AWAIT_MANAGER,userDataCache.getUserBotState(adminId));
-        verify(divisionKeyboardUtils,never()).divisionKeyboard(user2);
+        verify(divisionKeyboardUtils,never()).getAdminDivisionKeyboard(user2);
         verify(adminCache,never()).addManager(adminId,user2);
     }
 

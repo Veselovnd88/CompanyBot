@@ -16,6 +16,7 @@ import ru.veselov.CompanyBot.bot.BotState;
 import ru.veselov.CompanyBot.bot.CompanyBot;
 import ru.veselov.CompanyBot.cache.ContactCache;
 import ru.veselov.CompanyBot.cache.UserDataCache;
+import ru.veselov.CompanyBot.entity.Division;
 import ru.veselov.CompanyBot.model.CustomerContact;
 import ru.veselov.CompanyBot.model.CustomerInquiry;
 import ru.veselov.CompanyBot.model.Department;
@@ -82,7 +83,7 @@ class ContactCallbackHandlerTest {
         CustomerContact contact = contactCache.getContact(user.getId());
         contact.setEmail("vasya@vasya.ru");
         contact.setLastName("Petrov");
-        userDataCache.createInquiry(user.getId(), Department.COMMON);
+        userDataCache.createInquiry(user.getId(), Division.builder().divisionId("L").build());
         CustomerInquiry inquiry = userDataCache.getInquiry(user.getId());
         assertNotNull(contactCallbackHandler.processUpdate(update));
         assertEquals(BotState.READY,userDataCache.getUserBotState(user.getId()));

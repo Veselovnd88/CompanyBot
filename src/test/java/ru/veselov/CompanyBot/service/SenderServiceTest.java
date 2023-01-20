@@ -12,9 +12,9 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.veselov.CompanyBot.bot.CompanyBot;
+import ru.veselov.CompanyBot.entity.Division;
 import ru.veselov.CompanyBot.model.CustomerContact;
 import ru.veselov.CompanyBot.model.CustomerInquiry;
-import ru.veselov.CompanyBot.model.Department;
 
 import java.util.List;
 
@@ -44,7 +44,7 @@ class SenderServiceTest {
     @BeforeEach
     void init(){
         customerInquiry=spy(CustomerInquiry.class);
-        customerInquiry.setDepartment(Department.COMMON);
+        customerInquiry.setDivision(Division.builder().divisionId("LEUZE").build());
         customerInquiry.setUserId(100L);
         customerInquiry.setMessages(List.of(new Message()));
         customerContact =spy(CustomerContact.class);
@@ -57,7 +57,7 @@ class SenderServiceTest {
     void sendInquiryTest() throws TelegramApiException {
         senderService.send(customerInquiry,customerContact);
         verify(bot).execute(SendMessage.builder().chatId(Long.valueOf(adminId))
-                .text("Направлен следующий запрос по тематике "+customerInquiry.getDepartment()).build());
+                .text("Направлен следующий запрос по тематике "+customerInquiry.getDivision()).build());
         assertEquals(1,senderService.getChatTimers().size());
     }
 
