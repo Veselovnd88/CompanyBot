@@ -35,7 +35,6 @@ class SenderServiceTest {
     private String adminId;
     @Value("${bot.chat-interval}")
     private long chatInterval;
-
     @Autowired
     SenderService senderService;
 

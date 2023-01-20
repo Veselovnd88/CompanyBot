@@ -12,13 +12,16 @@ import org.springframework.test.context.ActiveProfiles;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.objects.*;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import ru.veselov.CompanyBot.bot.CompanyBot;
 import ru.veselov.CompanyBot.entity.Division;
+import ru.veselov.CompanyBot.entity.ManagerEntity;
 import ru.veselov.CompanyBot.service.DivisionService;
+import ru.veselov.CompanyBot.service.ManagerService;
 
 import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.spy;
@@ -34,11 +37,15 @@ class DivisionKeyboardUtilsTest {
     private DivisionService divisionService;
 
     @MockBean
+    private ManagerService managerService;
+
+    @MockBean
     CompanyBot companyBot;
 
     Update update;
     CallbackQuery callbackQuery;
     User user;
+    User userFrom;
     Message message;
     Chat chat;
 
@@ -49,14 +56,18 @@ class DivisionKeyboardUtilsTest {
         update=spy(Update.class);
         callbackQuery = spy(CallbackQuery.class);
         user=spy(User.class);
+        userFrom=spy(User.class);
+        userFrom.setId(101L);
         message = spy(Message.class);
         chat = spy(Chat.class);
         chat.setId(userId);
         callbackQuery.setMessage(message);
         message.setChat(chat);
         message.setMessageId(1000);
+        message.setForwardFrom(userFrom);
         update.setCallbackQuery(callbackQuery);
         callbackQuery.setFrom(user);
+        update.setMessage(message);
         user.setId(userId);
         when(divisionService.findAll()).thenReturn(List.of(
                 Division.builder().divisionId("T").name("Test").build(),
@@ -66,10 +77,33 @@ class DivisionKeyboardUtilsTest {
 
 
     @Test
-    void createKeyboardTest(){
-        InlineKeyboardMarkup inlineKeyboardMarkup = divisionKeyboardUtils.divisionKeyboard();
+    void createKeyboardTestNoDivisions(){
+        InlineKeyboardMarkup inlineKeyboardMarkup = divisionKeyboardUtils.divisionKeyboard(userFrom);
         assertInstanceOf(InlineKeyboardMarkup.class, inlineKeyboardMarkup);
         assertEquals(3,inlineKeyboardMarkup.getKeyboard().size());
+        for(var row : inlineKeyboardMarkup.getKeyboard()) {
+            assertFalse(EmojiParser.parseToAliases(row.get(0).getText()).startsWith(":white"));
+            assertFalse(row.get(0).getCallbackData().endsWith("marked"));}
+    }
+
+    @Test
+    void createKeyboardTestWithDivisions(){
+        ManagerEntity managerEntity = new ManagerEntity();
+        managerEntity.setManagerId(1L);
+        managerEntity.setDivisions(Set.of(Division.builder().divisionId("T").name("Test").build()));
+        when(managerService.findOneWithDivisions(userFrom.getId())).thenReturn(Optional.of(managerEntity));
+        InlineKeyboardMarkup inlineKeyboardMarkup = divisionKeyboardUtils.divisionKeyboard(userFrom);
+        assertInstanceOf(InlineKeyboardMarkup.class, inlineKeyboardMarkup);
+        assertEquals(3,inlineKeyboardMarkup.getKeyboard().size());
+        for(var row : inlineKeyboardMarkup.getKeyboard()) {
+            if(row.get(0).getCallbackData().equals("T+marked")){
+                assertTrue(EmojiParser.parseToAliases(row.get(0).getText()).startsWith(":white"));
+                assertTrue(row.get(0).getCallbackData().endsWith("marked"));
+            }
+            else{
+                assertFalse(EmojiParser.parseToAliases(row.get(0).getText()).startsWith(":white"));
+                assertFalse(row.get(0).getCallbackData().endsWith("marked"));}
+        }
     }
 
 
@@ -93,17 +127,6 @@ class DivisionKeyboardUtilsTest {
         }
     }
 
-    @Test
-    void pressNoneButtonWithMarksTest(){
-        //Нажатие кнопки "none" должно убирать пометки со всех кнопок
-        divisionKeyboardUtils.divisionChooseField(update,"T");
-        divisionKeyboardUtils.divisionChooseField(update,"T2");
-        EditMessageReplyMarkup secondPress = divisionKeyboardUtils.divisionChooseField(update, "none");
-        List<List<InlineKeyboardButton>> secondPressKeyboard = secondPress.getReplyMarkup().getKeyboard();
-        for(var row : secondPressKeyboard){
-            assertFalse(EmojiParser.parseToAliases(row.get(0).getText()).startsWith(":white"));
-        }
-    }
 
     @Test
     void getMarkedButtonsTest(){
@@ -114,9 +137,6 @@ class DivisionKeyboardUtilsTest {
         divisionKeyboardUtils.divisionChooseField(update,"T+marked");
         assertEquals(1,divisionKeyboardUtils.getMarkedDivisions(user.getId()).size());
         divisionKeyboardUtils.divisionChooseField(update,"T2+marked");
-        assertEquals(0,divisionKeyboardUtils.getMarkedDivisions(user.getId()).size());
-        divisionKeyboardUtils.divisionChooseField(update,"T");
-        divisionKeyboardUtils.divisionChooseField(update,"none");
         assertEquals(0,divisionKeyboardUtils.getMarkedDivisions(user.getId()).size());
     }
 

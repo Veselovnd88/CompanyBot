@@ -72,10 +72,15 @@ public class CommandHandler implements UpdateHandler {
                 return SendMessage.builder().chatId(userId)
                         .text(MessageUtils.ABOUT).build();
             case "/info":
-                return SendMessage.builder().chatId(userId)
+                return SendMessage.builder().chatId(userId)//TODO ссылку на компанию в callback кнопке
                         .text(MessageUtils.INFO).build();
 
             case "/manage":
+                /*TODO сделать еще команды для администрирования
+                *  Управление отделами-удалить, добавить, редактировать (всё как обычно)
+                * Управление менеджерами
+                * -удалить менеджера - с выдачей всех манагеров по 5 строк например
+                * -добавить менеджера - реализовано*/
                 userDataCache.setUserBotState(userId,BotState.AWAIT_MANAGER);
                 return SendMessage.builder().chatId(userId)
                             .text(MessageUtils.AWAIT_MANAGER).build();
@@ -87,6 +92,7 @@ public class CommandHandler implements UpdateHandler {
 
 
     private SendMessage departmentMessageInlineKeyBoard(Long userId){
+        //TODO клавиатура будет забираться не отсюда а из базы данных
         InlineKeyboardButton leuze = new InlineKeyboardButton();
         leuze.setText("Оптические, ультразвуковые датчики LEUZE");
         leuze.setCallbackData("leuze");

@@ -12,6 +12,7 @@ import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.*;
 import ru.veselov.CompanyBot.bot.BotState;
+import ru.veselov.CompanyBot.bot.CompanyBot;
 import ru.veselov.CompanyBot.cache.ContactCache;
 import ru.veselov.CompanyBot.cache.UserDataCache;
 import ru.veselov.CompanyBot.model.CustomerContact;
@@ -26,6 +27,8 @@ import static org.mockito.Mockito.*;
 @SpringBootTest
 @ActiveProfiles("test")
 class ContactMessageHandlerTest {
+    @MockBean
+    CompanyBot companyBot;
     @Autowired
     private UserDataCache userDataCache;
     @MockBean

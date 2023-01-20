@@ -80,6 +80,9 @@ public class SenderService {
                 log.info("Отправляю запрос пользователя {} в канал {}", inquiry.getUserId(), chat.getTitle());
                 bot.execute(SendMessage.builder().chatId(chat.getId())
                         .text("Направлен следующий запрос по тематике "+inquiry.getDepartment()).build());
+                /*TODO есть отделу забираем всех менеджеров - и составляем сообщение с отметкой каждого из них
+                “text_mention”
+                */
                 for (var message : inquiry.getMessages()) {
                     try {
                         Thread.sleep(50);

@@ -42,7 +42,7 @@ public class AddManagerByAdminMessageHandler implements UpdateHandler {
         }
         User from = update.getMessage().getForwardFrom();
         adminCache.addManager(adminId,from);
-        InlineKeyboardMarkup inlineKeyboardMarkup = divisionKeyboardUtils.divisionKeyboard();
+        InlineKeyboardMarkup inlineKeyboardMarkup = divisionKeyboardUtils.divisionKeyboard(from);
         log.info("{}: принято пересланное сообщение от назначаемого менеджера", userId);
         userDataCache.setUserBotState(userId, BotState.ASSIGN_DIV);
         return SendMessage.builder().chatId(userId)

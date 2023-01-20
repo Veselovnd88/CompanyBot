@@ -19,7 +19,7 @@ import static org.mockito.Mockito.*;
 @SpringBootTest
 @ActiveProfiles("test")
 class ChannelConnectHandlerTest {
-    @Autowired
+    @MockBean
     private CompanyBot companyBot;
 
     @Autowired

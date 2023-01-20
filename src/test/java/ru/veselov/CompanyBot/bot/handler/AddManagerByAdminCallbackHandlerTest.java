@@ -43,7 +43,6 @@ class AddManagerByAdminCallbackHandlerTest {
     private AddManagerByAdminCallbackHandler addManagerByAdminCallbackHandler;
     @MockBean
     private DivisionKeyboardUtils divisionKeyboardUtils;
-
     @Autowired
     private UserDataCache userDataCache;
     @MockBean

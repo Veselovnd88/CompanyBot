@@ -6,11 +6,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import ru.veselov.CompanyBot.cache.Cache;
 import ru.veselov.CompanyBot.entity.Division;
+import ru.veselov.CompanyBot.entity.ManagerEntity;
 import ru.veselov.CompanyBot.service.DivisionService;
+import ru.veselov.CompanyBot.service.ManagerService;
 
 import java.util.*;
 
@@ -21,28 +24,38 @@ public class DivisionKeyboardUtils implements Cache {//FIXME возможно е
     private final DivisionService divisionService;
     private final HashMap<String, Division> nameToDivision =new HashMap<>();
     private final HashMap<Long, EditMessageReplyMarkup> divisionKeyboardCache = new HashMap<>();
+    private final ManagerService managerService;
+    private final String emojiMark = ":white_check_mark:";
     @Autowired
-    public DivisionKeyboardUtils(DivisionService divisionService) {
+    public DivisionKeyboardUtils(DivisionService divisionService, ManagerService managerService) {
         this.divisionService = divisionService;
+        this.managerService = managerService;
     }
 
-    public InlineKeyboardMarkup divisionKeyboard(){
-        /*FIXME при показе клавиатуры если пользователь уже есть - выдывавать ему не пустую клавиатуру а с отметками (подумать)
-        *  передать список отделов менеджера
-        * При формировании клавиатуры - проверять - если в сете отделов уже есть такой отдел - то ставим отметки*/
-
-
-        //При создании клавиатуры забираются все отделы и помещаются в кеш
+    public InlineKeyboardMarkup divisionKeyboard(User user){
+        //After creation ov keyboard all divisions placed in cache
         List<Division> allDivisions = divisionService.findAll();
         for(var d: allDivisions){
             nameToDivision.put(d.getDivisionId(),d);
         }
+        //Checking if manager exists in db, for indicating owned divisions
+        Optional<ManagerEntity> oneWithDivisions = managerService.findOneWithDivisions(user.getId());
+        Set<Division> managersDivision=new HashSet<>();
+        if(oneWithDivisions.isPresent()){
+            managersDivision=oneWithDivisions.get().getDivisions();
+        }
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
         InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
         for(var d: allDivisions){
+            String name = d.getName();
+            String callback = d.getDivisionId();
+            if(managersDivision.contains(d)){
+                name=EmojiParser.parseToUnicode(emojiMark+d.getName());
+                callback=d.getDivisionId()+mark;
+            }
             InlineKeyboardButton button = new InlineKeyboardButton();
-            button.setText(d.getName());
-            button.setCallbackData(d.getDivisionId());
+            button.setText(name);
+            button.setCallbackData(callback);
             List<InlineKeyboardButton> row = new ArrayList<>();
             row.add(button);
             keyboard.add(row);
@@ -61,12 +74,12 @@ public class DivisionKeyboardUtils implements Cache {//FIXME возможно е
     public EditMessageReplyMarkup divisionChooseField(Update update, String field){
         Long userId = update.getCallbackQuery().getFrom().getId();
         InlineKeyboardMarkup inlineKeyboardMarkup;
-        //Отдаем чистую клавиатуру, или достаем из кеша
+        //Create new keyboard or send it from our cache
         if(divisionKeyboardCache.containsKey(userId)){
             inlineKeyboardMarkup = divisionKeyboardCache.get(userId).getReplyMarkup();
         }
         else{
-            inlineKeyboardMarkup = divisionKeyboard();
+            inlineKeyboardMarkup = divisionKeyboard(update.getMessage().getForwardFrom());
         }
         for(var keyboard: inlineKeyboardMarkup.getKeyboard()){
                 //находим кнопку на которую нажали
@@ -77,13 +90,11 @@ public class DivisionKeyboardUtils implements Cache {//FIXME возможно е
                     }
                     else{
                         //и наоборот
-                        String emojiMark = ":white_check_mark:";
                         keyboard.get(0).setText(EmojiParser.parseToUnicode(emojiMark +keyboard.get(0).getText()));
                         keyboard.get(0).setCallbackData(keyboard.get(0).getCallbackData()+mark);
                     }
                 }
         }
-
         EditMessageReplyMarkup editedKeyboard = EditMessageReplyMarkup.builder()
                 .chatId(update.getCallbackQuery().getMessage().getChatId().toString())
                 .messageId(update.getCallbackQuery().getMessage().getMessageId())
@@ -94,7 +105,7 @@ public class DivisionKeyboardUtils implements Cache {//FIXME возможно е
     }
 
     private void removeMark(InlineKeyboardButton button){
-        button.setText(EmojiParser.parseToAliases(button.getText()).replace(":white_check_mark:",""));
+        button.setText(EmojiParser.parseToAliases(button.getText()).replace(emojiMark,""));
         button.setCallbackData(button.getCallbackData().replace(mark,""));
     }
     private boolean isMarked(String text){
@@ -130,6 +141,6 @@ public class DivisionKeyboardUtils implements Cache {//FIXME возможно е
     @Override
     public void clear(Long userId) {
         divisionKeyboardCache.remove(userId);
-        nameToDivision.clear();
+        nameToDivision.clear();//FIXME не очищать кеш будем использовать при выдаче клавиатуры
     }
 }

@@ -35,17 +35,20 @@ public class ChannelConnectHandler implements UpdateHandler {
             Chat chat = update.getMyChatMember().getChat();
             if(newChatMember.getStatus().equalsIgnoreCase("administrator")){
                 chatService.save(chat);
+                log.info("{}: бот добавлен в канал {}",userId,chat.getTitle());
                 return SendMessage.builder().chatId(userId)
                         .text("Вы добавили меня к каналу "+chat.getTitle()).build();
             }
             if(newChatMember.getStatus().equalsIgnoreCase("left")){
                 chatService.remove(chat.getId());
+                log.info("{}: бот удален из канала {}",userId,chat.getTitle());
                 return SendMessage.builder().chatId(userId)
                         .text("Вы удалили меня из канала "+chat.getTitle()).build();
 
             }
             if(newChatMember.getStatus().equalsIgnoreCase("kicked")){
                 chatService.remove(chat.getId());
+                log.info("{}: бот кикнут из канала {}",userId,chat.getTitle());
                 return SendMessage.builder().chatId(userId)
                         .text("Вы кикнули меня с канала "+chat.getTitle()).build();
             }
