@@ -40,7 +40,7 @@ public class KeyBoardUtils implements Cache {
         List<InlineKeyboardButton> row2 = new ArrayList<>();
         row2.add(inputEmail);
         var inputPhone = new InlineKeyboardButton();
-        inputPhone.setText("Ввести номер телефона (c +");
+        inputPhone.setText("Ввести номер телефона (c +)");
         inputPhone.setCallbackData("phone");
         List<InlineKeyboardButton> row3 = new ArrayList<>();
         row3.add(inputPhone);

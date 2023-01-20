@@ -11,6 +11,7 @@ import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.veselov.CompanyBot.bot.BotState;
 import ru.veselov.CompanyBot.bot.CompanyBot;
 import ru.veselov.CompanyBot.cache.ContactCache;
@@ -20,6 +21,7 @@ import ru.veselov.CompanyBot.model.CustomerInquiry;
 import ru.veselov.CompanyBot.model.Department;
 import ru.veselov.CompanyBot.service.CustomerService;
 import ru.veselov.CompanyBot.service.InquiryService;
+import ru.veselov.CompanyBot.service.SenderService;
 import ru.veselov.CompanyBot.util.MessageUtils;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -42,6 +44,8 @@ class ContactCallbackHandlerTest {
     private  CustomerService customerService;
     @MockBean
     private InquiryService inquiryService;
+    @MockBean
+    SenderService senderService;
 
     Update update;
     CallbackQuery callbackQuery;
@@ -71,8 +75,8 @@ class ContactCallbackHandlerTest {
         assertEquals(BotState.AWAIT_CONTACT,userDataCache.getUserBotState(user.getId()));
     }
     @Test
-    void saveWithInquiryDataTest(){
-        /*Проверка сохранения контакта и запроса*/
+    void saveWithInquiryDataTest() throws TelegramApiException {
+        /*Checking saving inquiry and contact together*/
         callbackQuery.setData("save");
         contactCache.createContact(user.getId());
         CustomerContact contact = contactCache.getContact(user.getId());
@@ -86,11 +90,11 @@ class ContactCallbackHandlerTest {
         verify(inquiryService).save(inquiry);
         assertNull(contactCache.getContact(user.getId()));
         assertNull(userDataCache.getInquiry(user.getId()));
-        //TODO проверка вызова сервиса для отправки в чаты
+        verify(senderService).send(inquiry,contact);
     }
     @Test
-    void saveWithoutInquiryDataTest(){
-        /*Проверка сохранения без запроса*/
+    void saveWithoutInquiryDataTest() throws TelegramApiException {
+        /*Checking saving contact without inquiry*/
         callbackQuery.setData("save");
         contactCache.createContact(user.getId());
         CustomerContact contact = contactCache.getContact(user.getId());
@@ -103,7 +107,7 @@ class ContactCallbackHandlerTest {
         verify(inquiryService,times(0)).save(inquiry);
         assertNull(contactCache.getContact(user.getId()));
         assertNull(userDataCache.getInquiry(user.getId()));
-        //TODO проверка вызова сервиса для отправки в чаты
+        verify(senderService).send(inquiry,contact);
     }
 
     @Test

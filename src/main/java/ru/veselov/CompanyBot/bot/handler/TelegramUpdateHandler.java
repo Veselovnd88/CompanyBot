@@ -96,7 +96,8 @@ public class TelegramUpdateHandler implements UpdateHandler {
 
 
     private boolean isCommand(Update update) {
-        if (update.hasMessage() && update.getMessage().hasEntities()) {
+        /*additional checking if message is not forwarded*/
+        if (update.hasMessage() && update.getMessage().hasEntities()&&update.getMessage().getForwardFrom()==null) {
             Optional<MessageEntity> commandEntity = update.getMessage().getEntities()
                     .stream().filter(x -> "bot_command".equals(x.getType())).findFirst();
             return commandEntity.isPresent();

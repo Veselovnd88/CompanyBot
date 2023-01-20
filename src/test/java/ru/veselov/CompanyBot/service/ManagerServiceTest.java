@@ -79,7 +79,7 @@ class ManagerServiceTest {
         managerService.saveWithDivisions(user,new HashSet<>());
         assertEquals(0,managerService.findOneWithDivisions(user.getId()).get().getDivisions().size());
     }
-    //FIXME при показе клавиатуры если пользователь уже есть - выдывавать ему не пустую клавиатуру а с отметками (подумать)
+
 
     @Test
     void saveWithDivisionsMixed(){

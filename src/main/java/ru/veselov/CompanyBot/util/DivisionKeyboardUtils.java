@@ -27,6 +27,11 @@ public class DivisionKeyboardUtils implements Cache {//FIXME возможно е
     }
 
     public InlineKeyboardMarkup divisionKeyboard(){
+        /*FIXME при показе клавиатуры если пользователь уже есть - выдывавать ему не пустую клавиатуру а с отметками (подумать)
+        *  передать список отделов менеджера
+        * При формировании клавиатуры - проверять - если в сете отделов уже есть такой отдел - то ставим отметки*/
+
+
         //При создании клавиатуры забираются все отделы и помещаются в кеш
         List<Division> allDivisions = divisionService.findAll();
         for(var d: allDivisions){
