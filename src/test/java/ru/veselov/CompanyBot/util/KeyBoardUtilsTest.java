@@ -7,10 +7,12 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.objects.*;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+import ru.veselov.CompanyBot.bot.CompanyBot;
 
 import java.util.List;
 
@@ -20,7 +22,8 @@ import static org.mockito.Mockito.spy;
 @SpringBootTest
 @ActiveProfiles("test")
 class KeyBoardUtilsTest {
-
+    @MockBean
+    CompanyBot companyBot;
     @Autowired
     private KeyBoardUtils keyBoardUtils;
 

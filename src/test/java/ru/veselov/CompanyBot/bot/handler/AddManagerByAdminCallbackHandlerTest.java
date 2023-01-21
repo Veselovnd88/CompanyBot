@@ -52,6 +52,7 @@ class AddManagerByAdminCallbackHandlerTest {
     Update update;
     CallbackQuery callbackQuery;
     User user;
+    User manager;
     HashMap<String, Division> divs = new HashMap<>();
 
     @BeforeEach
@@ -63,7 +64,11 @@ class AddManagerByAdminCallbackHandlerTest {
         user.setId(adminId);
         callbackQuery.setFrom(user);
         callbackQuery.setId("100");
-
+        manager = spy(User.class);
+        manager.setId(200L);
+        when(divisionKeyboardUtils.getMarkedDivisions(anyLong())).thenReturn(Set.of(new Division()));
+        manager.setUserName("VVasya");
+        adminCache.addManager(adminId,manager);
         divs.put("T1",null);
         divs.put("T1+marked",null);
         divs.put("T2",null);
@@ -75,18 +80,15 @@ class AddManagerByAdminCallbackHandlerTest {
     @ParameterizedTest
     @ValueSource(strings = {"T1","T1+marked","T2","T2+marked"})
     void divisionButtonPressTest(String field){
+        //Checking enter to method with pressing of according button
         callbackQuery.setData(field);
         addManagerByAdminCallbackHandler.processUpdate(update);
-        verify(divisionKeyboardUtils).divisionChooseField(any(Update.class),anyString());
+        verify(divisionKeyboardUtils).divisionChooseField(any(Update.class),anyString(),anyLong());
     }
     @Test
     void saveButtonTest(){
+        //Checking pressing save button
         callbackQuery.setData("save");
-        User manager = new User();
-        manager.setId(200L);
-        when(divisionKeyboardUtils.getMarkedDivisions(anyLong())).thenReturn(Set.of(new Division()));
-        manager.setUserName("VVasya");
-        adminCache.addManager(adminId,manager);
         addManagerByAdminCallbackHandler.processUpdate(update);
         verify(managerService).saveWithDivisions(manager,divisionKeyboardUtils.getMarkedDivisions(200L));
         assertEquals(BotState.READY,userDataCache.getUserBotState(adminId));

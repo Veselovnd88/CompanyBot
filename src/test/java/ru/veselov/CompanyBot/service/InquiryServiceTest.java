@@ -27,10 +27,14 @@ class InquiryServiceTest {
     @Autowired
     private InquiryService inquiryService;
     @Autowired
+    private DivisionService divisionService;
+    @Autowired
     private CustomerService customerService;
     User user;
     CustomerInquiry inquiry;
     Message message;
+
+
     @BeforeEach
     void init(){
         user = new User();
@@ -39,6 +43,7 @@ class InquiryServiceTest {
         user.setFirstName("First");
         user.setUserName("UserName");
         inquiry=new CustomerInquiry();
+
         inquiry.setDivision(Division.builder().divisionId("LEUZE").build());
         message = new Message();
         message.setText("Test");
@@ -49,6 +54,8 @@ class InquiryServiceTest {
     @Test
     @DisplayName("Testing how to save inquiries")
     void saveTest() {
+        Division leuze = Division.builder().divisionId("LEUZE").build();
+        divisionService.save(leuze);
         customerService.save(user);
         for(int i=0; i<10; i++){
             inquiry.setUserId(user.getId());

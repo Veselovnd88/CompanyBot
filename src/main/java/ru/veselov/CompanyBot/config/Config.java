@@ -5,6 +5,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import ru.veselov.CompanyBot.entity.Division;
 import ru.veselov.CompanyBot.service.DivisionService;
 
@@ -21,8 +22,7 @@ public class Config {
         return new EmailValidator();
     }
 
-
-    @Bean
+    @Bean//FIXME потом перенесется в тест профиль
     public CommandLineRunner dataLoader(DivisionService divisionService){
         return args -> {
             divisionService.save(
@@ -33,7 +33,7 @@ public class Config {
                     Division.builder().divisionId("LPKF").name("Станки для печатных плат LPKF").build());
             divisionService.save(
                     Division.builder().divisionId("COMMON").name("Общие вопросы").build());
-        };
 
+        };
     }
 }

@@ -11,6 +11,7 @@ import org.telegram.telegrambots.meta.api.objects.media.*;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.veselov.CompanyBot.bot.CompanyBot;
 import ru.veselov.CompanyBot.entity.Division;
+import ru.veselov.CompanyBot.entity.ManagerEntity;
 import ru.veselov.CompanyBot.model.CustomerContact;
 import ru.veselov.CompanyBot.model.CustomerInquiry;
 import ru.veselov.CompanyBot.util.MessageUtils;
@@ -56,19 +57,15 @@ public class SenderService {
                 if ((chatDate).after(new Date())) {
                     Thread delayedStart = new Thread(() -> {
                         try {
-                            log.info("Отправлю запрос пользователя {} через {} мс", userId,
+                            log.info("{}: отправлю запрос пользователя через {} мс", userId,
                                     chatInterval);
                             Thread.sleep(chatInterval);
                             send(inquiry,contact);
                             chatTimers.put(chat.getId(), chatDate);
                         } catch (TelegramApiException e) {
                             log.error("Не удалось отправить сообщение {}", e.getMessage());
-                            try {
-                                bot.execute(SendMessage.builder().chatId(adminId)
+                            bot.sendMessageWithDelay(SendMessage.builder().chatId(adminId)
                                         .text(MessageUtils.ERROR).build());
-                            } catch (TelegramApiException ex) {
-                                log.error("Не удалось отправить сообщение об ошибке пользователя {}", userId);
-                            }
                         } catch (InterruptedException e) {
                             log.error(e.getMessage());
                         }
@@ -79,34 +76,14 @@ public class SenderService {
             }
             if (inquiry != null){
                 log.info("{}: отправляю запрос пользователя в канал {}", inquiry.getUserId(), chat.getTitle());
-                Optional<Division> oneWithManagers = divisionService.findOneWithManagers(inquiry.getDivision());
-                if(oneWithManagers.isPresent()){
-                    if(oneWithManagers.get().getManagers().size()!=0) {
-                        List<MessageEntity> entities= new ArrayList<>();
-                        StringBuilder sb = new StringBuilder();
-                        int offset = 0;
-                        for (var manager : oneWithManagers.get().getManagers()) {
-                            User user = new User();
-                            user.setId(manager.getManagerId());
-                            user.setFirstName(manager.getFirstName());
-                            user.setLastName(manager.getLastName());
-                            user.setUserName(manager.getUserName());
-                            String name = manager.getLastName();
-                            sb.append(name).append("\n");
-                            MessageEntity messageEntity = new MessageEntity("text_mention", offset, name.length());//FIXME вот эту логику продумать
-                            entities.add(messageEntity);
-                            messageEntity.setUser(user);
-                            offset += name.length() + 1;
-                        }
-                        bot.execute(SendMessage.builder().chatId(chat.getId()).text(sb.toString()).entities(entities).build());
-                    }
+                SendMessage managerMessage = markResponsibleManager(chat,inquiry);
+                if(managerMessage!=null){
+                    bot.sendMessageWithDelay(managerMessage);
                 }
-
-                bot.execute(SendMessage.builder().chatId(chat.getId())
+                //отправка сообщения с отмеченными юзерами
+                bot.sendMessageWithDelay(SendMessage.builder().chatId(chat.getId())
                         .text("Направлен следующий запрос по тематике "+inquiry.getDivision().getName()).build());
-                /*TODO есть отделу забираем всех менеджеров - и составляем сообщение с отметкой каждого из них
-                “text_mention”
-                */
+
                 for (var message : inquiry.getMessages()) {
                     try {
                         Thread.sleep(50);
@@ -314,6 +291,51 @@ public class SenderService {
         return createContactMessage(contact, chatId);
     }
 
+    private String managerName(ManagerEntity manager){
+        StringBuilder sb = new StringBuilder();
+        if(manager.getLastName()!=null){
+            sb.append(manager.getLastName()).append(" ");
+        }
+        if(manager.getFirstName()!=null){
+            sb.append(manager.getFirstName());
+        }
+        return sb.toString();
+    }
 
+    private SendMessage markResponsibleManager(Chat chat, CustomerInquiry inquiry) {
+        Optional<Division> oneWithManagers = divisionService.findOneWithManagers(inquiry.getDivision());
+        if(oneWithManagers.isPresent()){
+            if(oneWithManagers.get().getManagers().size()!=0) {
+                List<MessageEntity> entities= new ArrayList<>();
+                StringBuilder sb = new StringBuilder();
+                int offset = 0;
+                for (var manager : oneWithManagers.get().getManagers()) {
+                    User user = userFromManager(manager);
+                    String name = managerName(manager);
+                    sb.append(name).append("\n");
+                    MessageEntity messageEntity = new MessageEntity("text_mention", offset, name.length());
+                    entities.add(messageEntity);
+                    messageEntity.setUser(user);
+                    offset += name.length() + 1;
+                }
+                return SendMessage.builder().chatId(chat.getId()).text(sb.toString()).entities(entities).build();
+            }
+        }
+        return null;
+    }
+
+    private User userFromManager(ManagerEntity manager){
+        User user = new User();
+        user.setId(manager.getManagerId());
+        user.setFirstName(manager.getFirstName());
+        user.setLastName(manager.getLastName());
+        user.setUserName(manager.getUserName());
+        return user;
+    }
+
+    @Profile("test")
+    public SendMessage markManagerForTest(Chat chat, CustomerInquiry inquiry){
+        return markResponsibleManager(chat,inquiry);
+    }
 
 }

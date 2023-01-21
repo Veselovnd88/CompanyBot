@@ -9,6 +9,7 @@ import org.telegram.telegrambots.bots.TelegramWebhookBot;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updates.SetWebhook;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
@@ -77,6 +78,17 @@ public class CompanyBot extends TelegramWebhookBot {
             return telegramUpdateHandler.processUpdate(update);
         }
         return null;
+    }
+
+    public void sendMessageWithDelay(SendMessage sendMessage){
+        try {
+            this.execute(sendMessage);
+            Thread.sleep(30);
+        } catch (TelegramApiException e) {
+            log.error("Не удалось отправить сообщение +{}",e.getMessage());
+        } catch (InterruptedException e) {
+            log.error("Что то сильно пошло не так {}", e.getMessage());
+        }
     }
 
     @Override

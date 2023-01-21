@@ -30,6 +30,8 @@ import static org.mockito.Mockito.when;
 @SpringBootTest
 @ActiveProfiles("test")
 class DivisionKeyboardUtilsTest {
+    @MockBean
+    CompanyBot companyBot;
 
     @Autowired
     DivisionKeyboardUtils divisionKeyboardUtils;
@@ -38,9 +40,6 @@ class DivisionKeyboardUtilsTest {
 
     @MockBean
     private ManagerService managerService;
-
-    @MockBean
-    CompanyBot companyBot;
 
     Update update;
     CallbackQuery callbackQuery;
@@ -78,7 +77,7 @@ class DivisionKeyboardUtilsTest {
 
     @Test
     void createKeyboardTestNoDivisions(){
-        InlineKeyboardMarkup inlineKeyboardMarkup = divisionKeyboardUtils.getAdminDivisionKeyboard(userFrom);
+        InlineKeyboardMarkup inlineKeyboardMarkup = divisionKeyboardUtils.getAdminDivisionKeyboard(userFrom.getId());
         assertInstanceOf(InlineKeyboardMarkup.class, inlineKeyboardMarkup);
         assertEquals(3,inlineKeyboardMarkup.getKeyboard().size());
         for(var row : inlineKeyboardMarkup.getKeyboard()) {
@@ -92,7 +91,7 @@ class DivisionKeyboardUtilsTest {
         managerEntity.setManagerId(1L);
         managerEntity.setDivisions(Set.of(Division.builder().divisionId("T").name("Test").build()));
         when(managerService.findOneWithDivisions(userFrom.getId())).thenReturn(Optional.of(managerEntity));
-        InlineKeyboardMarkup inlineKeyboardMarkup = divisionKeyboardUtils.getAdminDivisionKeyboard(userFrom);
+        InlineKeyboardMarkup inlineKeyboardMarkup = divisionKeyboardUtils.getAdminDivisionKeyboard(userFrom.getId());
         assertInstanceOf(InlineKeyboardMarkup.class, inlineKeyboardMarkup);
         assertEquals(3,inlineKeyboardMarkup.getKeyboard().size());
         for(var row : inlineKeyboardMarkup.getKeyboard()) {
@@ -111,14 +110,14 @@ class DivisionKeyboardUtilsTest {
     @ValueSource(strings = {"T","T2"})
     void chooseButtonTest(String field){
         //При нажатии на кнопку к тексту прибавляется/убирается галочка, к коллбэку - пометка
-        EditMessageReplyMarkup firstPress = divisionKeyboardUtils.divisionChooseField(update, field);
+        EditMessageReplyMarkup firstPress = divisionKeyboardUtils.divisionChooseField(update, field,userFrom.getId());
         var firstKeyboard=firstPress.getReplyMarkup().getKeyboard();
         for(var row : firstKeyboard) {
             if(row.get(0).getCallbackData().equals(field)){
                 assertTrue(EmojiParser.parseToAliases(row.get(0).getText()).startsWith(":white"));
                 assertTrue(row.get(0).getCallbackData().endsWith("marked"));}
         }
-        var secondPress =divisionKeyboardUtils.divisionChooseField(update,field+"+marked");
+        var secondPress =divisionKeyboardUtils.divisionChooseField(update,field+"+marked",userFrom.getId());
         var secondKeyboard = secondPress.getReplyMarkup().getKeyboard();
         for(var row : secondKeyboard) {
             if(row.get(0).getCallbackData().equals(field)){
@@ -131,19 +130,19 @@ class DivisionKeyboardUtilsTest {
     @Test
     void getMarkedButtonsTest(){
         //Проверка выдачи кнопок с отметками
-        divisionKeyboardUtils.divisionChooseField(update,"T");
-        divisionKeyboardUtils.divisionChooseField(update,"T2");
+        divisionKeyboardUtils.divisionChooseField(update,"T",userFrom.getId());
+        divisionKeyboardUtils.divisionChooseField(update,"T2",userFrom.getId());
         assertEquals(2,divisionKeyboardUtils.getMarkedDivisions(user.getId()).size());
-        divisionKeyboardUtils.divisionChooseField(update,"T+marked");
+        divisionKeyboardUtils.divisionChooseField(update,"T+marked",userFrom.getId());
         assertEquals(1,divisionKeyboardUtils.getMarkedDivisions(user.getId()).size());
-        divisionKeyboardUtils.divisionChooseField(update,"T2+marked");
+        divisionKeyboardUtils.divisionChooseField(update,"T2+marked",userFrom.getId());
         assertEquals(0,divisionKeyboardUtils.getMarkedDivisions(user.getId()).size());
     }
 
     @Test
     void keyBoardDivsVars(){
         //Проверка добавления в мапу всех возможных отделов *2 (с отметками)
-        divisionKeyboardUtils.divisionChooseField(update,"T");
+        divisionKeyboardUtils.divisionChooseField(update,"T",userFrom.getId());
         HashMap<String, Division> keyboardDivs = divisionKeyboardUtils.getKeyboardDivs();
         assertEquals(4,keyboardDivs.size());
     }

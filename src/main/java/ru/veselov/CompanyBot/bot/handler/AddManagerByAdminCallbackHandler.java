@@ -26,14 +26,12 @@ import java.util.Set;
 public class AddManagerByAdminCallbackHandler implements UpdateHandler {
     @Value("${bot.adminId}")
     private Long adminId;
-    private final DivisionService divisionService;
     private final UserDataCache userDataCache;
     private final DivisionKeyboardUtils divisionKeyboardUtils;
     private final ManagerService managerService;
     private final AdminCache adminCache;
     @Autowired
-    public AddManagerByAdminCallbackHandler(DivisionService divisionService, UserDataCache userDataCache, DivisionKeyboardUtils divisionKeyboardUtils, ManagerService managerService, AdminCache adminCache) {
-        this.divisionService = divisionService;
+    public AddManagerByAdminCallbackHandler(UserDataCache userDataCache, DivisionKeyboardUtils divisionKeyboardUtils, ManagerService managerService, AdminCache adminCache) {
         this.userDataCache = userDataCache;
         this.divisionKeyboardUtils = divisionKeyboardUtils;
         this.managerService = managerService;
@@ -49,7 +47,6 @@ public class AddManagerByAdminCallbackHandler implements UpdateHandler {
         if(keyboardDivs.containsKey(data)) {
             return divisionKeyboardUtils.divisionChooseField(update, data,adminCache.getManager(adminId).getId());
         }
-
         if(data.equalsIgnoreCase("save")){
             Set<Division> markedDivisions = divisionKeyboardUtils.getMarkedDivisions(userId);
             User manager = adminCache.getManager(adminId);
@@ -59,7 +56,7 @@ public class AddManagerByAdminCallbackHandler implements UpdateHandler {
             userDataCache.setUserBotState(userId, BotState.READY);
             divisionKeyboardUtils.clear(adminId);
             return AnswerCallbackQuery.builder().callbackQueryId(update.getCallbackQuery().getId())
-                    .text(MessageUtils.SAVED)//FIXME не то сообщение
+                    .text(MessageUtils.MANAGER_SAVED)
                     .build();
         }
         return AnswerCallbackQuery.builder().callbackQueryId(update.getCallbackQuery().getId())

@@ -4,7 +4,7 @@ server:
 bot:
   name: ${PL_BOT_NAME}
   token: ${PL_BOT_TOKEN}
-  webhookpath: https://ec4a-93-174-229-214.eu.ngrok.io
+  webhookpath: https://85af-93-179-77-46.eu.ngrok.io
   adminId: 101516610
   chat-interval: 10000
 
@@ -16,6 +16,9 @@ spring:
     username: ${POSTGRES_NAME}
     password: ${POSTGRES_PASSWORD}
   jpa:
+    data:
+      repositories:
+        enabled: false
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQL95Dialect

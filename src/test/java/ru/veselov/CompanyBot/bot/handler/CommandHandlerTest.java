@@ -25,7 +25,7 @@ import static org.mockito.Mockito.*;
 @ActiveProfiles("test")
 class CommandHandlerTest {
     @MockBean
-    private CompanyBot companyBot;
+    CompanyBot companyBot;
     @Autowired
     private UserDataCache userDataCache;
     @Autowired
