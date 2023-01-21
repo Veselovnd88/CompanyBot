@@ -15,6 +15,7 @@ import ru.veselov.CompanyBot.cache.ContactCache;
 import ru.veselov.CompanyBot.cache.UserDataCache;
 import ru.veselov.CompanyBot.service.CustomerService;
 import ru.veselov.CompanyBot.util.DivisionKeyboardUtils;
+import ru.veselov.CompanyBot.util.ManageKeyboardUtils;
 import ru.veselov.CompanyBot.util.MessageUtils;
 
 import java.util.ArrayList;
@@ -84,9 +85,13 @@ public class CommandHandler implements UpdateHandler {
                 * Управление менеджерами
                 * -удалить менеджера - с выдачей всех манагеров по 5 строк например
                 * -добавить менеджера - реализовано*/
-                userDataCache.setUserBotState(userId,BotState.AWAIT_MANAGER);
+                userDataCache.setUserBotState(userId,BotState.MANAGE);
                 return SendMessage.builder().chatId(userId)
-                            .text(MessageUtils.AWAIT_MANAGER).build();
+                        .text("Режим управления").replyMarkup(
+                                ManageKeyboardUtils.manageKeyboard()).build();
+                /*userDataCache.setUserBotState(userId,BotState.AWAIT_MANAGER);
+                return SendMessage.builder().chatId(userId)
+                            .text(MessageUtils.AWAIT_MANAGER).build();*/
         }
         return SendMessage.builder().chatId(userId)
                 .text(MessageUtils.UNKNOWN_COMMAND).build();
@@ -114,5 +119,7 @@ public class CommandHandler implements UpdateHandler {
                 .replyMarkup(inlineKeyboardMarkup)
                 .build();
     }
+
+
 
 }

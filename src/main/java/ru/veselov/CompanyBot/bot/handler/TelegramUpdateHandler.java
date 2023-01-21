@@ -29,11 +29,12 @@ public class TelegramUpdateHandler implements UpdateHandler {
     private final ContactMessageHandler contactMessageHandler;
     private final ChannelConnectHandler channelConnectHandler;
     private final AddManagerByAdminCallbackHandler addManagerByAdminCallbackHandler;
+    private final ManageCallbackHandler manageCallbackHandler;
     private final UserDataCache userDataCache;
     @Autowired
     public TelegramUpdateHandler(CommandHandler commandHandler,
                                  DivisionCallbackHandler divisionCallbackHandler,
-                                 InquiryMessageHandler inquiryMessageHandler, ContactCallbackHandler contactCallbackHandler, AddManagerByAdminMessageHandler addManagerByAdminMessageHandler, ContactMessageHandler contactMessageHandler, ChannelConnectHandler channelConnectHandler, AddManagerByAdminCallbackHandler addManagerByAdminCallbackHandler, UserDataCache userDataCache) {
+                                 InquiryMessageHandler inquiryMessageHandler, ContactCallbackHandler contactCallbackHandler, AddManagerByAdminMessageHandler addManagerByAdminMessageHandler, ContactMessageHandler contactMessageHandler, ChannelConnectHandler channelConnectHandler, AddManagerByAdminCallbackHandler addManagerByAdminCallbackHandler, ManageCallbackHandler manageCallbackHandler, UserDataCache userDataCache) {
         this.commandHandler = commandHandler;
         this.divisionCallbackHandler = divisionCallbackHandler;
         this.inquiryMessageHandler = inquiryMessageHandler;
@@ -42,6 +43,7 @@ public class TelegramUpdateHandler implements UpdateHandler {
         this.contactMessageHandler = contactMessageHandler;
         this.channelConnectHandler = channelConnectHandler;
         this.addManagerByAdminCallbackHandler = addManagerByAdminCallbackHandler;
+        this.manageCallbackHandler = manageCallbackHandler;
         this.userDataCache = userDataCache;
     }
 
@@ -88,6 +90,9 @@ public class TelegramUpdateHandler implements UpdateHandler {
             }
             if(botState==BotState.ASSIGN_DIV){
                 return addManagerByAdminCallbackHandler.processUpdate(update);
+            }
+            if(botState==BotState.MANAGE){
+                return manageCallbackHandler.processUpdate(update);
             }
         }
 

@@ -1,6 +1,18 @@
 package ru.veselov.CompanyBot.util;
 
+import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.MessageEntity;
+
+import java.util.List;
+
 public class MessageUtils {
+    public static Message about=new Message();
+    static {
+        about.setText("Информация о компании:");
+    }
+
+
+    public static List<MessageEntity> entities;
 
     public static final String MANAGER_SAVED = "Менеджер сохранен";
     public static String GREETINGS="Здравствуйте, я бот-помощник компании, я могу принять и передать Ваш запрос " +
