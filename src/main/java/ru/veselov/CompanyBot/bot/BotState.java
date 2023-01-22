@@ -13,8 +13,12 @@ public enum BotState {
     AWAIT_SAVING,
     MANAGE,
     MANAGE_MANAGER,
+    DELETE_MANAGER,
     MANAGE_DIVISION,
     MANAGE_ABOUT,
     AWAIT_MANAGER,
     ASSIGN_DIV;
+
+
+
 }

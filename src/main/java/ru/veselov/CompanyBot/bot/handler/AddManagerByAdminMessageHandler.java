@@ -13,6 +13,7 @@ import ru.veselov.CompanyBot.bot.BotState;
 import ru.veselov.CompanyBot.bot.UpdateHandler;
 import ru.veselov.CompanyBot.cache.AdminCache;
 import ru.veselov.CompanyBot.cache.UserDataCache;
+import ru.veselov.CompanyBot.service.ManagerService;
 import ru.veselov.CompanyBot.util.DivisionKeyboardUtils;
 import ru.veselov.CompanyBot.util.MessageUtils;
 
@@ -23,31 +24,41 @@ public class AddManagerByAdminMessageHandler implements UpdateHandler {
     private Long adminId;
     private final AdminCache adminCache;
     private final UserDataCache userDataCache;
-
+    private final ManagerService managerService;
     private final DivisionKeyboardUtils divisionKeyboardUtils;
     @Autowired
-    public AddManagerByAdminMessageHandler(AdminCache adminCache, UserDataCache userDataCache, DivisionKeyboardUtils divisionKeyboardUtils) {
+    public AddManagerByAdminMessageHandler(AdminCache adminCache, UserDataCache userDataCache, ManagerService managerService, DivisionKeyboardUtils divisionKeyboardUtils) {
         this.adminCache = adminCache;
         this.userDataCache = userDataCache;
+        this.managerService = managerService;
         this.divisionKeyboardUtils = divisionKeyboardUtils;
+
     }
 
     @Override
     public BotApiMethod<?> processUpdate(Update update) {
         Long userId = update.getMessage().getFrom().getId();
+        BotState botState = userDataCache.getUserBotState(userId);
         if(update.getMessage().getForwardFrom()==null){
             log.info("{}: не содержит пересланного сообщения", userId);
             return SendMessage.builder().chatId(userId)
                     .text(MessageUtils.AWAIT_MANAGER).build();
         }
         User from = update.getMessage().getForwardFrom();
-        adminCache.addManager(adminId,from);
-        InlineKeyboardMarkup inlineKeyboardMarkup = divisionKeyboardUtils.getAdminDivisionKeyboard(from.getId());
-        log.info("{}: принято пересланное сообщение от назначаемого менеджера", userId);
-        userDataCache.setUserBotState(userId, BotState.ASSIGN_DIV);
-        return SendMessage.builder().chatId(userId)
-                .text(MessageUtils.AWAIT_DEPARTMENT)
-                .replyMarkup(inlineKeyboardMarkup).build();
+        if(BotState.AWAIT_MANAGER==botState){
+            adminCache.addManager(adminId,from);
+            InlineKeyboardMarkup inlineKeyboardMarkup = divisionKeyboardUtils.getAdminDivisionKeyboard(from.getId());
+            log.info("{}: принято пересланное сообщение от назначаемого менеджера", userId);
+            userDataCache.setUserBotState(userId, BotState.ASSIGN_DIV);
+            return SendMessage.builder().chatId(userId)
+                    .text(MessageUtils.AWAIT_DEPARTMENT)
+                    .replyMarkup(inlineKeyboardMarkup).build();}
+        if(BotState.DELETE_MANAGER==botState){
+            managerService.remove(from);
+            return SendMessage.builder().chatId(userId)
+                    .text(MessageUtils.MANAGER_DELETED).build();
+        }
+        return null;
     }
 
 

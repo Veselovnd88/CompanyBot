@@ -6,6 +6,8 @@ import org.telegram.telegrambots.meta.api.objects.MessageEntity;
 import java.util.List;
 
 public class MessageUtils {
+    public static final String MANAGER_DELETED = "Менеджер удален";
+
     public static Message about=new Message();
     static {
         about.setText("Информация о компании:");
