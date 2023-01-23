@@ -23,11 +23,13 @@ public class ManageDivisionCallbackHandler implements UpdateHandler {
     private final UserDataCache userDataCache;
     private final DivisionService divisionService;
     private final DivisionKeyboardUtils divisionKeyboardUtils;
+    private final ManageKeyboardUtils manageKeyboardUtils;
 
-    public ManageDivisionCallbackHandler(UserDataCache userDataCache, DivisionService divisionService, DivisionKeyboardUtils divisionKeyboardUtils) {
+    public ManageDivisionCallbackHandler(UserDataCache userDataCache, DivisionService divisionService, DivisionKeyboardUtils divisionKeyboardUtils, ManageKeyboardUtils manageKeyboardUtils) {
         this.userDataCache = userDataCache;
         this.divisionService = divisionService;
         this.divisionKeyboardUtils = divisionKeyboardUtils;
+        this.manageKeyboardUtils = manageKeyboardUtils;
     }
 
     @Override
@@ -39,9 +41,8 @@ public class ManageDivisionCallbackHandler implements UpdateHandler {
             Division division = divisionKeyboardUtils.getKeyboardDivs().get(data);
             divisionService.remove(division);
             userDataCache.setUserBotState(userId,BotState.MANAGE);
-            return SendMessage.builder().chatId(userId)//FIXME перенести в утильный класс
-                    .text("Режим управления").replyMarkup(
-                            ManageKeyboardUtils.manageKeyboard()).build();
+            return SendMessage.builder().chatId(userId).replyMarkup(manageKeyboardUtils.manageKeyboard())
+                    .text("Режим управления").build();
         }
         switch (data){
             case "addDivision":
@@ -57,8 +58,8 @@ public class ManageDivisionCallbackHandler implements UpdateHandler {
             case "exit":
                 userDataCache.setUserBotState(userId,BotState.MANAGE);
                 return SendMessage.builder().chatId(userId)
-                        .text("Режим управления").replyMarkup(
-                                ManageKeyboardUtils.manageKeyboard()).build();//FIXME перенести в утильный класс
+                        .text("Режим управления").replyMarkup(manageKeyboardUtils.manageKeyboard())
+                        .build();
         }
         return BotAnswerUtil.getAnswerCallbackErrorMessage(update.getCallbackQuery().getId());
     }

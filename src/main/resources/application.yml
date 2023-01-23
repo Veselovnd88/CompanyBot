@@ -4,7 +4,7 @@ server:
 bot:
   name: ${PL_BOT_NAME}
   token: ${PL_BOT_TOKEN}
-  webhookpath: https://85af-93-179-77-46.eu.ngrok.io
+  webhookpath: https://05f6-93-179-122-84.eu.ngrok.io
   adminId: 101516610
   chat-interval: 10000
 

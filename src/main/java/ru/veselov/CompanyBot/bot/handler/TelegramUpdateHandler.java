@@ -75,11 +75,9 @@ public class TelegramUpdateHandler implements UpdateHandler {
             if(isContactInputState(botState)){
                 return contactMessageHandler.processUpdate(update);
             }
-            if(botState==BotState.AWAIT_MANAGER){
-                return addManagerByAdminMessageHandler.processUpdate(update);
-            }
+
             if(handlerContext.isInContext(botState)){
-                handlerContext.getHandler(botState).processUpdate(update);
+                return handlerContext.getHandler(botState).processUpdate(update);
             }
         }
 
@@ -90,9 +88,6 @@ public class TelegramUpdateHandler implements UpdateHandler {
             }
             if(isContactInputCallbackState(botState)){//при нажатии кнопки Ввести данные об обратной связи
                 return contactCallbackHandler.processUpdate(update);
-            }
-            if(botState==BotState.ASSIGN_DIV){
-                return addManagerByAdminCallbackHandler.processUpdate(update);
             }
             if(handlerContext.isInContext(botState)){
                 return handlerContext.getHandler(botState).processUpdate(update);

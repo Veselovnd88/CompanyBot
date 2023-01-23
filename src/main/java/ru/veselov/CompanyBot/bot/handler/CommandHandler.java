@@ -28,12 +28,14 @@ public class CommandHandler implements UpdateHandler {
     private final ContactCache contactCache;
     private final CustomerService customerService;
     private final DivisionKeyboardUtils divisionKeyboardUtils;
+    private final ManageKeyboardUtils manageKeyboardUtils;
     @Autowired
-    public CommandHandler(UserDataCache userDataCache, ContactCache contactCache, CustomerService customerService, DivisionKeyboardUtils divisionKeyboardUtils) {
+    public CommandHandler(UserDataCache userDataCache, ContactCache contactCache, CustomerService customerService, DivisionKeyboardUtils divisionKeyboardUtils, ManageKeyboardUtils manageKeyboardUtils) {
         this.userDataCache = userDataCache;
         this.contactCache = contactCache;
         this.customerService = customerService;
         this.divisionKeyboardUtils = divisionKeyboardUtils;
+        this.manageKeyboardUtils = manageKeyboardUtils;
     }
     /*Класс обрабатывает все апдейты, который содержат команды*/
     @Override
@@ -88,10 +90,7 @@ public class CommandHandler implements UpdateHandler {
                 userDataCache.setUserBotState(userId,BotState.MANAGE);
                 return SendMessage.builder().chatId(userId)
                         .text("Режим управления").replyMarkup(
-                                ManageKeyboardUtils.manageKeyboard()).build();
-                /*userDataCache.setUserBotState(userId,BotState.AWAIT_MANAGER);
-                return SendMessage.builder().chatId(userId)
-                            .text(MessageUtils.AWAIT_MANAGER).build();*/
+                                manageKeyboardUtils.manageKeyboard()).build();
         }
         return SendMessage.builder().chatId(userId)
                 .text(MessageUtils.UNKNOWN_COMMAND).build();

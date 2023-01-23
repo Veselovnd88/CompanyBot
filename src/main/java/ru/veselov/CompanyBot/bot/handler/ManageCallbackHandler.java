@@ -22,16 +22,18 @@ import java.util.List;
 @Slf4j
 public class ManageCallbackHandler implements UpdateHandler {
     private final UserDataCache userDataCache;
+    private final ManageKeyboardUtils manageKeyboardUtils;
     @Autowired
-    public ManageCallbackHandler(UserDataCache userDataCache) {
+    public ManageCallbackHandler(UserDataCache userDataCache, ManageKeyboardUtils manageKeyboardUtils) {
         this.userDataCache = userDataCache;
+        this.manageKeyboardUtils = manageKeyboardUtils;
     }
 
     @Override
     public BotApiMethod<?> processUpdate(Update update) {
         Long userId = update.getCallbackQuery().getFrom().getId();
         String data = update.getCallbackQuery().getData();
-        log.info("{}: нажата кнопка", userId);
+        log.info("{}: нажата кнопка {}", userId, data);
         switch (data){
             case "managers":
                 userDataCache.setUserBotState(userId, BotState.MANAGE_MANAGER);
@@ -51,8 +53,8 @@ public class ManageCallbackHandler implements UpdateHandler {
             case "exit":
                 userDataCache.setUserBotState(userId,BotState.MANAGE);
                 return SendMessage.builder().chatId(userId)
-                        .text("Режим управления").replyMarkup(
-                                ManageKeyboardUtils.manageKeyboard()).build();
+                        .text("Режим управления").replyMarkup(manageKeyboardUtils.manageKeyboard())
+                        .build();
         }
         return AnswerCallbackQuery.builder().callbackQueryId(update.getCallbackQuery().getId())
                 .text(MessageUtils.ERROR)
@@ -66,14 +68,17 @@ public class ManageCallbackHandler implements UpdateHandler {
         save.setCallbackData("saveManager");
         save.setText("Добавить/редактировать менеджера");
         List<InlineKeyboardButton> row1= new ArrayList<>();
+        row1.add(save);
         var delete = new InlineKeyboardButton();
         delete.setCallbackData("deleteManager");
         delete.setText("Удалить менеджера");
         List<InlineKeyboardButton> row2= new ArrayList<>();
+        row2.add(delete);
         var exit = new InlineKeyboardButton();
         exit.setCallbackData("exit");
         exit.setText("Выход в главное меню");
         List<InlineKeyboardButton> row3= new ArrayList<>();
+        row3.add(exit);
         keyboard.add(row1); keyboard.add(row2); keyboard.add(row3);
         markup.setKeyboard(keyboard);
         return markup;
@@ -86,14 +91,17 @@ public class ManageCallbackHandler implements UpdateHandler {
         save.setCallbackData("addDivision");
         save.setText("Добавить отдел/тему");
         List<InlineKeyboardButton> row1= new ArrayList<>();
+        row1.add(save);
         var delete = new InlineKeyboardButton();
         delete.setCallbackData("deleteDivision");
         delete.setText("Удалить отдел/тему");
         List<InlineKeyboardButton> row2= new ArrayList<>();
+        row2.add(delete);
         var exit = new InlineKeyboardButton();
         exit.setCallbackData("exit");
         exit.setText("Выход в главное меню");
         List<InlineKeyboardButton> row3= new ArrayList<>();
+        row3.add(exit);
         keyboard.add(row1); keyboard.add(row2); keyboard.add(row3);
         markup.setKeyboard(keyboard);
         return markup;

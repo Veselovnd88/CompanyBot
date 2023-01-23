@@ -1,6 +1,7 @@
 package ru.veselov.CompanyBot.util;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 
@@ -8,8 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
+@Component
 public class ManageKeyboardUtils {
-    public static InlineKeyboardMarkup manageKeyboard(){
+    public InlineKeyboardMarkup manageKeyboard(){
         InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
         var managers = new InlineKeyboardButton();
@@ -19,8 +21,8 @@ public class ManageKeyboardUtils {
         row1.add(managers);
 
         var divisions = new InlineKeyboardButton();
-        managers.setCallbackData("divisions");
-        managers.setText("Темы/отделы");
+        divisions.setCallbackData("divisions");
+        divisions.setText("Темы/отделы");
         List<InlineKeyboardButton> row2 = new ArrayList<>();
         row2.add(divisions);
 
@@ -28,7 +30,7 @@ public class ManageKeyboardUtils {
         about.setCallbackData("about");
         about.setText("Ред. информацию о компании");
         List<InlineKeyboardButton> row3 = new ArrayList<>();
-        row3.add(divisions);
+        row3.add(about);
 
         var exit = new InlineKeyboardButton();
         exit.setText("Выход из режима управления");

@@ -55,6 +55,7 @@ public class AddManagerByAdminMessageHandler implements UpdateHandler {
                     .replyMarkup(inlineKeyboardMarkup).build();}
         if(BotState.DELETE_MANAGER==botState){
             managerService.remove(from);
+            userDataCache.setUserBotState(userId,BotState.MANAGE);//FIXME
             return SendMessage.builder().chatId(userId)
                     .text(MessageUtils.MANAGER_DELETED).build();
         }
