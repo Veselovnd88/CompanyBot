@@ -7,6 +7,8 @@ import java.util.List;
 
 public class MessageUtils {
     public static final String MANAGER_DELETED = "Менеджер удален";
+    public static final String INPUT_DIV = "Введите код и описание темы/отдела по форме " +
+            "<Код>-2 символа <пробел> <Описание>-не более 20 символов";
 
     public static Message about=new Message();
     static {

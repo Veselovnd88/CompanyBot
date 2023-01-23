@@ -23,12 +23,8 @@ public class DivisionService{
     }
 
     public void save(Division division){
-        if(divisionDAO.findOne(division.getDivisionId()).isPresent()){
-            divisionDAO.update(division);
-        }
-        else{
-            divisionDAO.save(division);
-        }
+        log.info("{}:отдел сохранен/обновлен",division.getDivisionId());
+        divisionDAO.save(division);
     }
 
     public Optional<Division> findOneWithManagers(Division division){
@@ -39,7 +35,8 @@ public class DivisionService{
         return divisionDAO.findOne(division.getDivisionId());
     }
 
-
-
-
+    public void remove(Division division){
+        divisionDAO.deleteById(division.getDivisionId());
+        log.info("{}: отдел удален",division.getDivisionId() );
+    }
 }

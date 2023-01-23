@@ -83,11 +83,11 @@ public class ManageCallbackHandler implements UpdateHandler {
         InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
         var save = new InlineKeyboardButton();
-        save.setCallbackData("saveDivision");
+        save.setCallbackData("addDivision");
         save.setText("Добавить отдел/тему");
         List<InlineKeyboardButton> row1= new ArrayList<>();
         var delete = new InlineKeyboardButton();
-        delete.setCallbackData("deleteManager");
+        delete.setCallbackData("deleteDivision");
         delete.setText("Удалить отдел/тему");
         List<InlineKeyboardButton> row2= new ArrayList<>();
         var exit = new InlineKeyboardButton();

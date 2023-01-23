@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
 import ru.veselov.CompanyBot.entity.Division;
+import ru.veselov.CompanyBot.entity.ManagerEntity;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
@@ -26,12 +27,18 @@ public class DivisionDAO {
     }
 
     @Transactional
-    public Division save(Division division){
-        entityManager.persist(division);
-        return division;
+    public void save(Division division){
+        Optional<Division> oneWithManagers = findOneWithManagers(division.getDivisionId());
+        if(oneWithManagers.isEmpty()){
+            findOneWithManagers(division.getDivisionId());
+            entityManager.persist(division);}
+        else{
+            entityManager.merge(division);
+        }
+
 
     }
-
+    @SuppressWarnings("unchecked")
     public Optional<Division> findByName(String name){
         Query query = entityManager.createQuery("select d from Division d where name = :param");
         query.setParameter("param",name);
@@ -53,10 +60,6 @@ public class DivisionDAO {
         return Optional.ofNullable(division);
     }
 
-    @Transactional
-    public Division update(Division division){
-        return entityManager.merge(division);
-    }
 
     @Transactional
     public void delete(Division division){
@@ -65,7 +68,12 @@ public class DivisionDAO {
 
     @Transactional
     public void deleteById(String id){
-        Optional<Division> division = findOne(id);
-        division.ifPresent(this::delete);
+        Optional<Division> division = findOneWithManagers(id);
+        if(division.isPresent()){
+            for(ManagerEntity me: division.get().getManagers()){
+                me.removeDivision(division.get());
+            }
+            delete(division.get());
+        }
     }
 }

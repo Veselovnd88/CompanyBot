@@ -9,6 +9,7 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.MessageEntity;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.veselov.CompanyBot.bot.BotState;
+import ru.veselov.CompanyBot.bot.HandlerContext;
 import ru.veselov.CompanyBot.bot.UpdateHandler;
 import ru.veselov.CompanyBot.cache.UserDataCache;
 
@@ -29,14 +30,13 @@ public class TelegramUpdateHandler implements UpdateHandler {
     private final ContactMessageHandler contactMessageHandler;
     private final ChannelConnectHandler channelConnectHandler;
     private final AddManagerByAdminCallbackHandler addManagerByAdminCallbackHandler;
-    private final ManageCallbackHandler manageCallbackHandler;
 
     private final HandlerContext handlerContext;
     private final UserDataCache userDataCache;
     @Autowired
     public TelegramUpdateHandler(CommandHandler commandHandler,
                                  DivisionCallbackHandler divisionCallbackHandler,
-                                 InquiryMessageHandler inquiryMessageHandler, ContactCallbackHandler contactCallbackHandler, AddManagerByAdminMessageHandler addManagerByAdminMessageHandler, ContactMessageHandler contactMessageHandler, ChannelConnectHandler channelConnectHandler, AddManagerByAdminCallbackHandler addManagerByAdminCallbackHandler, ManageCallbackHandler manageCallbackHandler, HandlerContext handlerContext, UserDataCache userDataCache) {
+                                 InquiryMessageHandler inquiryMessageHandler, ContactCallbackHandler contactCallbackHandler, AddManagerByAdminMessageHandler addManagerByAdminMessageHandler, ContactMessageHandler contactMessageHandler, ChannelConnectHandler channelConnectHandler, AddManagerByAdminCallbackHandler addManagerByAdminCallbackHandler, HandlerContext handlerContext, UserDataCache userDataCache) {
         this.commandHandler = commandHandler;
         this.divisionCallbackHandler = divisionCallbackHandler;
         this.inquiryMessageHandler = inquiryMessageHandler;
@@ -45,7 +45,6 @@ public class TelegramUpdateHandler implements UpdateHandler {
         this.contactMessageHandler = contactMessageHandler;
         this.channelConnectHandler = channelConnectHandler;
         this.addManagerByAdminCallbackHandler = addManagerByAdminCallbackHandler;
-        this.manageCallbackHandler = manageCallbackHandler;
         this.handlerContext = handlerContext;
         this.userDataCache = userDataCache;
     }
@@ -79,10 +78,11 @@ public class TelegramUpdateHandler implements UpdateHandler {
             if(botState==BotState.AWAIT_MANAGER){
                 return addManagerByAdminMessageHandler.processUpdate(update);
             }
+            if(handlerContext.isInContext(botState)){
+                handlerContext.getHandler(botState).processUpdate(update);
+            }
         }
-        /* при передаче в чат или админу - проверять
-        есть ли там контакт и делать соответствующую конвертацию
-        и сразу отбивка в сервис по передаче в чат*/
+
         if(update.hasCallbackQuery()){
             BotState botState = userDataCache.getUserBotState(update.getCallbackQuery().getFrom().getId());
             if(botState==BotState.AWAIT_DEPARTMENT){
