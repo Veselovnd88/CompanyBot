@@ -1,4 +1,4 @@
-package ru.veselov.CompanyBot.bot.handler;
+package ru.veselov.CompanyBot.bot.handler.managing;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;

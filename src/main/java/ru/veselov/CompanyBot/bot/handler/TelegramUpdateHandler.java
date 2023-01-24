@@ -11,6 +11,8 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.veselov.CompanyBot.bot.BotState;
 import ru.veselov.CompanyBot.bot.HandlerContext;
 import ru.veselov.CompanyBot.bot.UpdateHandler;
+import ru.veselov.CompanyBot.bot.handler.managing.AddManagerByAdminCallbackHandler;
+import ru.veselov.CompanyBot.bot.handler.managing.AddManagerByAdminMessageHandler;
 import ru.veselov.CompanyBot.cache.UserDataCache;
 import ru.veselov.CompanyBot.util.BotAnswerUtil;
 

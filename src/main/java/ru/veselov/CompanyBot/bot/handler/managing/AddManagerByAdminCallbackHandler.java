@@ -1,4 +1,4 @@
-package ru.veselov.CompanyBot.bot.handler;
+package ru.veselov.CompanyBot.bot.handler.managing;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,6 +7,7 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import ru.veselov.CompanyBot.bot.BotState;
@@ -14,12 +15,12 @@ import ru.veselov.CompanyBot.bot.UpdateHandler;
 import ru.veselov.CompanyBot.cache.AdminCache;
 import ru.veselov.CompanyBot.cache.UserDataCache;
 import ru.veselov.CompanyBot.entity.Division;
-import ru.veselov.CompanyBot.service.DivisionService;
+import ru.veselov.CompanyBot.exception.NoDivisionsException;
 import ru.veselov.CompanyBot.service.ManagerService;
 import ru.veselov.CompanyBot.util.DivisionKeyboardUtils;
 import ru.veselov.CompanyBot.util.MessageUtils;
 
-import java.util.HashMap;
+import java.util.List;
 import java.util.Set;
 
 @Component
@@ -41,12 +42,22 @@ public class AddManagerByAdminCallbackHandler implements UpdateHandler {
 
     @Override
     public BotApiMethod<?> processUpdate(Update update) {
-        HashMap<String, Division> keyboardDivs = divisionKeyboardUtils.getKeyboardDivs();
         Long userId = update.getCallbackQuery().getFrom().getId();
         String data = update.getCallbackQuery().getData();
+        //Manager was forwarded and now waiting for adding him divisions
+        EditMessageReplyMarkup editMessageReplyMarkup;
+        try {
+            editMessageReplyMarkup = divisionKeyboardUtils.divisionChooseField(update, data, adminCache.getManager(adminId).getId());
+        } catch (NoDivisionsException e) {
+            return SendMessage.builder().chatId(userId)
+                    .text("Нет отделов, добавьте хотя бы 1").build();
+        }
+        List<String> divisionsId = editMessageReplyMarkup.getReplyMarkup().getKeyboard().stream().map(
+                x->x.get(0).getCallbackData()).toList().stream()
+                .filter(x->!x.equalsIgnoreCase("save")).toList();
         log.info("{}: нажата кнопка {}",userId,data);
-        if(keyboardDivs.containsKey(data)) {
-            return divisionKeyboardUtils.divisionChooseField(update, data,adminCache.getManager(adminId).getId());
+        if(divisionsId.contains(data)) {
+            return editMessageReplyMarkup;
         }
         if(data.equalsIgnoreCase("save")){
             Set<Division> markedDivisions = divisionKeyboardUtils.getMarkedDivisions(userId);

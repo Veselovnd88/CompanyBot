@@ -15,13 +15,11 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import ru.veselov.CompanyBot.bot.CompanyBot;
 import ru.veselov.CompanyBot.entity.Division;
 import ru.veselov.CompanyBot.entity.ManagerEntity;
+import ru.veselov.CompanyBot.exception.NoDivisionsException;
 import ru.veselov.CompanyBot.service.DivisionService;
 import ru.veselov.CompanyBot.service.ManagerService;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.spy;
@@ -76,7 +74,8 @@ class DivisionKeyboardUtilsTest {
 
 
     @Test
-    void createKeyboardTestNoDivisions(){
+    void createKeyboardTestNoDivisions() throws NoDivisionsException {
+        //Creating keyboard with no marked items
         InlineKeyboardMarkup inlineKeyboardMarkup = divisionKeyboardUtils.getAdminDivisionKeyboard(user.getId(),userFrom.getId());
         assertInstanceOf(InlineKeyboardMarkup.class, inlineKeyboardMarkup);
         assertEquals(3,inlineKeyboardMarkup.getKeyboard().size());
@@ -84,9 +83,19 @@ class DivisionKeyboardUtilsTest {
             assertFalse(EmojiParser.parseToAliases(row.get(0).getText()).startsWith(":white"));
             assertFalse(row.get(0).getCallbackData().endsWith("marked"));}
     }
+    @Test
+    void createKeyboardWithNoDivisionsInDB() throws NoDivisionsException {
+        when(divisionService.findAll()).thenReturn(new ArrayList<>());
+        InlineKeyboardMarkup inlineKeyboardMarkup = divisionKeyboardUtils.getAdminDivisionKeyboard(user.getId(),userFrom.getId());
+        assertEquals(1,inlineKeyboardMarkup.getKeyboard().size());
+        assertEquals(1,inlineKeyboardMarkup.getKeyboard().get(0).size());
+    }
+
+
 
     @Test
-    void createKeyboardTestWithDivisions(){
+    void createKeyboardTestWithDivisions() throws NoDivisionsException {
+        //Creating keyboard with marked items
         ManagerEntity managerEntity = new ManagerEntity();
         managerEntity.setManagerId(1L);
         managerEntity.setDivisions(Set.of(Division.builder().divisionId("T").name("Test").build()));
@@ -108,7 +117,7 @@ class DivisionKeyboardUtilsTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"T","T2"})
-    void chooseButtonTest(String field){
+    void chooseButtonTest(String field) throws NoDivisionsException {
         //При нажатии на кнопку к тексту прибавляется/убирается галочка, к коллбэку - пометка
         EditMessageReplyMarkup firstPress = divisionKeyboardUtils.divisionChooseField(update, field,userFrom.getId());
         var firstKeyboard=firstPress.getReplyMarkup().getKeyboard();
@@ -128,7 +137,7 @@ class DivisionKeyboardUtilsTest {
 
 
     @Test
-    void getMarkedButtonsTest(){
+    void getMarkedButtonsTest() throws NoDivisionsException {
         //Проверка выдачи кнопок с отметками
         divisionKeyboardUtils.divisionChooseField(update,"T",userFrom.getId());
         divisionKeyboardUtils.divisionChooseField(update,"T2",userFrom.getId());
@@ -140,7 +149,7 @@ class DivisionKeyboardUtilsTest {
     }
 
     @Test
-    void keyBoardDivsVars(){
+    void keyBoardDivsVars() throws NoDivisionsException {
         //Проверка добавления в мапу всех возможных отделов *2 (с отметками)
         divisionKeyboardUtils.divisionChooseField(update,"T",userFrom.getId());
         HashMap<String, Division> keyboardDivs = divisionKeyboardUtils.getKeyboardDivs();

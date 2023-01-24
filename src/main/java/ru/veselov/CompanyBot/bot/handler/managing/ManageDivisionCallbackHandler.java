@@ -1,4 +1,4 @@
-package ru.veselov.CompanyBot.bot.handler;
+package ru.veselov.CompanyBot.bot.handler.managing;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -9,6 +9,7 @@ import ru.veselov.CompanyBot.bot.BotState;
 import ru.veselov.CompanyBot.bot.UpdateHandler;
 import ru.veselov.CompanyBot.cache.UserDataCache;
 import ru.veselov.CompanyBot.entity.Division;
+import ru.veselov.CompanyBot.exception.NoDivisionsException;
 import ru.veselov.CompanyBot.service.DivisionService;
 import ru.veselov.CompanyBot.util.BotAnswerUtil;
 import ru.veselov.CompanyBot.util.DivisionKeyboardUtils;
@@ -41,7 +42,13 @@ public class ManageDivisionCallbackHandler implements UpdateHandler {
         String data = update.getCallbackQuery().getData();
         log.info("{}: нажата кнопка {}", userId,data);
         if(userDataCache.getUserBotState(userId)==BotState.DELETE_DIV){
-            Division division = divisionKeyboardUtils.getKeyboardDivs().get(data);
+            Division division;
+            try {
+                division = divisionKeyboardUtils.getKeyboardDivs().get(data);
+            } catch (NoDivisionsException e) {
+                return SendMessage.builder().chatId(userId)
+                        .text(e.getMessage()).build();
+            }
             divisionService.remove(division);
             userDataCache.setUserBotState(userId,BotState.MANAGE);
             return SendMessage.builder().chatId(userId).replyMarkup(manageKeyboardUtils.manageKeyboard())
@@ -55,9 +62,14 @@ public class ManageDivisionCallbackHandler implements UpdateHandler {
                                 +MessageUtils.INPUT_DIV).build();
             case "deleteDivision":
                 userDataCache.setUserBotState(userId,BotState.DELETE_DIV);
-                return SendMessage.builder().chatId(userId)
-                        .replyMarkup(divisionKeyboardUtils.getCustomerDivisionKeyboard())
-                        .text("Выберите отдел для удаления").build();
+                try {
+                    return SendMessage.builder().chatId(userId)
+                            .replyMarkup(divisionKeyboardUtils.getCustomerDivisionKeyboard())
+                            .text("Выберите отдел для удаления").build();
+                } catch (NoDivisionsException e) {
+                    return SendMessage.builder().chatId(userId)
+                            .text(e.getMessage()).build();
+                }
             case "exit":
                 userDataCache.setUserBotState(userId,BotState.MANAGE);
                 return SendMessage.builder().chatId(userId)

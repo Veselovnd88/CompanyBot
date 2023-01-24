@@ -11,6 +11,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import ru.veselov.CompanyBot.cache.Cache;
 import ru.veselov.CompanyBot.entity.Division;
 import ru.veselov.CompanyBot.entity.ManagerEntity;
+import ru.veselov.CompanyBot.exception.NoDivisionsException;
 import ru.veselov.CompanyBot.service.DivisionService;
 import ru.veselov.CompanyBot.service.ManagerService;
 
@@ -31,16 +32,27 @@ public class DivisionKeyboardUtils implements Cache {//FIXME возможно е
         this.managerService = managerService;
     }
 
-    public InlineKeyboardMarkup getAdminDivisionKeyboard(Long userId, Long fromId){
+    public InlineKeyboardMarkup getAdminDivisionKeyboard(Long userId, Long fromId) throws NoDivisionsException {
         List<Division> allDivisions = refreshDivisions();
+        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+        InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+        if(allDivisions.isEmpty()){
+            InlineKeyboardButton emptyButton = new InlineKeyboardButton();
+            emptyButton.setText("Нет отделов/тем в базе, обратитесь к администратору");
+            emptyButton.setCallbackData("empty");
+            List<InlineKeyboardButton> row = new ArrayList<>();
+            row.add(emptyButton);
+            keyboard.add(row);
+            markup.setKeyboard(keyboard);
+            return markup;
+        }
         //Checking if manager exists in db, for indicating owned divisions
         Optional<ManagerEntity> oneWithDivisions = managerService.findOneWithDivisions(fromId);
         Set<Division> managersDivision=new HashSet<>();
         if(oneWithDivisions.isPresent()){
             managersDivision=oneWithDivisions.get().getDivisions();
         }
-        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
-        InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
+
         for(var d: allDivisions){
             String name = d.getName();
             String callback = d.getDivisionId();
@@ -55,7 +67,6 @@ public class DivisionKeyboardUtils implements Cache {//FIXME возможно е
             row.add(button);
             keyboard.add(row);
         }
-
         InlineKeyboardButton saveButton = new InlineKeyboardButton();
         saveButton.setCallbackData("save");
         saveButton.setText("Сохранить");
@@ -66,7 +77,7 @@ public class DivisionKeyboardUtils implements Cache {//FIXME возможно е
     }
 
 
-    public InlineKeyboardMarkup getCustomerDivisionKeyboard(){
+    public InlineKeyboardMarkup getCustomerDivisionKeyboard() throws NoDivisionsException {
         List<Division> allDivisions = refreshDivisions();
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
         InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
@@ -85,7 +96,7 @@ public class DivisionKeyboardUtils implements Cache {//FIXME возможно е
     }
 
 
-    public EditMessageReplyMarkup divisionChooseField(Update update, String field, Long fromId){
+    public EditMessageReplyMarkup divisionChooseField(Update update, String field, Long fromId) throws NoDivisionsException {
         Long userId = update.getCallbackQuery().getFrom().getId();
         InlineKeyboardMarkup inlineKeyboardMarkup;
         //Create new keyboard or send it from our cache
@@ -143,7 +154,10 @@ public class DivisionKeyboardUtils implements Cache {//FIXME возможно е
         return idToDivision.get(name);
     }
 
-    public HashMap<String, Division> getKeyboardDivs() {
+    public HashMap<String, Division> getKeyboardDivs() throws NoDivisionsException {
+        if(idToDivision.isEmpty()){
+            refreshDivisions();
+        }
         HashMap<String, Division> withMarked= new HashMap<>();
         idToDivision.forEach((x, y)->{
             withMarked.put(x,y);
@@ -161,9 +175,12 @@ public class DivisionKeyboardUtils implements Cache {//FIXME возможно е
         idToDivision.clear();
     }
 
-    private List<Division> refreshDivisions(){
+    private List<Division> refreshDivisions() throws NoDivisionsException {
         //After creation ov keyboard all divisions placed in cache
         List<Division> allDivisions = divisionService.findAll();
+        if(allDivisions.isEmpty()){
+            throw new NoDivisionsException();
+        }
         for(var d: allDivisions){
             idToDivision.put(d.getDivisionId(),d);
         }

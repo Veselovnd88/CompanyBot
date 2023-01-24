@@ -1,4 +1,4 @@
-package ru.veselov.CompanyBot.bot.handler;
+package ru.veselov.CompanyBot.bot.handler.managing;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +13,7 @@ import ru.veselov.CompanyBot.bot.BotState;
 import ru.veselov.CompanyBot.bot.UpdateHandler;
 import ru.veselov.CompanyBot.cache.AdminCache;
 import ru.veselov.CompanyBot.cache.UserDataCache;
+import ru.veselov.CompanyBot.exception.NoDivisionsException;
 import ru.veselov.CompanyBot.service.ManagerService;
 import ru.veselov.CompanyBot.util.DivisionKeyboardUtils;
 import ru.veselov.CompanyBot.util.ManageKeyboardUtils;
@@ -50,7 +51,13 @@ public class AddManagerByAdminMessageHandler implements UpdateHandler {
         User from = update.getMessage().getForwardFrom();
         if(BotState.AWAIT_MANAGER==botState){
             adminCache.addManager(adminId,from);
-            InlineKeyboardMarkup inlineKeyboardMarkup = divisionKeyboardUtils.getAdminDivisionKeyboard(userId, from.getId());
+            InlineKeyboardMarkup inlineKeyboardMarkup = null;
+            try {
+                inlineKeyboardMarkup = divisionKeyboardUtils.getAdminDivisionKeyboard(userId, from.getId());
+            } catch (NoDivisionsException e) {
+                return SendMessage.builder().chatId(userId)
+                        .text(e.getMessage()).build();
+            }
             log.info("{}: принято пересланное сообщение от назначаемого менеджера", userId);
             userDataCache.setUserBotState(userId, BotState.ASSIGN_DIV);
             return SendMessage.builder().chatId(userId)

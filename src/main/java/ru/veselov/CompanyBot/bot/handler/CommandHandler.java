@@ -13,6 +13,7 @@ import ru.veselov.CompanyBot.bot.BotState;
 import ru.veselov.CompanyBot.bot.UpdateHandler;
 import ru.veselov.CompanyBot.cache.ContactCache;
 import ru.veselov.CompanyBot.cache.UserDataCache;
+import ru.veselov.CompanyBot.exception.NoDivisionsException;
 import ru.veselov.CompanyBot.service.CustomerService;
 import ru.veselov.CompanyBot.util.DivisionKeyboardUtils;
 import ru.veselov.CompanyBot.util.ManageKeyboardUtils;
@@ -99,7 +100,12 @@ public class CommandHandler implements UpdateHandler {
 
 
     private SendMessage departmentMessageInlineKeyBoard(Long userId){
-        InlineKeyboardMarkup customerDivisionKeyboard = divisionKeyboardUtils.getCustomerDivisionKeyboard();
+        InlineKeyboardMarkup customerDivisionKeyboard;
+        try {
+            customerDivisionKeyboard = divisionKeyboardUtils.getCustomerDivisionKeyboard();
+        } catch (NoDivisionsException e) {
+            return SendMessage.builder().chatId(userId).text(e.getMessage()).build();
+        }
         return SendMessage.builder().chatId(userId).text(MessageUtils.CHOOSE_DEP)
                 .replyMarkup(customerDivisionKeyboard).build();
     }

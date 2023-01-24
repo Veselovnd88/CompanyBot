@@ -1,5 +1,6 @@
 package ru.veselov.CompanyBot.bot.handler;
 
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,8 +14,10 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import ru.veselov.CompanyBot.bot.BotState;
 import ru.veselov.CompanyBot.bot.CompanyBot;
+import ru.veselov.CompanyBot.bot.handler.managing.AddManagerByAdminMessageHandler;
 import ru.veselov.CompanyBot.cache.AdminCache;
 import ru.veselov.CompanyBot.cache.UserDataCache;
+import ru.veselov.CompanyBot.exception.NoDivisionsException;
 import ru.veselov.CompanyBot.util.DivisionKeyboardUtils;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -41,7 +44,7 @@ class AddManagerByAdminMessageHandlerTest {
     User user;
     User user2;
     @BeforeEach
-    void init(){
+    void init() throws NoDivisionsException {
         update=spy(Update.class);
         message=spy(Message.class);
         user =spy(User.class);
@@ -57,7 +60,7 @@ class AddManagerByAdminMessageHandlerTest {
 
 
     @Test
-    void forwardedMessageTest(){
+    void forwardedMessageTest() throws NoDivisionsException {
         //Test checks if status changes after transfering user's message
         addManagerByAdminMessageHandler.processUpdate(update);
         assertEquals(BotState.ASSIGN_DIV,userDataCache.getUserBotState(adminId));
@@ -65,6 +68,7 @@ class AddManagerByAdminMessageHandlerTest {
         verify(adminCache).addManager(adminId,user2);
     }
 
+    @SneakyThrows
     @Test
     void forwardedMessageNoForwardedTest(){
         //Checking if message wasnt forwarded from another user

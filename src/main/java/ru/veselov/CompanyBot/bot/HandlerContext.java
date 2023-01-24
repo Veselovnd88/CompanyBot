@@ -2,7 +2,7 @@ package ru.veselov.CompanyBot.bot;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import ru.veselov.CompanyBot.bot.handler.*;
+import ru.veselov.CompanyBot.bot.handler.managing.*;
 
 import java.util.HashMap;
 
