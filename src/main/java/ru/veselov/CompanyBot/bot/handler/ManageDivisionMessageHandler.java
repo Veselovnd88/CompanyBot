@@ -6,18 +6,25 @@ import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
+import ru.veselov.CompanyBot.bot.BotState;
 import ru.veselov.CompanyBot.bot.UpdateHandler;
+import ru.veselov.CompanyBot.cache.UserDataCache;
 import ru.veselov.CompanyBot.entity.Division;
 import ru.veselov.CompanyBot.service.DivisionService;
+import ru.veselov.CompanyBot.util.ManageKeyboardUtils;
 import ru.veselov.CompanyBot.util.MessageUtils;
 
 @Component
 @Slf4j
 public class ManageDivisionMessageHandler implements UpdateHandler {
     private final DivisionService divisionService;
+    private final UserDataCache userDataCache;
+    private final ManageKeyboardUtils manageKeyboardUtils;
 
-    public ManageDivisionMessageHandler(DivisionService divisionService) {
+    public ManageDivisionMessageHandler(DivisionService divisionService, UserDataCache userDataCache, ManageKeyboardUtils manageKeyboardUtils) {
         this.divisionService = divisionService;
+        this.userDataCache = userDataCache;
+        this.manageKeyboardUtils = manageKeyboardUtils;
     }
 
     @Override
@@ -34,9 +41,10 @@ public class ManageDivisionMessageHandler implements UpdateHandler {
             Division division = Division.builder().divisionId(split[0])
                     .name(text.substring(split[0].length())).build();
             divisionService.save(division);
+            userDataCache.setUserBotState(userId, BotState.MANAGE);
+            return SendMessage.builder().chatId(userId)
+                    .text("Режим управления").replyMarkup(manageKeyboardUtils.manageKeyboard())
+                    .build();
         }
-
-
-        return null;
     }
 }

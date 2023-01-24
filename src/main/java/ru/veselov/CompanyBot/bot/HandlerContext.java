@@ -10,7 +10,8 @@ import java.util.HashMap;
 @Slf4j
 public class HandlerContext {
 
-    private final HashMap<BotState,UpdateHandler> handlerContext = new HashMap<>();
+    private final HashMap<BotState,UpdateHandler> messageHandlerContext = new HashMap<>();
+    private final HashMap<BotState,UpdateHandler> callbackHandlerContext = new HashMap<>();
 
     private final ManageManagerByAdminCallbackHandler manageManagerByAdminCallbackHandler;
     private final ManageCallbackHandler manageCallbackHandler;
@@ -26,22 +27,31 @@ public class HandlerContext {
         this.addManagerByAdminCallbackHandler = addManagerByAdminCallbackHandler;
         this.manageDivisionCallbackHandler = manageDivisionCallbackHandler;
         this.manageDivisionMessageHandler = manageDivisionMessageHandler;
-        handlerContext.put(BotState.MANAGE_MANAGER,manageManagerByAdminCallbackHandler);
-        handlerContext.put(BotState.MANAGE, manageCallbackHandler);
-        handlerContext.put(BotState.AWAIT_MANAGER,addManagerByAdminMessageHandler);
-        handlerContext.put(BotState.DELETE_MANAGER,addManagerByAdminMessageHandler);
-        handlerContext.put(BotState.ASSIGN_DIV, addManagerByAdminCallbackHandler);
-        handlerContext.put(BotState.MANAGE_DIVISION, manageDivisionCallbackHandler);
-        handlerContext.put(BotState.AWAIT_DIVISION, manageDivisionMessageHandler);
+        callbackHandlerContext.put(BotState.MANAGE_MANAGER,manageManagerByAdminCallbackHandler);
+        callbackHandlerContext.put(BotState.MANAGE, manageCallbackHandler);
+        messageHandlerContext.put(BotState.AWAIT_MANAGER,addManagerByAdminMessageHandler);
+        messageHandlerContext.put(BotState.DELETE_MANAGER,addManagerByAdminMessageHandler);
+        callbackHandlerContext.put(BotState.ASSIGN_DIV, addManagerByAdminCallbackHandler);
+        callbackHandlerContext.put(BotState.MANAGE_DIVISION, manageDivisionCallbackHandler);
+        messageHandlerContext.put(BotState.AWAIT_DIVISION, manageDivisionMessageHandler);
 
     }
 
 
     public boolean isInContext(BotState botState){
-        return handlerContext.containsKey(botState);
+        return callbackHandlerContext.containsKey(botState)||messageHandlerContext.containsKey(botState);
+    }
+    public boolean isInMessageContext(BotState botState){
+        return messageHandlerContext.containsKey(botState);
+    }
+    public boolean isInCallbackContext(BotState botState){
+        return callbackHandlerContext.containsKey(botState);
     }
 
-    public UpdateHandler getHandler(BotState botState){
-        return handlerContext.get(botState);
+    public UpdateHandler getMessageHandler(BotState botState){
+        return messageHandlerContext.get(botState);
+    }
+    public UpdateHandler getCallbackHandler(BotState botState){
+        return callbackHandlerContext.get(botState);
     }
 }

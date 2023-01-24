@@ -51,9 +51,9 @@ public class ManageCallbackHandler implements UpdateHandler {
                         .text("Пришлите новое описание компании, текущее: "+ currentInfo)
                         .entities(MessageUtils.entities).build();
             case "exit":
-                userDataCache.setUserBotState(userId,BotState.MANAGE);
+                userDataCache.setUserBotState(userId,BotState.READY);
                 return SendMessage.builder().chatId(userId)
-                        .text("Режим управления").replyMarkup(manageKeyboardUtils.manageKeyboard())
+                        .text("Ожидаю команды")
                         .build();
         }
         return AnswerCallbackQuery.builder().callbackQueryId(update.getCallbackQuery().getId())

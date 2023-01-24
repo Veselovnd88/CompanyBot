@@ -52,7 +52,7 @@ class AddManagerByAdminMessageHandlerTest {
         user2.setUserName("Vasya");
         user2.setId(100L);
         message.setForwardFrom(user2);
-        when(divisionKeyboardUtils.getAdminDivisionKeyboard(user2.getId())).thenReturn(new InlineKeyboardMarkup());
+        when(divisionKeyboardUtils.getAdminDivisionKeyboard(user.getId(),user2.getId())).thenReturn(new InlineKeyboardMarkup());
     }
 
 
@@ -61,7 +61,7 @@ class AddManagerByAdminMessageHandlerTest {
         //Test checks if status changes after transfering user's message
         addManagerByAdminMessageHandler.processUpdate(update);
         assertEquals(BotState.ASSIGN_DIV,userDataCache.getUserBotState(adminId));
-        verify(divisionKeyboardUtils).getAdminDivisionKeyboard(user2.getId());
+        verify(divisionKeyboardUtils).getAdminDivisionKeyboard(user.getId(),user2.getId());
         verify(adminCache).addManager(adminId,user2);
     }
 
@@ -73,7 +73,7 @@ class AddManagerByAdminMessageHandlerTest {
         message.setForwardFrom(null);
         addManagerByAdminMessageHandler.processUpdate(update);
         assertEquals(BotState.AWAIT_MANAGER,userDataCache.getUserBotState(adminId));
-        verify(divisionKeyboardUtils,never()).getAdminDivisionKeyboard(user2.getId());
+        verify(divisionKeyboardUtils,never()).getAdminDivisionKeyboard(user.getId(),user2.getId());
         verify(adminCache,never()).addManager(adminId,user2);
     }
 

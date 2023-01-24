@@ -22,7 +22,7 @@ public class DivisionKeyboardUtils implements Cache {//FIXME возможно е
     private final String mark="+marked";
     private final DivisionService divisionService;
     private final HashMap<String, Division> idToDivision =new HashMap<>();
-    private final HashMap<Long, EditMessageReplyMarkup> divisionKeyboardCache = new HashMap<>();
+    private final HashMap<Long, InlineKeyboardMarkup> divisionKeyboardCache = new HashMap<>();
     private final ManagerService managerService;
     private final String emojiMark = ":white_check_mark:";
     @Autowired
@@ -31,7 +31,7 @@ public class DivisionKeyboardUtils implements Cache {//FIXME возможно е
         this.managerService = managerService;
     }
 
-    public InlineKeyboardMarkup getAdminDivisionKeyboard(Long fromId){
+    public InlineKeyboardMarkup getAdminDivisionKeyboard(Long userId, Long fromId){
         List<Division> allDivisions = refreshDivisions();
         //Checking if manager exists in db, for indicating owned divisions
         Optional<ManagerEntity> oneWithDivisions = managerService.findOneWithDivisions(fromId);
@@ -60,8 +60,8 @@ public class DivisionKeyboardUtils implements Cache {//FIXME возможно е
         saveButton.setCallbackData("save");
         saveButton.setText("Сохранить");
         keyboard.add(List.of(saveButton));
-
         markup.setKeyboard(keyboard);
+        divisionKeyboardCache.put(userId, markup);
         return markup;
     }
 
@@ -90,10 +90,10 @@ public class DivisionKeyboardUtils implements Cache {//FIXME возможно е
         InlineKeyboardMarkup inlineKeyboardMarkup;
         //Create new keyboard or send it from our cache
         if(divisionKeyboardCache.containsKey(userId)){
-            inlineKeyboardMarkup = divisionKeyboardCache.get(userId).getReplyMarkup();
+            inlineKeyboardMarkup = divisionKeyboardCache.get(userId);
         }
         else{
-            inlineKeyboardMarkup = getAdminDivisionKeyboard(fromId);
+            inlineKeyboardMarkup = getAdminDivisionKeyboard(userId,fromId);
         }
         for(var keyboard: inlineKeyboardMarkup.getKeyboard()){
                 //находим кнопку на которую нажали
@@ -114,7 +114,7 @@ public class DivisionKeyboardUtils implements Cache {//FIXME возможно е
                 .messageId(update.getCallbackQuery().getMessage().getMessageId())
                 .replyMarkup(inlineKeyboardMarkup)
                 .build();
-        divisionKeyboardCache.put(userId,editedKeyboard);
+        divisionKeyboardCache.put(userId,inlineKeyboardMarkup);
         return editedKeyboard;
     }
 
@@ -129,8 +129,8 @@ public class DivisionKeyboardUtils implements Cache {//FIXME возможно е
 
     public Set<Division> getMarkedDivisions(Long userId){
         HashSet<Division> divNames = new HashSet<>();
-        EditMessageReplyMarkup editMessageReplyMarkup = divisionKeyboardCache.get(userId);
-        List<List<InlineKeyboardButton>> keyboard = editMessageReplyMarkup.getReplyMarkup().getKeyboard();
+        InlineKeyboardMarkup editMessageReplyMarkup = divisionKeyboardCache.get(userId);
+        List<List<InlineKeyboardButton>> keyboard = editMessageReplyMarkup.getKeyboard();
         for (var row: keyboard){
             if(isMarked(row.get(0).getCallbackData())){
                 divNames.add(getDivisionByName(row.get(0).getCallbackData().replace(mark,"")));

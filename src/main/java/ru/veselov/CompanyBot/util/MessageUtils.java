@@ -55,4 +55,5 @@ public class MessageUtils {
     public static final String AWAIT_MANAGER = "Перешлите любое сообщение от назначаемого менеджера";
     public static final String AWAIT_DEPARTMENT="Выберите направление";
     public static String ERROR="Что-то пошло не так";
+    public static String ANOTHER_ACTION = "Бот ожидает другое действие, продолжите или нажмите /start";
 }

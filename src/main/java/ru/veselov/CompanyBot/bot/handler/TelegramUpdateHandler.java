@@ -12,6 +12,7 @@ import ru.veselov.CompanyBot.bot.BotState;
 import ru.veselov.CompanyBot.bot.HandlerContext;
 import ru.veselov.CompanyBot.bot.UpdateHandler;
 import ru.veselov.CompanyBot.cache.UserDataCache;
+import ru.veselov.CompanyBot.util.BotAnswerUtil;
 
 import java.util.List;
 import java.util.Optional;
@@ -33,10 +34,11 @@ public class TelegramUpdateHandler implements UpdateHandler {
 
     private final HandlerContext handlerContext;
     private final UserDataCache userDataCache;
+    private final BotAnswerUtil botAnswerUtil;
     @Autowired
     public TelegramUpdateHandler(CommandHandler commandHandler,
                                  DivisionCallbackHandler divisionCallbackHandler,
-                                 InquiryMessageHandler inquiryMessageHandler, ContactCallbackHandler contactCallbackHandler, AddManagerByAdminMessageHandler addManagerByAdminMessageHandler, ContactMessageHandler contactMessageHandler, ChannelConnectHandler channelConnectHandler, AddManagerByAdminCallbackHandler addManagerByAdminCallbackHandler, HandlerContext handlerContext, UserDataCache userDataCache) {
+                                 InquiryMessageHandler inquiryMessageHandler, ContactCallbackHandler contactCallbackHandler, AddManagerByAdminMessageHandler addManagerByAdminMessageHandler, ContactMessageHandler contactMessageHandler, ChannelConnectHandler channelConnectHandler, AddManagerByAdminCallbackHandler addManagerByAdminCallbackHandler, HandlerContext handlerContext, UserDataCache userDataCache, BotAnswerUtil botAnswerUtil) {
         this.commandHandler = commandHandler;
         this.divisionCallbackHandler = divisionCallbackHandler;
         this.inquiryMessageHandler = inquiryMessageHandler;
@@ -47,6 +49,7 @@ public class TelegramUpdateHandler implements UpdateHandler {
         this.addManagerByAdminCallbackHandler = addManagerByAdminCallbackHandler;
         this.handlerContext = handlerContext;
         this.userDataCache = userDataCache;
+        this.botAnswerUtil = botAnswerUtil;
     }
 
     @Override
@@ -67,6 +70,7 @@ public class TelegramUpdateHandler implements UpdateHandler {
         if(update.hasMessage()&&isCommand(update)){
             return commandHandler.processUpdate(update);
         }
+
         if(update.hasMessage()){
             BotState botState = userDataCache.getUserBotState(update.getMessage().getFrom().getId());
             if(botState==BotState.AWAIT_MESSAGE){
@@ -76,9 +80,10 @@ public class TelegramUpdateHandler implements UpdateHandler {
                 return contactMessageHandler.processUpdate(update);
             }
 
-            if(handlerContext.isInContext(botState)){
-                return handlerContext.getHandler(botState).processUpdate(update);
+            if(handlerContext.isInMessageContext(botState)){//FIXME запускаются колбэковые хэндлеры
+                return handlerContext.getMessageHandler(botState).processUpdate(update);
             }
+            return botAnswerUtil.getAnswerNotSupportMessage(update.getMessage().getChatId().toString());
         }
 
         if(update.hasCallbackQuery()){
@@ -89,10 +94,10 @@ public class TelegramUpdateHandler implements UpdateHandler {
             if(isContactInputCallbackState(botState)){//при нажатии кнопки Ввести данные об обратной связи
                 return contactCallbackHandler.processUpdate(update);
             }
-            if(handlerContext.isInContext(botState)){
-                return handlerContext.getHandler(botState).processUpdate(update);
-            }//TODO division manage handlers
-
+            if(handlerContext.isInCallbackContext(botState)){
+                return handlerContext.getCallbackHandler(botState).processUpdate(update);
+            }
+            return botAnswerUtil.getAnswerCallbackAnotherAction(update.getCallbackQuery().getId());
         }
 
         return null;

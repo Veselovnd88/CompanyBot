@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import ru.veselov.CompanyBot.bot.BotState;
@@ -55,7 +56,7 @@ public class AddManagerByAdminCallbackHandler implements UpdateHandler {
             adminCache.clear(adminId);
             userDataCache.setUserBotState(userId, BotState.READY);
             divisionKeyboardUtils.clear(adminId);
-            return AnswerCallbackQuery.builder().callbackQueryId(update.getCallbackQuery().getId())
+            return SendMessage.builder().chatId(userId)
                     .text(MessageUtils.MANAGER_SAVED)
                     .build();
         }

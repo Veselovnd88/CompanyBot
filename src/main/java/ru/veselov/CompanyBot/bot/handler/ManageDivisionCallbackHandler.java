@@ -25,11 +25,14 @@ public class ManageDivisionCallbackHandler implements UpdateHandler {
     private final DivisionKeyboardUtils divisionKeyboardUtils;
     private final ManageKeyboardUtils manageKeyboardUtils;
 
-    public ManageDivisionCallbackHandler(UserDataCache userDataCache, DivisionService divisionService, DivisionKeyboardUtils divisionKeyboardUtils, ManageKeyboardUtils manageKeyboardUtils) {
+    private final BotAnswerUtil botAnswerUtil;
+
+    public ManageDivisionCallbackHandler(UserDataCache userDataCache, DivisionService divisionService, DivisionKeyboardUtils divisionKeyboardUtils, ManageKeyboardUtils manageKeyboardUtils, BotAnswerUtil botAnswerUtil) {
         this.userDataCache = userDataCache;
         this.divisionService = divisionService;
         this.divisionKeyboardUtils = divisionKeyboardUtils;
         this.manageKeyboardUtils = manageKeyboardUtils;
+        this.botAnswerUtil = botAnswerUtil;
     }
 
     @Override
@@ -61,7 +64,7 @@ public class ManageDivisionCallbackHandler implements UpdateHandler {
                         .text("Режим управления").replyMarkup(manageKeyboardUtils.manageKeyboard())
                         .build();
         }
-        return BotAnswerUtil.getAnswerCallbackErrorMessage(update.getCallbackQuery().getId());
+        return botAnswerUtil.getAnswerCallbackErrorMessage(update.getCallbackQuery().getId());
     }
 
     private String getAllDivisionsFormatted(){

@@ -15,6 +15,7 @@ import ru.veselov.CompanyBot.cache.AdminCache;
 import ru.veselov.CompanyBot.cache.UserDataCache;
 import ru.veselov.CompanyBot.service.ManagerService;
 import ru.veselov.CompanyBot.util.DivisionKeyboardUtils;
+import ru.veselov.CompanyBot.util.ManageKeyboardUtils;
 import ru.veselov.CompanyBot.util.MessageUtils;
 
 @Component
@@ -26,13 +27,15 @@ public class AddManagerByAdminMessageHandler implements UpdateHandler {
     private final UserDataCache userDataCache;
     private final ManagerService managerService;
     private final DivisionKeyboardUtils divisionKeyboardUtils;
+    private final ManageKeyboardUtils manageKeyboardUtils;
     @Autowired
-    public AddManagerByAdminMessageHandler(AdminCache adminCache, UserDataCache userDataCache, ManagerService managerService, DivisionKeyboardUtils divisionKeyboardUtils) {
+    public AddManagerByAdminMessageHandler(AdminCache adminCache, UserDataCache userDataCache, ManagerService managerService, DivisionKeyboardUtils divisionKeyboardUtils, ManageKeyboardUtils manageKeyboardUtils) {
         this.adminCache = adminCache;
         this.userDataCache = userDataCache;
         this.managerService = managerService;
         this.divisionKeyboardUtils = divisionKeyboardUtils;
 
+        this.manageKeyboardUtils = manageKeyboardUtils;
     }
 
     @Override
@@ -47,7 +50,7 @@ public class AddManagerByAdminMessageHandler implements UpdateHandler {
         User from = update.getMessage().getForwardFrom();
         if(BotState.AWAIT_MANAGER==botState){
             adminCache.addManager(adminId,from);
-            InlineKeyboardMarkup inlineKeyboardMarkup = divisionKeyboardUtils.getAdminDivisionKeyboard(from.getId());
+            InlineKeyboardMarkup inlineKeyboardMarkup = divisionKeyboardUtils.getAdminDivisionKeyboard(userId, from.getId());
             log.info("{}: принято пересланное сообщение от назначаемого менеджера", userId);
             userDataCache.setUserBotState(userId, BotState.ASSIGN_DIV);
             return SendMessage.builder().chatId(userId)
@@ -55,9 +58,10 @@ public class AddManagerByAdminMessageHandler implements UpdateHandler {
                     .replyMarkup(inlineKeyboardMarkup).build();}
         if(BotState.DELETE_MANAGER==botState){
             managerService.remove(from);
-            userDataCache.setUserBotState(userId,BotState.MANAGE);//FIXME
+            userDataCache.setUserBotState(userId,BotState.MANAGE);
             return SendMessage.builder().chatId(userId)
-                    .text(MessageUtils.MANAGER_DELETED).build();
+                    .text(MessageUtils.MANAGER_DELETED).replyMarkup(manageKeyboardUtils.manageKeyboard())
+                    .build();
         }
         return null;
     }
