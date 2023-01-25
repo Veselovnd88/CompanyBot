@@ -14,7 +14,7 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import ru.veselov.CompanyBot.bot.BotState;
 import ru.veselov.CompanyBot.bot.CompanyBot;
-import ru.veselov.CompanyBot.bot.handler.managing.AddManagerByAdminMessageHandler;
+import ru.veselov.CompanyBot.bot.handler.managing.AddingManagerMessageHandler;
 import ru.veselov.CompanyBot.cache.AdminCache;
 import ru.veselov.CompanyBot.cache.UserDataCache;
 import ru.veselov.CompanyBot.exception.NoDivisionsException;
@@ -25,7 +25,7 @@ import static org.mockito.Mockito.*;
 
 @SpringBootTest
 @ActiveProfiles("test")
-class AddManagerByAdminMessageHandlerTest {
+class AddingManagerMessageHandlerTest {
     @MockBean
     CompanyBot bot;
 
@@ -38,7 +38,7 @@ class AddManagerByAdminMessageHandlerTest {
     @MockBean
     private  DivisionKeyboardUtils divisionKeyboardUtils;
     @Autowired
-    private AddManagerByAdminMessageHandler addManagerByAdminMessageHandler;
+    private AddingManagerMessageHandler addingManagerMessageHandler;
     Update update;
     Message message;
     User user;
@@ -62,7 +62,7 @@ class AddManagerByAdminMessageHandlerTest {
     @Test
     void forwardedMessageTest() throws NoDivisionsException {
         //Test checks if status changes after transfering user's message
-        addManagerByAdminMessageHandler.processUpdate(update);
+        addingManagerMessageHandler.processUpdate(update);
         assertEquals(BotState.ASSIGN_DIV,userDataCache.getUserBotState(adminId));
         verify(divisionKeyboardUtils).getAdminDivisionKeyboard(user.getId(),user2.getId());
         verify(adminCache).addManager(adminId,user2);
@@ -75,7 +75,7 @@ class AddManagerByAdminMessageHandlerTest {
         userDataCache.setUserBotState(adminId,BotState.AWAIT_MANAGER);
         //Test checks if status changes after transfering user's message
         message.setForwardFrom(null);
-        addManagerByAdminMessageHandler.processUpdate(update);
+        addingManagerMessageHandler.processUpdate(update);
         assertEquals(BotState.AWAIT_MANAGER,userDataCache.getUserBotState(adminId));
         verify(divisionKeyboardUtils,never()).getAdminDivisionKeyboard(user.getId(),user2.getId());
         verify(adminCache,never()).addManager(adminId,user2);

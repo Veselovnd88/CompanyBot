@@ -21,7 +21,7 @@ import ru.veselov.CompanyBot.util.MessageUtils;
 
 @Component
 @Slf4j
-public class AddManagerByAdminMessageHandler implements UpdateHandler {
+public class AddingManagerMessageHandler implements UpdateHandler {
     @Value("${bot.adminId}")
     private Long adminId;
     private final AdminCache adminCache;
@@ -30,7 +30,7 @@ public class AddManagerByAdminMessageHandler implements UpdateHandler {
     private final DivisionKeyboardUtils divisionKeyboardUtils;
     private final ManageKeyboardUtils manageKeyboardUtils;
     @Autowired
-    public AddManagerByAdminMessageHandler(AdminCache adminCache, UserDataCache userDataCache, ManagerService managerService, DivisionKeyboardUtils divisionKeyboardUtils, ManageKeyboardUtils manageKeyboardUtils) {
+    public AddingManagerMessageHandler(AdminCache adminCache, UserDataCache userDataCache, ManagerService managerService, DivisionKeyboardUtils divisionKeyboardUtils, ManageKeyboardUtils manageKeyboardUtils) {
         this.adminCache = adminCache;
         this.userDataCache = userDataCache;
         this.managerService = managerService;

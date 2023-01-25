@@ -15,23 +15,23 @@ public class HandlerContext {
 
     private final ManageManagerByAdminCallbackHandler manageManagerByAdminCallbackHandler;
     private final ManageCallbackHandler manageCallbackHandler;
-    private final AddManagerByAdminMessageHandler addManagerByAdminMessageHandler;
-    private final AddManagerByAdminCallbackHandler addManagerByAdminCallbackHandler;
+    private final AddingManagerMessageHandler addingManagerMessageHandler;
+    private final AddingDivisionFromKeyboardCallbackHandler addingDivisionFromKeyboardCallbackHandler;
     private final ManageDivisionCallbackHandler manageDivisionCallbackHandler;
     private final ManageDivisionMessageHandler manageDivisionMessageHandler;
 
-    public HandlerContext(ManageManagerByAdminCallbackHandler manageManagerByAdminCallbackHandler, ManageCallbackHandler manageCallbackHandler, AddManagerByAdminMessageHandler addManagerByAdminMessageHandler, AddManagerByAdminCallbackHandler addManagerByAdminCallbackHandler, ManageDivisionCallbackHandler manageDivisionCallbackHandler, ManageDivisionMessageHandler manageDivisionMessageHandler) {
+    public HandlerContext(ManageManagerByAdminCallbackHandler manageManagerByAdminCallbackHandler, ManageCallbackHandler manageCallbackHandler, AddingManagerMessageHandler addingManagerMessageHandler, AddingDivisionFromKeyboardCallbackHandler addingDivisionFromKeyboardCallbackHandler, ManageDivisionCallbackHandler manageDivisionCallbackHandler, ManageDivisionMessageHandler manageDivisionMessageHandler) {
         this.manageManagerByAdminCallbackHandler = manageManagerByAdminCallbackHandler;
         this.manageCallbackHandler = manageCallbackHandler;
-        this.addManagerByAdminMessageHandler = addManagerByAdminMessageHandler;
-        this.addManagerByAdminCallbackHandler = addManagerByAdminCallbackHandler;
+        this.addingManagerMessageHandler = addingManagerMessageHandler;
+        this.addingDivisionFromKeyboardCallbackHandler = addingDivisionFromKeyboardCallbackHandler;
         this.manageDivisionCallbackHandler = manageDivisionCallbackHandler;
         this.manageDivisionMessageHandler = manageDivisionMessageHandler;
         callbackHandlerContext.put(BotState.MANAGE_MANAGER,manageManagerByAdminCallbackHandler);
         callbackHandlerContext.put(BotState.MANAGE, manageCallbackHandler);
-        messageHandlerContext.put(BotState.AWAIT_MANAGER,addManagerByAdminMessageHandler);
-        messageHandlerContext.put(BotState.DELETE_MANAGER,addManagerByAdminMessageHandler);
-        callbackHandlerContext.put(BotState.ASSIGN_DIV, addManagerByAdminCallbackHandler);
+        messageHandlerContext.put(BotState.AWAIT_MANAGER, addingManagerMessageHandler);
+        messageHandlerContext.put(BotState.DELETE_MANAGER, addingManagerMessageHandler);
+        callbackHandlerContext.put(BotState.ASSIGN_DIV, addingDivisionFromKeyboardCallbackHandler);
         callbackHandlerContext.put(BotState.MANAGE_DIVISION, manageDivisionCallbackHandler);
         messageHandlerContext.put(BotState.AWAIT_DIVISION, manageDivisionMessageHandler);
 

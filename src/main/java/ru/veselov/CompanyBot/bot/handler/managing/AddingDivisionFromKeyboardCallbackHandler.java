@@ -20,12 +20,14 @@ import ru.veselov.CompanyBot.service.ManagerService;
 import ru.veselov.CompanyBot.util.DivisionKeyboardUtils;
 import ru.veselov.CompanyBot.util.MessageUtils;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
 @Component
 @Slf4j
-public class AddManagerByAdminCallbackHandler implements UpdateHandler {
+public class AddingDivisionFromKeyboardCallbackHandler implements UpdateHandler {
+    /*This class handles callback from keyboard */
     @Value("${bot.adminId}")
     private Long adminId;
     private final UserDataCache userDataCache;
@@ -33,7 +35,7 @@ public class AddManagerByAdminCallbackHandler implements UpdateHandler {
     private final ManagerService managerService;
     private final AdminCache adminCache;
     @Autowired
-    public AddManagerByAdminCallbackHandler(UserDataCache userDataCache, DivisionKeyboardUtils divisionKeyboardUtils, ManagerService managerService, AdminCache adminCache) {
+    public AddingDivisionFromKeyboardCallbackHandler(UserDataCache userDataCache, DivisionKeyboardUtils divisionKeyboardUtils, ManagerService managerService, AdminCache adminCache) {
         this.userDataCache = userDataCache;
         this.divisionKeyboardUtils = divisionKeyboardUtils;
         this.managerService = managerService;
@@ -52,11 +54,9 @@ public class AddManagerByAdminCallbackHandler implements UpdateHandler {
             return SendMessage.builder().chatId(userId)
                     .text("Нет отделов, добавьте хотя бы 1").build();
         }
-        List<String> divisionsId = editMessageReplyMarkup.getReplyMarkup().getKeyboard().stream().map(
-                x->x.get(0).getCallbackData()).toList().stream()
-                .filter(x->!x.equalsIgnoreCase("save")).toList();
+        List<String> possibleData = divisionKeyboardUtils.getPossibleButtons(editMessageReplyMarkup);
         log.info("{}: нажата кнопка {}",userId,data);
-        if(divisionsId.contains(data)) {
+        if(possibleData.contains(data)) {
             return editMessageReplyMarkup;
         }
         if(data.equalsIgnoreCase("save")){

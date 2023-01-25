@@ -21,11 +21,12 @@ import java.util.*;
 @Slf4j
 public class DivisionKeyboardUtils implements Cache {//FIXME возможно есть смысл сделать общего предка у клавиатурных классов
     private final String mark="+marked";
-    private final DivisionService divisionService;
+    private final String emojiMark = ":white_check_mark:";
     private final HashMap<String, Division> idToDivision =new HashMap<>();
     private final HashMap<Long, InlineKeyboardMarkup> divisionKeyboardCache = new HashMap<>();
+
+    private final DivisionService divisionService;
     private final ManagerService managerService;
-    private final String emojiMark = ":white_check_mark:";
     @Autowired
     public DivisionKeyboardUtils(DivisionService divisionService, ManagerService managerService) {
         this.divisionService = divisionService;
@@ -36,23 +37,12 @@ public class DivisionKeyboardUtils implements Cache {//FIXME возможно е
         List<Division> allDivisions = refreshDivisions();
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
         InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
-        if(allDivisions.isEmpty()){
-            InlineKeyboardButton emptyButton = new InlineKeyboardButton();
-            emptyButton.setText("Нет отделов/тем в базе, обратитесь к администратору");
-            emptyButton.setCallbackData("empty");
-            List<InlineKeyboardButton> row = new ArrayList<>();
-            row.add(emptyButton);
-            keyboard.add(row);
-            markup.setKeyboard(keyboard);
-            return markup;
-        }
         //Checking if manager exists in db, for indicating owned divisions
         Optional<ManagerEntity> oneWithDivisions = managerService.findOneWithDivisions(fromId);
         Set<Division> managersDivision=new HashSet<>();
         if(oneWithDivisions.isPresent()){
             managersDivision=oneWithDivisions.get().getDivisions();
         }
-
         for(var d: allDivisions){
             String name = d.getName();
             String callback = d.getDivisionId();
@@ -107,14 +97,13 @@ public class DivisionKeyboardUtils implements Cache {//FIXME возможно е
             inlineKeyboardMarkup = getAdminDivisionKeyboard(userId,fromId);
         }
         for(var keyboard: inlineKeyboardMarkup.getKeyboard()){
-                //находим кнопку на которую нажали
-                if(keyboard.get(0).getCallbackData().equalsIgnoreCase(field)){
-                    //если маркер стоит - то снимаем
+                //finding pressed button, but we don't need to mark save button
+                if(keyboard.get(0).getCallbackData().equalsIgnoreCase(field)
+                &&!keyboard.get(0).getCallbackData().equalsIgnoreCase("save")){
                     if(isMarked(keyboard.get(0).getCallbackData())){
                         removeMark(keyboard.get(0));
                     }
                     else{
-                        //и наоборот
                         keyboard.get(0).setText(EmojiParser.parseToUnicode(emojiMark +keyboard.get(0).getText()));
                         keyboard.get(0).setCallbackData(keyboard.get(0).getCallbackData()+mark);
                     }
@@ -135,7 +124,6 @@ public class DivisionKeyboardUtils implements Cache {//FIXME возможно е
     }
     private boolean isMarked(String text){
         return text.endsWith(mark);
-
     }
 
     public Set<Division> getMarkedDivisions(Long userId){
@@ -149,11 +137,6 @@ public class DivisionKeyboardUtils implements Cache {//FIXME возможно е
         }
         return divNames;
     }
-
-    private Division getDivisionByName(String name){
-        return idToDivision.get(name);
-    }
-
     public HashMap<String, Division> getKeyboardDivs() throws NoDivisionsException {
         if(idToDivision.isEmpty()){
             refreshDivisions();
@@ -166,9 +149,22 @@ public class DivisionKeyboardUtils implements Cache {//FIXME возможно е
         return withMarked;
     }
     public HashMap<String, Division> getCachedDivisions() {
+        /*We need it for showing possible divisions on keyboard buttons*/
         return idToDivision;
     }
-
+    public List<String> getPossibleButtons(EditMessageReplyMarkup markup){
+        //Create List of DivisionIds (callback data): divisionId + divisionId+marked
+        List<String> buttons = markup.getReplyMarkup().getKeyboard().stream().map(
+                        x->x.get(0).getCallbackData()).toList().stream()
+                .filter(x->!x.equalsIgnoreCase("save")).toList();
+        List<String> possibleData = new ArrayList<>();
+        for(String s: buttons){
+            String replace = s.replace("+marked", "");
+            possibleData.add(replace);
+            possibleData.add(replace+"+marked");
+        }
+        return possibleData;
+    }
     @Override
     public void clear(Long userId) {
         divisionKeyboardCache.remove(userId);
@@ -185,5 +181,8 @@ public class DivisionKeyboardUtils implements Cache {//FIXME возможно е
             idToDivision.put(d.getDivisionId(),d);
         }
         return allDivisions;
+    }
+    private Division getDivisionByName(String name){
+        return idToDivision.get(name);
     }
 }

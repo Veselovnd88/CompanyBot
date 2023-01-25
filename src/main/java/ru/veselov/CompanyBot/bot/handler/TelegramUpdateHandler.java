@@ -11,8 +11,8 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.veselov.CompanyBot.bot.BotState;
 import ru.veselov.CompanyBot.bot.HandlerContext;
 import ru.veselov.CompanyBot.bot.UpdateHandler;
-import ru.veselov.CompanyBot.bot.handler.managing.AddManagerByAdminCallbackHandler;
-import ru.veselov.CompanyBot.bot.handler.managing.AddManagerByAdminMessageHandler;
+import ru.veselov.CompanyBot.bot.handler.managing.AddingDivisionFromKeyboardCallbackHandler;
+import ru.veselov.CompanyBot.bot.handler.managing.AddingManagerMessageHandler;
 import ru.veselov.CompanyBot.cache.UserDataCache;
 import ru.veselov.CompanyBot.util.BotAnswerUtil;
 
@@ -29,10 +29,10 @@ public class TelegramUpdateHandler implements UpdateHandler {
     private final DivisionCallbackHandler divisionCallbackHandler;
     private final InquiryMessageHandler inquiryMessageHandler;
     private final ContactCallbackHandler contactCallbackHandler;
-    private final AddManagerByAdminMessageHandler addManagerByAdminMessageHandler;
+    private final AddingManagerMessageHandler addingManagerMessageHandler;
     private final ContactMessageHandler contactMessageHandler;
     private final ChannelConnectHandler channelConnectHandler;
-    private final AddManagerByAdminCallbackHandler addManagerByAdminCallbackHandler;
+    private final AddingDivisionFromKeyboardCallbackHandler addingDivisionFromKeyboardCallbackHandler;
 
     private final HandlerContext handlerContext;
     private final UserDataCache userDataCache;
@@ -40,15 +40,15 @@ public class TelegramUpdateHandler implements UpdateHandler {
     @Autowired
     public TelegramUpdateHandler(CommandHandler commandHandler,
                                  DivisionCallbackHandler divisionCallbackHandler,
-                                 InquiryMessageHandler inquiryMessageHandler, ContactCallbackHandler contactCallbackHandler, AddManagerByAdminMessageHandler addManagerByAdminMessageHandler, ContactMessageHandler contactMessageHandler, ChannelConnectHandler channelConnectHandler, AddManagerByAdminCallbackHandler addManagerByAdminCallbackHandler, HandlerContext handlerContext, UserDataCache userDataCache, BotAnswerUtil botAnswerUtil) {
+                                 InquiryMessageHandler inquiryMessageHandler, ContactCallbackHandler contactCallbackHandler, AddingManagerMessageHandler addingManagerMessageHandler, ContactMessageHandler contactMessageHandler, ChannelConnectHandler channelConnectHandler, AddingDivisionFromKeyboardCallbackHandler addingDivisionFromKeyboardCallbackHandler, HandlerContext handlerContext, UserDataCache userDataCache, BotAnswerUtil botAnswerUtil) {
         this.commandHandler = commandHandler;
         this.divisionCallbackHandler = divisionCallbackHandler;
         this.inquiryMessageHandler = inquiryMessageHandler;
         this.contactCallbackHandler = contactCallbackHandler;
-        this.addManagerByAdminMessageHandler = addManagerByAdminMessageHandler;
+        this.addingManagerMessageHandler = addingManagerMessageHandler;
         this.contactMessageHandler = contactMessageHandler;
         this.channelConnectHandler = channelConnectHandler;
-        this.addManagerByAdminCallbackHandler = addManagerByAdminCallbackHandler;
+        this.addingDivisionFromKeyboardCallbackHandler = addingDivisionFromKeyboardCallbackHandler;
         this.handlerContext = handlerContext;
         this.userDataCache = userDataCache;
         this.botAnswerUtil = botAnswerUtil;
@@ -82,7 +82,7 @@ public class TelegramUpdateHandler implements UpdateHandler {
                 return contactMessageHandler.processUpdate(update);
             }
 
-            if(handlerContext.isInMessageContext(botState)){//FIXME запускаются колбэковые хэндлеры
+            if(handlerContext.isInMessageContext(botState)){
                 return handlerContext.getMessageHandler(botState).processUpdate(update);
             }
             return botAnswerUtil.getAnswerNotSupportMessage(update.getMessage().getChatId().toString());
