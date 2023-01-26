@@ -73,6 +73,6 @@ public class AddingDivisionFromKeyboardCallbackHandler implements UpdateHandler 
         }
         return AnswerCallbackQuery.builder().callbackQueryId(update.getCallbackQuery().getId())
                 .text(MessageUtils.ERROR)
-                .build();
+                .build();//TODO throw NotSupportedUpdateException
     }
 }

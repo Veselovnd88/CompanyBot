@@ -86,9 +86,9 @@ class DivisionKeyboardUtilsTest {
     @Test
     void createKeyboardWithNoDivisionsInDB() throws NoDivisionsException {
         when(divisionService.findAll()).thenReturn(new ArrayList<>());
-        InlineKeyboardMarkup inlineKeyboardMarkup = divisionKeyboardUtils.getAdminDivisionKeyboard(user.getId(),userFrom.getId());
-        assertEquals(1,inlineKeyboardMarkup.getKeyboard().size());
-        assertEquals(1,inlineKeyboardMarkup.getKeyboard().get(0).size());
+        assertThrows(NoDivisionsException.class,
+                ()->{divisionKeyboardUtils.getAdminDivisionKeyboard(user.getId(),userFrom.getId());
+        });
     }
 
 
@@ -149,12 +149,29 @@ class DivisionKeyboardUtilsTest {
     }
 
     @Test
-    void keyBoardDivsVars() throws NoDivisionsException {
+    void keyBoardDivsVarsTest() throws NoDivisionsException {
         //Проверка добавления в мапу всех возможных отделов *2 (с отметками)
         divisionKeyboardUtils.divisionChooseField(update,"T",userFrom.getId());
         HashMap<String, Division> keyboardDivs = divisionKeyboardUtils.getKeyboardDivs();
         assertEquals(4,keyboardDivs.size());
     }
 
+    @Test
+    void getPossibleButtonsTest() throws NoDivisionsException {
+        EditMessageReplyMarkup t = divisionKeyboardUtils.divisionChooseField(update, "T", userFrom.getId());
+        List<String> possibleButtons = divisionKeyboardUtils.getPossibleButtons(t);
+        assertEquals(divisionService.findAll().size()*2, possibleButtons.size());
+    }
+    @Test
+    void getCachedDivisionsTest() throws NoDivisionsException {
+        divisionKeyboardUtils.getCustomerDivisionKeyboard();
+        divisionKeyboardUtils.divisionChooseField(update,"T",userFrom.getId());
+        assertEquals(divisionService.findAll().size(), divisionKeyboardUtils.getCachedDivisions().size());
+    }
+
+
+    //TODO clearTest
+    //TODO getCachedDivisions with empty
+    //TODO getKeyboardDivs
 
 }

@@ -11,10 +11,12 @@ import ru.veselov.CompanyBot.bot.BotState;
 import ru.veselov.CompanyBot.bot.UpdateHandler;
 import ru.veselov.CompanyBot.cache.UserDataCache;
 import ru.veselov.CompanyBot.entity.Division;
+import ru.veselov.CompanyBot.exception.NoDivisionsException;
 import ru.veselov.CompanyBot.util.DivisionKeyboardUtils;
 import ru.veselov.CompanyBot.util.MessageUtils;
 
 import java.util.HashMap;
+import java.util.Map;
 
 @Component
 @Slf4j
@@ -31,7 +33,13 @@ public class DivisionCallbackHandler implements UpdateHandler {
     public BotApiMethod<?> processUpdate(Update update) {
         Long userId = update.getCallbackQuery().getFrom().getId();
         String data = update.getCallbackQuery().getData();
-        HashMap<String, Division> cachedDivisions = divisionKeyboardUtils.getCachedDivisions();
+        Map<String, Division> cachedDivisions = null;
+        try {
+            cachedDivisions = divisionKeyboardUtils.getCachedDivisions();
+        } catch (NoDivisionsException e) {
+            return SendMessage.builder().chatId(userId)
+                    .text(e.getMessage()).build();
+        }
         Division division=cachedDivisions.get(data);
         if(division!=null){
             userDataCache.createInquiry(userId,division);

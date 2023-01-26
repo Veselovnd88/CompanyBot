@@ -18,6 +18,7 @@ import ru.veselov.CompanyBot.bot.BotState;
 import ru.veselov.CompanyBot.bot.CompanyBot;
 import ru.veselov.CompanyBot.cache.UserDataCache;
 import ru.veselov.CompanyBot.entity.Division;
+import ru.veselov.CompanyBot.exception.NoDivisionsException;
 import ru.veselov.CompanyBot.util.DivisionKeyboardUtils;
 
 import java.util.HashMap;
@@ -47,7 +48,7 @@ class DepartmentCallbackHandlerTest {
 
 
     @BeforeEach
-    void init(){
+    void init() throws NoDivisionsException {
         update=spy(Update.class);
         callbackQuery=spy(CallbackQuery.class);
         update.setCallbackQuery(callbackQuery);

@@ -58,7 +58,7 @@ class AddingDivisionFromKeyboardCallbackHandlerTest {
     Message message;
 
     @BeforeEach
-    void init() throws NoDivisionsException {
+    void init() {
         update=spy(Update.class);
         callbackQuery=spy(CallbackQuery.class);
         update.setCallbackQuery(callbackQuery);
@@ -75,29 +75,26 @@ class AddingDivisionFromKeyboardCallbackHandlerTest {
         manager.setUserName("VVasya");
         adminCache.addManager(user.getId(),manager);
         callbackQuery.setMessage(message);
+        when(divisionService.findAll()).thenReturn(
+                List.of(Division.builder().divisionId("LT").name("LTTTTT").build(),
+                        Division.builder().divisionId("T").name("TTTTTTTt").build())
+        );
 
-        divisionKeyboardUtils.getAdminDivisionKeyboard(user.getId(),manager.getId());
     }
 
     @ParameterizedTest
     @ValueSource(strings = {"LT","LT+marked","T","T+marked"})
     void divisionButtonPressTestWithNotMarkedButtons(String field) throws NoDivisionsException {
         //Checking enter to method with pressing of according button
-        when(divisionService.findAll()).thenReturn(
-                List.of(Division.builder().divisionId("LT").name("LTTTTT").build(),
-                        Division.builder().divisionId("T").name("TTTTTTTt").build())
-        );
+        divisionKeyboardUtils.getAdminDivisionKeyboard(user.getId(),manager.getId());
         callbackQuery.setData(field);
         BotApiMethod<?> botApiMethod = addingDivisionFromKeyboardCallbackHandler.processUpdate(update);
         assertInstanceOf(EditMessageReplyMarkup.class, botApiMethod);
     }
     @Test
-    void saveButtonTest(){
+    void saveButtonTest() throws NoDivisionsException {
         //Checking pressing save button
-        when(divisionService.findAll()).thenReturn(
-                List.of(Division.builder().divisionId("LT").name("LTTTTT").build(),
-                        Division.builder().divisionId("T").name("TTTTTTTt").build())
-        );
+        divisionKeyboardUtils.getAdminDivisionKeyboard(user.getId(),manager.getId());
         callbackQuery.setData("LT+marked");
         addingDivisionFromKeyboardCallbackHandler.processUpdate(update);
         callbackQuery.setData("save");
@@ -110,14 +107,10 @@ class AddingDivisionFromKeyboardCallbackHandlerTest {
     }
 
     @Test
-    void noDivisionsInDbTest(){//FIXME не отрабатывает exception
+    void noDivisionsInDbTest() {
         when(divisionService.findAll()).thenReturn(Collections.emptyList());
         callbackQuery.setData("LT");
         assertInstanceOf(SendMessage.class,addingDivisionFromKeyboardCallbackHandler.processUpdate(update));
-        /*assertThrows(NoDivisionsException.class, ()->{
-            addingDivisionFromKeyboardCallbackHandler.processUpdate(update);
-        }); FIXME перенести в проверку клавиатуры*/
     }
 
-    //todo test for empty list of divisions
 }

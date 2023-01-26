@@ -118,13 +118,8 @@ public class DivisionKeyboardUtils implements Cache {//FIXME возможно е
         return editedKeyboard;
     }
 
-    private void removeMark(InlineKeyboardButton button){
-        button.setText(EmojiParser.parseToAliases(button.getText()).replace(emojiMark,""));
-        button.setCallbackData(button.getCallbackData().replace(mark,""));
-    }
-    private boolean isMarked(String text){
-        return text.endsWith(mark);
-    }
+
+
 
     public Set<Division> getMarkedDivisions(Long userId){
         HashSet<Division> divNames = new HashSet<>();
@@ -148,9 +143,12 @@ public class DivisionKeyboardUtils implements Cache {//FIXME возможно е
                 });
         return withMarked;
     }
-    public HashMap<String, Division> getCachedDivisions() {
+    public Map<String, Division> getCachedDivisions() throws NoDivisionsException {
+        if(idToDivision.isEmpty()){
+            throw new NoDivisionsException();
+        }
         /*We need it for showing possible divisions on keyboard buttons*/
-        return idToDivision;
+        return Map.copyOf(idToDivision);
     }
     public List<String> getPossibleButtons(EditMessageReplyMarkup markup){
         //Create List of DivisionIds (callback data): divisionId + divisionId+marked
@@ -184,5 +182,12 @@ public class DivisionKeyboardUtils implements Cache {//FIXME возможно е
     }
     private Division getDivisionByName(String name){
         return idToDivision.get(name);
+    }
+    private void removeMark(InlineKeyboardButton button){
+        button.setText(EmojiParser.parseToAliases(button.getText()).replace(emojiMark,""));
+        button.setCallbackData(button.getCallbackData().replace(mark,""));
+    }
+    private boolean isMarked(String text){
+        return text.endsWith(mark);
     }
 }
