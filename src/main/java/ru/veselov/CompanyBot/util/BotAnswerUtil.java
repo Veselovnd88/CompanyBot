@@ -21,4 +21,9 @@ public class BotAnswerUtil {
         return SendMessage.builder().chatId(chatId)
                 .text(MessageUtils.UNKNOWN_COMMAND).build();
     }
+
+    public SendMessage getAnswerAwaitManager(Long chatId){
+        return SendMessage.builder().chatId(chatId)
+                .text(MessageUtils.AWAIT_MANAGER).build();
+    }
 }

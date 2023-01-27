@@ -11,7 +11,7 @@ import ru.veselov.CompanyBot.entity.Customer;
 import ru.veselov.CompanyBot.entity.CustomerMessageEntity;
 import ru.veselov.CompanyBot.entity.Division;
 import ru.veselov.CompanyBot.entity.Inquiry;
-import ru.veselov.CompanyBot.model.CustomerInquiry;
+import ru.veselov.CompanyBot.model.InquiryModel;
 
 import java.util.Date;
 import java.util.List;
@@ -30,7 +30,7 @@ public class InquiryService {
         this.divisionDAO = divisionDAO;
     }
 
-    public Inquiry save(CustomerInquiry inquiry){
+    public Inquiry save(InquiryModel inquiry){
         Optional<Customer> customerEntity = customerDAO.findOne(inquiry.getUserId());
         Optional<Division> divisionOptional = divisionDAO.findOne(inquiry.getDivision().getDivisionId());
         if(customerEntity.isPresent()&&divisionOptional.isPresent()){
@@ -53,10 +53,10 @@ public class InquiryService {
         return inquiryDAO.findAll();
     }
 
-    private Inquiry toInquiryEntity(CustomerInquiry customerInquiry){
+    private Inquiry toInquiryEntity(InquiryModel inquiryModel){
         Inquiry inquiry = new Inquiry();
         inquiry.setDate(new Date());
-        for(Message message: customerInquiry.getMessages()){
+        for(Message message: inquiryModel.getMessages()){
             CustomerMessageEntity cme = new CustomerMessageEntity();
             cme.setMessage(message);
             inquiry.addMessage(cme);

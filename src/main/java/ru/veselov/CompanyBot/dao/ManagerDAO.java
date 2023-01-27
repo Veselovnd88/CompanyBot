@@ -10,7 +10,6 @@ import ru.veselov.CompanyBot.entity.ManagerEntity;
 
 import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
-import javax.swing.plaf.SpinnerUI;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;

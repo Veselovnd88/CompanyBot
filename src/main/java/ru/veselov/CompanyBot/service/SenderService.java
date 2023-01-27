@@ -1,5 +1,6 @@
 package ru.veselov.CompanyBot.service;
 
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -10,10 +11,11 @@ import org.telegram.telegrambots.meta.api.objects.*;
 import org.telegram.telegrambots.meta.api.objects.media.*;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.veselov.CompanyBot.bot.CompanyBot;
-import ru.veselov.CompanyBot.entity.Division;
-import ru.veselov.CompanyBot.entity.ManagerEntity;
-import ru.veselov.CompanyBot.model.CustomerContact;
-import ru.veselov.CompanyBot.model.CustomerInquiry;
+import ru.veselov.CompanyBot.exception.NoSuchDivisionException;
+import ru.veselov.CompanyBot.model.ContactModel;
+import ru.veselov.CompanyBot.model.DivisionModel;
+import ru.veselov.CompanyBot.model.InquiryModel;
+import ru.veselov.CompanyBot.model.ManagerModel;
 import ru.veselov.CompanyBot.util.MessageUtils;
 
 import java.util.*;
@@ -37,7 +39,7 @@ public class SenderService {
         this.chatService = chatService;
     }
 
-    public synchronized void send(CustomerInquiry inquiry, CustomerContact contact) throws TelegramApiException {//сюда должно быть передано полноценное DTO чтобы из него забирать все данные
+    public synchronized void send(InquiryModel inquiry, ContactModel contact) throws TelegramApiException, NoSuchDivisionException {//сюда должно быть передано полноценное DTO чтобы из него забирать все данные
 
         Map<String, SendMediaGroup> groupsCache = new HashMap<>();
         adminChat=new Chat();
@@ -62,7 +64,7 @@ public class SenderService {
                             Thread.sleep(chatInterval);
                             send(inquiry,contact);
                             chatTimers.put(chat.getId(), chatDate);
-                        } catch (TelegramApiException e) {
+                        } catch (TelegramApiException | NoSuchDivisionException e) {
                             log.error("Не удалось отправить сообщение {}", e.getMessage());
                             bot.sendMessageWithDelay(SendMessage.builder().chatId(adminId)
                                         .text(MessageUtils.ERROR).build());
@@ -238,7 +240,7 @@ public class SenderService {
 
     /*Функция проверяет, что все сообщения с одной медиагруппой собраны в объект SendMediaGroup
      * и что пора ее отправлять*/
-    private boolean checkIfMediaGroupReadyToSend(CustomerInquiry inquiry, Message message, SendMediaGroup sendMediaGroup){
+    private boolean checkIfMediaGroupReadyToSend(InquiryModel inquiry, Message message, SendMediaGroup sendMediaGroup){
         int groupSize = inquiry.getMessages().stream().filter(x->x.getMediaGroupId()!=null)
                 .map(x -> x.getMediaGroupId()
                         .equals(message.getMediaGroupId())).toList().size();
@@ -261,7 +263,7 @@ public class SenderService {
             chatTimers.remove(l);
         }
     }
-    private SendMessage createContactMessage(CustomerContact contact, Long chatId){
+    private SendMessage createContactMessage(ContactModel contact, Long chatId){
         StringBuilder sb = new StringBuilder();
         if(contact.getLastName()!=null){
             sb.append(contact.getLastName()).append(" ");
@@ -287,11 +289,11 @@ public class SenderService {
         return chatTimers;
     }
     @Profile("test")
-    public SendMessage getContactMessage(CustomerContact contact, Long chatId){
+    public SendMessage getContactMessage(ContactModel contact, Long chatId){
         return createContactMessage(contact, chatId);
     }
 
-    private String managerName(ManagerEntity manager){
+    private String managerName(ManagerModel manager){
         StringBuilder sb = new StringBuilder();
         if(manager.getLastName()!=null){
             sb.append(manager.getLastName()).append(" ");
@@ -302,14 +304,13 @@ public class SenderService {
         return sb.toString();
     }
 
-    private SendMessage markResponsibleManager(Chat chat, CustomerInquiry inquiry) {
-        Optional<Division> oneWithManagers = divisionService.findOneWithManagers(inquiry.getDivision());
-        if(oneWithManagers.isPresent()){
-            if(oneWithManagers.get().getManagers().size()!=0) {
+    private SendMessage markResponsibleManager(Chat chat, InquiryModel inquiry) throws NoSuchDivisionException {
+        DivisionModel oneWithManagers = divisionService.findOneWithManagers(inquiry.getDivision());
+        if(oneWithManagers.getManagers().size()!=0) {
                 List<MessageEntity> entities= new ArrayList<>();
                 StringBuilder sb = new StringBuilder();
                 int offset = 0;
-                for (var manager : oneWithManagers.get().getManagers()) {
+                for (var manager : oneWithManagers.getManagers()) {
                     User user = userFromManager(manager);
                     String name = managerName(manager);
                     sb.append(name).append("\n");
@@ -320,11 +321,10 @@ public class SenderService {
                 }
                 return SendMessage.builder().chatId(chat.getId()).text(sb.toString()).entities(entities).build();
             }
-        }
         return null;
     }
 
-    private User userFromManager(ManagerEntity manager){
+    private User userFromManager(ManagerModel manager){
         User user = new User();
         user.setId(manager.getManagerId());
         user.setFirstName(manager.getFirstName());
@@ -334,7 +334,8 @@ public class SenderService {
     }
 
     @Profile("test")
-    public SendMessage markManagerForTest(Chat chat, CustomerInquiry inquiry){
+    @SneakyThrows
+    public SendMessage markManagerForTest(Chat chat, InquiryModel inquiry){
         return markResponsibleManager(chat,inquiry);
     }
 

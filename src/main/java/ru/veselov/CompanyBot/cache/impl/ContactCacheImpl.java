@@ -2,17 +2,15 @@ package ru.veselov.CompanyBot.cache.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.objects.Message;
 import ru.veselov.CompanyBot.cache.ContactCache;
-import ru.veselov.CompanyBot.model.CustomerContact;
-import ru.veselov.CompanyBot.model.CustomerInquiry;
+import ru.veselov.CompanyBot.model.ContactModel;
 
 import java.util.HashMap;
 
 @Component
 @Slf4j
 public class ContactCacheImpl implements ContactCache {
-    private final HashMap<Long, CustomerContact> contactCache = new HashMap<>();
+    private final HashMap<Long, ContactModel> contactCache = new HashMap<>();
     @Override
     public void clear(Long userId) {
         contactCache.remove(userId);
@@ -22,13 +20,13 @@ public class ContactCacheImpl implements ContactCache {
     @Override
     public void createContact(Long userId) {
         log.info("{}: создан объект Contact для пользователя", userId);
-        CustomerContact customerContact = new CustomerContact();
-        customerContact.setUserId(userId);
-        contactCache.put(userId,customerContact);
+        ContactModel contactModel = new ContactModel();
+        contactModel.setUserId(userId);
+        contactCache.put(userId, contactModel);
     }
 
     @Override
-    public CustomerContact getContact(Long userId) {
+    public ContactModel getContact(Long userId) {
         return contactCache.get(userId);
     }
 }

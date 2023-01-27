@@ -1,7 +1,6 @@
 package ru.veselov.CompanyBot.bot.handler;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
@@ -17,12 +16,11 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import ru.veselov.CompanyBot.bot.BotState;
 import ru.veselov.CompanyBot.bot.CompanyBot;
 import ru.veselov.CompanyBot.cache.UserDataCache;
-import ru.veselov.CompanyBot.entity.Division;
 import ru.veselov.CompanyBot.exception.NoDivisionsException;
+import ru.veselov.CompanyBot.model.DivisionModel;
 import ru.veselov.CompanyBot.util.DivisionKeyboardUtils;
 
 import java.util.HashMap;
-import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.spy;
@@ -44,7 +42,7 @@ class DepartmentCallbackHandlerTest {
     Update update;
     CallbackQuery callbackQuery;
     User user;
-    HashMap<String,Division> divs=new HashMap<>();
+    HashMap<String,DivisionModel> divs=new HashMap<>();
 
 
     @BeforeEach
@@ -56,7 +54,7 @@ class DepartmentCallbackHandlerTest {
         user.setId(100L);
         callbackQuery.setFrom(user);
         callbackQuery.setId("100");
-        divs.put("L", Division.builder().divisionId("L").build());
+        divs.put("L", DivisionModel.builder().divisionId("L").build());
         when(divisionKeyboardUtils.getCachedDivisions()).thenReturn(divs);
     }
 

@@ -9,19 +9,19 @@ import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.User;
 import ru.veselov.CompanyBot.bot.BotState;
 import ru.veselov.CompanyBot.bot.UpdateHandler;
 import ru.veselov.CompanyBot.cache.AdminCache;
 import ru.veselov.CompanyBot.cache.UserDataCache;
-import ru.veselov.CompanyBot.entity.Division;
+import ru.veselov.CompanyBot.exception.NoDivisionKeyboardException;
 import ru.veselov.CompanyBot.exception.NoDivisionsException;
+import ru.veselov.CompanyBot.model.DivisionModel;
+import ru.veselov.CompanyBot.model.ManagerModel;
 import ru.veselov.CompanyBot.service.ManagerService;
 import ru.veselov.CompanyBot.util.DivisionKeyboardUtils;
 import ru.veselov.CompanyBot.util.MessageUtils;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Set;
 
 @Component
@@ -47,32 +47,32 @@ public class AddingDivisionFromKeyboardCallbackHandler implements UpdateHandler 
         Long userId = update.getCallbackQuery().getFrom().getId();
         String data = update.getCallbackQuery().getData();
         //Manager was forwarded and now waiting for adding him divisions
-        EditMessageReplyMarkup editMessageReplyMarkup;
         try {
-            editMessageReplyMarkup = divisionKeyboardUtils.divisionChooseField(update, data, adminCache.getManager(adminId).getId());
-        } catch (NoDivisionsException e) {
+            EditMessageReplyMarkup editMessageReplyMarkup = divisionKeyboardUtils.divisionChooseField(update, data);
+            HashMap<String, DivisionModel> mapKeyboardDivisions = divisionKeyboardUtils.getMapKeyboardDivisions();
+            log.info("{}: нажата кнопка {}",userId,data);
+            if(mapKeyboardDivisions.containsKey(data)) {
+                return editMessageReplyMarkup;
+            }
+            if(data.equalsIgnoreCase("save")){
+                Set<DivisionModel> markedDivisions = divisionKeyboardUtils.getMarkedDivisions(userId);
+                ManagerModel manager = adminCache.getManager(adminId);
+                manager.setDivisions(markedDivisions);
+                managerService.save(manager);
+                log.info("{}: отделы менеджера обновлены", userId);
+                adminCache.clear(adminId);
+                userDataCache.setUserBotState(userId, BotState.READY);
+                divisionKeyboardUtils.clear(adminId);
+                return SendMessage.builder().chatId(userId)
+                        .text(MessageUtils.MANAGER_SAVED)
+                        .build();
+            }
+            return AnswerCallbackQuery.builder().callbackQueryId(update.getCallbackQuery().getId())
+                    .text(MessageUtils.ERROR)
+                    .build();//TODO throw NotSupportedUpdateException
+        } catch (NoDivisionsException | NoDivisionKeyboardException e) {
             return SendMessage.builder().chatId(userId)
-                    .text("Нет отделов, добавьте хотя бы 1").build();
+                    .text(e.getMessage()).build();
         }
-        List<String> possibleData = divisionKeyboardUtils.getPossibleButtons(editMessageReplyMarkup);
-        log.info("{}: нажата кнопка {}",userId,data);
-        if(possibleData.contains(data)) {
-            return editMessageReplyMarkup;
-        }
-        if(data.equalsIgnoreCase("save")){
-            Set<Division> markedDivisions = divisionKeyboardUtils.getMarkedDivisions(userId);
-            User manager = adminCache.getManager(adminId);
-            managerService.saveWithDivisions(manager,markedDivisions);
-            log.info("{}: отделы менеджера обновлены", userId);
-            adminCache.clear(adminId);
-            userDataCache.setUserBotState(userId, BotState.READY);
-            divisionKeyboardUtils.clear(adminId);
-            return SendMessage.builder().chatId(userId)
-                    .text(MessageUtils.MANAGER_SAVED)
-                    .build();
-        }
-        return AnswerCallbackQuery.builder().callbackQueryId(update.getCallbackQuery().getId())
-                .text(MessageUtils.ERROR)
-                .build();//TODO throw NotSupportedUpdateException
     }
 }

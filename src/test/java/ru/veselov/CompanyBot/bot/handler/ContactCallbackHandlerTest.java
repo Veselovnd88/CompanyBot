@@ -1,5 +1,6 @@
 package ru.veselov.CompanyBot.bot.handler;
 
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,15 +12,13 @@ import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.veselov.CompanyBot.bot.BotState;
 import ru.veselov.CompanyBot.bot.CompanyBot;
 import ru.veselov.CompanyBot.cache.ContactCache;
 import ru.veselov.CompanyBot.cache.UserDataCache;
-import ru.veselov.CompanyBot.entity.Division;
-import ru.veselov.CompanyBot.model.CustomerContact;
-import ru.veselov.CompanyBot.model.CustomerInquiry;
-import ru.veselov.CompanyBot.model.Department;
+import ru.veselov.CompanyBot.model.ContactModel;
+import ru.veselov.CompanyBot.model.DivisionModel;
+import ru.veselov.CompanyBot.model.InquiryModel;
 import ru.veselov.CompanyBot.service.CustomerService;
 import ru.veselov.CompanyBot.service.InquiryService;
 import ru.veselov.CompanyBot.service.SenderService;
@@ -76,15 +75,16 @@ class ContactCallbackHandlerTest {
         assertEquals(BotState.AWAIT_CONTACT,userDataCache.getUserBotState(user.getId()));
     }
     @Test
-    void saveWithInquiryDataTest() throws TelegramApiException {
+    @SneakyThrows
+    void saveWithInquiryDataTest() {
         /*Checking saving inquiry and contact together*/
         callbackQuery.setData("save");
         contactCache.createContact(user.getId());
-        CustomerContact contact = contactCache.getContact(user.getId());
+        ContactModel contact = contactCache.getContact(user.getId());
         contact.setEmail("vasya@vasya.ru");
         contact.setLastName("Petrov");
-        userDataCache.createInquiry(user.getId(), Division.builder().divisionId("L").build());
-        CustomerInquiry inquiry = userDataCache.getInquiry(user.getId());
+        userDataCache.createInquiry(user.getId(), DivisionModel.builder().divisionId("L").build());
+        InquiryModel inquiry = userDataCache.getInquiry(user.getId());
         assertNotNull(contactCallbackHandler.processUpdate(update));
         assertEquals(BotState.READY,userDataCache.getUserBotState(user.getId()));
         verify(customerService).saveContact(contact);
@@ -94,14 +94,15 @@ class ContactCallbackHandlerTest {
         verify(senderService).send(inquiry,contact);
     }
     @Test
-    void saveWithoutInquiryDataTest() throws TelegramApiException {
+    @SneakyThrows
+    void saveWithoutInquiryDataTest() {
         /*Checking saving contact without inquiry*/
         callbackQuery.setData("save");
         contactCache.createContact(user.getId());
-        CustomerContact contact = contactCache.getContact(user.getId());
+        ContactModel contact = contactCache.getContact(user.getId());
         contact.setEmail("vasya@vasya.ru");
         contact.setLastName("Petrov");
-        CustomerInquiry inquiry = userDataCache.getInquiry(user.getId());
+        InquiryModel inquiry = userDataCache.getInquiry(user.getId());
         assertNotNull(contactCallbackHandler.processUpdate(update));
         assertEquals(BotState.READY,userDataCache.getUserBotState(user.getId()));
         verify(customerService).saveContact(contact);

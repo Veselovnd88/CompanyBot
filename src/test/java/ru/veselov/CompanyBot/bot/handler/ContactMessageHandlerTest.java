@@ -16,7 +16,7 @@ import ru.veselov.CompanyBot.bot.BotState;
 import ru.veselov.CompanyBot.bot.CompanyBot;
 import ru.veselov.CompanyBot.cache.ContactCache;
 import ru.veselov.CompanyBot.cache.UserDataCache;
-import ru.veselov.CompanyBot.model.CustomerContact;
+import ru.veselov.CompanyBot.model.ContactModel;
 import ru.veselov.CompanyBot.util.KeyBoardUtils;
 import ru.veselov.CompanyBot.util.MessageUtils;
 
@@ -142,7 +142,7 @@ class ContactMessageHandlerTest {
     @Test
     void processNameTestFull(){
         String name = "Pipkov Vasya Petrovich";
-        CustomerContact contact = new CustomerContact();
+        ContactModel contact = new ContactModel();
         contactMessageHandler.getProcessedName(contact, name);
         assertEquals("Pipkov",contact.getLastName());
         assertEquals("Vasya",contact.getFirstName());
@@ -152,14 +152,14 @@ class ContactMessageHandlerTest {
     @Test
     void processNameTestOnlyLastName(){
         String name = "Pipkov";
-        CustomerContact contact = new CustomerContact();
+        ContactModel contact = new ContactModel();
         contactMessageHandler.getProcessedName(contact, name);
         assertEquals("Pipkov",contact.getLastName());
     }
     @Test
     void processNameTestOnlyFirstLast(){
         String name = "Pipkov Ivan";
-        CustomerContact contact = new CustomerContact();
+        ContactModel contact = new ContactModel();
         contactMessageHandler.getProcessedName(contact, name);
         assertEquals("Pipkov",contact.getLastName());
         assertEquals("Ivan",contact.getFirstName());
@@ -168,7 +168,7 @@ class ContactMessageHandlerTest {
     @Test
     void processNameTestMoreThanThreeParts(){
         String name = "Pipkov Ivan Petrovich Vasiliy Evil";
-        CustomerContact contact = new CustomerContact();
+        ContactModel contact = new ContactModel();
         contactMessageHandler.getProcessedName(contact, name);
         assertEquals("Pipkov",contact.getLastName());
         assertEquals("Ivan",contact.getFirstName());
@@ -177,7 +177,7 @@ class ContactMessageHandlerTest {
     @ParameterizedTest
     @ValueSource(strings = {""," "})
     void processNameTestWithIncorrectName(String name){
-        CustomerContact contact = new CustomerContact();
+        ContactModel contact = new ContactModel();
         contact.setUserId(100L);
         contactMessageHandler.getProcessedName(contact, name);
         assertNull(contact.getLastName());

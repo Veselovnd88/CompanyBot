@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.User;
 import ru.veselov.CompanyBot.cache.AdminCache;
 import ru.veselov.CompanyBot.entity.Division;
+import ru.veselov.CompanyBot.model.ManagerModel;
 
 import java.util.HashMap;
 import java.util.HashSet;
@@ -15,17 +16,17 @@ import java.util.List;
 @Slf4j
 public class AdminCacheImpl implements AdminCache {
 
-    private final HashMap<Long,User> managersCache = new HashMap<>();
+    private final HashMap<Long, ManagerModel> managersCache = new HashMap<>();
 
     private final HashMap<Long, List<Division>> managersDivisions = new HashMap<>();
 
     @Override
-    public void addManager(Long adminId,User user) {
-        managersCache.put(adminId, user);
+    public void addManager(Long adminId,ManagerModel manager) {
+        managersCache.put(adminId, manager);
     }
 
     @Override
-    public User getManager(Long adminId) {
+    public ManagerModel getManager(Long adminId) {
         return managersCache.get(adminId);
     }
 

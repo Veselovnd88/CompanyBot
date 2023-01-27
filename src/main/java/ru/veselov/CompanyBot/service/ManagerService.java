@@ -3,13 +3,15 @@ package ru.veselov.CompanyBot.service;
 import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
-import org.telegram.telegrambots.meta.api.objects.User;
 import ru.veselov.CompanyBot.dao.ManagerDAO;
 import ru.veselov.CompanyBot.entity.Division;
 import ru.veselov.CompanyBot.entity.ManagerEntity;
+import ru.veselov.CompanyBot.exception.NoSuchManagerException;
+import ru.veselov.CompanyBot.model.DivisionModel;
+import ru.veselov.CompanyBot.model.ManagerModel;
 
 import java.util.Optional;
-import java.util.Set;
+import java.util.stream.Collectors;
 
 @Service
 @Slf4j
@@ -19,48 +21,75 @@ public class ManagerService {
 
     private final ManagerDAO managerDAO;
 
-    private final DivisionService divisionService;
 
-    public ManagerService(ModelMapper modelMapper, ManagerDAO managerDAO, DivisionService divisionService) {
+    public ManagerService(ModelMapper modelMapper, ManagerDAO managerDAO) {
         this.modelMapper = modelMapper;
         this.managerDAO = managerDAO;
-        this.divisionService = divisionService;
     }
 
-    public void save(User user){
-        managerDAO.save(toEntity(user));
-        log.info("{}: новый менеджер сохранен в БД", user.getId());
+    public void save(ManagerModel manager){
+        ManagerEntity entity = toManagerEntity(manager);
+        managerDAO.saveWithDivisions(entity,
+                    manager.getDivisions().stream()
+                            .map(this::toDivisionEntity).collect(Collectors.toSet()));
+        log.info("{}: сохранен/обновлен менеджер с набором отделов {}", manager.getManagerId()
+                    ,manager.getDivisions());
     }
 
-    public void saveWithDivisions(User user, Set<Division> divs){
-        ManagerEntity managerEntity = toEntity(user);
-        managerDAO.saveWithDivisions(managerEntity,divs);
-        log.info("{}: сохранен/обновлен менеджер с набором отделов {}", user.getId(),divs);
+    public ManagerModel findOne(Long userId) throws NoSuchManagerException {
+        Optional<ManagerEntity> one = managerDAO.findOne(userId);
+        if(one.isPresent()){
+            return toManagerModel(one.get());
+        }
+        else{
+            throw new NoSuchManagerException();
+        }
     }
 
-    public Optional<ManagerEntity> findOne(Long userId){
-        return managerDAO.findOne(userId);
+    public ManagerModel findOneWithDivisions(Long userId) throws NoSuchManagerException {
+        Optional<ManagerEntity> oneWithDivisions = managerDAO.findOneWithDivisions(userId);
+        if(oneWithDivisions.isPresent()){
+            ManagerModel managerModel = toManagerModel(oneWithDivisions.get());
+            managerModel.setDivisions(oneWithDivisions.get().getDivisions().stream().map(this::toDivisionModel)
+                    .collect(Collectors.toSet()));
+            return managerModel;
+        }
+        else throw new NoSuchManagerException();
     }
 
-    public Optional<ManagerEntity> findOneWithDivisions(Long userId){
-        return managerDAO.findOneWithDivisions(userId);
+    public void remove(ManagerModel managerModel){
+        log.info("{}: менеджер удален из БД", managerModel.getManagerId());
+        managerDAO.deleteById(managerModel.getManagerId());
     }
 
-    public void remove(User user){
-        log.info("{}: менеджер удален из БД", user.getId());
-        managerDAO.deleteById(user.getId());
-    }
-
-    public void removeDivisions(User user){
-        log.info("{}: удалены все отделы у менеджера", user.getId());
-        managerDAO.removeDivisions(toEntity(user));
+    public void removeDivisions(ManagerModel managerModel){
+        log.info("{}: удалены все отделы у менеджера", managerModel.getManagerId());
+        managerDAO.removeDivisions(toManagerEntity(managerModel));
     }
 
 
-    private ManagerEntity toEntity(User user){
-        ManagerEntity mapped = modelMapper.map(user, ManagerEntity.class);
-        mapped.setManagerId(user.getId());
-        return mapped;
+
+
+    private ManagerEntity toManagerEntity(ManagerModel manager){
+        ManagerEntity managerEntity = new ManagerEntity();
+        managerEntity.setManagerId(manager.getManagerId());
+        managerEntity.setLastName(manager.getLastName());
+        managerEntity.setFirstName(manager.getFirstName());
+        managerEntity.setUserName(manager.getUserName());
+        return managerEntity;
+    }
+    private ManagerModel toManagerModel(ManagerEntity manager){
+        return ManagerModel.builder().managerId(manager.getManagerId()).userName(manager.getUserName())
+                .lastName(manager.getLastName()).firstName(manager.getFirstName()).build();
+    }
+    private Division toDivisionEntity(DivisionModel divisionModel){
+        Division division = new Division();
+        division.setDivisionId(divisionModel.getDivisionId());
+        division.setName(divisionModel.getName());
+        return division;
+    }
+    private DivisionModel toDivisionModel(Division division){
+        return DivisionModel.builder().divisionId(division.getDivisionId()).name(division.getName()).build();
     }
 
 }

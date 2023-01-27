@@ -13,14 +13,14 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import ru.veselov.CompanyBot.bot.CompanyBot;
 import ru.veselov.CompanyBot.cache.UserDataCache;
-import ru.veselov.CompanyBot.entity.Division;
-import ru.veselov.CompanyBot.model.Department;
+import ru.veselov.CompanyBot.model.DivisionModel;
 import ru.veselov.CompanyBot.util.MessageUtils;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.spy;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -48,7 +48,7 @@ class InquiryMessageHandlerTest {
         messageEntity.setOffset(0);
         messageEntity.setLength(0);
         message.setEntities(List.of(messageEntity));
-        userDataCache.createInquiry(user.getId(), Division.builder().divisionId("L").build());
+        userDataCache.createInquiry(user.getId(), DivisionModel.builder().divisionId("L").build());
     }
 
     @Test

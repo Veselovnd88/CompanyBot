@@ -13,7 +13,7 @@ import ru.veselov.CompanyBot.bot.BotState;
 import ru.veselov.CompanyBot.bot.UpdateHandler;
 import ru.veselov.CompanyBot.cache.ContactCache;
 import ru.veselov.CompanyBot.cache.UserDataCache;
-import ru.veselov.CompanyBot.model.CustomerContact;
+import ru.veselov.CompanyBot.model.ContactModel;
 import ru.veselov.CompanyBot.util.KeyBoardUtils;
 import ru.veselov.CompanyBot.util.MessageUtils;
 
@@ -39,7 +39,7 @@ public class ContactMessageHandler implements UpdateHandler {
     public BotApiMethod<?> processUpdate(Update update) {
         Long userId = update.getMessage().getFrom().getId();
         BotState botState = userDataCache.getUserBotState(userId);
-        CustomerContact contact = contactCache.getContact(userId);
+        ContactModel contact = contactCache.getContact(userId);
         if(update.getMessage().hasText()){
             String text = update.getMessage().getText();
             switch (botState){
@@ -74,7 +74,7 @@ public class ContactMessageHandler implements UpdateHandler {
     }
 
 
-    private BotApiMethod<?> processName(CustomerContact contact, String name){
+    private BotApiMethod<?> processName(ContactModel contact, String name){
         if(name.length()>250){
             log.info("{}: Попытка ввести имя более 250 знаков", contact.getUserId());
             return SendMessage.builder().chatId(contact.getUserId())
@@ -104,7 +104,7 @@ public class ContactMessageHandler implements UpdateHandler {
         return keyBoardUtils.editMessageSavedField(contact.getUserId(),"name");
     }
 
-    private BotApiMethod<?> processPhone(CustomerContact contact, String phone){
+    private BotApiMethod<?> processPhone(ContactModel contact, String phone){
         Pattern pattern = Pattern.compile("^[+]?[-. 0-9{}]{11,18}$");
         Matcher matcher = pattern.matcher(phone);
         if(matcher.matches()){
@@ -121,7 +121,7 @@ public class ContactMessageHandler implements UpdateHandler {
         }
     }
 
-    private BotApiMethod<?> processEmail(CustomerContact contact, String email){
+    private BotApiMethod<?> processEmail(ContactModel contact, String email){
         if(emailValidator.isValid(email,null)){
             contact.setEmail(email);
             log.info("{}: email добавлен {}",contact.getUserId(),email);
@@ -136,7 +136,7 @@ public class ContactMessageHandler implements UpdateHandler {
     }
 
     @Profile("test")
-    public BotApiMethod<?> getProcessedName(CustomerContact contact, String name){
+    public BotApiMethod<?> getProcessedName(ContactModel contact, String name){
         return processName(contact,name);
     }
 

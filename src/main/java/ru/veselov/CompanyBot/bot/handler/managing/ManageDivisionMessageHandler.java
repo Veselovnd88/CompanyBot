@@ -9,7 +9,7 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import ru.veselov.CompanyBot.bot.BotState;
 import ru.veselov.CompanyBot.bot.UpdateHandler;
 import ru.veselov.CompanyBot.cache.UserDataCache;
-import ru.veselov.CompanyBot.entity.Division;
+import ru.veselov.CompanyBot.model.DivisionModel;
 import ru.veselov.CompanyBot.service.DivisionService;
 import ru.veselov.CompanyBot.util.ManageKeyboardUtils;
 import ru.veselov.CompanyBot.util.MessageUtils;
@@ -38,7 +38,7 @@ public class ManageDivisionMessageHandler implements UpdateHandler {
                     MessageUtils.INPUT_DIV).build();
         }
         else{
-            Division division = Division.builder().divisionId(split[0])
+            DivisionModel division = DivisionModel.builder().divisionId(split[0])
                     .name(text.substring(split[0].length())).build();
             divisionService.save(division);
             userDataCache.setUserBotState(userId, BotState.MANAGE);

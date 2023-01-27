@@ -14,7 +14,8 @@ import ru.veselov.CompanyBot.bot.CompanyBot;
 import ru.veselov.CompanyBot.bot.UpdateHandler;
 import ru.veselov.CompanyBot.cache.ContactCache;
 import ru.veselov.CompanyBot.cache.UserDataCache;
-import ru.veselov.CompanyBot.model.CustomerContact;
+import ru.veselov.CompanyBot.exception.NoSuchDivisionException;
+import ru.veselov.CompanyBot.model.ContactModel;
 import ru.veselov.CompanyBot.service.CustomerService;
 import ru.veselov.CompanyBot.service.InquiryService;
 import ru.veselov.CompanyBot.service.SenderService;
@@ -80,7 +81,7 @@ public class ContactCallbackHandler implements UpdateHandler {
                     //В сервис отправки передаются оба параметра, контакт и запрос, нуллы определяются внутри
                     try {
                         senderService.send(userDataCache.getInquiry(userId),contactCache.getContact(userId));
-                    } catch (TelegramApiException e) {
+                    } catch (TelegramApiException | NoSuchDivisionException e) {
                         log.error(e.getMessage());
                         log.error("{}: не удалось отправить сообщение пользователя", userId);
                         try {
@@ -108,7 +109,7 @@ public class ContactCallbackHandler implements UpdateHandler {
     }
 
 
-    private boolean checkIsContactOK(CustomerContact contact){
+    private boolean checkIsContactOK(ContactModel contact){
         if(contact.getLastName()==null&&contact.getFirstName()==null&&contact.getSecondName()==null){
             return false;
         }

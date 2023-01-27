@@ -14,6 +14,8 @@ import ru.veselov.CompanyBot.bot.UpdateHandler;
 import ru.veselov.CompanyBot.cache.AdminCache;
 import ru.veselov.CompanyBot.cache.UserDataCache;
 import ru.veselov.CompanyBot.exception.NoDivisionsException;
+import ru.veselov.CompanyBot.exception.NoSuchManagerException;
+import ru.veselov.CompanyBot.model.ManagerModel;
 import ru.veselov.CompanyBot.service.ManagerService;
 import ru.veselov.CompanyBot.util.DivisionKeyboardUtils;
 import ru.veselov.CompanyBot.util.ManageKeyboardUtils;
@@ -35,7 +37,6 @@ public class AddingManagerMessageHandler implements UpdateHandler {
         this.userDataCache = userDataCache;
         this.managerService = managerService;
         this.divisionKeyboardUtils = divisionKeyboardUtils;
-
         this.manageKeyboardUtils = manageKeyboardUtils;
     }
 
@@ -50,27 +51,30 @@ public class AddingManagerMessageHandler implements UpdateHandler {
         }
         User from = update.getMessage().getForwardFrom();
         if(BotState.AWAIT_MANAGER==botState){
-            adminCache.addManager(adminId,from);
-            InlineKeyboardMarkup inlineKeyboardMarkup = null;
             try {
-                inlineKeyboardMarkup = divisionKeyboardUtils.getAdminDivisionKeyboard(userId, from.getId());
+                InlineKeyboardMarkup inlineKeyboardMarkup = divisionKeyboardUtils.getAdminDivisionKeyboard(userId, from.getId());
+                log.info("{}: принято пересланное сообщение от назначаемого менеджера", userId);
+                userDataCache.setUserBotState(userId, BotState.ASSIGN_DIV);
+                ManagerModel managerModel = ManagerModel.builder().managerId(from.getId()).firstName(from.getFirstName())
+                        .lastName(from.getLastName()).userName(from.getUserName()).build();
+                adminCache.addManager(adminId,managerModel);
+                return SendMessage.builder().chatId(userId)
+                        .text(MessageUtils.AWAIT_DEPARTMENT)
+                        .replyMarkup(inlineKeyboardMarkup).build();
+
             } catch (NoDivisionsException e) {
                 return SendMessage.builder().chatId(userId)
                         .text(e.getMessage()).build();
             }
-            log.info("{}: принято пересланное сообщение от назначаемого менеджера", userId);
-            userDataCache.setUserBotState(userId, BotState.ASSIGN_DIV);
-            return SendMessage.builder().chatId(userId)
-                    .text(MessageUtils.AWAIT_DEPARTMENT)
-                    .replyMarkup(inlineKeyboardMarkup).build();}
+        }
         if(BotState.DELETE_MANAGER==botState){
-            managerService.remove(from);
+            managerService.remove(ManagerModel.builder().managerId(from.getId()).build());
             userDataCache.setUserBotState(userId,BotState.MANAGE);
             return SendMessage.builder().chatId(userId)
                     .text(MessageUtils.MANAGER_DELETED).replyMarkup(manageKeyboardUtils.manageKeyboard())
                     .build();
         }
-        return null;
+        return null;//FIXME no null return
     }
 
 

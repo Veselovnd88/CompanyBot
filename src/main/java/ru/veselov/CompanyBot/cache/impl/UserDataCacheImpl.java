@@ -5,8 +5,8 @@ import org.springframework.stereotype.Component;
 import ru.veselov.CompanyBot.bot.BotState;
 import ru.veselov.CompanyBot.cache.UserDataCache;
 import ru.veselov.CompanyBot.entity.Division;
-import ru.veselov.CompanyBot.model.CustomerInquiry;
-import ru.veselov.CompanyBot.model.Department;
+import ru.veselov.CompanyBot.model.DivisionModel;
+import ru.veselov.CompanyBot.model.InquiryModel;
 
 import java.util.HashMap;
 
@@ -15,7 +15,7 @@ import java.util.HashMap;
 public class UserDataCacheImpl implements UserDataCache {
 
     private final HashMap<Long, BotState> currentUserBotState = new HashMap<>();
-    private final HashMap<Long, CustomerInquiry> inquiryCache = new HashMap<>();
+    private final HashMap<Long, InquiryModel> inquiryCache = new HashMap<>();
 
     @Override
     public BotState getUserBotState(Long id) {
@@ -34,14 +34,14 @@ public class UserDataCacheImpl implements UserDataCache {
     }
 
     @Override
-    public void createInquiry(Long userId, Division division) {
+    public void createInquiry(Long userId, DivisionModel division) {
         log.info("{}: создан объект Inquiry для пользователя ", userId);
-        CustomerInquiry customerInquiry = new CustomerInquiry(userId,division);
-        inquiryCache.put(userId,customerInquiry);
+        InquiryModel inquiryModel = new InquiryModel(userId,division);
+        inquiryCache.put(userId, inquiryModel);
     }
 
     @Override
-    public CustomerInquiry getInquiry(Long userId) {
+    public InquiryModel getInquiry(Long userId) {
         return inquiryCache.get(userId);
     }
 

@@ -60,7 +60,7 @@ class ManageCallbackHandlerTest {
         assertEquals(BotState.MANAGE_ABOUT,userDataCache.getUserBotState(user.getId()));
         callbackQuery.setData("exit");
         assertInstanceOf(SendMessage.class,manageCallbackHandler.processUpdate(update));
-        assertEquals(BotState.MANAGE,userDataCache.getUserBotState(user.getId()));
+        assertEquals(BotState.READY,userDataCache.getUserBotState(user.getId()));
     }
 
     @Test

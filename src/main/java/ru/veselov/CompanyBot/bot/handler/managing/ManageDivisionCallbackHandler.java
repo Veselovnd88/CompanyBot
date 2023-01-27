@@ -8,8 +8,8 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.veselov.CompanyBot.bot.BotState;
 import ru.veselov.CompanyBot.bot.UpdateHandler;
 import ru.veselov.CompanyBot.cache.UserDataCache;
-import ru.veselov.CompanyBot.entity.Division;
 import ru.veselov.CompanyBot.exception.NoDivisionsException;
+import ru.veselov.CompanyBot.model.DivisionModel;
 import ru.veselov.CompanyBot.service.DivisionService;
 import ru.veselov.CompanyBot.util.BotAnswerUtil;
 import ru.veselov.CompanyBot.util.DivisionKeyboardUtils;
@@ -38,21 +38,23 @@ public class ManageDivisionCallbackHandler implements UpdateHandler {
 
     @Override
     public BotApiMethod<?> processUpdate(Update update) {
+        //FIXME working not correct can't delete
         Long userId = update.getCallbackQuery().getFrom().getId();
         String data = update.getCallbackQuery().getData();
         log.info("{}: нажата кнопка {}", userId,data);
         if(userDataCache.getUserBotState(userId)==BotState.DELETE_DIV){
-            Division division;
             try {
-                division = divisionKeyboardUtils.getKeyboardDivs().get(data);
+                DivisionModel divisionModel = divisionKeyboardUtils.getMapKeyboardDivisions().get(data);
+                divisionService.remove(divisionModel);
+                userDataCache.setUserBotState(userId,BotState.MANAGE);
+                return SendMessage.builder().chatId(userId).replyMarkup(manageKeyboardUtils.manageKeyboard())
+                        .text("Режим управления").build();
+
+
             } catch (NoDivisionsException e) {
                 return SendMessage.builder().chatId(userId)
                         .text(e.getMessage()).build();
             }
-            divisionService.remove(division);
-            userDataCache.setUserBotState(userId,BotState.MANAGE);
-            return SendMessage.builder().chatId(userId).replyMarkup(manageKeyboardUtils.manageKeyboard())
-                    .text("Режим управления").build();
         }
         switch (data){
             case "addDivision":
@@ -80,7 +82,7 @@ public class ManageDivisionCallbackHandler implements UpdateHandler {
     }
 
     private String getAllDivisionsFormatted(){
-        List<Division> all = divisionService.findAll();
+        List<DivisionModel> all = divisionService.findAll();
         if(all.size()==0){
             return "Пока нет отделов\n";
         }

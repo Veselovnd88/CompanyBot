@@ -10,9 +10,9 @@ import org.springframework.test.context.ActiveProfiles;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.User;
 import ru.veselov.CompanyBot.bot.CompanyBot;
-import ru.veselov.CompanyBot.entity.Division;
 import ru.veselov.CompanyBot.entity.Inquiry;
-import ru.veselov.CompanyBot.model.CustomerInquiry;
+import ru.veselov.CompanyBot.model.DivisionModel;
+import ru.veselov.CompanyBot.model.InquiryModel;
 
 import java.util.List;
 
@@ -31,7 +31,7 @@ class InquiryServiceTest {
     @Autowired
     private CustomerService customerService;
     User user;
-    CustomerInquiry inquiry;
+    InquiryModel inquiry;
     Message message;
 
 
@@ -42,9 +42,9 @@ class InquiryServiceTest {
         user.setLastName("Last");
         user.setFirstName("First");
         user.setUserName("UserName");
-        inquiry=new CustomerInquiry();
+        inquiry=new InquiryModel();
 
-        inquiry.setDivision(Division.builder().divisionId("LEUZE").build());
+        inquiry.setDivision(DivisionModel.builder().divisionId("LEUZE").build());
         message = new Message();
         message.setText("Test");
         inquiry.setMessages(List.of(message));
@@ -54,7 +54,7 @@ class InquiryServiceTest {
     @Test
     @DisplayName("Testing how to save inquiries")
     void saveTest() {
-        Division leuze = Division.builder().divisionId("LEUZE").build();
+        DivisionModel leuze = DivisionModel.builder().divisionId("LEUZE").build();
         divisionService.save(leuze);
         customerService.save(user);
         for(int i=0; i<10; i++){

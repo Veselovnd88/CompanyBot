@@ -18,13 +18,16 @@ import ru.veselov.CompanyBot.bot.CompanyBot;
 import ru.veselov.CompanyBot.bot.handler.managing.AddingDivisionFromKeyboardCallbackHandler;
 import ru.veselov.CompanyBot.cache.AdminCache;
 import ru.veselov.CompanyBot.cache.UserDataCache;
-import ru.veselov.CompanyBot.entity.Division;
 import ru.veselov.CompanyBot.exception.NoDivisionsException;
+import ru.veselov.CompanyBot.model.DivisionModel;
+import ru.veselov.CompanyBot.model.ManagerModel;
 import ru.veselov.CompanyBot.service.DivisionService;
 import ru.veselov.CompanyBot.service.ManagerService;
 import ru.veselov.CompanyBot.util.DivisionKeyboardUtils;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -54,7 +57,7 @@ class AddingDivisionFromKeyboardCallbackHandlerTest {
     Update update;
     CallbackQuery callbackQuery;
     User user;
-    User manager;
+    ManagerModel manager;
     Message message;
 
     @BeforeEach
@@ -70,14 +73,14 @@ class AddingDivisionFromKeyboardCallbackHandlerTest {
         Chat chat = new Chat();
         chat.setId(adminId);
         message.setChat(chat);
-        manager = spy(User.class);
-        manager.setId(200L);
+        manager = spy(ManagerModel.class);
+        manager.setManagerId(200L);
         manager.setUserName("VVasya");
         adminCache.addManager(user.getId(),manager);
         callbackQuery.setMessage(message);
         when(divisionService.findAll()).thenReturn(
-                List.of(Division.builder().divisionId("LT").name("LTTTTT").build(),
-                        Division.builder().divisionId("T").name("TTTTTTTt").build())
+                List.of(DivisionModel.builder().divisionId("LT").name("LTTTTT").build(),
+                        DivisionModel.builder().divisionId("T").name("TTTTTTTt").build())
         );
 
     }
@@ -86,7 +89,7 @@ class AddingDivisionFromKeyboardCallbackHandlerTest {
     @ValueSource(strings = {"LT","LT+marked","T","T+marked"})
     void divisionButtonPressTestWithNotMarkedButtons(String field) throws NoDivisionsException {
         //Checking enter to method with pressing of according button
-        divisionKeyboardUtils.getAdminDivisionKeyboard(user.getId(),manager.getId());
+        divisionKeyboardUtils.getAdminDivisionKeyboard(user.getId(),manager.getManagerId());
         callbackQuery.setData(field);
         BotApiMethod<?> botApiMethod = addingDivisionFromKeyboardCallbackHandler.processUpdate(update);
         assertInstanceOf(EditMessageReplyMarkup.class, botApiMethod);
@@ -94,15 +97,16 @@ class AddingDivisionFromKeyboardCallbackHandlerTest {
     @Test
     void saveButtonTest() throws NoDivisionsException {
         //Checking pressing save button
-        divisionKeyboardUtils.getAdminDivisionKeyboard(user.getId(),manager.getId());
+        divisionKeyboardUtils.getAdminDivisionKeyboard(user.getId(),manager.getManagerId());
         callbackQuery.setData("LT+marked");
         addingDivisionFromKeyboardCallbackHandler.processUpdate(update);
         callbackQuery.setData("save");
-        Set<Division> divisions = divisionKeyboardUtils.getMarkedDivisions(user.getId());
+        Set<DivisionModel> divisions = divisionKeyboardUtils.getMarkedDivisions(user.getId());
+        manager.setDivisions(divisions);
         addingDivisionFromKeyboardCallbackHandler.processUpdate(update);
-        verify(managerService).saveWithDivisions(manager,divisions);
+        verify(managerService).save(manager);
         assertNull(adminCache.getManager(user.getId()));
-        assertEquals(0,divisionKeyboardUtils.getCachedDivisions().size());
+        assertThrows(NoDivisionsException.class,()-> divisionKeyboardUtils.getCachedDivisions());
         assertEquals(BotState.READY,userDataCache.getUserBotState(adminId));
     }
 

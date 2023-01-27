@@ -1,5 +1,6 @@
 package ru.veselov.CompanyBot.service;
 
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -7,9 +8,10 @@ import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
-import org.telegram.telegrambots.meta.api.objects.User;
 import ru.veselov.CompanyBot.bot.CompanyBot;
-import ru.veselov.CompanyBot.entity.Division;
+import ru.veselov.CompanyBot.exception.NoSuchManagerException;
+import ru.veselov.CompanyBot.model.DivisionModel;
+import ru.veselov.CompanyBot.model.ManagerModel;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -28,126 +30,119 @@ class ManagerServiceTest {
     private DivisionService divisionService;
     @MockBean
     CommandLineRunner commandLineRunner;
-    User user;
+    ManagerModel manager;
 
     @BeforeEach
     void init(){
-        user = new User();
-        user.setId(100L);
-        user.setLastName("Last");
-        user.setFirstName("First");
-        user.setUserName("UserName");
+        manager = new ManagerModel();
+        manager.setManagerId(100L);
+        manager.setLastName("Last");
+        manager.setFirstName("First");
+        manager.setUserName("UserName");
     }
     @Test
+    @SneakyThrows
     void saveAndDeleteTest() {
         //Проверка сохранения в бд
-        managerService.save(user);
-        assertTrue(managerService.findOne(100L).isPresent());
-        assertEquals("UserName",managerService.findOne(100L).get().getUserName());
-        managerService.remove(user);
-        assertFalse(managerService.findOne(user.getId()).isPresent());
+        managerService.save(manager);
+        assertInstanceOf(ManagerModel.class, managerService.findOne(100L));
+        assertEquals("UserName",managerService.findOne(100L).getUserName());
+        managerService.remove(manager);
+        assertThrows(NoSuchManagerException.class,
+                ()-> managerService.findOne(manager.getManagerId()));
     }
 
     @Test
+    @SneakyThrows
     void saveWithDivisionsFromDB(){
-        Division division = new Division();
-        division.setDivisionId("VS");
-        division.setName("Vasya");
-        divisionService.save(division);
-        Division division1 = new Division();
-        division1.setDivisionId("PT");
-        division1.setName("Petya");
-        divisionService.save(division1);
-        managerService.saveWithDivisions(user, new HashSet<>(divisionService.findAll()));
-        assertTrue(managerService.findOne(100L).isPresent());
-        assertEquals("UserName",managerService.findOne(100L).get().getUserName());
-        assertEquals(2,managerService.findOneWithDivisions(user.getId()).get().getDivisions().size());
+        manager.setDivisions(setUpDivisions());
+        managerService.save(manager);
+        assertInstanceOf(ManagerModel.class, managerService.findOne(100L));
+        assertEquals("UserName",managerService.findOne(100L).getUserName());
+        assertEquals(2,managerService.findOneWithDivisions(manager.getManagerId()).getDivisions().size());
     }
 
     @Test
+    @SneakyThrows
     void saveWithDivisionsWithoutDB(){
-        Division division = new Division();
-        division.setDivisionId("VS");
-        division.setName("Vasya");
-        Division division1 = new Division();
-        division1.setDivisionId("PT");
-        division1.setName("Petya");
-        managerService.saveWithDivisions(user,Set.of(division,division1));
-        assertTrue(managerService.findOne(100L).isPresent());
-        assertEquals("UserName",managerService.findOne(100L).get().getUserName());
-        assertEquals(2,managerService.findOneWithDivisions(user.getId()).get().getDivisions().size());
-        managerService.saveWithDivisions(user,new HashSet<>());
-        assertEquals(0,managerService.findOneWithDivisions(user.getId()).get().getDivisions().size());
+        manager.setDivisions(setUpDivisions());
+        managerService.save(manager);
+        assertInstanceOf(ManagerModel.class, managerService.findOne(100L));
+        assertEquals("UserName",managerService.findOne(100L).getUserName());
+        assertEquals(2,managerService.findOneWithDivisions(manager.getManagerId()).getDivisions().size());
+        manager.setDivisions(new HashSet<>());
+        managerService.save(manager);
+        assertEquals(0,managerService.findOneWithDivisions(manager.getManagerId()).getDivisions().size());
     }
 
 
     @Test
-    void saveWithDivisionsMixed(){
-        Division division = new Division();
+    @SneakyThrows
+    void saveWithDivisionsFromDbAndFromHere(){
+        DivisionModel division = new DivisionModel();
         division.setDivisionId("VS");
         division.setName("Vasya");
-        Division division1 = new Division();
-        division1.setDivisionId("PT");
-        division1.setName("Petya");
-        divisionService.save(division1);
-        Set<Division> dbSet = new HashSet<>(divisionService.findAll());
-        dbSet.add(division);
-        managerService.saveWithDivisions(user,dbSet);
-        assertTrue(managerService.findOne(100L).isPresent());
-        assertEquals("UserName",managerService.findOne(100L).get().getUserName());
-        assertEquals(2,managerService.findOneWithDivisions(user.getId()).get().getDivisions().size());
+        Set<DivisionModel> divisionModels = new HashSet<>(setUpDivisions());
+        divisionModels.add(division);
+        manager.setDivisions(divisionModels);
+        managerService.save(manager);
+        assertInstanceOf(ManagerModel.class, managerService.findOne(100L));
+        assertEquals("UserName",managerService.findOne(100L).getUserName());
+        assertEquals(2,managerService.findOneWithDivisions(manager.getManagerId()).getDivisions().size());
     }
 
     @Test
+    @SneakyThrows
     void updateWithDivisionsFromDB(){
-        Division division = new Division();
+        DivisionModel division = new DivisionModel();
         division.setDivisionId("VS");
         division.setName("Vasya");
-        divisionService.save(division);
-        Division division1 = new Division();
-        division1.setDivisionId("PT");
-        division1.setName("Petya");
-        divisionService.save(division1);
-        managerService.saveWithDivisions(user, new HashSet<>(divisionService.findAll()));
-        managerService.saveWithDivisions(user,Set.of(division1));
-        assertTrue(managerService.findOne(100L).isPresent());
-        assertEquals("UserName",managerService.findOne(100L).get().getUserName());
-        assertEquals(1,managerService.findOneWithDivisions(user.getId()).get().getDivisions().size());
+        manager.setDivisions(setUpDivisions());
+        managerService.save(manager);
+        manager.setDivisions(Set.of(division));
+        managerService.save(manager);
+        assertInstanceOf(ManagerModel.class, managerService.findOne(100L));
+        assertEquals("UserName",managerService.findOne(100L).getUserName());
+        assertEquals(1,managerService.findOneWithDivisions(manager.getManagerId()).getDivisions().size());
     }
 
     @Test
+    @SneakyThrows
     void removeDivisionsTest(){
-        Division division = new Division();
-        division.setDivisionId("VS");
-        division.setName("Vasya");
-        divisionService.save(division);
-        Division division1 = new Division();
-        division1.setDivisionId("PT");
-        division1.setName("Petya");
-        divisionService.save(division1);
-        managerService.saveWithDivisions(user, new HashSet<>(divisionService.findAll()));
-        managerService.removeDivisions(user);
-        assertTrue(managerService.findOne(100L).isPresent());
-        assertEquals("UserName",managerService.findOne(100L).get().getUserName());
-        assertEquals(0,managerService.findOneWithDivisions(user.getId()).get().getDivisions().size());
+        manager.setDivisions(setUpDivisions());
+        managerService.save(manager);
+        managerService.removeDivisions(manager);
+        assertInstanceOf(ManagerModel.class, managerService.findOne(100L));
+        assertEquals("UserName",managerService.findOne(100L).getUserName());
+        assertEquals(0,managerService.findOneWithDivisions(manager.getManagerId()).getDivisions().size());
     }
 
     @Test
+    @SneakyThrows
     void removeManagerTest(){
-        Division division = new Division();
+        Set<DivisionModel> divisionModels = setUpDivisions();
+        manager.setDivisions(setUpDivisions());
+        managerService.save(manager);
+        managerService.remove(manager);
+        assertThrows(NoSuchManagerException.class,
+                ()-> managerService.findOne(100L));
+        for(var d: divisionModels){
+            boolean b = divisionService.findOneWithManagers(d).getManagers()
+                    .stream().anyMatch(x -> x.getManagerId().equals(manager.getManagerId()));
+            assertFalse(b);
+        }
+    }
+
+    private Set<DivisionModel> setUpDivisions(){
+        DivisionModel division = new DivisionModel();
         division.setDivisionId("VS");
         division.setName("Vasya");
         divisionService.save(division);
-        Division division1 = new Division();
+        DivisionModel division1 = new DivisionModel();
         division1.setDivisionId("PT");
         division1.setName("Petya");
         divisionService.save(division1);
-        managerService.saveWithDivisions(user, new HashSet<>(divisionService.findAll()));
-        managerService.remove(user);
-        assertFalse(managerService.findOne(100L).isPresent());
-        boolean hasManager = divisionService.findOneWithManagers(division).get()
-                .getManagers().stream().anyMatch(x -> x.getManagerId().equals(user.getId()));
-        assertFalse(hasManager);
+        return Set.of(division,division1);
     }
 
 

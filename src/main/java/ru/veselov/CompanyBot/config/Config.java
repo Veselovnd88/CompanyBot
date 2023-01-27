@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import ru.veselov.CompanyBot.entity.Division;
+import ru.veselov.CompanyBot.model.DivisionModel;
 import ru.veselov.CompanyBot.service.DivisionService;
 
 @Configuration
@@ -26,13 +27,13 @@ public class Config {
     public CommandLineRunner dataLoader(DivisionService divisionService){
         return args -> {
             divisionService.save(
-            Division.builder().divisionId("LEUZE").name("Ультразвуковые, оптические датчики LEUZE").build());
+            DivisionModel.builder().divisionId("LEUZE").name("Ультразвуковые, оптические датчики LEUZE").build());
             divisionService.save(
-                    Division.builder().divisionId("PRESSURE").name("Датчики давления, расхода, температуры").build());
+                    DivisionModel.builder().divisionId("PRESSURE").name("Датчики давления, расхода, температуры").build());
             divisionService.save(
-                    Division.builder().divisionId("LPKF").name("Станки для печатных плат LPKF").build());
+                    DivisionModel.builder().divisionId("LPKF").name("Станки для печатных плат LPKF").build());
             divisionService.save(
-                    Division.builder().divisionId("COMMON").name("Общие вопросы").build());
+                    DivisionModel.builder().divisionId("COMMON").name("Общие вопросы").build());
 
         };
     }

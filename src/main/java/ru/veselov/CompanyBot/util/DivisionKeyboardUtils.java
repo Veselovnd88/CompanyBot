@@ -9,9 +9,11 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import ru.veselov.CompanyBot.cache.Cache;
-import ru.veselov.CompanyBot.entity.Division;
-import ru.veselov.CompanyBot.entity.ManagerEntity;
+import ru.veselov.CompanyBot.exception.NoDivisionKeyboardException;
 import ru.veselov.CompanyBot.exception.NoDivisionsException;
+import ru.veselov.CompanyBot.exception.NoSuchManagerException;
+import ru.veselov.CompanyBot.model.DivisionModel;
+import ru.veselov.CompanyBot.model.ManagerModel;
 import ru.veselov.CompanyBot.service.DivisionService;
 import ru.veselov.CompanyBot.service.ManagerService;
 
@@ -22,7 +24,7 @@ import java.util.*;
 public class DivisionKeyboardUtils implements Cache {//FIXME возможно есть смысл сделать общего предка у клавиатурных классов
     private final String mark="+marked";
     private final String emojiMark = ":white_check_mark:";
-    private final HashMap<String, Division> idToDivision =new HashMap<>();
+    private final HashMap<String, DivisionModel> idToDivision =new HashMap<>();
     private final HashMap<Long, InlineKeyboardMarkup> divisionKeyboardCache = new HashMap<>();
 
     private final DivisionService divisionService;
@@ -34,22 +36,26 @@ public class DivisionKeyboardUtils implements Cache {//FIXME возможно е
     }
 
     public InlineKeyboardMarkup getAdminDivisionKeyboard(Long userId, Long fromId) throws NoDivisionsException {
-        List<Division> allDivisions = refreshDivisions();
+        List<DivisionModel> allDivisions = refreshDivisions();
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
         InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
         //Checking if manager exists in db, for indicating owned divisions
-        Optional<ManagerEntity> oneWithDivisions = managerService.findOneWithDivisions(fromId);
-        Set<Division> managersDivision=new HashSet<>();
-        if(oneWithDivisions.isPresent()){
-            managersDivision=oneWithDivisions.get().getDivisions();
+        ManagerModel oneWithDivisions = null;
+        try {
+            oneWithDivisions = managerService.findOneWithDivisions(fromId);
+        } catch (NoSuchManagerException ignored) {
         }
+
+
         for(var d: allDivisions){
             String name = d.getName();
             String callback = d.getDivisionId();
-            if(managersDivision.contains(d)){
-                name=EmojiParser.parseToUnicode(emojiMark+d.getName());
-                callback=d.getDivisionId()+mark;
-            }
+            if(oneWithDivisions!=null){
+                Set<DivisionModel> divisions = oneWithDivisions.getDivisions();
+                if(divisions.contains(d)){
+                    name=EmojiParser.parseToUnicode(emojiMark+d.getName());
+                    callback=d.getDivisionId()+mark;
+                }}
             InlineKeyboardButton button = new InlineKeyboardButton();
             button.setText(name);
             button.setCallbackData(callback);
@@ -68,7 +74,7 @@ public class DivisionKeyboardUtils implements Cache {//FIXME возможно е
 
 
     public InlineKeyboardMarkup getCustomerDivisionKeyboard() throws NoDivisionsException {
-        List<Division> allDivisions = refreshDivisions();
+        List<DivisionModel> allDivisions = refreshDivisions();
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
         InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
         for(var d: allDivisions){
@@ -86,7 +92,7 @@ public class DivisionKeyboardUtils implements Cache {//FIXME возможно е
     }
 
 
-    public EditMessageReplyMarkup divisionChooseField(Update update, String field, Long fromId) throws NoDivisionsException {
+    public EditMessageReplyMarkup divisionChooseField(Update update, String field) throws NoDivisionsException, NoDivisionKeyboardException {
         Long userId = update.getCallbackQuery().getFrom().getId();
         InlineKeyboardMarkup inlineKeyboardMarkup;
         //Create new keyboard or send it from our cache
@@ -94,7 +100,7 @@ public class DivisionKeyboardUtils implements Cache {//FIXME возможно е
             inlineKeyboardMarkup = divisionKeyboardCache.get(userId);
         }
         else{
-            inlineKeyboardMarkup = getAdminDivisionKeyboard(userId,fromId);
+            throw new NoDivisionKeyboardException();
         }
         for(var keyboard: inlineKeyboardMarkup.getKeyboard()){
                 //finding pressed button, but we don't need to mark save button
@@ -121,8 +127,8 @@ public class DivisionKeyboardUtils implements Cache {//FIXME возможно е
 
 
 
-    public Set<Division> getMarkedDivisions(Long userId){
-        HashSet<Division> divNames = new HashSet<>();
+    public Set<DivisionModel> getMarkedDivisions(Long userId){
+        HashSet<DivisionModel> divNames = new HashSet<>();
         InlineKeyboardMarkup editMessageReplyMarkup = divisionKeyboardCache.get(userId);
         List<List<InlineKeyboardButton>> keyboard = editMessageReplyMarkup.getKeyboard();
         for (var row: keyboard){
@@ -132,46 +138,34 @@ public class DivisionKeyboardUtils implements Cache {//FIXME возможно е
         }
         return divNames;
     }
-    public HashMap<String, Division> getKeyboardDivs() throws NoDivisionsException {
+    public HashMap<String, DivisionModel> getMapKeyboardDivisions() throws NoDivisionsException {
         if(idToDivision.isEmpty()){
             refreshDivisions();
         }
-        HashMap<String, Division> withMarked= new HashMap<>();
+        HashMap<String, DivisionModel> withMarked= new HashMap<>();
         idToDivision.forEach((x, y)->{
             withMarked.put(x,y);
             withMarked.put(x+mark,y);
                 });
         return withMarked;
     }
-    public Map<String, Division> getCachedDivisions() throws NoDivisionsException {
+    public Map<String, DivisionModel> getCachedDivisions() throws NoDivisionsException {
         if(idToDivision.isEmpty()){
             throw new NoDivisionsException();
         }
         /*We need it for showing possible divisions on keyboard buttons*/
         return Map.copyOf(idToDivision);
     }
-    public List<String> getPossibleButtons(EditMessageReplyMarkup markup){
-        //Create List of DivisionIds (callback data): divisionId + divisionId+marked
-        List<String> buttons = markup.getReplyMarkup().getKeyboard().stream().map(
-                        x->x.get(0).getCallbackData()).toList().stream()
-                .filter(x->!x.equalsIgnoreCase("save")).toList();
-        List<String> possibleData = new ArrayList<>();
-        for(String s: buttons){
-            String replace = s.replace("+marked", "");
-            possibleData.add(replace);
-            possibleData.add(replace+"+marked");
-        }
-        return possibleData;
-    }
+
     @Override
     public void clear(Long userId) {
         divisionKeyboardCache.remove(userId);
         idToDivision.clear();
     }
 
-    private List<Division> refreshDivisions() throws NoDivisionsException {
+    private List<DivisionModel> refreshDivisions() throws NoDivisionsException {
         //After creation ov keyboard all divisions placed in cache
-        List<Division> allDivisions = divisionService.findAll();
+        List<DivisionModel> allDivisions = divisionService.findAll();
         if(allDivisions.isEmpty()){
             throw new NoDivisionsException();
         }
@@ -180,7 +174,7 @@ public class DivisionKeyboardUtils implements Cache {//FIXME возможно е
         }
         return allDivisions;
     }
-    private Division getDivisionByName(String name){
+    private DivisionModel getDivisionByName(String name){
         return idToDivision.get(name);
     }
     private void removeMark(InlineKeyboardButton button){

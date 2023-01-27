@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
@@ -17,10 +18,12 @@ import ru.veselov.CompanyBot.bot.CompanyBot;
 import ru.veselov.CompanyBot.bot.handler.managing.AddingManagerMessageHandler;
 import ru.veselov.CompanyBot.cache.AdminCache;
 import ru.veselov.CompanyBot.cache.UserDataCache;
-import ru.veselov.CompanyBot.exception.NoDivisionsException;
+import ru.veselov.CompanyBot.model.ManagerModel;
+import ru.veselov.CompanyBot.service.ManagerService;
 import ru.veselov.CompanyBot.util.DivisionKeyboardUtils;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
@@ -33,6 +36,8 @@ class AddingManagerMessageHandlerTest {
     private Long adminId;
     @MockBean
     private AdminCache adminCache;
+    @MockBean
+    private ManagerService managerService;
     @Autowired
     private  UserDataCache userDataCache;
     @MockBean
@@ -43,8 +48,9 @@ class AddingManagerMessageHandlerTest {
     Message message;
     User user;
     User user2;
+    @SneakyThrows
     @BeforeEach
-    void init() throws NoDivisionsException {
+    void init(){
         update=spy(Update.class);
         message=spy(Message.class);
         user =spy(User.class);
@@ -58,27 +64,38 @@ class AddingManagerMessageHandlerTest {
         when(divisionKeyboardUtils.getAdminDivisionKeyboard(user.getId(),user2.getId())).thenReturn(new InlineKeyboardMarkup());
     }
 
-
+    @SneakyThrows
     @Test
-    void forwardedMessageTest() throws NoDivisionsException {
-        //Test checks if status changes after transfering user's message
+    void forwardedMessageAddTest(){
+        //Test checks if status changes after transferring user's message
+        userDataCache.setUserBotState(user.getId(),BotState.AWAIT_MANAGER);
         addingManagerMessageHandler.processUpdate(update);
         assertEquals(BotState.ASSIGN_DIV,userDataCache.getUserBotState(adminId));
         verify(divisionKeyboardUtils).getAdminDivisionKeyboard(user.getId(),user2.getId());
-        verify(adminCache).addManager(adminId,user2);
+        verify(adminCache).addManager(anyLong(),any(ManagerModel.class));
     }
 
     @SneakyThrows
     @Test
     void forwardedMessageNoForwardedTest(){
-        //Checking if message wasnt forwarded from another user
+        //Checking if message wasn't forwarded from another user
         userDataCache.setUserBotState(adminId,BotState.AWAIT_MANAGER);
-        //Test checks if status changes after transfering user's message
+        //Test checks if status changes after transferring user's message
         message.setForwardFrom(null);
         addingManagerMessageHandler.processUpdate(update);
         assertEquals(BotState.AWAIT_MANAGER,userDataCache.getUserBotState(adminId));
         verify(divisionKeyboardUtils,never()).getAdminDivisionKeyboard(user.getId(),user2.getId());
-        verify(adminCache,never()).addManager(adminId,user2);
+        ManagerModel manager = ManagerModel.builder().managerId(user2.getId()).build();
+        verify(adminCache,never()).addManager(adminId,manager);
+    }
+    @SneakyThrows
+    @Test
+    void forwardManagerDeleteTest(){
+        userDataCache.setUserBotState(user.getId(),BotState.DELETE_MANAGER);
+        assertInstanceOf(SendMessage.class,addingManagerMessageHandler.processUpdate(update));
+        assertEquals(BotState.MANAGE,userDataCache.getUserBotState(adminId));
+        ManagerModel manager = ManagerModel.builder().managerId(user2.getId()).build();
+        verify(managerService).remove(manager);
     }
 
 }

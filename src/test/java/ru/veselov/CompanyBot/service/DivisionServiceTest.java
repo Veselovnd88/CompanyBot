@@ -1,21 +1,21 @@
 package ru.veselov.CompanyBot.service;
 
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
-import org.telegram.telegrambots.meta.api.objects.User;
 import ru.veselov.CompanyBot.bot.CompanyBot;
-import ru.veselov.CompanyBot.entity.Division;
-import ru.veselov.CompanyBot.entity.ManagerEntity;
+import ru.veselov.CompanyBot.model.DivisionModel;
+import ru.veselov.CompanyBot.model.ManagerModel;
 
-import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
+
 @SpringBootTest
 @ActiveProfiles("test")
 class DivisionServiceTest {
@@ -28,47 +28,51 @@ class DivisionServiceTest {
     @Autowired
     ManagerService managerService;
 
-    Division division1;
-    Division division2;
+    DivisionModel division1;
+    DivisionModel division2;
 
     @BeforeEach
     void init(){
-        division1 = Division.builder().divisionId("TL")
+        division1 = DivisionModel.builder().divisionId("TL")
                 .name("LOTO").build();
-        division2 = Division.builder().divisionId("PL")
+        division2 = DivisionModel.builder().divisionId("PL")
                 .name("PROLO").build();
 
     }
 
     @Test
+    @SneakyThrows
     void saveTest(){
         //Checking if division saved correctly
         divisionService.save(division1);
-        assertTrue(divisionService.findOne(division1).isPresent());
+        assertInstanceOf(DivisionModel.class,divisionService.findOne(division1));
         divisionService.save(division2);
-        assertTrue(divisionService.findOne(division2).isPresent());
+        assertInstanceOf(DivisionModel.class,divisionService.findOne(division2));
     }
     @Test
+    @SneakyThrows
     void updateTest(){
         //Checking if division updated correctly
         divisionService.save(division1);
         division1.setName("VASYAPETYA");
         divisionService.save(division1);
-        assertEquals(division1.getDivisionId(),divisionService.findOne(division1).get().getDivisionId());
+        assertEquals(division1.getDivisionId(),divisionService.findOne(division1).getDivisionId());
     }
 
     @Test
+    @SneakyThrows
     void removeWithManager(){
         //Checking if divisions removed correctly from the manager
         divisionService.save(division1);
-        User user = new User();
-        user.setId(100L);
-        user.setUserName("Vasya");
-        managerService.saveWithDivisions(user, Set.of(division1));
-        Optional<ManagerEntity> oneWithDivisions = managerService.findOneWithDivisions(user.getId());
-        assertEquals(1,oneWithDivisions.get().getDivisions().size());
+        ManagerModel manager = new ManagerModel();
+        manager.setManagerId(100L);
+        manager.setUserName("Vasya");
+        manager.setDivisions(Set.of(division1));
+        managerService.save(manager);
+        ManagerModel oneWithDivisions = managerService.findOneWithDivisions(manager.getManagerId());
+        assertEquals(1,oneWithDivisions.getDivisions().size());
         divisionService.remove(division1);
-        assertEquals(0,managerService.findOneWithDivisions(user.getId()).get().getDivisions().size());
+        assertEquals(0,managerService.findOneWithDivisions(manager.getManagerId()).getDivisions().size());
 
 
 

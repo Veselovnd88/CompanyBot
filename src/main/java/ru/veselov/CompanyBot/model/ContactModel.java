@@ -8,7 +8,7 @@ import org.telegram.telegrambots.meta.api.objects.Contact;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class CustomerContact {
+public class ContactModel {
     private String lastName;
     private String firstName;
     private String secondName;

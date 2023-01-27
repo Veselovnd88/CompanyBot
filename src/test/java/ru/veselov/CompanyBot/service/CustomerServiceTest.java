@@ -8,8 +8,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.telegram.telegrambots.meta.api.objects.User;
 import ru.veselov.CompanyBot.bot.CompanyBot;
-import ru.veselov.CompanyBot.model.CustomerContact;
-import ru.veselov.CompanyBot.service.CustomerService;
+import ru.veselov.CompanyBot.model.ContactModel;
 
 import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
@@ -53,7 +52,7 @@ class CustomerServiceTest {
     @Test
     void saveContact(){
         customerService.save(user);
-        CustomerContact contact = CustomerContact.builder().userId(user.getId()).email("vasya").build();
+        ContactModel contact = ContactModel.builder().userId(user.getId()).email("vasya").build();
         customerService.saveContact(contact);
         assertTrue(customerService.findOne(100L).isPresent());
         assertEquals(1,customerService.findOneWithContacts(100L).get().getContacts().size());

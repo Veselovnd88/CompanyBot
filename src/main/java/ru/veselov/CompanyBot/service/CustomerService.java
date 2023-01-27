@@ -4,13 +4,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.telegram.telegrambots.meta.api.objects.User;
 import ru.veselov.CompanyBot.dao.ContactDAO;
 import ru.veselov.CompanyBot.dao.CustomerDAO;
 import ru.veselov.CompanyBot.entity.ContactEntity;
 import ru.veselov.CompanyBot.entity.Customer;
-import ru.veselov.CompanyBot.model.CustomerContact;
+import ru.veselov.CompanyBot.model.ContactModel;
 
 import java.util.List;
 import java.util.Optional;
@@ -53,7 +52,7 @@ public class CustomerService {
         return customerDAO.findAll();
     }
     //@Transactional
-    public void saveContact(CustomerContact contact){
+    public void saveContact(ContactModel contact){
         Optional<Customer> one = customerDAO.findOneWithContacts(contact.getUserId());
         if(one.isPresent()){
             ContactEntity contactEntity = toContactEntity(contact);
@@ -66,7 +65,7 @@ public class CustomerService {
         return modelMapper.map(user, Customer.class);
     }
 
-    private ContactEntity toContactEntity(CustomerContact contact){
+    private ContactEntity toContactEntity(ContactModel contact){
         return modelMapper.map(contact,ContactEntity.class);
     }
 }
