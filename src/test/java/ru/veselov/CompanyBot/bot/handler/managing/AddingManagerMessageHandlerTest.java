@@ -1,4 +1,4 @@
-package ru.veselov.CompanyBot.bot.handler;
+package ru.veselov.CompanyBot.bot.handler.managing;
 
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;

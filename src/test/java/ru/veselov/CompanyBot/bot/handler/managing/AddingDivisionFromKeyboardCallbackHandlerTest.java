@@ -1,4 +1,4 @@
-package ru.veselov.CompanyBot.bot.handler;
+package ru.veselov.CompanyBot.bot.handler.managing;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

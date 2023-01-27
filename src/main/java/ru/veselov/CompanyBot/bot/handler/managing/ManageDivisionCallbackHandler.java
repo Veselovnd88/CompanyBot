@@ -43,18 +43,18 @@ public class ManageDivisionCallbackHandler implements UpdateHandler {
         String data = update.getCallbackQuery().getData();
         log.info("{}: нажата кнопка {}", userId,data);
         if(userDataCache.getUserBotState(userId)==BotState.DELETE_DIV){
+            userDataCache.setUserBotState(userId,BotState.MANAGE);
+            String message;
             try {
                 DivisionModel divisionModel = divisionKeyboardUtils.getMapKeyboardDivisions().get(data);
                 divisionService.remove(divisionModel);
-                userDataCache.setUserBotState(userId,BotState.MANAGE);
-                return SendMessage.builder().chatId(userId).replyMarkup(manageKeyboardUtils.manageKeyboard())
-                        .text("Режим управления").build();
-
+                message="Режим управления";
 
             } catch (NoDivisionsException e) {
-                return SendMessage.builder().chatId(userId)
-                        .text(e.getMessage()).build();
+                message=e.getMessage();
             }
+            return SendMessage.builder().chatId(userId).replyMarkup(manageKeyboardUtils.manageKeyboard())
+                    .text(message).build();
         }
         switch (data){
             case "addDivision":
@@ -69,8 +69,9 @@ public class ManageDivisionCallbackHandler implements UpdateHandler {
                             .replyMarkup(divisionKeyboardUtils.getCustomerDivisionKeyboard())
                             .text("Выберите отдел для удаления").build();
                 } catch (NoDivisionsException e) {
-                    return SendMessage.builder().chatId(userId)
-                            .text(e.getMessage()).build();
+                    userDataCache.setUserBotState(userId,BotState.MANAGE);
+                    return SendMessage.builder().chatId(userId).replyMarkup(manageKeyboardUtils.manageKeyboard())
+                            .text(e.getMessage()+"\nВозврат в режим управления").build();
                 }
             case "exit":
                 userDataCache.setUserBotState(userId,BotState.MANAGE);

@@ -11,8 +11,6 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.veselov.CompanyBot.bot.BotState;
 import ru.veselov.CompanyBot.bot.HandlerContext;
 import ru.veselov.CompanyBot.bot.UpdateHandler;
-import ru.veselov.CompanyBot.bot.handler.managing.AddingDivisionFromKeyboardCallbackHandler;
-import ru.veselov.CompanyBot.bot.handler.managing.AddingManagerMessageHandler;
 import ru.veselov.CompanyBot.cache.UserDataCache;
 import ru.veselov.CompanyBot.util.BotAnswerUtil;
 
@@ -29,10 +27,8 @@ public class TelegramUpdateHandler implements UpdateHandler {
     private final DivisionCallbackHandler divisionCallbackHandler;
     private final InquiryMessageHandler inquiryMessageHandler;
     private final ContactCallbackHandler contactCallbackHandler;
-    private final AddingManagerMessageHandler addingManagerMessageHandler;
     private final ContactMessageHandler contactMessageHandler;
     private final ChannelConnectHandler channelConnectHandler;
-    private final AddingDivisionFromKeyboardCallbackHandler addingDivisionFromKeyboardCallbackHandler;
 
     private final HandlerContext handlerContext;
     private final UserDataCache userDataCache;
@@ -40,15 +36,13 @@ public class TelegramUpdateHandler implements UpdateHandler {
     @Autowired
     public TelegramUpdateHandler(CommandHandler commandHandler,
                                  DivisionCallbackHandler divisionCallbackHandler,
-                                 InquiryMessageHandler inquiryMessageHandler, ContactCallbackHandler contactCallbackHandler, AddingManagerMessageHandler addingManagerMessageHandler, ContactMessageHandler contactMessageHandler, ChannelConnectHandler channelConnectHandler, AddingDivisionFromKeyboardCallbackHandler addingDivisionFromKeyboardCallbackHandler, HandlerContext handlerContext, UserDataCache userDataCache, BotAnswerUtil botAnswerUtil) {
+                                 InquiryMessageHandler inquiryMessageHandler, ContactCallbackHandler contactCallbackHandler, ContactMessageHandler contactMessageHandler, ChannelConnectHandler channelConnectHandler, HandlerContext handlerContext, UserDataCache userDataCache, BotAnswerUtil botAnswerUtil) {
         this.commandHandler = commandHandler;
         this.divisionCallbackHandler = divisionCallbackHandler;
         this.inquiryMessageHandler = inquiryMessageHandler;
         this.contactCallbackHandler = contactCallbackHandler;
-        this.addingManagerMessageHandler = addingManagerMessageHandler;
         this.contactMessageHandler = contactMessageHandler;
         this.channelConnectHandler = channelConnectHandler;
-        this.addingDivisionFromKeyboardCallbackHandler = addingDivisionFromKeyboardCallbackHandler;
         this.handlerContext = handlerContext;
         this.userDataCache = userDataCache;
         this.botAnswerUtil = botAnswerUtil;
