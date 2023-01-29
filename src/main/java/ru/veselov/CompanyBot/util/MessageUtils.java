@@ -10,13 +10,7 @@ public class MessageUtils {
     public static final String INPUT_DIV = "Введите код и описание темы/отдела по форме " +
             "<Код>-2 символа <пробел> <Описание>-не более 40 символов";
 
-    public static Message about=new Message();
-    static {
-        about.setText("Информация о компании:");
-    }
-
-
-    public static List<MessageEntity> entities;
+    public static Message about;
 
     public static final String MANAGER_SAVED = "Менеджер сохранен";
     public static String GREETINGS="Здравствуйте, я бот-помощник компании, я могу принять и передать Ваш запрос " +

@@ -20,7 +20,7 @@ public class Division {
     @Column(name = "division_id")
     private String divisionId;
 
-    @Column(unique = true)
+    @Column(columnDefinition = "varchar(950)")
     private String name;
 
     @ManyToMany(mappedBy = "divisions",cascade = {CascadeType.PERSIST,CascadeType.MERGE, CascadeType.REFRESH})

@@ -77,9 +77,11 @@ public class CommandHandler implements UpdateHandler {
 
             case "/about":
                 return SendMessage.builder().chatId(userId)
-                        .text(MessageUtils.ABOUT).build();
+                        .text(MessageUtils.about.getText())
+                        .entities(MessageUtils.about.getEntities())
+                        .build();
             case "/info":
-                return SendMessage.builder().chatId(userId)//TODO ссылку на компанию в callback кнопке
+                return SendMessage.builder().chatId(userId)
                         .text(MessageUtils.INFO).build();
 
             case "/manage":
