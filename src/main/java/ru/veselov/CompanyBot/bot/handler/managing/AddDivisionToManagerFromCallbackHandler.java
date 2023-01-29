@@ -26,7 +26,7 @@ import java.util.Set;
 
 @Component
 @Slf4j
-public class AddingDivisionFromKeyboardCallbackHandler implements UpdateHandler {
+public class AddDivisionToManagerFromCallbackHandler implements UpdateHandler {
     /*This class handles callback from keyboard */
     @Value("${bot.adminId}")
     private Long adminId;
@@ -35,7 +35,7 @@ public class AddingDivisionFromKeyboardCallbackHandler implements UpdateHandler 
     private final ManagerService managerService;
     private final AdminCache adminCache;
     @Autowired
-    public AddingDivisionFromKeyboardCallbackHandler(UserDataCache userDataCache, DivisionKeyboardUtils divisionKeyboardUtils, ManagerService managerService, AdminCache adminCache) {
+    public AddDivisionToManagerFromCallbackHandler(UserDataCache userDataCache, DivisionKeyboardUtils divisionKeyboardUtils, ManagerService managerService, AdminCache adminCache) {
         this.userDataCache = userDataCache;
         this.divisionKeyboardUtils = divisionKeyboardUtils;
         this.managerService = managerService;

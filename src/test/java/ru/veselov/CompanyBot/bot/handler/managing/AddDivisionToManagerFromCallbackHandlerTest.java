@@ -15,7 +15,6 @@ import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageRe
 import org.telegram.telegrambots.meta.api.objects.*;
 import ru.veselov.CompanyBot.bot.BotState;
 import ru.veselov.CompanyBot.bot.CompanyBot;
-import ru.veselov.CompanyBot.bot.handler.managing.AddingDivisionFromKeyboardCallbackHandler;
 import ru.veselov.CompanyBot.cache.AdminCache;
 import ru.veselov.CompanyBot.cache.UserDataCache;
 import ru.veselov.CompanyBot.exception.NoDivisionsException;
@@ -34,7 +33,7 @@ import static org.mockito.Mockito.*;
 
 @SpringBootTest
 @ActiveProfiles("test")
-class AddingDivisionFromKeyboardCallbackHandlerTest {
+class AddDivisionToManagerFromCallbackHandlerTest {
 
     @MockBean
     CompanyBot bot;
@@ -43,7 +42,7 @@ class AddingDivisionFromKeyboardCallbackHandlerTest {
     private Long adminId;
 
     @Autowired
-    private AddingDivisionFromKeyboardCallbackHandler addingDivisionFromKeyboardCallbackHandler;
+    private AddDivisionToManagerFromCallbackHandler addDivisionToManagerFromCallbackHandler;
     @Autowired
     private DivisionKeyboardUtils divisionKeyboardUtils;
     @Autowired
@@ -91,7 +90,7 @@ class AddingDivisionFromKeyboardCallbackHandlerTest {
         //Checking enter to method with pressing of according button
         divisionKeyboardUtils.getAdminDivisionKeyboard(user.getId(),manager.getManagerId());
         callbackQuery.setData(field);
-        BotApiMethod<?> botApiMethod = addingDivisionFromKeyboardCallbackHandler.processUpdate(update);
+        BotApiMethod<?> botApiMethod = addDivisionToManagerFromCallbackHandler.processUpdate(update);
         assertInstanceOf(EditMessageReplyMarkup.class, botApiMethod);
     }
     @Test
@@ -99,11 +98,11 @@ class AddingDivisionFromKeyboardCallbackHandlerTest {
         //Checking pressing save button
         divisionKeyboardUtils.getAdminDivisionKeyboard(user.getId(),manager.getManagerId());
         callbackQuery.setData("LT+marked");
-        addingDivisionFromKeyboardCallbackHandler.processUpdate(update);
+        addDivisionToManagerFromCallbackHandler.processUpdate(update);
         callbackQuery.setData("save");
         Set<DivisionModel> divisions = divisionKeyboardUtils.getMarkedDivisions(user.getId());
         manager.setDivisions(divisions);
-        addingDivisionFromKeyboardCallbackHandler.processUpdate(update);
+        addDivisionToManagerFromCallbackHandler.processUpdate(update);
         verify(managerService).save(manager);
         assertNull(adminCache.getManager(user.getId()));
         assertThrows(NoDivisionsException.class,()-> divisionKeyboardUtils.getCachedDivisions());
@@ -114,7 +113,7 @@ class AddingDivisionFromKeyboardCallbackHandlerTest {
     void noDivisionsInDbTest() {
         when(divisionService.findAll()).thenReturn(Collections.emptyList());
         callbackQuery.setData("LT");
-        assertInstanceOf(SendMessage.class,addingDivisionFromKeyboardCallbackHandler.processUpdate(update));
+        assertInstanceOf(SendMessage.class, addDivisionToManagerFromCallbackHandler.processUpdate(update));
     }
 
 }

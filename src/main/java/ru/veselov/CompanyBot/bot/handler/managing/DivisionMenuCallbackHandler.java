@@ -20,7 +20,7 @@ import java.util.List;
 
 @Component
 @Slf4j
-public class ManageDivisionCallbackHandler implements UpdateHandler {
+public class DivisionMenuCallbackHandler implements UpdateHandler {
     private final UserDataCache userDataCache;
     private final DivisionService divisionService;
     private final DivisionKeyboardUtils divisionKeyboardUtils;
@@ -28,7 +28,7 @@ public class ManageDivisionCallbackHandler implements UpdateHandler {
 
     private final BotAnswerUtil botAnswerUtil;
 
-    public ManageDivisionCallbackHandler(UserDataCache userDataCache, DivisionService divisionService, DivisionKeyboardUtils divisionKeyboardUtils, ManageKeyboardUtils manageKeyboardUtils, BotAnswerUtil botAnswerUtil) {
+    public DivisionMenuCallbackHandler(UserDataCache userDataCache, DivisionService divisionService, DivisionKeyboardUtils divisionKeyboardUtils, ManageKeyboardUtils manageKeyboardUtils, BotAnswerUtil botAnswerUtil) {
         this.userDataCache = userDataCache;
         this.divisionService = divisionService;
         this.divisionKeyboardUtils = divisionKeyboardUtils;
@@ -38,7 +38,6 @@ public class ManageDivisionCallbackHandler implements UpdateHandler {
 
     @Override
     public BotApiMethod<?> processUpdate(Update update) {
-        //FIXME working not correct can't delete
         Long userId = update.getCallbackQuery().getFrom().getId();
         String data = update.getCallbackQuery().getData();
         log.info("{}: нажата кнопка {}", userId,data);

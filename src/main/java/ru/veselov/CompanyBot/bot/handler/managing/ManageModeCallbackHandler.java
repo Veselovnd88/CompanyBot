@@ -15,11 +15,11 @@ import ru.veselov.CompanyBot.util.MessageUtils;
 
 @Component
 @Slf4j
-public class ManageCallbackHandler implements UpdateHandler {
+public class ManageModeCallbackHandler implements UpdateHandler {
     private final UserDataCache userDataCache;
     private final ManageKeyboardUtils manageKeyboardUtils;
     @Autowired
-    public ManageCallbackHandler(UserDataCache userDataCache, ManageKeyboardUtils manageKeyboardUtils) {
+    public ManageModeCallbackHandler(UserDataCache userDataCache, ManageKeyboardUtils manageKeyboardUtils) {
         this.userDataCache = userDataCache;
         this.manageKeyboardUtils = manageKeyboardUtils;
     }
@@ -41,10 +41,11 @@ public class ManageCallbackHandler implements UpdateHandler {
 
             case "about":
                 userDataCache.setUserBotState(userId, BotState.MANAGE_ABOUT);
+                //TODO принимать новое описание компании
                 String currentInfo = MessageUtils.about.getText();
                 return SendMessage.builder().chatId(userId)
-                        .text("Пришлите новое описание компании, текущее: "+ currentInfo)
-                        .entities(MessageUtils.entities).build();
+                        .text(currentInfo+"\nПришлите новое описание")
+                        .entities(MessageUtils.about.getEntities()).build();
             case "exit":
                 userDataCache.setUserBotState(userId,BotState.READY);
                 return SendMessage.builder().chatId(userId)

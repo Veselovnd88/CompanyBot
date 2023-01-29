@@ -77,7 +77,7 @@ public class ManagerDAO {
 
 
     @SuppressWarnings("unchecked")
-    public List<ChatEntity> findAll(){
+    public List<ManagerEntity> findAll(){
         return entityManager.createQuery(" SELECT m from ManagerEntity m ").getResultList();
     }
     public Optional<ManagerEntity> findOne(Long managerId){

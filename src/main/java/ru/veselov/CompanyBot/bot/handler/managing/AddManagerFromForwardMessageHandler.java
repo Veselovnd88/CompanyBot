@@ -14,7 +14,6 @@ import ru.veselov.CompanyBot.bot.UpdateHandler;
 import ru.veselov.CompanyBot.cache.AdminCache;
 import ru.veselov.CompanyBot.cache.UserDataCache;
 import ru.veselov.CompanyBot.exception.NoDivisionsException;
-import ru.veselov.CompanyBot.exception.NoSuchManagerException;
 import ru.veselov.CompanyBot.model.ManagerModel;
 import ru.veselov.CompanyBot.service.ManagerService;
 import ru.veselov.CompanyBot.util.DivisionKeyboardUtils;
@@ -23,7 +22,7 @@ import ru.veselov.CompanyBot.util.MessageUtils;
 
 @Component
 @Slf4j
-public class AddingManagerMessageHandler implements UpdateHandler {
+public class AddManagerFromForwardMessageHandler implements UpdateHandler {
     @Value("${bot.adminId}")
     private Long adminId;
     private final AdminCache adminCache;
@@ -32,7 +31,7 @@ public class AddingManagerMessageHandler implements UpdateHandler {
     private final DivisionKeyboardUtils divisionKeyboardUtils;
     private final ManageKeyboardUtils manageKeyboardUtils;
     @Autowired
-    public AddingManagerMessageHandler(AdminCache adminCache, UserDataCache userDataCache, ManagerService managerService, DivisionKeyboardUtils divisionKeyboardUtils, ManageKeyboardUtils manageKeyboardUtils) {
+    public AddManagerFromForwardMessageHandler(AdminCache adminCache, UserDataCache userDataCache, ManagerService managerService, DivisionKeyboardUtils divisionKeyboardUtils, ManageKeyboardUtils manageKeyboardUtils) {
         this.adminCache = adminCache;
         this.userDataCache = userDataCache;
         this.managerService = managerService;

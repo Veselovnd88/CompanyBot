@@ -15,7 +15,6 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import ru.veselov.CompanyBot.bot.BotState;
 import ru.veselov.CompanyBot.bot.CompanyBot;
-import ru.veselov.CompanyBot.bot.handler.managing.AddingManagerMessageHandler;
 import ru.veselov.CompanyBot.cache.AdminCache;
 import ru.veselov.CompanyBot.cache.UserDataCache;
 import ru.veselov.CompanyBot.model.ManagerModel;
@@ -28,7 +27,7 @@ import static org.mockito.Mockito.*;
 
 @SpringBootTest
 @ActiveProfiles("test")
-class AddingManagerMessageHandlerTest {
+class AddManagerFromForwardMessageHandlerTest {
     @MockBean
     CompanyBot bot;
 
@@ -43,7 +42,7 @@ class AddingManagerMessageHandlerTest {
     @MockBean
     private  DivisionKeyboardUtils divisionKeyboardUtils;
     @Autowired
-    private AddingManagerMessageHandler addingManagerMessageHandler;
+    private AddManagerFromForwardMessageHandler addManagerFromForwardMessageHandler;
     Update update;
     Message message;
     User user;
@@ -69,7 +68,7 @@ class AddingManagerMessageHandlerTest {
     void forwardedMessageAddTest(){
         //Test checks if status changes after transferring user's message
         userDataCache.setUserBotState(user.getId(),BotState.AWAIT_MANAGER);
-        addingManagerMessageHandler.processUpdate(update);
+        addManagerFromForwardMessageHandler.processUpdate(update);
         assertEquals(BotState.ASSIGN_DIV,userDataCache.getUserBotState(adminId));
         verify(divisionKeyboardUtils).getAdminDivisionKeyboard(user.getId(),user2.getId());
         verify(adminCache).addManager(anyLong(),any(ManagerModel.class));
@@ -82,7 +81,7 @@ class AddingManagerMessageHandlerTest {
         userDataCache.setUserBotState(adminId,BotState.AWAIT_MANAGER);
         //Test checks if status changes after transferring user's message
         message.setForwardFrom(null);
-        addingManagerMessageHandler.processUpdate(update);
+        addManagerFromForwardMessageHandler.processUpdate(update);
         assertEquals(BotState.AWAIT_MANAGER,userDataCache.getUserBotState(adminId));
         verify(divisionKeyboardUtils,never()).getAdminDivisionKeyboard(user.getId(),user2.getId());
         ManagerModel manager = ManagerModel.builder().managerId(user2.getId()).build();
@@ -92,7 +91,7 @@ class AddingManagerMessageHandlerTest {
     @Test
     void forwardManagerDeleteTest(){
         userDataCache.setUserBotState(user.getId(),BotState.DELETE_MANAGER);
-        assertInstanceOf(SendMessage.class,addingManagerMessageHandler.processUpdate(update));
+        assertInstanceOf(SendMessage.class, addManagerFromForwardMessageHandler.processUpdate(update));
         assertEquals(BotState.MANAGE,userDataCache.getUserBotState(adminId));
         ManagerModel manager = ManagerModel.builder().managerId(user2.getId()).build();
         verify(managerService).remove(manager);

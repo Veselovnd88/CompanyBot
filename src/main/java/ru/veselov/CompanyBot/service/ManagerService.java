@@ -10,6 +10,7 @@ import ru.veselov.CompanyBot.exception.NoSuchManagerException;
 import ru.veselov.CompanyBot.model.DivisionModel;
 import ru.veselov.CompanyBot.model.ManagerModel;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -44,6 +45,9 @@ public class ManagerService {
         else{
             throw new NoSuchManagerException();
         }
+    }
+    public List<ManagerModel> findAll(){
+        return managerDAO.findAll().stream().map(this::toManagerModel).toList();
     }
 
     public ManagerModel findOneWithDivisions(Long userId) throws NoSuchManagerException {

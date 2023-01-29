@@ -14,7 +14,6 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import ru.veselov.CompanyBot.bot.BotState;
 import ru.veselov.CompanyBot.bot.CompanyBot;
-import ru.veselov.CompanyBot.bot.handler.managing.ManageCallbackHandler;
 import ru.veselov.CompanyBot.cache.UserDataCache;
 import ru.veselov.CompanyBot.util.MessageUtils;
 
@@ -23,7 +22,7 @@ import static org.mockito.Mockito.spy;
 
 @SpringBootTest
 @ActiveProfiles("test")
-class ManageCallbackHandlerTest {
+class ManageModeCallbackHandlerTest {
     @MockBean
     CompanyBot companyBot;
 
@@ -31,7 +30,7 @@ class ManageCallbackHandlerTest {
     private UserDataCache userDataCache;
 
     @Autowired
-    private ManageCallbackHandler manageCallbackHandler;
+    private ManageModeCallbackHandler manageModeCallbackHandler;
 
     Update update;
     CallbackQuery callbackQuery;
@@ -50,16 +49,16 @@ class ManageCallbackHandlerTest {
     @Test
     void enteringTest(){
         callbackQuery.setData("managers");
-        assertInstanceOf(SendMessage.class,manageCallbackHandler.processUpdate(update));
+        assertInstanceOf(SendMessage.class, manageModeCallbackHandler.processUpdate(update));
         assertEquals(BotState.MANAGE_MANAGER,userDataCache.getUserBotState(user.getId()));
         callbackQuery.setData("divisions");
-        assertInstanceOf(SendMessage.class,manageCallbackHandler.processUpdate(update));
+        assertInstanceOf(SendMessage.class, manageModeCallbackHandler.processUpdate(update));
         assertEquals(BotState.MANAGE_DIVISION,userDataCache.getUserBotState(user.getId()));
         callbackQuery.setData("about");
-        assertInstanceOf(SendMessage.class,manageCallbackHandler.processUpdate(update));
+        assertInstanceOf(SendMessage.class, manageModeCallbackHandler.processUpdate(update));
         assertEquals(BotState.MANAGE_ABOUT,userDataCache.getUserBotState(user.getId()));
         callbackQuery.setData("exit");
-        assertInstanceOf(SendMessage.class,manageCallbackHandler.processUpdate(update));
+        assertInstanceOf(SendMessage.class, manageModeCallbackHandler.processUpdate(update));
         assertEquals(BotState.READY,userDataCache.getUserBotState(user.getId()));
     }
 
@@ -67,7 +66,7 @@ class ManageCallbackHandlerTest {
     void notCorrectData(){
         /*Не корректные данные с коллбэка*/
         callbackQuery.setData("unknown");
-        BotApiMethod<?> botApiMethod = manageCallbackHandler.processUpdate(update);
+        BotApiMethod<?> botApiMethod = manageModeCallbackHandler.processUpdate(update);
         assertEquals(MessageUtils.ERROR,((AnswerCallbackQuery) botApiMethod).getText());
     }
 }
