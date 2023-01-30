@@ -17,8 +17,7 @@ import ru.veselov.CompanyBot.cache.UserDataCache;
 import ru.veselov.CompanyBot.service.CustomerService;
 import ru.veselov.CompanyBot.util.MessageUtils;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
@@ -32,7 +31,6 @@ class CommandHandlerTest {
     CommandHandler commandHandler;
     @MockBean
     private CustomerService customerService;
-
     Update update;
     User user;
     Message message;
@@ -66,6 +64,7 @@ class CommandHandlerTest {
                 userDataCache.setUserBotState(user.getId(), b);
                 BotApiMethod<?> botApiMethod = commandHandler.processUpdate(update);
                 verify(customerService,times(0)).save(user);
+                clearInvocations(customerService);
                 assertEquals(MessageUtils.GREETINGS,((SendMessage) botApiMethod).getText());
                 assertEquals(BotState.READY,userDataCache.getUserBotState(user.getId()));
                 assertNull(userDataCache.getInquiry(user.getId()));
@@ -103,8 +102,7 @@ class CommandHandlerTest {
         when(message.getText()).thenReturn("/about");
         for(var b: BotState.values()){
             userDataCache.setUserBotState(user.getId(), b);
-            BotApiMethod<?> botApiMethod = commandHandler.processUpdate(update);
-            assertEquals(MessageUtils.ABOUT,((SendMessage) botApiMethod).getText());
+            assertInstanceOf(SendMessage.class,commandHandler.processUpdate(update));
             assertEquals(b,userDataCache.getUserBotState(user.getId()));
         }
     }

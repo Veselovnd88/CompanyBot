@@ -7,15 +7,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.Message;
-import org.telegram.telegrambots.meta.api.objects.MessageEntity;
-import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.User;
+import org.telegram.telegrambots.meta.api.objects.*;
 import ru.veselov.CompanyBot.bot.CompanyBot;
 import ru.veselov.CompanyBot.cache.UserDataCache;
 import ru.veselov.CompanyBot.model.DivisionModel;
 import ru.veselov.CompanyBot.util.MessageUtils;
 
+import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -83,9 +81,25 @@ class InquiryMessageHandlerTest {
         assertEquals(MessageUtils.AWAIT_CONTENT_MESSAGE,
                 ((SendMessage) inquiryMessageHandler.processUpdate(update)).getText());
         assertEquals(1,userDataCache.getInquiry(user.getId()).getMessages().size());
-
+    }
+    @Test
+    void messageWithPhoto(){
+        message.setEntities(null);
+        PhotoSize photoSize = new PhotoSize();
+        photoSize.setFileSize(100);
+        message.setPhoto(List.of(photoSize));
+        assertEquals(MessageUtils.AWAIT_CONTENT_MESSAGE,
+                ((SendMessage) inquiryMessageHandler.processUpdate(update)).getText());
+        assertEquals(1,userDataCache.getInquiry(user.getId()).getMessages().size());
     }
 
-
-
+    @Test
+    void messageWithAudio(){
+        message.setEntities(null);
+        Audio audio = new Audio();
+        message.setAudio(audio);
+        assertEquals(MessageUtils.AWAIT_CONTENT_MESSAGE,
+                ((SendMessage) inquiryMessageHandler.processUpdate(update)).getText());
+        assertEquals(1,userDataCache.getInquiry(user.getId()).getMessages().size());
+    }
 }

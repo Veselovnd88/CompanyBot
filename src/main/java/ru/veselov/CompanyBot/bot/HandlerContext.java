@@ -3,7 +3,9 @@ package ru.veselov.CompanyBot.bot;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.veselov.CompanyBot.bot.handler.ContactCallbackHandler;
+import ru.veselov.CompanyBot.bot.handler.ContactMessageHandler;
 import ru.veselov.CompanyBot.bot.handler.DivisionCallbackHandler;
+import ru.veselov.CompanyBot.bot.handler.InquiryMessageHandler;
 import ru.veselov.CompanyBot.bot.handler.managing.*;
 
 import java.util.HashMap;
@@ -23,7 +25,9 @@ public class HandlerContext {
                           AddDivisionTextMessageHandler addDivisionTextMessageHandler,
                           InformationAboutMessageHandler informationAboutMessageHandler,
                           DivisionCallbackHandler divisionCallbackHandler,
-                          ContactCallbackHandler contactCallbackHandler) {
+                          ContactCallbackHandler contactCallbackHandler,
+                          ContactMessageHandler contactMessageHandler,
+                          InquiryMessageHandler inquiryMessageHandler) {
         callbackHandlerContext.put(BotState.MANAGE_MANAGER, managerMenuCallbackHandler);
         callbackHandlerContext.put(BotState.MANAGE, manageModeCallbackHandler);
         callbackHandlerContext.put(BotState.ASSIGN_DIV, addDivisionToManagerFromCallbackHandler);
@@ -38,9 +42,17 @@ public class HandlerContext {
 
         messageHandlerContext.put(BotState.AWAIT_MANAGER, addManagerFromForwardMessageHandler);
         messageHandlerContext.put(BotState.DELETE_MANAGER, addManagerFromForwardMessageHandler);
-
         messageHandlerContext.put(BotState.AWAIT_DIVISION, addDivisionTextMessageHandler);
         messageHandlerContext.put(BotState.MANAGE_ABOUT, informationAboutMessageHandler);
+        messageHandlerContext.put(BotState.AWAIT_MESSAGE, inquiryMessageHandler);
+
+        messageHandlerContext.put(BotState.AWAIT_CONTACT,contactMessageHandler);
+        messageHandlerContext.put(BotState.AWAIT_EMAIL,contactMessageHandler);
+        messageHandlerContext.put(BotState.AWAIT_PHONE,contactMessageHandler);
+        messageHandlerContext.put(BotState.AWAIT_SHARED, contactMessageHandler);
+        messageHandlerContext.put(BotState.AWAIT_NAME,contactMessageHandler);
+
+
 
     }
 

@@ -45,7 +45,6 @@ class DivisionMenuCallbackHandlerTest {
     CallbackQuery callbackQuery;
     User user;
 
-
     @BeforeEach
     void init(){
         user = spy(User.class);
@@ -59,17 +58,7 @@ class DivisionMenuCallbackHandlerTest {
                 DivisionModel.builder().divisionId("L").name("LOLO").build(),
                 DivisionModel.builder().divisionId("T").name("TOTO").build()
         ));
-
-    }
-
-    @ParameterizedTest
-    @ValueSource(strings = {"L","T"})
-    void removeDivisionTest(String data){
-        userDataCache.setUserBotState(user.getId(), BotState.DELETE_DIV);
-        callbackQuery.setData(data);
-        assertInstanceOf(SendMessage.class, divisionMenuCallbackHandler.processUpdate(update));
-        verify(divisionService).remove(any(DivisionModel.class));
-        assertEquals(BotState.MANAGE, userDataCache.getUserBotState(user.getId()));
+        divisionKeyboardUtils.clear(user.getId());
     }
 
     @Test
@@ -79,6 +68,16 @@ class DivisionMenuCallbackHandlerTest {
         when(divisionService.findAll()).thenReturn(Collections.EMPTY_LIST);
         assertInstanceOf(SendMessage.class, divisionMenuCallbackHandler.processUpdate(update));
         verify(divisionService,never()).remove(any(DivisionModel.class));
+        assertEquals(BotState.MANAGE, userDataCache.getUserBotState(user.getId()));
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"L","T"})
+    void removeDivisionTest(String data){
+        userDataCache.setUserBotState(user.getId(), BotState.DELETE_DIV);
+        callbackQuery.setData(data);
+        assertInstanceOf(SendMessage.class, divisionMenuCallbackHandler.processUpdate(update));
+        verify(divisionService).remove(any(DivisionModel.class));
         assertEquals(BotState.MANAGE, userDataCache.getUserBotState(user.getId()));
     }
 
@@ -96,6 +95,7 @@ class DivisionMenuCallbackHandlerTest {
         callbackQuery.setData("deleteDivision");
         assertInstanceOf(SendMessage.class, divisionMenuCallbackHandler.processUpdate(update));
         assertEquals(BotState.DELETE_DIV,userDataCache.getUserBotState(user.getId()));
+        clearInvocations(divisionService);
     }
 
     @Test
@@ -122,6 +122,4 @@ class DivisionMenuCallbackHandlerTest {
         assertInstanceOf(AnswerCallbackQuery.class, divisionMenuCallbackHandler.processUpdate(update));
         assertEquals(BotState.MANAGE, userDataCache.getUserBotState(user.getId()));
     }
-
-
 }

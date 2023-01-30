@@ -28,7 +28,6 @@ public class InquiryMessageHandler implements UpdateHandler {
     @Override
     public BotApiMethod<?> processUpdate(Update update) {
         Long userId=update.getMessage().getFrom().getId();
-
         if(userDataCache.getInquiry(userId).getMessages().size()>14){
             SendMessage addContentMessage = askAddContent(userId);
             addContentMessage.setText("Превышено максимальное количество сообщений (15)");
@@ -63,7 +62,7 @@ public class InquiryMessageHandler implements UpdateHandler {
             //Получаем список из нескольких вариантов картинки разных размеров
             List<PhotoSize> photoSizes = update.getMessage().getPhoto();
             PhotoSize photoSize = photoSizes.stream().max(Comparator.comparing(PhotoSize::getFileSize))
-                    .orElse(null);
+                    .orElse(null);//FIXME cannot be null because List<Photosize> cannot be null, or empty
             if(photoSize==null){
                 return SendMessage.builder().chatId(userId).text(MessageUtils.CANT_GET_PICTURE).build();
             }

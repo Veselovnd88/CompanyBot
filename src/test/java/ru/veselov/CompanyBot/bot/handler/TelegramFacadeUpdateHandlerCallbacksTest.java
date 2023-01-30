@@ -172,9 +172,10 @@ class TelegramFacadeUpdateHandlerCallbacksTest {
                 BotState.AWAIT_EMAIL,BotState.AWAIT_CONTACT);
         for(var b: states){
             userDataCache.setUserBotState(user.getId(),b);
+            telegramFacadeUpdateHandler.processUpdate(update);
         }
-        telegramFacadeUpdateHandler.processUpdate(update);
-        verify(contactCallbackHandler).processUpdate(any(Update.class));
+
+        verify(contactCallbackHandler,times(states.size())).processUpdate(any(Update.class));
     }
 
 

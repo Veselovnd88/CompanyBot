@@ -65,9 +65,6 @@ public class TelegramFacadeUpdateHandler implements UpdateHandler {
 
         if(update.hasMessage()){
             BotState botState = userDataCache.getUserBotState(update.getMessage().getFrom().getId());
-            if(botState==BotState.AWAIT_MESSAGE){
-                return inquiryMessageHandler.processUpdate(update);
-            }
             if(handlerContext.isInMessageContext(botState)){
                 return handlerContext.getMessageHandler(botState).processUpdate(update);
             }

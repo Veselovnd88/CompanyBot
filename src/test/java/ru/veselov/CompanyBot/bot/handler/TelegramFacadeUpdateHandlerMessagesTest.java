@@ -70,7 +70,7 @@ class TelegramFacadeUpdateHandlerMessagesTest {
     }
 
     @Test
-    void AddManagerFromForwardMessageHandlerNoCallsTest() {
+    void addManagerFromForwardMessageHandlerNoCallsTest() {
         for (var b : BotState.values()) {
             userDataCache.setUserBotState(user.getId(), b);
             if (b != BotState.AWAIT_MANAGER&&b!=BotState.DELETE_MANAGER) {
@@ -81,13 +81,70 @@ class TelegramFacadeUpdateHandlerMessagesTest {
     }
 
     @Test
-    void AddManagerFromForwardMessageHandlerCallTest() {
+    void addManagerFromForwardMessageHandlerCallTest() {
         userDataCache.setUserBotState(user.getId(), BotState.AWAIT_MANAGER);
         telegramFacadeUpdateHandler.processUpdate(update);
         verify(addManagerFromForwardMessageHandler).processUpdate(any(Update.class));
         userDataCache.setUserBotState(user.getId(), BotState.DELETE_MANAGER);
         telegramFacadeUpdateHandler.processUpdate(update);
         verify(addManagerFromForwardMessageHandler, times(2)).processUpdate(any(Update.class));
+    }
+    @Test
+    void addDivisionTextMessageHandlerNoCallsTest() {
+        for (var b : BotState.values()) {
+            userDataCache.setUserBotState(user.getId(), b);
+            if (b != BotState.AWAIT_DIVISION) {
+                telegramFacadeUpdateHandler.processUpdate(update);
+                verify(addDivisionTextMessageHandler, never()).processUpdate(any(Update.class));
+            }
+        }
+    }
+
+    @Test
+    void addDivisionTextMessageHandlerCallTest() {
+        userDataCache.setUserBotState(user.getId(), BotState.AWAIT_DIVISION);
+        telegramFacadeUpdateHandler.processUpdate(update);
+        verify(addDivisionTextMessageHandler).processUpdate(any(Update.class));
+    }
+
+    @Test
+    void contactNoCallsTest() {
+        for (var b : BotState.values()) {
+            userDataCache.setUserBotState(user.getId(), b);
+            if (!isContactInputState(b)) {
+                telegramFacadeUpdateHandler.processUpdate(update);
+                verify(contactMessageHandler, never()).processUpdate(any(Update.class));
+            }
+        }
+    }
+
+    @Test
+    void contactCallTest() {
+        List<BotState> states = List.of(BotState.AWAIT_NAME, BotState.AWAIT_SHARED, BotState.AWAIT_PHONE,
+                BotState.AWAIT_EMAIL, BotState.AWAIT_CONTACT);
+        for(var b: states){
+            userDataCache.setUserBotState(user.getId(), b);
+            telegramFacadeUpdateHandler.processUpdate(update);
+        }
+        verify(contactMessageHandler, times(states.size())).processUpdate(any(Update.class));
+    }
+
+    @Test
+    void inquiryNoCallsTest() {
+        for (var b : BotState.values()) {
+            userDataCache.setUserBotState(user.getId(), b);
+            if (b!=BotState.AWAIT_MESSAGE) {
+                telegramFacadeUpdateHandler.processUpdate(update);
+                verify(inquiryMessageHandler, never()).processUpdate(any(Update.class));
+            }
+        }
+    }
+
+    @Test
+    void inquiryCallTest() {
+        userDataCache.setUserBotState(user.getId(), BotState.AWAIT_MESSAGE);
+        telegramFacadeUpdateHandler.processUpdate(update);
+        verify(inquiryMessageHandler).processUpdate(any(Update.class));
     }
 
 
