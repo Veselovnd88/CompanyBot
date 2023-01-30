@@ -19,12 +19,11 @@ import java.util.Optional;
 
 @Component
 @Slf4j
-public class TelegramUpdateHandler implements UpdateHandler {
+public class TelegramFacadeUpdateHandler implements UpdateHandler {
     //Фасад
     @Value("${bot.adminId}")
     private String adminId;
     private final CommandHandler commandHandler;
-    private final DivisionCallbackHandler divisionCallbackHandler;
     private final InquiryMessageHandler inquiryMessageHandler;
     private final ContactCallbackHandler contactCallbackHandler;
     private final ContactMessageHandler contactMessageHandler;
@@ -34,11 +33,9 @@ public class TelegramUpdateHandler implements UpdateHandler {
     private final UserDataCache userDataCache;
     private final BotAnswerUtil botAnswerUtil;
     @Autowired
-    public TelegramUpdateHandler(CommandHandler commandHandler,
-                                 DivisionCallbackHandler divisionCallbackHandler,
-                                 InquiryMessageHandler inquiryMessageHandler, ContactCallbackHandler contactCallbackHandler, ContactMessageHandler contactMessageHandler, ChannelConnectHandler channelConnectHandler, HandlerContext handlerContext, UserDataCache userDataCache, BotAnswerUtil botAnswerUtil) {
+    public TelegramFacadeUpdateHandler(CommandHandler commandHandler,
+                                       InquiryMessageHandler inquiryMessageHandler, ContactCallbackHandler contactCallbackHandler, ContactMessageHandler contactMessageHandler, ChannelConnectHandler channelConnectHandler, HandlerContext handlerContext, UserDataCache userDataCache, BotAnswerUtil botAnswerUtil) {
         this.commandHandler = commandHandler;
-        this.divisionCallbackHandler = divisionCallbackHandler;
         this.inquiryMessageHandler = inquiryMessageHandler;
         this.contactCallbackHandler = contactCallbackHandler;
         this.contactMessageHandler = contactMessageHandler;
@@ -62,7 +59,6 @@ public class TelegramUpdateHandler implements UpdateHandler {
             }
         }
 
-
         if(update.hasMessage()&&isCommand(update)){
             return commandHandler.processUpdate(update);
         }
@@ -72,24 +68,14 @@ public class TelegramUpdateHandler implements UpdateHandler {
             if(botState==BotState.AWAIT_MESSAGE){
                 return inquiryMessageHandler.processUpdate(update);
             }
-            if(isContactInputState(botState)){
-                return contactMessageHandler.processUpdate(update);
-            }
-
             if(handlerContext.isInMessageContext(botState)){
                 return handlerContext.getMessageHandler(botState).processUpdate(update);
             }
-            return botAnswerUtil.getAnswerNotSupportMessage(update.getMessage().getChatId().toString());
+            return botAnswerUtil.getAnswerNotSupportMessage(update.getMessage().getFrom().getId().toString());
         }
 
         if(update.hasCallbackQuery()){
             BotState botState = userDataCache.getUserBotState(update.getCallbackQuery().getFrom().getId());
-            if(botState==BotState.AWAIT_DEPARTMENT){
-                return divisionCallbackHandler.processUpdate(update);
-            }
-            if(isContactInputCallbackState(botState)){//при нажатии кнопки Ввести данные об обратной связи
-                return contactCallbackHandler.processUpdate(update);
-            }
             if(handlerContext.isInCallbackContext(botState)){
                 return handlerContext.getCallbackHandler(botState).processUpdate(update);
             }
@@ -110,17 +96,5 @@ public class TelegramUpdateHandler implements UpdateHandler {
         return false;
     }
 
-    private boolean isContactInputState(BotState botState){
-        List<BotState> states = List.of(BotState.AWAIT_NAME,BotState.AWAIT_SHARED,BotState.AWAIT_PHONE,
-                BotState.AWAIT_EMAIL,BotState.AWAIT_CONTACT);
-        return states.contains(botState);
-    }
 
-    private boolean isContactInputCallbackState(BotState botState){
-        List<BotState> states = List.of(
-                BotState.AWAIT_NAME,BotState.AWAIT_SHARED,BotState.AWAIT_PHONE,BotState.AWAIT_EMAIL,
-                BotState.AWAIT_CONTACT,BotState.AWAIT_MESSAGE,BotState.AWAIT_SAVING
-        );
-        return states.contains(botState);
-    }
 }

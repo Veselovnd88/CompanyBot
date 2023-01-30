@@ -80,7 +80,7 @@ class CommandHandlerTest {
         userDataCache.setUserBotState(user.getId(), BotState.READY);
         BotApiMethod<?> botApiMethod = commandHandler.processUpdate(update);
         assertEquals(MessageUtils.CHOOSE_DEP,((SendMessage) botApiMethod).getText());
-        assertEquals(BotState.AWAIT_DEPARTMENT,userDataCache.getUserBotState(user.getId()));
+        assertEquals(BotState.AWAIT_DIVISION_FOR_INQUIRY,userDataCache.getUserBotState(user.getId()));
     }
 
     @Test

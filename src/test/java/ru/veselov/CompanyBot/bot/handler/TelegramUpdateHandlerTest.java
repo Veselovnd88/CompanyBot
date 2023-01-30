@@ -1,7 +1,6 @@
 package ru.veselov.CompanyBot.bot.handler;
 
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -9,13 +8,10 @@ import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
-import ru.veselov.CompanyBot.bot.BotState;
 import ru.veselov.CompanyBot.bot.CompanyBot;
 import ru.veselov.CompanyBot.bot.HandlerContext;
-import ru.veselov.CompanyBot.bot.UpdateHandler;
 import ru.veselov.CompanyBot.cache.UserDataCache;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
@@ -32,7 +28,7 @@ class TelegramUpdateHandlerTest {
     HandlerContext handlerContext;
 
     @Autowired
-    TelegramUpdateHandler telegramUpdateHandler;
+    TelegramFacadeUpdateHandler telegramFacadeUpdateHandler;
 
     @BeforeEach
     void init(){

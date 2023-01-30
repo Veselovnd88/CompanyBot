@@ -16,7 +16,7 @@ import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeChat;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import ru.veselov.CompanyBot.bot.handler.TelegramUpdateHandler;
+import ru.veselov.CompanyBot.bot.handler.TelegramFacadeUpdateHandler;
 import ru.veselov.CompanyBot.util.BotProperties;
 
 import java.util.LinkedList;
@@ -33,13 +33,13 @@ public class CompanyBot extends TelegramWebhookBot {
     private final TelegramBotsApi telegramBotsApi;
     private final SetWebhook setWebhook;
     private final BotProperties botProperties;
-    private final TelegramUpdateHandler telegramUpdateHandler;
+    private final TelegramFacadeUpdateHandler telegramFacadeUpdateHandler;
 
-    public CompanyBot(TelegramBotsApi telegramBotsApi, SetWebhook setWebhook, BotProperties botProperties, @Lazy TelegramUpdateHandler telegramUpdateHandler){
+    public CompanyBot(TelegramBotsApi telegramBotsApi, SetWebhook setWebhook, BotProperties botProperties, @Lazy TelegramFacadeUpdateHandler telegramFacadeUpdateHandler){
         this.telegramBotsApi = telegramBotsApi;
         this.setWebhook = setWebhook;
         this.botProperties = botProperties;
-        this.telegramUpdateHandler = telegramUpdateHandler;
+        this.telegramFacadeUpdateHandler = telegramFacadeUpdateHandler;
         //установка скоупа для команд администратора
         BotCommandScopeChat botCommandScopeChat = new BotCommandScopeChat();
         botCommandScopeChat.setChatId(Long.valueOf(botProperties.getAdminId()));
@@ -75,7 +75,7 @@ public class CompanyBot extends TelegramWebhookBot {
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
-            return telegramUpdateHandler.processUpdate(update);
+            return telegramFacadeUpdateHandler.processUpdate(update);
         }
         return null;
     }
