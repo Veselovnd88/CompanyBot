@@ -11,10 +11,12 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.veselov.CompanyBot.bot.BotState;
 import ru.veselov.CompanyBot.bot.HandlerContext;
 import ru.veselov.CompanyBot.bot.UpdateHandler;
+import ru.veselov.CompanyBot.bot.handler.inquiry.ContactCallbackHandler;
+import ru.veselov.CompanyBot.bot.handler.inquiry.ContactMessageHandler;
+import ru.veselov.CompanyBot.bot.handler.inquiry.InquiryMessageHandler;
 import ru.veselov.CompanyBot.cache.UserDataCache;
 import ru.veselov.CompanyBot.util.BotAnswerUtil;
 
-import java.util.List;
 import java.util.Optional;
 
 @Component

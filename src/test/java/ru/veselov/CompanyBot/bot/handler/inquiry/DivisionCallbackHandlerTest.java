@@ -1,4 +1,4 @@
-package ru.veselov.CompanyBot.bot.handler;
+package ru.veselov.CompanyBot.bot.handler.inquiry;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -28,7 +28,7 @@ import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @ActiveProfiles("test")
-class DepartmentCallbackHandlerTest {
+class DivisionCallbackHandlerTest {
     @MockBean
     CompanyBot bot;
     @MockBean

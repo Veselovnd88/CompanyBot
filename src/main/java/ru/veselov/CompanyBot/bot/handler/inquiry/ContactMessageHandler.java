@@ -1,4 +1,4 @@
-package ru.veselov.CompanyBot.bot.handler;
+package ru.veselov.CompanyBot.bot.handler.inquiry;
 
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.validator.internal.constraintvalidators.bv.EmailValidator;

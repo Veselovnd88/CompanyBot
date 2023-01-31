@@ -1,4 +1,4 @@
-package ru.veselov.CompanyBot.bot.handler;
+package ru.veselov.CompanyBot.bot.handler.inquiry;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -14,6 +14,7 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.*;
 import ru.veselov.CompanyBot.bot.BotState;
 import ru.veselov.CompanyBot.bot.CompanyBot;
+import ru.veselov.CompanyBot.bot.handler.inquiry.ContactMessageHandler;
 import ru.veselov.CompanyBot.cache.ContactCache;
 import ru.veselov.CompanyBot.cache.UserDataCache;
 import ru.veselov.CompanyBot.model.ContactModel;

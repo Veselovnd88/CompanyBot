@@ -1,4 +1,4 @@
-package ru.veselov.CompanyBot.bot.handler;
+package ru.veselov.CompanyBot.bot.handler.inquiry;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -8,12 +8,13 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.*;
+import org.telegram.telegrambots.meta.api.objects.games.Animation;
 import ru.veselov.CompanyBot.bot.CompanyBot;
+import ru.veselov.CompanyBot.bot.handler.inquiry.InquiryMessageHandler;
 import ru.veselov.CompanyBot.cache.UserDataCache;
 import ru.veselov.CompanyBot.model.DivisionModel;
 import ru.veselov.CompanyBot.util.MessageUtils;
 
-import java.util.Collections;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -98,6 +99,35 @@ class InquiryMessageHandlerTest {
         message.setEntities(null);
         Audio audio = new Audio();
         message.setAudio(audio);
+        assertEquals(MessageUtils.AWAIT_CONTENT_MESSAGE,
+                ((SendMessage) inquiryMessageHandler.processUpdate(update)).getText());
+        assertEquals(1,userDataCache.getInquiry(user.getId()).getMessages().size());
+    }
+    @Test
+    void messageWithDocument(){
+        message.setEntities(null);
+        Document document = new Document();
+        message.setDocument(document);
+        assertEquals(MessageUtils.AWAIT_CONTENT_MESSAGE,
+                ((SendMessage) inquiryMessageHandler.processUpdate(update)).getText());
+        assertEquals(1,userDataCache.getInquiry(user.getId()).getMessages().size());
+    }
+
+    @Test
+    void messageWithVideo(){
+        message.setEntities(null);
+        Video video = new Video();
+        message.setVideo(video);
+        assertEquals(MessageUtils.AWAIT_CONTENT_MESSAGE,
+                ((SendMessage) inquiryMessageHandler.processUpdate(update)).getText());
+        assertEquals(1,userDataCache.getInquiry(user.getId()).getMessages().size());
+    }
+
+    @Test
+    void messageWithAnimation(){
+        message.setEntities(null);
+        Animation animation = new Animation();
+        message.setAnimation(animation);
         assertEquals(MessageUtils.AWAIT_CONTENT_MESSAGE,
                 ((SendMessage) inquiryMessageHandler.processUpdate(update)).getText());
         assertEquals(1,userDataCache.getInquiry(user.getId()).getMessages().size());

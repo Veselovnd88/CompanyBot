@@ -1,4 +1,4 @@
-package ru.veselov.CompanyBot.bot.handler;
+package ru.veselov.CompanyBot.bot.handler.inquiry;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -31,11 +31,13 @@ public class InquiryMessageHandler implements UpdateHandler {
         if(userDataCache.getInquiry(userId).getMessages().size()>14){
             SendMessage addContentMessage = askAddContent(userId);
             addContentMessage.setText("Превышено максимальное количество сообщений (15)");
+            log.info("{}: превышение макс. количества сообщений",userId);
             return addContentMessage;
         }
         //Проверка на длину подписи (caption) бот не может отправлять сообщение длинней 1024 символов
         if(update.getMessage().getCaption()!=null){
             if(update.getMessage().getCaption().length()>1024){
+                log.info("{}: попытка отправить слишком длинной сообщение", userId);
                 return SendMessage.builder().chatId(userId)
                         .text(MessageUtils.CAPTION_TOO_LONG).build();
             }
@@ -44,6 +46,7 @@ public class InquiryMessageHandler implements UpdateHandler {
         if(update.getMessage().getEntities()!=null){
             List<MessageEntity> entities = update.getMessage().getEntities();
             if(entities.stream().anyMatch(x->x.getType().equals("custom_emoji"))){
+                log.info("{}: попытка отправить кастомные эмодзи", userId);
                 return SendMessage.builder().chatId(userId)
                         .text(MessageUtils.NO_CUSTOM_EMOJI).build();
             }
@@ -55,47 +58,44 @@ public class InquiryMessageHandler implements UpdateHandler {
             message.setText(text);
             message.setEntities(update.getMessage().getEntities());
             userDataCache.getInquiry(userId).addMessage(message);
-            log.info("Сохранен текст с разметкой для пользователя {}",userId);
+            log.info("{}: сохранен текст с разметкой для пользователя",userId);
         }
         if(update.getMessage().hasPhoto()){
             Message message = createMessageWithMedia(update);
             //Получаем список из нескольких вариантов картинки разных размеров
             List<PhotoSize> photoSizes = update.getMessage().getPhoto();
             PhotoSize photoSize = photoSizes.stream().max(Comparator.comparing(PhotoSize::getFileSize))
-                    .orElse(null);//FIXME cannot be null because List<Photosize> cannot be null, or empty
-            if(photoSize==null){
-                return SendMessage.builder().chatId(userId).text(MessageUtils.CANT_GET_PICTURE).build();
-            }
+                    .orElse(photoSizes.get(photoSizes.size()-1));
             message.setPhoto(List.of(photoSize));
-            log.info("Сохранил картинку в пост для юзера {}", userId);
+            log.info("{}: сохранил картинку в пост для юзера", userId);
             userDataCache.getInquiry(userId).addMessage(message);
         }
         if(update.getMessage().hasAudio()){
             Message message = createMessageWithMedia(update);
             Audio audio = update.getMessage().getAudio();
             message.setAudio(audio);
-            log.info("Сохранил аудиотрек в пост для юзера {}",userId);
+            log.info("{}: сохранил аудио в пост для юзера",userId);
             userDataCache.getInquiry(userId).addMessage(message);
         }
         if(update.getMessage().hasDocument()){
             Message message = createMessageWithMedia(update);
             Document document = update.getMessage().getDocument();
             message.setDocument(document);
-            log.info("Сохранил документ в пост для юзера {}",userId);
+            log.info("{}: сохранил документ в пост для юзера",userId);
             userDataCache.getInquiry(userId).addMessage(message);
         }
         if(update.getMessage().hasVideo()){
             Message message = createMessageWithMedia(update);
             Video video = update.getMessage().getVideo();
             message.setVideo(video);
-            log.info("Сохранил видео в пост для юзера {}", userId);
+            log.info("{}: сохранил видео в пост для юзера", userId);
             userDataCache.getInquiry(userId).addMessage(message);
         }
         if(update.getMessage().hasAnimation()){
             Message message = createMessageWithMedia(update);
             Animation animation = update.getMessage().getAnimation();
             message.setAnimation(animation);
-            log.info("Сохранил видео в пост для юзера {}", userId);
+            log.info("{}: сохранил видео в пост для юзера", userId);
             userDataCache.getInquiry(userId).addMessage(message);
         }
         return askAddContent(userId);
