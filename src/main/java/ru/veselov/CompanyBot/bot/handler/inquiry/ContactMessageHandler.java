@@ -46,13 +46,11 @@ public class ContactMessageHandler implements UpdateHandler {
                 case AWAIT_NAME :
                     return processName(contact,text);
                 case AWAIT_PHONE:
-
                     return processPhone(contact,text);
                 case AWAIT_EMAIL:
                     return processEmail(contact,text);
             }
         }
-
         if(update.getMessage().hasContact()){
             Contact messageContact = update.getMessage().getContact();
             contact.setContact(messageContact);

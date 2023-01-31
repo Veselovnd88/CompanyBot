@@ -91,9 +91,12 @@ public class ContactCallbackHandler implements UpdateHandler {
                             log.error("Не удалось отправить сообщение об ошибке администратору");
                         }
                     }
-                    contactCache.clear(userId);
-                    userDataCache.clear(userId);
-                    keyBoardUtils.clear(userId);
+                    finally {
+                        contactCache.clear(userId);
+                        userDataCache.clear(userId);
+                        keyBoardUtils.clear(userId);
+                    }
+
                     return AnswerCallbackQuery.builder().callbackQueryId(update.getCallbackQuery().getId())
                             .text(MessageUtils.SAVED).showAlert(true)
                             .build();}

@@ -1,6 +1,5 @@
 package ru.veselov.CompanyBot.bot.handler;
 
-import org.aspectj.weaver.ast.Call;
 import org.telegram.telegrambots.meta.api.objects.*;
 
 import java.util.List;
@@ -12,14 +11,14 @@ public class UserActions {
 
 
     public Update userPressStart(User user){
-        Update update = setUpUpdateMessage("/start", user);
+        Update update = setUpUpdateMessage(user, "/start");
         MessageEntity messageEntity = setUpMessageEntity("/start");
         update.getMessage().setEntities(List.of(messageEntity));
         return update;
     }
 
     public Update userPressInquiry(User user){
-        Update update = setUpUpdateMessage("/inquiry",user);
+        Update update = setUpUpdateMessage(user, "/inquiry");
         MessageEntity messageEntity = setUpMessageEntity("/inquiry");
         update.getMessage().setEntities(List.of(messageEntity));
         return update;
@@ -33,17 +32,24 @@ public class UserActions {
     }
 
     public Update userSendMessage(User user){
-        return setUpUpdateMessage("Test Text",user);
+        return setUpUpdateMessage(user, "Test Text");
     }
     public Update userPressContactButton(User user){
         return setUpCallbackUpdate(user, "contact" );
     }
 
+    public Update userChooseContactButton(User user, String name){
+        return setUpCallbackUpdate(user, name);
+    }
+    public Update userInputContactData(User user, String data){
+        return setUpUpdateMessage(user, data);
+    }
 
 
 
 
-    private Update setUpUpdateMessage(String text, User user){
+
+    private Update setUpUpdateMessage(User user, String text){
         Update update = new Update();
         Message message = new Message();
         update.setCallbackQuery(null);
@@ -69,7 +75,13 @@ public class UserActions {
         callbackQuery.setFrom(user);
         callbackQuery.setData(data);
         callbackQuery.setId(user.getId() +"1");
+        Message message = new Message();
+        Chat chat = new Chat();
+        chat.setId(user.getId());
+        message.setChat(chat);
+        callbackQuery.setMessage(message);
         update.setCallbackQuery(callbackQuery);
+
         return update;
     }
 

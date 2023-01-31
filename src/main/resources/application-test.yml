@@ -20,10 +20,7 @@ spring:
       #changing this parameter to 2 - solved problem with too Many connections Error
       #also recommendation is to set minimum-idle=5, it means that hikari will create new connection only when ide
       #connection will fall below our threshold
-  jpa:
-    data:
-      repositories:
-        enabled: false
+
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQL95Dialect
