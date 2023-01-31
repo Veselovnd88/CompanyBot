@@ -34,7 +34,7 @@ public class DivisionCallbackHandler implements UpdateHandler {
     public BotApiMethod<?> processUpdate(Update update) {
         Long userId = update.getCallbackQuery().getFrom().getId();
         String data = update.getCallbackQuery().getData();
-        Map<String, DivisionModel> cachedDivisions = null;
+        Map<String, DivisionModel> cachedDivisions;
         try {
             cachedDivisions = divisionKeyboardUtils.getCachedDivisions();
         } catch (NoDivisionsException e) {

@@ -33,7 +33,7 @@ public class HandlerContext {
         callbackHandlerContext.put(BotState.ASSIGN_DIV, addDivisionToManagerFromCallbackHandler);
         callbackHandlerContext.put(BotState.MANAGE_DIVISION, divisionMenuCallbackHandler);
         callbackHandlerContext.put(BotState.AWAIT_DIVISION_FOR_INQUIRY,divisionCallbackHandler);
-
+        callbackHandlerContext.put(BotState.AWAIT_MESSAGE,contactCallbackHandler);
         callbackHandlerContext.put(BotState.AWAIT_CONTACT,contactCallbackHandler);
         callbackHandlerContext.put(BotState.AWAIT_EMAIL,contactCallbackHandler);
         callbackHandlerContext.put(BotState.AWAIT_PHONE,contactCallbackHandler);

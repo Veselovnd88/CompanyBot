@@ -58,7 +58,7 @@ public class CommandHandler implements UpdateHandler {
                         .text(MessageUtils.GREETINGS).build();
             case "/inquiry":
                 if(botState==BotState.READY){
-                    userDataCache.setUserBotState(userId,BotState.AWAIT_DIVISION_FOR_INQUIRY);//FIXME await division
+                    userDataCache.setUserBotState(userId,BotState.AWAIT_DIVISION_FOR_INQUIRY);
                     return departmentMessageInlineKeyBoard(userId);
                 }
                 else{
