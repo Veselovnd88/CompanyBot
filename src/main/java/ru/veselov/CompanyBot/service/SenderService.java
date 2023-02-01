@@ -11,11 +11,14 @@ import org.telegram.telegrambots.meta.api.objects.*;
 import org.telegram.telegrambots.meta.api.objects.media.*;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.veselov.CompanyBot.bot.CompanyBot;
+import ru.veselov.CompanyBot.cache.ContactCache;
+import ru.veselov.CompanyBot.cache.UserDataCache;
 import ru.veselov.CompanyBot.exception.NoSuchDivisionException;
 import ru.veselov.CompanyBot.model.ContactModel;
 import ru.veselov.CompanyBot.model.DivisionModel;
 import ru.veselov.CompanyBot.model.InquiryModel;
 import ru.veselov.CompanyBot.model.ManagerModel;
+import ru.veselov.CompanyBot.util.KeyBoardUtils;
 import ru.veselov.CompanyBot.util.MessageUtils;
 
 import java.util.*;
@@ -28,13 +31,19 @@ public class SenderService {
     @Value("${bot.chat-interval}")
     private long chatInterval;
     private final CompanyBot bot;
+    private final ContactCache contactCache;
+    private final UserDataCache userDataCache;
+    private final KeyBoardUtils keyBoardUtils;
     private final DivisionService divisionService;
     private final ChatService chatService;
     private final Map<Long, Date> chatTimers = new HashMap<>();
     private Chat adminChat;
     @Autowired
-    public SenderService(CompanyBot bot, DivisionService divisionService, ChatService chatService) {
+    public SenderService(CompanyBot bot, ContactCache contactCache, UserDataCache userDataCache, KeyBoardUtils keyBoardUtils, DivisionService divisionService, ChatService chatService) {
         this.bot = bot;
+        this.contactCache = contactCache;
+        this.userDataCache = userDataCache;
+        this.keyBoardUtils = keyBoardUtils;
         this.divisionService = divisionService;
         this.chatService = chatService;
     }
@@ -234,6 +243,9 @@ public class SenderService {
                 bot.execute(sendContact);
             }
             chatTimers.put(chat.getId(), new Date());
+            contactCache.clear(userId);
+            keyBoardUtils.clear(userId);
+            userDataCache.clear(userId);
         }
     }
 

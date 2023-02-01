@@ -27,7 +27,7 @@ public class UserActions {
     public Update userPressInquiryButton(User user){
         return setUpCallbackUpdate(user, "LEUZE");
     }
-    public Update userPressInquiryButton2(User user){
+    public Update userPressInquiryButtonAnother(User user){
         return setUpCallbackUpdate(user, "COMMON");
     }
 

@@ -1,6 +1,5 @@
 package ru.veselov.CompanyBot.bot.handler;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -30,14 +29,11 @@ public class WorkFlowTest {
     @Autowired
     TelegramFacadeUpdateHandler telegramFacadeUpdateHandler;
 
-    @BeforeEach
-    void init(){
-
-    }
     @Test
-    void workFlowTest(){
+    void workFlowTest() throws InterruptedException {
         ExecutorService executorService = Executors.newFixedThreadPool(10);
-        for(int i=0; i<99; i++) {
+        int n=106;
+        for(int i=0; i<n; i++) {
             User user = new User();
             user.setUserName("Vasya"+i);
             user.setLastName("Petya"+i);
@@ -53,7 +49,6 @@ public class WorkFlowTest {
                 assertInstanceOf(SendMessage.class,
                         telegramFacadeUpdateHandler.processUpdate(userActions.userPressInquiryButton(user)));
                 assertEquals(BotState.AWAIT_MESSAGE, userDataCache.getUserBotState(user.getId()));
-                telegramFacadeUpdateHandler.processUpdate(userActions.userPressInquiryButton2(user));
                 for (int i1 = 0; i1 < 5; i1++) {
                     telegramFacadeUpdateHandler.processUpdate(userActions.userSendMessage(user));
                 }
@@ -69,6 +64,11 @@ public class WorkFlowTest {
                 telegramFacadeUpdateHandler.processUpdate(userActions.userInputContactData(user, "Vasya Petya Valera"));
                 assertEquals(BotState.AWAIT_CONTACT, userDataCache.getUserBotState(user.getId()));
                 telegramFacadeUpdateHandler.processUpdate(userActions.userChooseContactButton(user, "save"));
+                try {
+                    Thread.sleep(1000);//delay need for prevent shutdown of thread while branch thread is working
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
+                }
                 assertEquals(BotState.READY, userDataCache.getUserBotState(user.getId()));
             };
             executorService.execute(task);

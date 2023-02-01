@@ -48,7 +48,7 @@ public class TelegramFacadeUpdateHandler implements UpdateHandler {
     }
 
     @Override
-    public BotApiMethod<?> processUpdate(Update update) {
+    public synchronized BotApiMethod<?> processUpdate(Update update) {
         //Обработка апдейтов, связанных с присоединением бота к чату
         if(update.hasMyChatMember()){
             if(update.getMyChatMember().getFrom().getId().toString().equals(adminId)){
