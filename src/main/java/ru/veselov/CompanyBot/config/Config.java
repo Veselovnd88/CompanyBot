@@ -47,4 +47,5 @@ public class Config {
     public void fillFieldsInformation(){
         companyInfoService.getLast();
     }
+
 }

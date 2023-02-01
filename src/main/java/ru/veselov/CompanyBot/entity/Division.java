@@ -14,22 +14,24 @@ import java.util.Set;
 @NoArgsConstructor
 @Builder
 @AllArgsConstructor
+@NamedQueries({
+        @NamedQuery(name = "Division.findDivision",
+        query = "SELECT d FROM Division d "+
+        "LEFT JOIN FETCH d.managers "+
+        "WHERE d.division_id= :division_id")
+})
 public class Division {
-
     @Id
     @Column(name = "division_id")
     private String divisionId;
-
     @Column(columnDefinition = "varchar(950)")
     private String name;
-
     @ManyToMany(mappedBy = "divisions",cascade = {CascadeType.PERSIST,CascadeType.MERGE, CascadeType.REFRESH})
     private final Set<ManagerEntity> managers = new HashSet<>();
 
     @OneToMany(mappedBy = "division",orphanRemoval = false,
             cascade = {CascadeType.PERSIST,CascadeType.REFRESH,CascadeType.MERGE})
     private final Set<Inquiry> inquiries=new HashSet<>();
-
 
     @Override
     public boolean equals(Object o) {

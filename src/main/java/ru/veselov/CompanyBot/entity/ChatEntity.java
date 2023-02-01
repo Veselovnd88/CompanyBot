@@ -15,7 +15,6 @@ import javax.persistence.Table;
 @Setter
 @NoArgsConstructor
 public class ChatEntity {
-
     @Id
     @Column(name = "chat_id")
     private Long chatId;

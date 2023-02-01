@@ -35,8 +35,6 @@ public class DivisionDAO {
         else{
             entityManager.merge(division);
         }
-
-
     }
     @SuppressWarnings("unchecked")
     public Optional<Division> findByName(String name){
@@ -58,6 +56,12 @@ public class DivisionDAO {
             Hibernate.initialize(division.getManagers());
         }
         return Optional.ofNullable(division);
+    }
+
+    public Optional<Division> findWithManagers(String id){
+        Query namedQuery = entityManager.createNamedQuery("Division.findDivision");
+        namedQuery.setParameter("division_id",id);
+        return Optional.ofNullable((Division) namedQuery.getSingleResult());
     }
 
 

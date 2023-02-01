@@ -18,15 +18,12 @@ import java.util.Date;
 @Table(name = "company_info")
 @TypeDef(name="jsonb",typeClass = JsonBinaryType.class)
 public class CompanyInfoEntity {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-
     @Type(type = "jsonb")
     @Column(name = "info",columnDefinition = "jsonb")
     private Message info;
-
     @Temporal(TemporalType.TIMESTAMP)
     Date changedAt;
 }

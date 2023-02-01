@@ -14,11 +14,9 @@ import java.util.Set;
 @AllArgsConstructor
 @Builder
 public class ManagerModel {
-
     private Long managerId;
     private String firstName;
     private String lastName;
     private String userName;
    @Builder.Default private Set<DivisionModel> divisions = new HashSet<>();
-
 }

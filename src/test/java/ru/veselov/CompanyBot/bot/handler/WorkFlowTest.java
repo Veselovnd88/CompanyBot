@@ -84,6 +84,4 @@ public class WorkFlowTest {
             e.printStackTrace();
         }
     }
-
-    //TODO и такой же тест но с добавлением в чат
 }

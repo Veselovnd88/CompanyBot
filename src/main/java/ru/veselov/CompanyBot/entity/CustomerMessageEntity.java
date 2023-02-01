@@ -18,12 +18,10 @@ import java.util.Objects;
 @TypeDef(name="jsonb",typeClass = JsonBinaryType.class)
 @Table(name = "message")
 public class CustomerMessageEntity {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "message_id")
     private Integer messageId;
-
     //Сразу сохраняем в json со всеми разметками и ссылками, для более удобной пересылки в чат
     @Type(type = "jsonb")
     @Column(name = "message",columnDefinition = "jsonb")

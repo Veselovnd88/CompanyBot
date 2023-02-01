@@ -1,7 +1,6 @@
 package ru.veselov.CompanyBot.entity;
 
 import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
-import lombok.CustomLog;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

@@ -26,4 +26,4 @@ spring:
         dialect: org.hibernate.dialect.PostgreSQL95Dialect
         hbm2ddl:
           auto: create-drop
-        show_sql: false
+        show_sql: true

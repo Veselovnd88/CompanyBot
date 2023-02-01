@@ -6,6 +6,7 @@ import lombok.Setter;
 
 import javax.persistence.*;
 import java.util.HashSet;
+import java.util.Objects;
 import java.util.Set;
 
 @Entity
@@ -45,4 +46,16 @@ public class ManagerEntity {
         division.getManagers().remove(this);
     }
 
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        ManagerEntity that = (ManagerEntity) o;
+        return managerId.equals(that.managerId) && Objects.equals(firstName, that.firstName) && lastName.equals(that.lastName) && Objects.equals(userName, that.userName);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(managerId, firstName, lastName, userName);
+    }
 }
