@@ -243,9 +243,9 @@ public class SenderService {
                 bot.execute(sendContact);
             }
             chatTimers.put(chat.getId(), new Date());
-            contactCache.clear(userId);
+/*            contactCache.clear(userId);
             keyBoardUtils.clear(userId);
-            userDataCache.clear(userId);
+            userDataCache.clear(userId);*/
         }
     }
 

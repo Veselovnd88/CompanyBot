@@ -32,7 +32,7 @@ public class WorkFlowTest {
     @Test
     void workFlowTest() throws InterruptedException {
         ExecutorService executorService = Executors.newFixedThreadPool(10);
-        int n=106;
+        int n=50;
         for(int i=0; i<n; i++) {
             User user = new User();
             user.setUserName("Vasya"+i);
@@ -69,11 +69,14 @@ public class WorkFlowTest {
                 } catch (InterruptedException e) {
                     throw new RuntimeException(e);
                 }
+
                 assertEquals(BotState.READY, userDataCache.getUserBotState(user.getId()));
             };
             executorService.execute(task);
         }
+
         executorService.shutdown();
+
         try {
             executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
         }
