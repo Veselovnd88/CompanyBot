@@ -6,10 +6,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.User;
 import ru.veselov.CompanyBot.bot.BotState;
 import ru.veselov.CompanyBot.bot.CompanyBot;
 import ru.veselov.CompanyBot.cache.UserDataCache;
+import ru.veselov.CompanyBot.service.ChatService;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -28,9 +30,16 @@ public class WorkFlowTest {
     UserDataCache userDataCache;
     @Autowired
     TelegramFacadeUpdateHandler telegramFacadeUpdateHandler;
+    @Autowired
+    ChatService chatService;
 
     @Test
-    void workFlowTest() throws InterruptedException {
+    void workFlowTest() {
+        Chat chat = new Chat();
+        chat.setId(-100L);
+        chat.setTitle("Channel");
+        chat.setType("group");
+        chatService.save(chat);
         ExecutorService executorService = Executors.newFixedThreadPool(10);
         int n=50;
         for(int i=0; i<n; i++) {
@@ -64,24 +73,17 @@ public class WorkFlowTest {
                 telegramFacadeUpdateHandler.processUpdate(userActions.userInputContactData(user, "Vasya Petya Valera"));
                 assertEquals(BotState.AWAIT_CONTACT, userDataCache.getUserBotState(user.getId()));
                 telegramFacadeUpdateHandler.processUpdate(userActions.userChooseContactButton(user, "save"));
-                try {
-                    Thread.sleep(1000);//delay need for prevent shutdown of thread while branch thread is working
-                } catch (InterruptedException e) {
-                    throw new RuntimeException(e);
-                }
-
                 assertEquals(BotState.READY, userDataCache.getUserBotState(user.getId()));
             };
             executorService.execute(task);
         }
-
-        executorService.shutdown();
-
         try {
-            executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+            executorService.awaitTermination(10, TimeUnit.SECONDS);
         }
         catch (InterruptedException e) {
             e.printStackTrace();
         }
     }
+
+    //TODO и такой же тест но с добавлением в чат
 }

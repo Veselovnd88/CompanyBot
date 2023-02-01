@@ -14,21 +14,19 @@ import java.util.List;
 @Slf4j
 public class ChatService {
     private final ChatDAO chatDAO;
-    private final ModelMapper modelMapper;
     @Autowired
-    public ChatService(ChatDAO chatDAO, ModelMapper modelMapper) {
+    public ChatService(ChatDAO chatDAO) {
         this.chatDAO = chatDAO;
-        this.modelMapper = modelMapper;
     }
 
     public void save(Chat chat){
         chatDAO.save(toChatEntity(chat));
-        log.info("Канал {} сохранен в БД",chat.getId());
+        log.info("{}: канал сохранен в БД",chat.getId());
     }
 
     public void remove(Long chatId){
         chatDAO.deleteById(chatId);
-        log.info("Чат {} удален из БД", chatId);
+        log.info("{}: канал удален из БД", chatId);
     }
 
     public List<Chat> findAll(){
@@ -36,14 +34,17 @@ public class ChatService {
     }
 
     private ChatEntity toChatEntity(Chat chat){
-        ChatEntity mapped = modelMapper.map(chat, ChatEntity.class);
-        mapped.setChatId(chat.getId());
-        return mapped;
+        ChatEntity chatEntity = new ChatEntity();
+        chatEntity.setTitle(chat.getTitle());
+        chatEntity.setType(chat.getType());
+        chatEntity.setChatId(chat.getId());
+        return chatEntity;
     }
     private Chat toChat(ChatEntity chatEntity){
-        Chat mapped = modelMapper.map(chatEntity, Chat.class);
-        mapped.setId(chatEntity.getChatId());
-        return mapped;
+        Chat chat = new Chat();
+        chat.setId(chatEntity.getChatId());
+        chat.setType(chatEntity.getType());
+        chat.setTitle(chatEntity.getTitle());
+        return chat;
     }
-
 }

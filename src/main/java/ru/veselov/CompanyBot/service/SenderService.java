@@ -31,25 +31,18 @@ public class SenderService {
     @Value("${bot.chat-interval}")
     private long chatInterval;
     private final CompanyBot bot;
-    private final ContactCache contactCache;
-    private final UserDataCache userDataCache;
-    private final KeyBoardUtils keyBoardUtils;
     private final DivisionService divisionService;
     private final ChatService chatService;
     private final Map<Long, Date> chatTimers = new HashMap<>();
     private Chat adminChat;
     @Autowired
-    public SenderService(CompanyBot bot, ContactCache contactCache, UserDataCache userDataCache, KeyBoardUtils keyBoardUtils, DivisionService divisionService, ChatService chatService) {
+    public SenderService(CompanyBot bot, DivisionService divisionService, ChatService chatService) {
         this.bot = bot;
-        this.contactCache = contactCache;
-        this.userDataCache = userDataCache;
-        this.keyBoardUtils = keyBoardUtils;
         this.divisionService = divisionService;
         this.chatService = chatService;
     }
 
-    public synchronized void send(InquiryModel inquiry, ContactModel contact) throws TelegramApiException, NoSuchDivisionException {//сюда должно быть передано полноценное DTO чтобы из него забирать все данные
-
+    public synchronized void send(InquiryModel inquiry, ContactModel contact) throws TelegramApiException, NoSuchDivisionException {
         Map<String, SendMediaGroup> groupsCache = new HashMap<>();
         adminChat=new Chat();
         adminChat.setId(Long.valueOf(adminId));
@@ -242,10 +235,8 @@ public class SenderService {
                 sendContact.setPhoneNumber(contact.getContact().getPhoneNumber());
                 bot.execute(sendContact);
             }
-            chatTimers.put(chat.getId(), new Date());
-/*            contactCache.clear(userId);
-            keyBoardUtils.clear(userId);
-            userDataCache.clear(userId);*/
+            if(chat.isChannelChat()||chat.isGroupChat()){
+                chatTimers.put(chat.getId(), new Date());}
         }
     }
 

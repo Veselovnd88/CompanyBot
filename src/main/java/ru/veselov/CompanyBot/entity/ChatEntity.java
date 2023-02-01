@@ -19,8 +19,8 @@ public class ChatEntity {
     @Id
     @Column(name = "chat_id")
     private Long chatId;
-
     @Column
     private String title;
-
+    @Column
+    private String type;
 }
