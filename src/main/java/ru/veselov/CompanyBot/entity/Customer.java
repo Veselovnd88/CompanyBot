@@ -16,6 +16,12 @@ import java.util.Set;
 @Entity
 @Table(name = "customer")
 @TypeDef(name="jsonb",typeClass = JsonBinaryType.class)
+@NamedQueries({
+        @NamedQuery(name = "Customer.findCustomerWithContacts",
+                query = "SELECT c FROM Customer c "+
+                        "LEFT JOIN FETCH c.contacts cn "+
+                        "WHERE c.id=:id")
+})
 public class Customer {
     @Id
     @Column(name = "id")
