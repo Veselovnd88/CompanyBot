@@ -3,7 +3,6 @@ package ru.veselov.CompanyBot.dao;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-import org.telegram.telegrambots.meta.api.objects.Message;
 import ru.veselov.CompanyBot.entity.CompanyInfoEntity;
 
 import javax.persistence.EntityManager;

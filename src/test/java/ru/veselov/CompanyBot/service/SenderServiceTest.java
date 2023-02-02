@@ -18,6 +18,7 @@ import ru.veselov.CompanyBot.model.DivisionModel;
 import ru.veselov.CompanyBot.model.InquiryModel;
 import ru.veselov.CompanyBot.model.ManagerModel;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -62,13 +63,27 @@ class SenderServiceTest {
         contactModel.setLastName("test");
         contactModel.setEmail("vasya@petya.ru");
         when(divisionService.findOneWithManagers(inquiryModel.getDivision())).thenReturn(divisionModel);
+        when(chatService.findAll()).thenReturn(Collections.emptyList());
     }
 
     @Test
     @SneakyThrows
-    void sendInquiryTest() {
+    void sendInquiryNoChatTest() {
         senderService.send(inquiryModel, contactModel);
         verify(bot).execute(any(SendMessage.class));
+        assertEquals(0,senderService.getChatTimers().size());
+    }
+
+    @Test
+    @SneakyThrows
+    void sendInquiryWithChatTest() {
+        Chat chat = new Chat();
+        chat.setId(-100L);
+        chat.setTitle("Channel");
+        chat.setType("group");
+        when(chatService.findAll()).thenReturn(List.of(chat));
+        senderService.send(inquiryModel, contactModel);
+        verify(bot,times(2)).execute(any(SendMessage.class));
         assertEquals(1,senderService.getChatTimers().size());
     }
 

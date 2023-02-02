@@ -11,14 +11,11 @@ import org.telegram.telegrambots.meta.api.objects.*;
 import org.telegram.telegrambots.meta.api.objects.media.*;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.veselov.CompanyBot.bot.CompanyBot;
-import ru.veselov.CompanyBot.cache.ContactCache;
-import ru.veselov.CompanyBot.cache.UserDataCache;
 import ru.veselov.CompanyBot.exception.NoSuchDivisionException;
 import ru.veselov.CompanyBot.model.ContactModel;
 import ru.veselov.CompanyBot.model.DivisionModel;
 import ru.veselov.CompanyBot.model.InquiryModel;
 import ru.veselov.CompanyBot.model.ManagerModel;
-import ru.veselov.CompanyBot.util.KeyBoardUtils;
 import ru.veselov.CompanyBot.util.MessageUtils;
 
 import java.util.*;

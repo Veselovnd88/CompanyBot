@@ -1,7 +1,6 @@
 package ru.veselov.CompanyBot.service;
 
 import lombok.extern.slf4j.Slf4j;
-import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import ru.veselov.CompanyBot.dao.ManagerDAO;
 import ru.veselov.CompanyBot.entity.Division;
@@ -18,13 +17,10 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ManagerService {
 
-    private final ModelMapper modelMapper;
-
     private final ManagerDAO managerDAO;
 
 
-    public ManagerService(ModelMapper modelMapper, ManagerDAO managerDAO) {
-        this.modelMapper = modelMapper;
+    public ManagerService(ManagerDAO managerDAO) {
         this.managerDAO = managerDAO;
     }
 

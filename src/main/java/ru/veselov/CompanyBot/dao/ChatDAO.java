@@ -28,6 +28,7 @@ public class ChatDAO {
         entityManager.persist(chat);
         return chat;
     }
+    @SuppressWarnings("unchecked")
     public List<ChatEntity> findAll(){
         return entityManager.createQuery(" SELECT c from ChatEntity c ").getResultList();
     }

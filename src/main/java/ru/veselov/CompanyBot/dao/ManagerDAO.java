@@ -1,15 +1,15 @@
 package ru.veselov.CompanyBot.dao;
 
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.Hibernate;
 import org.springframework.stereotype.Repository;
 import org.springframework.transaction.annotation.Transactional;
-import ru.veselov.CompanyBot.entity.ChatEntity;
 import ru.veselov.CompanyBot.entity.Division;
 import ru.veselov.CompanyBot.entity.ManagerEntity;
 
 import javax.persistence.EntityManager;
+import javax.persistence.NoResultException;
 import javax.persistence.PersistenceContext;
+import javax.persistence.Query;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -101,9 +101,14 @@ public class ManagerDAO {
 
 
     public Optional<ManagerEntity> findOneWithDivisions(Long managerId){
-        ManagerEntity manager = entityManager.find(ManagerEntity.class,managerId);
-        if(manager!=null){
-            Hibernate.initialize(manager.getDivisions());
+        Query namedQuery = entityManager.createNamedQuery("ManagerEntity.findManager");
+        namedQuery.setParameter("id",managerId);
+        ManagerEntity manager;
+        try{
+            manager = (ManagerEntity) namedQuery.getSingleResult();
+        }
+        catch (NoResultException noResultException){
+            manager=null;
         }
         return Optional.ofNullable(manager);
     }

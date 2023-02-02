@@ -29,7 +29,6 @@ public class CustomerDAO {
     public Customer save(Customer customer){
         entityManager.persist(customer);
         return customer;
-
     }
 
     public Optional<Customer> findOne(Long id){
@@ -38,7 +37,7 @@ public class CustomerDAO {
         return Optional.ofNullable(customer);
     }
 
-    public Optional<Customer> findOneWithContacts(Long id){
+    public Optional<Customer> findOneWithContacts(Long id){//TODO сделать namedQuery
         Customer customer = entityManager.find(Customer.class,id);
         if(customer!=null){
             Hibernate.initialize(customer.getContacts());

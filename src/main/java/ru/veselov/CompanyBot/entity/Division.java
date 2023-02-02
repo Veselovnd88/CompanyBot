@@ -17,8 +17,8 @@ import java.util.Set;
 @NamedQueries({
         @NamedQuery(name = "Division.findDivision",
         query = "SELECT d FROM Division d "+
-        "LEFT JOIN FETCH d.managers "+
-        "WHERE d.division_id= :division_id")
+        "LEFT JOIN FETCH d.managers m "+
+                "WHERE d.divisionId=:id")
 })
 public class Division {
     @Id
@@ -29,7 +29,7 @@ public class Division {
     @ManyToMany(mappedBy = "divisions",cascade = {CascadeType.PERSIST,CascadeType.MERGE, CascadeType.REFRESH})
     private final Set<ManagerEntity> managers = new HashSet<>();
 
-    @OneToMany(mappedBy = "division",orphanRemoval = false,
+    @OneToMany(mappedBy = "division",
             cascade = {CascadeType.PERSIST,CascadeType.REFRESH,CascadeType.MERGE})
     private final Set<Inquiry> inquiries=new HashSet<>();
 

@@ -29,6 +29,7 @@ public class ContactDAO {
         ContactEntity contactEntity = entityManager.find(ContactEntity.class, id);
         return Optional.ofNullable(contactEntity);
     }
+    @SuppressWarnings("unchecked")
     public List<ContactEntity> findAll(){
         return entityManager.createQuery(" SELECT c from ContactEntity c ").getResultList();
     }

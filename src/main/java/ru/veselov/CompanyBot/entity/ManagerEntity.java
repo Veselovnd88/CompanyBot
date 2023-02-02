@@ -14,6 +14,12 @@ import java.util.Set;
 @Getter
 @Setter
 @NoArgsConstructor
+@NamedQueries({
+        @NamedQuery(name = "ManagerEntity.findManager",
+                query = "SELECT m FROM ManagerEntity m "+
+                        "LEFT JOIN FETCH m.divisions d "+
+                        "WHERE m.managerId=:id")
+})
 public class ManagerEntity {
 
     @Id

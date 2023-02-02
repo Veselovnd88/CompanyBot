@@ -2,7 +2,6 @@ package ru.veselov.CompanyBot.model;
 
 
 import lombok.*;
-import ru.veselov.CompanyBot.entity.Division;
 
 import java.util.HashSet;
 import java.util.Set;

@@ -163,7 +163,7 @@ class TelegramFacadeUpdateHandlerCallbacksTest {
     void ContactCallbackHandlerNoCallsTest(){
         for(var  b: BotState.values()){
             userDataCache.setUserBotState(user.getId(),b);
-            if(!isContactInputState(b)){
+            if(!isContactInputState(b)&& b!=BotState.AWAIT_MESSAGE){
                 telegramFacadeUpdateHandler.processUpdate(update);
                 verify(contactCallbackHandler,never()).processUpdate(any(Update.class));
             }

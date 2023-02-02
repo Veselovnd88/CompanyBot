@@ -24,7 +24,7 @@ public class InquiryDAO {
     }
 
 
-
+    @SuppressWarnings("unchecked")
     public List<Inquiry> findAll(){
         return entityManager.createQuery(" SELECT i from Inquiry i ").getResultList();
     }

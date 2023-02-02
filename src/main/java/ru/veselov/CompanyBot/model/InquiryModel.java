@@ -8,7 +8,6 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Objects;
 
 @Getter
 @Setter
