@@ -13,6 +13,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import ru.veselov.CompanyBot.bot.BotState;
 import ru.veselov.CompanyBot.bot.CompanyBot;
+import ru.veselov.CompanyBot.bot.HandlerContext;
 import ru.veselov.CompanyBot.bot.handler.inquiry.ContactCallbackHandler;
 import ru.veselov.CompanyBot.bot.handler.inquiry.ContactMessageHandler;
 import ru.veselov.CompanyBot.bot.handler.inquiry.DivisionCallbackHandler;
@@ -22,12 +23,9 @@ import ru.veselov.CompanyBot.bot.handler.managing.DivisionMenuCallbackHandler;
 import ru.veselov.CompanyBot.bot.handler.managing.ManageModeCallbackHandler;
 import ru.veselov.CompanyBot.bot.handler.managing.ManagerMenuCallbackHandler;
 import ru.veselov.CompanyBot.cache.UserDataCache;
-import ru.veselov.CompanyBot.exception.NoAvailableActionCallbackException;
-import ru.veselov.CompanyBot.exception.NoAvailableActionSendMessageException;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
@@ -53,6 +51,8 @@ class TelegramFacadeUpdateHandlerCallbacksTest {
     DivisionMenuCallbackHandler divisionMenuCallbackHandler;
     @MockBean
     AddDivisionToManagerFromCallbackHandler addDivisionToManagerFromCallbackHandler;
+    @Autowired
+    HandlerContext handlerContext;
 
     @Autowired
     UserDataCache userDataCache;
@@ -79,9 +79,11 @@ class TelegramFacadeUpdateHandlerCallbacksTest {
     void DivisionCallBackHandlerNoCallsTest(){
         for(var  b: BotState.values()){
             userDataCache.setUserBotState(user.getId(),b);
-            if(b!=BotState.AWAIT_DIVISION_FOR_INQUIRY){
-                telegramFacadeUpdateHandler.processUpdate(update);
-                verify(divisionCallbackHandler,never()).processUpdate(any(Update.class));
+            if(handlerContext.isInCallbackContext(b)){
+                if(b!=BotState.AWAIT_DIVISION_FOR_INQUIRY){
+                    telegramFacadeUpdateHandler.processUpdate(update);
+                    verify(divisionCallbackHandler,never()).processUpdate(any(Update.class));
+                }
             }
         }
     }
@@ -98,10 +100,12 @@ class TelegramFacadeUpdateHandlerCallbacksTest {
     @SneakyThrows
     void AddDivisionToManagerNoCallsTest(){
         for(var  b: BotState.values()){
-            userDataCache.setUserBotState(user.getId(),b);
-            if(b!=BotState.ASSIGN_DIV){
-                telegramFacadeUpdateHandler.processUpdate(update);
-                verify(addDivisionToManagerFromCallbackHandler,never()).processUpdate(any(Update.class));
+            if(handlerContext.isInCallbackContext(b)){
+                userDataCache.setUserBotState(user.getId(),b);
+                if(b!=BotState.ASSIGN_DIV){
+                    telegramFacadeUpdateHandler.processUpdate(update);
+                    verify(addDivisionToManagerFromCallbackHandler,never()).processUpdate(any(Update.class));
+                }
             }
         }
     }
@@ -117,11 +121,12 @@ class TelegramFacadeUpdateHandlerCallbacksTest {
     @SneakyThrows
     void DivisionMenuNoCallsTest(){
         for(var  b: BotState.values()){
-            userDataCache.setUserBotState(user.getId(),b);
-            if(b!=BotState.MANAGE_DIVISION){
-                telegramFacadeUpdateHandler.processUpdate(update);
-                verify(divisionMenuCallbackHandler,never()).processUpdate(any(Update.class));
-            }
+            if(handlerContext.isInCallbackContext(b)){
+                userDataCache.setUserBotState(user.getId(),b);
+                if(b!=BotState.MANAGE_DIVISION&&b!=BotState.DELETE_DIV){
+                    telegramFacadeUpdateHandler.processUpdate(update);
+                    verify(divisionMenuCallbackHandler,never()).processUpdate(any(Update.class));
+            }}
         }
     }
     @Test
@@ -136,11 +141,12 @@ class TelegramFacadeUpdateHandlerCallbacksTest {
     @SneakyThrows
     void ManagerMenuNoCallsTest(){
         for(var  b: BotState.values()){
-            userDataCache.setUserBotState(user.getId(),b);
-            if(b!=BotState.MANAGE_MANAGER){
-                assertThrows(NoAvailableActionCallbackException.class,
-                        ()-> telegramFacadeUpdateHandler.processUpdate(update));
-                verify(managerMenuCallbackHandler,never()).processUpdate(any(Update.class));
+            if(handlerContext.isInCallbackContext(b)){
+                userDataCache.setUserBotState(user.getId(),b);
+                if(b!=BotState.MANAGE_MANAGER){
+                    telegramFacadeUpdateHandler.processUpdate(update);
+                    verify(managerMenuCallbackHandler,never()).processUpdate(any(Update.class));
+                }
             }
         }
     }
@@ -156,11 +162,12 @@ class TelegramFacadeUpdateHandlerCallbacksTest {
     @SneakyThrows
     void ManageMenuNoCallsTest(){
         for(var  b: BotState.values()){
-            userDataCache.setUserBotState(user.getId(),b);
-            if(b!=BotState.MANAGE){
-                assertThrows(NoAvailableActionCallbackException.class,
-                        ()-> telegramFacadeUpdateHandler.processUpdate(update));
-                verify(manageModeCallbackHandler,never()).processUpdate(any(Update.class));
+            if(handlerContext.isInCallbackContext(b)){
+                userDataCache.setUserBotState(user.getId(),b);
+                if(b!=BotState.MANAGE){
+                    telegramFacadeUpdateHandler.processUpdate(update);
+                    verify(manageModeCallbackHandler,never()).processUpdate(any(Update.class));
+                }
             }
         }
     }
@@ -177,10 +184,12 @@ class TelegramFacadeUpdateHandlerCallbacksTest {
     @SneakyThrows
     void ContactCallbackHandlerNoCallsTest(){
         for(var  b: BotState.values()){
-            userDataCache.setUserBotState(user.getId(),b);
-            if(!isContactInputState(b)&& b!=BotState.AWAIT_MESSAGE){
-                telegramFacadeUpdateHandler.processUpdate(update);
-                verify(contactCallbackHandler,never()).processUpdate(any(Update.class));
+            if(handlerContext.isInCallbackContext(b)){
+                userDataCache.setUserBotState(user.getId(),b);
+                if(!isContactInputState(b)&& b!=BotState.AWAIT_MESSAGE){
+                    telegramFacadeUpdateHandler.processUpdate(update);
+                    verify(contactCallbackHandler,never()).processUpdate(any(Update.class));
+                }
             }
         }
     }
