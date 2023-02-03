@@ -1,5 +1,5 @@
 server:
-  port: 9090
+  port: 9100
 
 bot:
   name: ${PL_BOT_NAME}
@@ -27,3 +27,11 @@ spring:
         hbm2ddl:
           auto: create-drop
         show_sql: true
+
+logging:
+  level:
+    org.springframework: INFO
+    ru.veselov: INFO
+    org.hibernate: INFO
+  pattern:
+    console: "%magenta(%d{yyyy-MM-dd HH:mm:ss}) [%yellow(%thread)] %highlight(%-5level) %logger{36} - %msg%n"
