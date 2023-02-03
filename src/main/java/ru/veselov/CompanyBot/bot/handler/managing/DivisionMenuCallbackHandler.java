@@ -12,7 +12,6 @@ import ru.veselov.CompanyBot.exception.NoAvailableActionCallbackException;
 import ru.veselov.CompanyBot.exception.NoDivisionsException;
 import ru.veselov.CompanyBot.model.DivisionModel;
 import ru.veselov.CompanyBot.service.DivisionService;
-import ru.veselov.CompanyBot.util.BotAnswerUtil;
 import ru.veselov.CompanyBot.util.DivisionKeyboardUtils;
 import ru.veselov.CompanyBot.util.ManageKeyboardUtils;
 import ru.veselov.CompanyBot.util.MessageUtils;
@@ -45,7 +44,7 @@ public class DivisionMenuCallbackHandler implements UpdateHandler {
             try {
                 DivisionModel divisionModel = divisionKeyboardUtils.getMapKeyboardDivisions().get(data);
                 divisionService.remove(divisionModel);
-                message="Режим управления";
+                message="Отдел " +data+" удален\nРежим управления";
             }
             catch (NoDivisionsException e) {
                 message=e.getMessage();
@@ -60,7 +59,6 @@ public class DivisionMenuCallbackHandler implements UpdateHandler {
                         .text(getAllDivisionsFormatted()
                                 +MessageUtils.INPUT_DIV).build();
             case "deleteDivision":
-                //FIXME реализовать удаление
                 userDataCache.setUserBotState(userId,BotState.DELETE_DIV);
                 try {
                     return SendMessage.builder().chatId(userId)
@@ -88,8 +86,15 @@ public class DivisionMenuCallbackHandler implements UpdateHandler {
         }
         else{
             StringBuilder sb = new StringBuilder();
+            String result;
             all.forEach(x-> sb.append(x.getDivisionId()).append(":").append(x.getName()).append("\n"));
-            return sb.toString();
+            if(sb.length()>1000){
+                result=sb.substring(0,999);
+            }
+            else{
+                result=sb.toString();
+            }
+            return result;
         }
     }
 

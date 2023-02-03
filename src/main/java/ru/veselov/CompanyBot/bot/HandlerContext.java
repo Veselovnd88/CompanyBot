@@ -39,6 +39,7 @@ public class HandlerContext {
         callbackHandlerContext.put(BotState.AWAIT_PHONE,contactCallbackHandler);
         callbackHandlerContext.put(BotState.AWAIT_SHARED, contactCallbackHandler);
         callbackHandlerContext.put(BotState.AWAIT_NAME,contactCallbackHandler);
+        callbackHandlerContext.put(BotState.DELETE_DIV, divisionMenuCallbackHandler);
 
         messageHandlerContext.put(BotState.AWAIT_MANAGER, addManagerFromForwardMessageHandler);
         messageHandlerContext.put(BotState.DELETE_MANAGER, addManagerFromForwardMessageHandler);

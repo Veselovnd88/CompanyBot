@@ -19,10 +19,12 @@ import ru.veselov.CompanyBot.bot.handler.inquiry.DivisionCallbackHandler;
 import ru.veselov.CompanyBot.bot.handler.inquiry.InquiryMessageHandler;
 import ru.veselov.CompanyBot.bot.handler.managing.*;
 import ru.veselov.CompanyBot.cache.UserDataCache;
-import ru.veselov.CompanyBot.util.BotAnswerUtil;
+import ru.veselov.CompanyBot.exception.NoAvailableActionSendMessageException;
 
 import java.util.List;
 
+import static org.junit.jupiter.api.AssertThrows.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
@@ -52,8 +54,6 @@ class TelegramFacadeUpdateHandlerMessagesTest {
     AddDivisionTextMessageHandler addDivisionTextMessageHandler;
     @MockBean
     AddManagerFromForwardMessageHandler addManagerFromForwardMessageHandler;
-    @MockBean
-    BotAnswerUtil botAnswerUtil;
     @Autowired
     UserDataCache userDataCache;
     @Autowired
@@ -80,7 +80,8 @@ class TelegramFacadeUpdateHandlerMessagesTest {
         for (var b : BotState.values()) {
             userDataCache.setUserBotState(user.getId(), b);
             if (b != BotState.AWAIT_MANAGER&&b!=BotState.DELETE_MANAGER) {
-                telegramFacadeUpdateHandler.processUpdate(update);
+                assertThrows(NoAvailableActionSendMessageException.class,
+                        ()->telegramFacadeUpdateHandler.processUpdate(update) );
                 verify(addManagerFromForwardMessageHandler, never()).processUpdate(any(Update.class));
             }
         }
@@ -102,7 +103,8 @@ class TelegramFacadeUpdateHandlerMessagesTest {
         for (var b : BotState.values()) {
             userDataCache.setUserBotState(user.getId(), b);
             if (b != BotState.AWAIT_DIVISION) {
-                telegramFacadeUpdateHandler.processUpdate(update);
+                assertThrows(NoAvailableActionSendMessageException.class,
+                        ()->telegramFacadeUpdateHandler.processUpdate(update);)
                 verify(addDivisionTextMessageHandler, never()).processUpdate(any(Update.class));
             }
         }
@@ -122,7 +124,8 @@ class TelegramFacadeUpdateHandlerMessagesTest {
         for (var b : BotState.values()) {
             userDataCache.setUserBotState(user.getId(), b);
             if (!isContactInputState(b)) {
-                telegramFacadeUpdateHandler.processUpdate(update);
+                assertThrows(NoAvailableActionSendMessageException.class,
+                        ()->telegramFacadeUpdateHandler.processUpdate(update); )
                 verify(contactMessageHandler, never()).processUpdate(any(Update.class));
             }
         }
@@ -146,7 +149,8 @@ class TelegramFacadeUpdateHandlerMessagesTest {
         for (var b : BotState.values()) {
             userDataCache.setUserBotState(user.getId(), b);
             if (b!=BotState.AWAIT_MESSAGE) {
-                telegramFacadeUpdateHandler.processUpdate(update);
+                assertThrows(NoAvailableActionSendMessageException.class,
+                        ()->telegramFacadeUpdateHandler.processUpdate(update);)
                 verify(inquiryMessageHandler, never()).processUpdate(any(Update.class));
             }
         }

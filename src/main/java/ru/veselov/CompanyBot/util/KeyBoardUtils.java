@@ -29,6 +29,7 @@ public class KeyBoardUtils implements Cache {
 
     }
     public InlineKeyboardMarkup contactKeyBoard(){
+        var markup = new InlineKeyboardMarkup();
         var inputName = new InlineKeyboardButton();
         inputName.setText("Введите ФИО");
         inputName.setCallbackData("name");
@@ -60,7 +61,7 @@ public class KeyBoardUtils implements Cache {
         keyboard.add(row3);
         keyboard.add(row4);
         keyboard.add(row5);
-        var markup = new InlineKeyboardMarkup();
+
         markup.setKeyboard(keyboard);
         return markup;
     }
@@ -82,6 +83,7 @@ public class KeyBoardUtils implements Cache {
         List<InlineKeyboardButton> buttons = inlineKeyboardMarkup.getKeyboard().get(rowIndex(field));
         InlineKeyboardButton inlineKeyboardButton = buttons.get(0);
         inlineKeyboardButton.setText("<<"+inlineKeyboardButton.getText()+">>");
+
         EditMessageReplyMarkup editedKeyboard = EditMessageReplyMarkup.builder()
                 .chatId(update.getCallbackQuery().getMessage().getChatId().toString())
                 .messageId(update.getCallbackQuery().getMessage().getMessageId())

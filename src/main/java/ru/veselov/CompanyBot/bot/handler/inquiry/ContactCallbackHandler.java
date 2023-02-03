@@ -89,7 +89,7 @@ public class ContactCallbackHandler implements UpdateHandler {
                         log.error("{}: не удалось отправить сообщение пользователя", userId);
                         try {
                             bot.execute(SendMessage.builder().chatId(adminId)
-                                    .text(MessageUtils.ERROR).build());
+                                    .text("Не удалось отправить сообщение пользователя").build());
                         } catch (TelegramApiException ex) {
                             log.error("Не удалось отправить сообщение об ошибке администратору");
                         }
@@ -107,7 +107,7 @@ public class ContactCallbackHandler implements UpdateHandler {
                             userId.toString());
                 }
         }
-        throw new NoAvailableActionCallbackException(MessageUtils.ERROR,update.getCallbackQuery().getId());
+        throw new NoAvailableActionCallbackException(MessageUtils.ANOTHER_ACTION,update.getCallbackQuery().getId());
     }
 
     private boolean checkIsContactOK(ContactModel contact){

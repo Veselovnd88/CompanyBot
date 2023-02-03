@@ -114,7 +114,7 @@ public class ContactMessageHandler implements UpdateHandler {
         else {
             log.info("{}: не корректный телефонный номер", contact.getUserId());
             return SendMessage.builder().chatId(contact.getUserId())
-                    .text(MessageUtils.WRONG_PHONE).replyMarkup(keyBoardUtils.contactKeyBoard())
+                    .text(MessageUtils.WRONG_PHONE)
                     .build();
         }
     }
@@ -128,7 +128,7 @@ public class ContactMessageHandler implements UpdateHandler {
         }else{
             log.info("{}: Некорректный ввод email",contact.getUserId());
             return SendMessage.builder().chatId(contact.getUserId())
-                    .text(MessageUtils.WRONG_EMAIL).replyMarkup(keyBoardUtils.contactKeyBoard())
+                    .text(MessageUtils.WRONG_EMAIL)
                     .build();
         }
     }

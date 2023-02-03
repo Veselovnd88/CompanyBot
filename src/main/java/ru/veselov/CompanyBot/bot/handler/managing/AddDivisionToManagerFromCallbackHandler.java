@@ -68,9 +68,8 @@ public class AddDivisionToManagerFromCallbackHandler implements UpdateHandler {
                         .text(MessageUtils.MANAGER_SAVED)
                         .build();
             }
-            throw new NoAvailableActionCallbackException(MessageUtils.ERROR,
+            throw new NoAvailableActionCallbackException(MessageUtils.ANOTHER_ACTION,
                     update.getCallbackQuery().getId());
-
         }
         catch (NoDivisionsException | NoDivisionKeyboardException e) {
             throw new NoAvailableActionSendMessageException(e.getMessage(), userId.toString(),

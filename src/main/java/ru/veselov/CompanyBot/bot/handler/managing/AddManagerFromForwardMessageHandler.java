@@ -74,7 +74,7 @@ public class AddManagerFromForwardMessageHandler implements UpdateHandler {
                     .text(MessageUtils.MANAGER_DELETED).replyMarkup(manageKeyboardUtils.manageKeyboard())
                     .build();
         }
-        throw new NoAvailableActionSendMessageException(MessageUtils.ERROR,userId.toString());
+        throw new NoAvailableActionSendMessageException(MessageUtils.ANOTHER_ACTION,userId.toString());
     }
 
 }

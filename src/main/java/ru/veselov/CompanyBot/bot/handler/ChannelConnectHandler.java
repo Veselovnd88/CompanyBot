@@ -56,6 +56,6 @@ public class ChannelConnectHandler implements UpdateHandler {
             }
         }
         log.info("{}: не поддерживаемое действие с каналом", userId);
-        throw new NoAvailableActionSendMessageException(MessageUtils.ERROR,userId.toString());
+        throw new NoAvailableActionSendMessageException(MessageUtils.ANOTHER_ACTION,userId.toString());
     }
 }

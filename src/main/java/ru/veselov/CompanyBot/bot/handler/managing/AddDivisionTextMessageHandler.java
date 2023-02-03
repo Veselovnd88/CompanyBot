@@ -44,7 +44,7 @@ public class AddDivisionTextMessageHandler implements UpdateHandler {
             divisionService.save(division);
             userDataCache.setUserBotState(userId, BotState.MANAGE);
             return SendMessage.builder().chatId(userId)
-                    .text("Режим управления").replyMarkup(manageKeyboardUtils.manageKeyboard())
+                    .text("Запись сохранена/обновлена\nРежим управления").replyMarkup(manageKeyboardUtils.manageKeyboard())
                     .build();
         }
     }

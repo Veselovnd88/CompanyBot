@@ -11,12 +11,11 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.veselov.CompanyBot.bot.BotState;
 import ru.veselov.CompanyBot.bot.HandlerContext;
 import ru.veselov.CompanyBot.bot.UpdateHandler;
-import ru.veselov.CompanyBot.bot.handler.inquiry.ContactCallbackHandler;
-import ru.veselov.CompanyBot.bot.handler.inquiry.ContactMessageHandler;
-import ru.veselov.CompanyBot.bot.handler.inquiry.InquiryMessageHandler;
 import ru.veselov.CompanyBot.cache.UserDataCache;
+import ru.veselov.CompanyBot.exception.NoAvailableActionCallbackException;
 import ru.veselov.CompanyBot.exception.NoAvailableActionException;
-import ru.veselov.CompanyBot.util.BotAnswerUtil;
+import ru.veselov.CompanyBot.exception.NoAvailableActionSendMessageException;
+import ru.veselov.CompanyBot.util.MessageUtils;
 
 import java.util.Optional;
 
@@ -27,25 +26,17 @@ public class TelegramFacadeUpdateHandler implements UpdateHandler {
     @Value("${bot.adminId}")
     private String adminId;
     private final CommandHandler commandHandler;
-    private final InquiryMessageHandler inquiryMessageHandler;
-    private final ContactCallbackHandler contactCallbackHandler;
-    private final ContactMessageHandler contactMessageHandler;
     private final ChannelConnectHandler channelConnectHandler;
 
     private final HandlerContext handlerContext;
     private final UserDataCache userDataCache;
-    private final BotAnswerUtil botAnswerUtil;
     @Autowired
     public TelegramFacadeUpdateHandler(CommandHandler commandHandler,
-                                       InquiryMessageHandler inquiryMessageHandler, ContactCallbackHandler contactCallbackHandler, ContactMessageHandler contactMessageHandler, ChannelConnectHandler channelConnectHandler, HandlerContext handlerContext, UserDataCache userDataCache, BotAnswerUtil botAnswerUtil) {
+                                       ChannelConnectHandler channelConnectHandler, HandlerContext handlerContext, UserDataCache userDataCache) {
         this.commandHandler = commandHandler;
-        this.inquiryMessageHandler = inquiryMessageHandler;
-        this.contactCallbackHandler = contactCallbackHandler;
-        this.contactMessageHandler = contactMessageHandler;
         this.channelConnectHandler = channelConnectHandler;
         this.handlerContext = handlerContext;
         this.userDataCache = userDataCache;
-        this.botAnswerUtil = botAnswerUtil;
     }
 
     @Override
@@ -71,7 +62,8 @@ public class TelegramFacadeUpdateHandler implements UpdateHandler {
             if(handlerContext.isInMessageContext(botState)){
                 return handlerContext.getMessageHandler(botState).processUpdate(update);
             }
-            return botAnswerUtil.getAnswerNotSupportMessage(update.getMessage().getFrom().getId().toString());
+            throw new NoAvailableActionSendMessageException(MessageUtils.ANOTHER_ACTION,
+                    update.getMessage().getFrom().getId().toString());
         }
 
         if(update.hasCallbackQuery()){
@@ -79,12 +71,12 @@ public class TelegramFacadeUpdateHandler implements UpdateHandler {
             if(handlerContext.isInCallbackContext(botState)){
                 return handlerContext.getCallbackHandler(botState).processUpdate(update);
             }
-            return botAnswerUtil.getAnswerCallbackAnotherAction(update.getCallbackQuery().getId());
+            throw new NoAvailableActionCallbackException(MessageUtils.ANOTHER_ACTION,
+                    update.getCallbackQuery().getId());
         }
 
         return null;
     }
-
 
     private boolean isCommand(Update update) {
         /*additional checking if message is not forwarded*/

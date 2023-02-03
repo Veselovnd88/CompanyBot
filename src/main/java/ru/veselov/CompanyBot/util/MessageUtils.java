@@ -6,8 +6,8 @@ public class MessageUtils {
     public static final String MANAGER_DELETED = "Менеджер удален";
     public static final String INPUT_DIV = "Введите код и описание темы/отдела по форме " +
             "<Код>-2 символа <пробел> <Описание>-не более 40 символов";
-    public static final String NOT_SUPPORTED_ACTION = "Эта действие не поддерживается, или бот ожидает другой команды," +
-            " нажмите /start для сброса";
+    public static final String NOT_SUPPORTED_ACTION = "Это действие не поддерживается, или бот ожидает другой команды," +
+            " нажмите /info для информации";
 
     public static Message about;
 
@@ -15,7 +15,6 @@ public class MessageUtils {
     public static String GREETINGS="Здравствуйте, я бот-помощник компании, я могу принять и передать Ваш запрос " +
             "или заявку на обратный звонок";
     public static String NOT_READY = "Бот не готов к работе, нажмите /start для обновления состояния";
-    public static String ABOUT="Информация о компании:";
     public static String INFO = """
             О боте:\s
             Бот принимает заявки и перенаправляет их ответственному менеджеру:\s
@@ -30,9 +29,7 @@ public class MessageUtils {
 
     public static String NO_CUSTOM_EMOJI="Я не поддерживаю кастомные эмодзи";
     public static String CHOOSE_DEP="Выберите направление";
-    public static String UNKNOWN_COMMAND="Неизвестная команда, нажмите /start для сброса";
     public static String AWAIT_CONTENT_MESSAGE="Ожидаю сообщений для формирования запроса";
-    public static String SAVE_MESSAGE="Запрос будет сохранен и передан менеджеру на обработку";
     public static String INPUT_CONTACT = "Введите ФИО и контактные данные для обратной связи или контакт Телеграм";
 
     public static String SAVED="Запрос сохранен и передан менеджеру на обработку, спасибо!";
@@ -44,8 +41,7 @@ public class MessageUtils {
     public static String WRONG_EMAIL="Неправильный формат электронной почты";
     public static String NOT_ENOUGH_CONTACT = "Недостаточно данных для обратной связи (отсутствует e-mail, номер телефона, ФИО)";
 
-    public static final String AWAIT_MANAGER = "Перешлите любое сообщение от назначаемого менеджера";
+    public static final String AWAIT_MANAGER = "Перешлите любое сообщение от менеджера для добавления/удаления";
     public static final String AWAIT_DEPARTMENT="Выберите направление";
-    public static String ERROR="Что-то пошло не так";
-    public static String ANOTHER_ACTION = "Бот ожидает другое действие, продолжите или нажмите /start";
+    public static String ANOTHER_ACTION = "Ожидаю другое действие, нажмите /start для сброса";
 }

@@ -49,7 +49,7 @@ public class DivisionCallbackHandler implements UpdateHandler {
             return SendMessage.builder().chatId(userId)
                     .text("Введите ваш вопрос или перешлите мне сообщение").build();
         }
-        throw new NoAvailableActionCallbackException(MessageUtils.NOT_SUPPORTED_ACTION,
+        throw new NoAvailableActionCallbackException(MessageUtils.ANOTHER_ACTION,
                 update.getCallbackQuery().getId());
     }
 }

@@ -22,10 +22,12 @@ import ru.veselov.CompanyBot.bot.handler.managing.DivisionMenuCallbackHandler;
 import ru.veselov.CompanyBot.bot.handler.managing.ManageModeCallbackHandler;
 import ru.veselov.CompanyBot.bot.handler.managing.ManagerMenuCallbackHandler;
 import ru.veselov.CompanyBot.cache.UserDataCache;
-import ru.veselov.CompanyBot.util.BotAnswerUtil;
+import ru.veselov.CompanyBot.exception.NoAvailableActionCallbackException;
+import ru.veselov.CompanyBot.exception.NoAvailableActionSendMessageException;
 
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
@@ -51,8 +53,7 @@ class TelegramFacadeUpdateHandlerCallbacksTest {
     DivisionMenuCallbackHandler divisionMenuCallbackHandler;
     @MockBean
     AddDivisionToManagerFromCallbackHandler addDivisionToManagerFromCallbackHandler;
-    @MockBean
-    BotAnswerUtil botAnswerUtil;
+
     @Autowired
     UserDataCache userDataCache;
     @Autowired
@@ -137,7 +138,8 @@ class TelegramFacadeUpdateHandlerCallbacksTest {
         for(var  b: BotState.values()){
             userDataCache.setUserBotState(user.getId(),b);
             if(b!=BotState.MANAGE_MANAGER){
-                telegramFacadeUpdateHandler.processUpdate(update);
+                assertThrows(NoAvailableActionCallbackException.class,
+                        ()-> telegramFacadeUpdateHandler.processUpdate(update));
                 verify(managerMenuCallbackHandler,never()).processUpdate(any(Update.class));
             }
         }
@@ -156,7 +158,8 @@ class TelegramFacadeUpdateHandlerCallbacksTest {
         for(var  b: BotState.values()){
             userDataCache.setUserBotState(user.getId(),b);
             if(b!=BotState.MANAGE){
-                telegramFacadeUpdateHandler.processUpdate(update);
+                assertThrows(NoAvailableActionCallbackException.class,
+                        ()-> telegramFacadeUpdateHandler.processUpdate(update));
                 verify(manageModeCallbackHandler,never()).processUpdate(any(Update.class));
             }
         }

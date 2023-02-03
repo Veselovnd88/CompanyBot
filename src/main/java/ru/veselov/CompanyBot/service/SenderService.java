@@ -16,7 +16,6 @@ import ru.veselov.CompanyBot.model.ContactModel;
 import ru.veselov.CompanyBot.model.DivisionModel;
 import ru.veselov.CompanyBot.model.InquiryModel;
 import ru.veselov.CompanyBot.model.ManagerModel;
-import ru.veselov.CompanyBot.util.MessageUtils;
 
 import java.util.*;
 
@@ -66,7 +65,7 @@ public class SenderService {
                         } catch (TelegramApiException | NoSuchDivisionException e) {
                             log.error("Не удалось отправить сообщение {}", e.getMessage());
                             bot.sendMessageWithDelay(SendMessage.builder().chatId(adminId)
-                                        .text(MessageUtils.ERROR).build());
+                                        .text("Не удалось отправить сообщение пользователя").build());
                         } catch (InterruptedException e) {
                             log.error(e.getMessage());
                         }
@@ -221,7 +220,7 @@ public class SenderService {
             }
             }
             //Контакт есть ВСЕГДА, ФИО есть всегда
-            SendMessage sendMessage = createContactMessage(contact, chat.getId());
+            SendMessage sendMessage = createContactMessage(contact, chat.getId(),inquiry!=null);
             bot.execute(sendMessage);
             if(contact.getContact()!=null){
                 SendContact sendContact = new SendContact();
@@ -263,7 +262,7 @@ public class SenderService {
             chatTimers.remove(l);
         }
     }
-    private SendMessage createContactMessage(ContactModel contact, Long chatId){
+    private SendMessage createContactMessage(ContactModel contact, Long chatId,boolean hasInquiry){
         StringBuilder sb = new StringBuilder();
         if(contact.getLastName()!=null){
             sb.append(contact.getLastName()).append(" ");
@@ -280,8 +279,15 @@ public class SenderService {
         if(contact.getEmail()!=null){
             sb.append("\nЭл. почта: ").append(contact.getEmail());
         }
+        String prefix;
+        if(hasInquiry){
+            prefix = "Контактное лицо для связи: ";
+        }
+        else{
+            prefix="Направлена заявка на обратный звонок\nКонтактное лицо для связи: ";
+        }
         return SendMessage.builder().chatId(chatId)
-                .text(("Контактное лицо для связи: "+
+                .text((prefix+
                         "\n"+ sb).trim()).build();
     }
     @Profile("test")
@@ -290,7 +296,7 @@ public class SenderService {
     }
     @Profile("test")
     public SendMessage getContactMessage(ContactModel contact, Long chatId){
-        return createContactMessage(contact, chatId);
+        return createContactMessage(contact, chatId, true);
     }
 
     private String managerName(ManagerModel manager){

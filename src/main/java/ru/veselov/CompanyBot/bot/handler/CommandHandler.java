@@ -64,7 +64,7 @@ public class CommandHandler implements UpdateHandler {
                     return departmentMessageInlineKeyBoard(userId);
                 }
                 else{
-                    throw new NoAvailableActionSendMessageException(MessageUtils.NOT_READY,userId.toString());
+                    throw new NoAvailableActionSendMessageException(MessageUtils.ANOTHER_ACTION,userId.toString());
                 }
             case "/call":
                 if(botState==BotState.READY){
@@ -72,7 +72,7 @@ public class CommandHandler implements UpdateHandler {
                     return contactMessage(userId);
                 }
                 else{
-                    throw new NoAvailableActionSendMessageException(MessageUtils.NOT_READY,userId.toString());
+                    throw new NoAvailableActionSendMessageException(MessageUtils.ANOTHER_ACTION,userId.toString());
                 }
 
             case "/about":
