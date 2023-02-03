@@ -1,5 +1,6 @@
 package ru.veselov.CompanyBot.bot.handler.inquiry;
 
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,13 +13,13 @@ import org.telegram.telegrambots.meta.api.objects.games.Animation;
 import ru.veselov.CompanyBot.bot.CompanyBot;
 import ru.veselov.CompanyBot.bot.handler.inquiry.InquiryMessageHandler;
 import ru.veselov.CompanyBot.cache.UserDataCache;
+import ru.veselov.CompanyBot.exception.NoAvailableActionSendMessageException;
 import ru.veselov.CompanyBot.model.DivisionModel;
 import ru.veselov.CompanyBot.util.MessageUtils;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.spy;
 
 @SpringBootTest
@@ -54,10 +55,11 @@ class InquiryMessageHandlerTest {
     void longCaptionTest(){
         /*Проверка на длинное описание*/
         message.setCaption("i".repeat(1025));//метод стринги
-        assertEquals(MessageUtils.CAPTION_TOO_LONG,
-                ((SendMessage)inquiryMessageHandler.processUpdate(update)).getText());
+        assertThrows(NoAvailableActionSendMessageException.class,
+                ()->inquiryMessageHandler.processUpdate(update));
     }
     @Test
+    @SneakyThrows
     void manyMessagesTest(){
         for(int i=0; i<15;i++){
             userDataCache.getInquiry(user.getId()).addMessage(new Message());
@@ -71,11 +73,12 @@ class InquiryMessageHandlerTest {
         MessageEntity messageEntity = new MessageEntity();
         messageEntity.setType("custom_emoji");
         message.setEntities(List.of(messageEntity));
-        assertEquals(MessageUtils.NO_CUSTOM_EMOJI,
-                ((SendMessage) inquiryMessageHandler.processUpdate(update)).getText());
+        assertThrows(NoAvailableActionSendMessageException.class,
+                ()->inquiryMessageHandler.processUpdate(update));
     }
 
     @Test
+    @SneakyThrows
     void messageWithText(){
         message.setEntities(null);
         message.setText("Test");
@@ -84,6 +87,7 @@ class InquiryMessageHandlerTest {
         assertEquals(1,userDataCache.getInquiry(user.getId()).getMessages().size());
     }
     @Test
+    @SneakyThrows
     void messageWithPhoto(){
         message.setEntities(null);
         PhotoSize photoSize = new PhotoSize();
@@ -95,6 +99,7 @@ class InquiryMessageHandlerTest {
     }
 
     @Test
+    @SneakyThrows
     void messageWithAudio(){
         message.setEntities(null);
         Audio audio = new Audio();
@@ -104,6 +109,7 @@ class InquiryMessageHandlerTest {
         assertEquals(1,userDataCache.getInquiry(user.getId()).getMessages().size());
     }
     @Test
+    @SneakyThrows
     void messageWithDocument(){
         message.setEntities(null);
         Document document = new Document();
@@ -114,6 +120,7 @@ class InquiryMessageHandlerTest {
     }
 
     @Test
+    @SneakyThrows
     void messageWithVideo(){
         message.setEntities(null);
         Video video = new Video();
@@ -124,6 +131,7 @@ class InquiryMessageHandlerTest {
     }
 
     @Test
+    @SneakyThrows
     void messageWithAnimation(){
         message.setEntities(null);
         Animation animation = new Animation();

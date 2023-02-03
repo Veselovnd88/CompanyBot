@@ -1,5 +1,6 @@
 package ru.veselov.CompanyBot.bot.handler.inquiry;
 
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,7 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import ru.veselov.CompanyBot.bot.BotState;
 import ru.veselov.CompanyBot.bot.CompanyBot;
 import ru.veselov.CompanyBot.cache.UserDataCache;
+import ru.veselov.CompanyBot.exception.NoAvailableActionCallbackException;
 import ru.veselov.CompanyBot.exception.NoDivisionsException;
 import ru.veselov.CompanyBot.model.DivisionModel;
 import ru.veselov.CompanyBot.util.DivisionKeyboardUtils;
@@ -59,6 +61,7 @@ class DivisionCallbackHandlerTest {
     }
 
     @Test
+    @SneakyThrows
     void departmentChosenTest(){
         callbackQuery.setData("L");
         BotApiMethod<?> botApiMethod = divisionCallbackHandler.processUpdate(update);
@@ -71,10 +74,9 @@ class DivisionCallbackHandlerTest {
     void departmentWrongTest(){
         userDataCache.clear(user.getId());
         callbackQuery.setData("wrong");
-        BotApiMethod<?> botApiMethod = divisionCallbackHandler.processUpdate(update);
-        assertInstanceOf(AnswerCallbackQuery.class,botApiMethod);
+        assertThrows(NoAvailableActionCallbackException.class,
+                ()->divisionCallbackHandler.processUpdate(update));
         assertNull(userDataCache.getInquiry(user.getId()));
     }
-
 
 }

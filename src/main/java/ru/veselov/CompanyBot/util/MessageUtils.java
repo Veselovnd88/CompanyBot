@@ -6,6 +6,8 @@ public class MessageUtils {
     public static final String MANAGER_DELETED = "Менеджер удален";
     public static final String INPUT_DIV = "Введите код и описание темы/отдела по форме " +
             "<Код>-2 символа <пробел> <Описание>-не более 40 символов";
+    public static final String NOT_SUPPORTED_ACTION = "Эта действие не поддерживается, или бот ожидает другой команды," +
+            " нажмите /start для сброса";
 
     public static Message about;
 

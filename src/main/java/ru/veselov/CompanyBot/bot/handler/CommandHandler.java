@@ -13,6 +13,8 @@ import ru.veselov.CompanyBot.bot.BotState;
 import ru.veselov.CompanyBot.bot.UpdateHandler;
 import ru.veselov.CompanyBot.cache.ContactCache;
 import ru.veselov.CompanyBot.cache.UserDataCache;
+import ru.veselov.CompanyBot.exception.NoAvailableActionException;
+import ru.veselov.CompanyBot.exception.NoAvailableActionSendMessageException;
 import ru.veselov.CompanyBot.exception.NoDivisionsException;
 import ru.veselov.CompanyBot.service.CustomerService;
 import ru.veselov.CompanyBot.util.DivisionKeyboardUtils;
@@ -38,13 +40,13 @@ public class CommandHandler implements UpdateHandler {
         this.divisionKeyboardUtils = divisionKeyboardUtils;
         this.manageKeyboardUtils = manageKeyboardUtils;
     }
-    /*Класс обрабатывает все апдейты, который содержат команды*/
+
     @Override
-    public BotApiMethod<?> processUpdate(Update update) {
+    public BotApiMethod<?> processUpdate(Update update) throws NoAvailableActionException {
         Long userId = update.getMessage().getFrom().getId();
         User user = update.getMessage().getFrom();
         String receivedCommand = update.getMessage().getText();
-        log.info("{}: нажата команда {}", userId, receivedCommand);
+        log.info("{}: нажата кнопка с командой {}", userId, receivedCommand);
         BotState botState=userDataCache.getUserBotState(userId);
         switch (receivedCommand){
             case "/start":
@@ -62,8 +64,7 @@ public class CommandHandler implements UpdateHandler {
                     return departmentMessageInlineKeyBoard(userId);
                 }
                 else{
-                    return SendMessage.builder().chatId(userId)
-                            .text(MessageUtils.NOT_READY).build();
+                    throw new NoAvailableActionSendMessageException(MessageUtils.NOT_READY,userId.toString());
                 }
             case "/call":
                 if(botState==BotState.READY){
@@ -71,8 +72,7 @@ public class CommandHandler implements UpdateHandler {
                     return contactMessage(userId);
                 }
                 else{
-                    return SendMessage.builder().chatId(userId)
-                            .text(MessageUtils.NOT_READY).build();
+                    throw new NoAvailableActionSendMessageException(MessageUtils.NOT_READY,userId.toString());
                 }
 
             case "/about":
@@ -85,21 +85,13 @@ public class CommandHandler implements UpdateHandler {
                         .text(MessageUtils.INFO).build();
 
             case "/manage":
-                /*TODO сделать еще команды для администрирования
-                *  Управление отделами-удалить, добавить, редактировать (всё как обычно)
-                * Управление менеджерами
-                * -удалить менеджера - с выдачей всех манагеров по 5 строк например
-                * -добавить менеджера - реализовано*/
                 userDataCache.setUserBotState(userId,BotState.MANAGE);
                 return SendMessage.builder().chatId(userId)
                         .text("Режим управления").replyMarkup(
                                 manageKeyboardUtils.manageKeyboard()).build();
         }
-        return SendMessage.builder().chatId(userId)
-                .text(MessageUtils.UNKNOWN_COMMAND).build();
+        throw new NoAvailableActionSendMessageException(MessageUtils.NOT_SUPPORTED_ACTION, userId.toString());
     }
-
-
 
     private SendMessage departmentMessageInlineKeyBoard(Long userId){
         InlineKeyboardMarkup customerDivisionKeyboard;
@@ -126,7 +118,5 @@ public class CommandHandler implements UpdateHandler {
                 .replyMarkup(inlineKeyboardMarkup)
                 .build();
     }
-
-
 
 }

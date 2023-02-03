@@ -1,5 +1,6 @@
 package ru.veselov.CompanyBot.bot.handler.managing;
 
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -16,6 +17,7 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import ru.veselov.CompanyBot.bot.BotState;
 import ru.veselov.CompanyBot.bot.CompanyBot;
 import ru.veselov.CompanyBot.cache.UserDataCache;
+import ru.veselov.CompanyBot.exception.NoAvailableActionCallbackException;
 import ru.veselov.CompanyBot.model.DivisionModel;
 import ru.veselov.CompanyBot.service.DivisionService;
 import ru.veselov.CompanyBot.util.DivisionKeyboardUtils;
@@ -62,6 +64,7 @@ class DivisionMenuCallbackHandlerTest {
     }
 
     @Test
+    @SneakyThrows
     void noDivisionInDBTest(){
         userDataCache.setUserBotState(user.getId(), BotState.DELETE_DIV);
         callbackQuery.setData("L");
@@ -73,6 +76,7 @@ class DivisionMenuCallbackHandlerTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"L","T"})
+    @SneakyThrows
     void removeDivisionTest(String data){
         userDataCache.setUserBotState(user.getId(), BotState.DELETE_DIV);
         callbackQuery.setData(data);
@@ -82,6 +86,7 @@ class DivisionMenuCallbackHandlerTest {
     }
 
     @Test
+    @SneakyThrows
     void addButtonTest(){
         userDataCache.setUserBotState(user.getId(), BotState.MANAGE);
         callbackQuery.setData("addDivision");
@@ -90,6 +95,7 @@ class DivisionMenuCallbackHandlerTest {
     }
 
     @Test
+    @SneakyThrows
     void deleteButtonTest(){
         userDataCache.setUserBotState(user.getId(), BotState.MANAGE);
         callbackQuery.setData("deleteDivision");
@@ -99,6 +105,7 @@ class DivisionMenuCallbackHandlerTest {
     }
 
     @Test
+    @SneakyThrows
     void deleteButtonNoDivisionsInDBTest(){
         userDataCache.setUserBotState(user.getId(), BotState.MANAGE);
         callbackQuery.setData("deleteDivision");
@@ -108,6 +115,7 @@ class DivisionMenuCallbackHandlerTest {
     }
 
     @Test
+    @SneakyThrows
     void exitButtonTest(){
         userDataCache.setUserBotState(user.getId(), BotState.MANAGE);
         callbackQuery.setData("exit");
@@ -119,7 +127,8 @@ class DivisionMenuCallbackHandlerTest {
     void wrongDataFromCallback(){
         userDataCache.setUserBotState(user.getId(), BotState.MANAGE);
         callbackQuery.setData("Something Wrong");
-        assertInstanceOf(AnswerCallbackQuery.class, divisionMenuCallbackHandler.processUpdate(update));
+        assertThrows(NoAvailableActionCallbackException.class,
+                ()->divisionMenuCallbackHandler.processUpdate(update));
         assertEquals(BotState.MANAGE, userDataCache.getUserBotState(user.getId()));
     }
 }

@@ -1,5 +1,6 @@
 package ru.veselov.CompanyBot.bot.handler.managing;
 
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -17,6 +18,7 @@ import ru.veselov.CompanyBot.bot.BotState;
 import ru.veselov.CompanyBot.bot.CompanyBot;
 import ru.veselov.CompanyBot.cache.AdminCache;
 import ru.veselov.CompanyBot.cache.UserDataCache;
+import ru.veselov.CompanyBot.exception.NoAvailableActionSendMessageException;
 import ru.veselov.CompanyBot.exception.NoDivisionsException;
 import ru.veselov.CompanyBot.model.DivisionModel;
 import ru.veselov.CompanyBot.model.ManagerModel;
@@ -86,6 +88,7 @@ class AddDivisionToManagerFromCallbackHandlerTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"LT","LT+marked","T","T+marked"})
+    @SneakyThrows
     void divisionButtonPressTestWithNotMarkedButtons(String field) throws NoDivisionsException {
         //Checking enter to method with pressing of according button
         divisionKeyboardUtils.getAdminDivisionKeyboard(user.getId(),manager.getManagerId());
@@ -94,6 +97,7 @@ class AddDivisionToManagerFromCallbackHandlerTest {
         assertInstanceOf(EditMessageReplyMarkup.class, botApiMethod);
     }
     @Test
+    @SneakyThrows
     void saveButtonTest() throws NoDivisionsException {
         //Checking pressing save button
         divisionKeyboardUtils.getAdminDivisionKeyboard(user.getId(),manager.getManagerId());
@@ -113,7 +117,8 @@ class AddDivisionToManagerFromCallbackHandlerTest {
     void noDivisionsInDbTest() {
         when(divisionService.findAll()).thenReturn(Collections.emptyList());
         callbackQuery.setData("LT");
-        assertInstanceOf(SendMessage.class, addDivisionToManagerFromCallbackHandler.processUpdate(update));
+        assertThrows(NoAvailableActionSendMessageException.class, ()->
+                addDivisionToManagerFromCallbackHandler.processUpdate(update));
     }
 
 }

@@ -13,6 +13,7 @@ import ru.veselov.CompanyBot.bot.BotState;
 import ru.veselov.CompanyBot.bot.UpdateHandler;
 import ru.veselov.CompanyBot.cache.AdminCache;
 import ru.veselov.CompanyBot.cache.UserDataCache;
+import ru.veselov.CompanyBot.exception.NoAvailableActionSendMessageException;
 import ru.veselov.CompanyBot.exception.NoDivisionsException;
 import ru.veselov.CompanyBot.model.ManagerModel;
 import ru.veselov.CompanyBot.service.ManagerService;
@@ -40,7 +41,7 @@ public class AddManagerFromForwardMessageHandler implements UpdateHandler {
     }
 
     @Override
-    public BotApiMethod<?> processUpdate(Update update) {
+    public BotApiMethod<?> processUpdate(Update update) throws NoAvailableActionSendMessageException {
         Long userId = update.getMessage().getFrom().getId();
         BotState botState = userDataCache.getUserBotState(userId);
         if(update.getMessage().getForwardFrom()==null){
@@ -62,8 +63,8 @@ public class AddManagerFromForwardMessageHandler implements UpdateHandler {
                         .replyMarkup(inlineKeyboardMarkup).build();
 
             } catch (NoDivisionsException e) {
-                return SendMessage.builder().chatId(userId)
-                        .text(e.getMessage()).build();
+                throw new NoAvailableActionSendMessageException(e.getMessage(),
+                        userId.toString(),e);
             }
         }
         if(BotState.DELETE_MANAGER==botState){
@@ -73,8 +74,7 @@ public class AddManagerFromForwardMessageHandler implements UpdateHandler {
                     .text(MessageUtils.MANAGER_DELETED).replyMarkup(manageKeyboardUtils.manageKeyboard())
                     .build();
         }
-        return null;//FIXME no null return
+        throw new NoAvailableActionSendMessageException(MessageUtils.ERROR,userId.toString());
     }
-
 
 }

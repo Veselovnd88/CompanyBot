@@ -10,6 +10,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import ru.veselov.CompanyBot.bot.UpdateHandler;
 import ru.veselov.CompanyBot.cache.UserDataCache;
+import ru.veselov.CompanyBot.exception.NoAvailableActionSendMessageException;
 import ru.veselov.CompanyBot.util.MessageUtils;
 
 import java.util.ArrayList;
@@ -26,7 +27,7 @@ public class InquiryMessageHandler implements UpdateHandler {
     }
 
     @Override
-    public BotApiMethod<?> processUpdate(Update update) {
+    public BotApiMethod<?> processUpdate(Update update) throws NoAvailableActionSendMessageException {
         Long userId=update.getMessage().getFrom().getId();
         if(userDataCache.getInquiry(userId).getMessages().size()>14){
             SendMessage addContentMessage = askAddContent(userId);
@@ -38,8 +39,8 @@ public class InquiryMessageHandler implements UpdateHandler {
         if(update.getMessage().getCaption()!=null){
             if(update.getMessage().getCaption().length()>1024){
                 log.info("{}: попытка отправить слишком длинной сообщение", userId);
-                return SendMessage.builder().chatId(userId)
-                        .text(MessageUtils.CAPTION_TOO_LONG).build();
+                throw new NoAvailableActionSendMessageException(MessageUtils.CAPTION_TOO_LONG,
+                        userId.toString());
             }
         }
         //Проверка на кастомные эмодзи
@@ -47,8 +48,8 @@ public class InquiryMessageHandler implements UpdateHandler {
             List<MessageEntity> entities = update.getMessage().getEntities();
             if(entities.stream().anyMatch(x->x.getType().equals("custom_emoji"))){
                 log.info("{}: попытка отправить кастомные эмодзи", userId);
-                return SendMessage.builder().chatId(userId)
-                        .text(MessageUtils.NO_CUSTOM_EMOJI).build();
+                throw new NoAvailableActionSendMessageException(MessageUtils.NO_CUSTOM_EMOJI,
+                        userId.toString());
             }
         }
         //Сохранение текста с параметрами форматирования

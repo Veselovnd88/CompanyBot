@@ -1,5 +1,6 @@
 package ru.veselov.CompanyBot.bot.handler.inquiry;
 
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -17,6 +18,7 @@ import ru.veselov.CompanyBot.bot.CompanyBot;
 import ru.veselov.CompanyBot.bot.handler.inquiry.ContactMessageHandler;
 import ru.veselov.CompanyBot.cache.ContactCache;
 import ru.veselov.CompanyBot.cache.UserDataCache;
+import ru.veselov.CompanyBot.exception.WrongContactException;
 import ru.veselov.CompanyBot.model.ContactModel;
 import ru.veselov.CompanyBot.util.KeyBoardUtils;
 import ru.veselov.CompanyBot.util.MessageUtils;
@@ -62,6 +64,7 @@ class ContactMessageHandlerTest {
 
 
     @Test
+    @SneakyThrows
     void nameTest(){
         /*Проверка ввода контакта текстом*/
         userDataCache.setUserBotState(user.getId(),BotState.AWAIT_NAME);
@@ -73,6 +76,7 @@ class ContactMessageHandlerTest {
     }
     @ParameterizedTest
     @ValueSource(strings = {"+79175550335","89167861234","8-495-250-23-93","+2 234 345-24-66"})
+    @SneakyThrows
     void phoneTest(String phone){
         /*Проверка ввода контакта текстом*/
         userDataCache.setUserBotState(user.getId(),BotState.AWAIT_PHONE);
@@ -84,6 +88,7 @@ class ContactMessageHandlerTest {
     }
     @ParameterizedTest
     @ValueSource(strings = {"+7a9175550335","891","8-495asdf-250-23-93","+99999992 234 345-24-66"})
+    @SneakyThrows
     void wrongPhoneTest(String phone){
         /*Проверка ввода контакта текстом*/
         userDataCache.setUserBotState(user.getId(),BotState.AWAIT_PHONE);
@@ -96,6 +101,7 @@ class ContactMessageHandlerTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"veselovnd@gmail.com","123@123.com","sfd@asdf.ru"})
+    @SneakyThrows
     void emailTest(String email){
         /*Проверка ввода электронной почты*/
         userDataCache.setUserBotState(user.getId(),BotState.AWAIT_EMAIL);
@@ -107,6 +113,7 @@ class ContactMessageHandlerTest {
     }
     @ParameterizedTest
     @ValueSource(strings = {"gmail.com","asdf@","hate@."})
+    @SneakyThrows
     void wrongEmailTest(String email){
         /*Неправильные адреса*/
         userDataCache.setUserBotState(user.getId(),BotState.AWAIT_EMAIL);
@@ -119,6 +126,7 @@ class ContactMessageHandlerTest {
 
 
     @Test
+    @SneakyThrows
     void contactTest(){
         /*Проверка ввода контакта*/
         message.setText(null);
@@ -136,11 +144,12 @@ class ContactMessageHandlerTest {
         /*Проверка когда поступают неправильные данные*/
         message.setText(null);
         message.setContact(null);
-        BotApiMethod<?> botApiMethod = contactMessageHandler.processUpdate(update);
-        assertEquals(MessageUtils.WRONG_CONTACT_FORMAT,((SendMessage)botApiMethod).getText());
+        assertThrows(WrongContactException.class,
+                ()-> contactMessageHandler.processUpdate(update));
     }
 
     @Test
+    @SneakyThrows
     void processNameTestFull(){
         String name = "Pipkov Vasya Petrovich";
         ContactModel contact = new ContactModel();
@@ -151,6 +160,7 @@ class ContactMessageHandlerTest {
     }
 
     @Test
+    @SneakyThrows
     void processNameTestOnlyLastName(){
         String name = "Pipkov";
         ContactModel contact = new ContactModel();
@@ -158,6 +168,7 @@ class ContactMessageHandlerTest {
         assertEquals("Pipkov",contact.getLastName());
     }
     @Test
+    @SneakyThrows
     void processNameTestOnlyFirstLast(){
         String name = "Pipkov Ivan";
         ContactModel contact = new ContactModel();
@@ -167,6 +178,7 @@ class ContactMessageHandlerTest {
     }
 
     @Test
+    @SneakyThrows
     void processNameTestMoreThanThreeParts(){
         String name = "Pipkov Ivan Petrovich Vasiliy Evil";
         ContactModel contact = new ContactModel();
@@ -177,11 +189,11 @@ class ContactMessageHandlerTest {
     }
     @ParameterizedTest
     @ValueSource(strings = {""," "})
+    @SneakyThrows
     void processNameTestWithIncorrectName(String name){
         ContactModel contact = new ContactModel();
         contact.setUserId(100L);
         contactMessageHandler.getProcessedName(contact, name);
         assertNull(contact.getLastName());
     }
-
 }

@@ -14,6 +14,9 @@ import ru.veselov.CompanyBot.bot.CompanyBot;
 import ru.veselov.CompanyBot.bot.UpdateHandler;
 import ru.veselov.CompanyBot.cache.ContactCache;
 import ru.veselov.CompanyBot.cache.UserDataCache;
+import ru.veselov.CompanyBot.exception.NoAvailableActionCallbackException;
+import ru.veselov.CompanyBot.exception.NoAvailableActionException;
+import ru.veselov.CompanyBot.exception.NoAvailableActionSendMessageException;
 import ru.veselov.CompanyBot.exception.NoSuchDivisionException;
 import ru.veselov.CompanyBot.model.ContactModel;
 import ru.veselov.CompanyBot.service.CustomerService;
@@ -47,7 +50,7 @@ public class ContactCallbackHandler implements UpdateHandler {
     }
 
     @Override
-    public BotApiMethod<?> processUpdate(Update update) {
+    public BotApiMethod<?> processUpdate(Update update) throws NoAvailableActionException {
         Long userId = update.getCallbackQuery().getFrom().getId();
         String data = update.getCallbackQuery().getData();
         log.info("{}: меню ввода контактов через Callback", userId);
@@ -100,16 +103,12 @@ public class ContactCallbackHandler implements UpdateHandler {
                             .text(MessageUtils.SAVED).showAlert(true)
                             .build();}
                 else{
-                    return SendMessage.builder().chatId(userId)
-                            .text(MessageUtils.NOT_ENOUGH_CONTACT)
-                            .build();
+                    throw new NoAvailableActionSendMessageException(MessageUtils.NOT_ENOUGH_CONTACT,
+                            userId.toString());
                 }
         }
-        return AnswerCallbackQuery.builder().callbackQueryId(update.getCallbackQuery().getId())
-                .text(MessageUtils.ERROR)
-                .build();
+        throw new NoAvailableActionCallbackException(MessageUtils.ERROR,update.getCallbackQuery().getId());
     }
-
 
     private boolean checkIsContactOK(ContactModel contact){
         if(contact.getLastName()==null&&contact.getFirstName()==null&&contact.getSecondName()==null){

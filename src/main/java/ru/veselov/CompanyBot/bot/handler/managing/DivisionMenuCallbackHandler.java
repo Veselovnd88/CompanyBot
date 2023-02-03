@@ -8,6 +8,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.veselov.CompanyBot.bot.BotState;
 import ru.veselov.CompanyBot.bot.UpdateHandler;
 import ru.veselov.CompanyBot.cache.UserDataCache;
+import ru.veselov.CompanyBot.exception.NoAvailableActionCallbackException;
 import ru.veselov.CompanyBot.exception.NoDivisionsException;
 import ru.veselov.CompanyBot.model.DivisionModel;
 import ru.veselov.CompanyBot.service.DivisionService;
@@ -26,18 +27,15 @@ public class DivisionMenuCallbackHandler implements UpdateHandler {
     private final DivisionKeyboardUtils divisionKeyboardUtils;
     private final ManageKeyboardUtils manageKeyboardUtils;
 
-    private final BotAnswerUtil botAnswerUtil;
-
-    public DivisionMenuCallbackHandler(UserDataCache userDataCache, DivisionService divisionService, DivisionKeyboardUtils divisionKeyboardUtils, ManageKeyboardUtils manageKeyboardUtils, BotAnswerUtil botAnswerUtil) {
+    public DivisionMenuCallbackHandler(UserDataCache userDataCache, DivisionService divisionService, DivisionKeyboardUtils divisionKeyboardUtils, ManageKeyboardUtils manageKeyboardUtils) {
         this.userDataCache = userDataCache;
         this.divisionService = divisionService;
         this.divisionKeyboardUtils = divisionKeyboardUtils;
         this.manageKeyboardUtils = manageKeyboardUtils;
-        this.botAnswerUtil = botAnswerUtil;
     }
 
     @Override
-    public BotApiMethod<?> processUpdate(Update update) {
+    public BotApiMethod<?> processUpdate(Update update) throws NoAvailableActionCallbackException {
         Long userId = update.getCallbackQuery().getFrom().getId();
         String data = update.getCallbackQuery().getData();
         log.info("{}: нажата кнопка {}", userId,data);
@@ -48,8 +46,8 @@ public class DivisionMenuCallbackHandler implements UpdateHandler {
                 DivisionModel divisionModel = divisionKeyboardUtils.getMapKeyboardDivisions().get(data);
                 divisionService.remove(divisionModel);
                 message="Режим управления";
-
-            } catch (NoDivisionsException e) {
+            }
+            catch (NoDivisionsException e) {
                 message=e.getMessage();
             }
             return SendMessage.builder().chatId(userId).replyMarkup(manageKeyboardUtils.manageKeyboard())
@@ -62,6 +60,7 @@ public class DivisionMenuCallbackHandler implements UpdateHandler {
                         .text(getAllDivisionsFormatted()
                                 +MessageUtils.INPUT_DIV).build();
             case "deleteDivision":
+                //FIXME реализовать удаление
                 userDataCache.setUserBotState(userId,BotState.DELETE_DIV);
                 try {
                     return SendMessage.builder().chatId(userId)
@@ -78,7 +77,8 @@ public class DivisionMenuCallbackHandler implements UpdateHandler {
                         .text("Режим управления").replyMarkup(manageKeyboardUtils.manageKeyboard())
                         .build();
         }
-        return botAnswerUtil.getAnswerCallbackErrorMessage(update.getCallbackQuery().getId());
+        throw new NoAvailableActionCallbackException(MessageUtils.NOT_SUPPORTED_ACTION,
+                update.getCallbackQuery().getId());
     }
 
     private String getAllDivisionsFormatted(){

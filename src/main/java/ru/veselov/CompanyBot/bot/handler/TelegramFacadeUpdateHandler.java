@@ -15,6 +15,7 @@ import ru.veselov.CompanyBot.bot.handler.inquiry.ContactCallbackHandler;
 import ru.veselov.CompanyBot.bot.handler.inquiry.ContactMessageHandler;
 import ru.veselov.CompanyBot.bot.handler.inquiry.InquiryMessageHandler;
 import ru.veselov.CompanyBot.cache.UserDataCache;
+import ru.veselov.CompanyBot.exception.NoAvailableActionException;
 import ru.veselov.CompanyBot.util.BotAnswerUtil;
 
 import java.util.Optional;
@@ -48,7 +49,7 @@ public class TelegramFacadeUpdateHandler implements UpdateHandler {
     }
 
     @Override
-    public synchronized BotApiMethod<?> processUpdate(Update update) {
+    public synchronized BotApiMethod<?> processUpdate(Update update) throws NoAvailableActionException {
         //Обработка апдейтов, связанных с присоединением бота к чату
         if(update.hasMyChatMember()){
             if(update.getMyChatMember().getFrom().getId().toString().equals(adminId)){

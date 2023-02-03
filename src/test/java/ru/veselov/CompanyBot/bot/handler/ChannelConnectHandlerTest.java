@@ -1,6 +1,7 @@
 package ru.veselov.CompanyBot.bot.handler;
 
 
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,10 +11,10 @@ import org.springframework.test.context.ActiveProfiles;
 import org.telegram.telegrambots.meta.api.objects.*;
 import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMember;
 import ru.veselov.CompanyBot.bot.CompanyBot;
+import ru.veselov.CompanyBot.exception.NoAvailableActionSendMessageException;
 import ru.veselov.CompanyBot.service.ChatService;
 
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @SpringBootTest
@@ -57,6 +58,7 @@ class ChannelConnectHandlerTest {
     }
 
     @Test
+    @SneakyThrows
     void connectBotToChannelTest(){
         /*Бот присоединен к каналу админом*/
         botUser.setId(companyBot.getBotId());
@@ -65,6 +67,7 @@ class ChannelConnectHandlerTest {
         verify(chatService).save(chat);
     }
     @Test
+    @SneakyThrows
     void removeBotFromChannelTest(){
         /*Бот удален с канала*/
         botUser.setId(companyBot.getBotId());
@@ -74,6 +77,7 @@ class ChannelConnectHandlerTest {
     }
 
     @Test
+    @SneakyThrows
     void kickBotFromChannelTest(){
         /*Бот кикнут с канала*/
         botUser.setId(companyBot.getBotId());
@@ -86,14 +90,16 @@ class ChannelConnectHandlerTest {
         /*Прошла неизвестная команда*/
         botUser.setId(companyBot.getBotId());
         when(chatMember.getStatus()).thenReturn("unknown");
-        assertNull(channelConnectHandler.processUpdate(update));
+        assertThrows(NoAvailableActionSendMessageException.class,
+                ()->channelConnectHandler.processUpdate(update));
     }
 
     @Test
     void notBotIdTest(){
         /*ID не бота*/
         botUser.setId(9L);
-        assertNull(channelConnectHandler.processUpdate(update));
+        assertThrows(NoAvailableActionSendMessageException.class,
+                ()->channelConnectHandler.processUpdate(update));
     }
 
 }

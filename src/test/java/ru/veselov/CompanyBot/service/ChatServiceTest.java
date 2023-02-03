@@ -25,6 +25,7 @@ class ChatServiceTest {
     void init(){
         chat=new Chat();
         chat.setId(-340L);
+        chat.setType("channel");
         chat.setTitle("TestChannel");
     }
     @Test

@@ -13,6 +13,7 @@ import ru.veselov.CompanyBot.bot.BotState;
 import ru.veselov.CompanyBot.bot.UpdateHandler;
 import ru.veselov.CompanyBot.cache.ContactCache;
 import ru.veselov.CompanyBot.cache.UserDataCache;
+import ru.veselov.CompanyBot.exception.WrongContactException;
 import ru.veselov.CompanyBot.model.ContactModel;
 import ru.veselov.CompanyBot.util.KeyBoardUtils;
 import ru.veselov.CompanyBot.util.MessageUtils;
@@ -36,7 +37,7 @@ public class ContactMessageHandler implements UpdateHandler {
     }
 
     @Override
-    public BotApiMethod<?> processUpdate(Update update) {
+    public BotApiMethod<?> processUpdate(Update update) throws WrongContactException {
         Long userId = update.getMessage().getFrom().getId();
         BotState botState = userDataCache.getUserBotState(userId);
         ContactModel contact = contactCache.getContact(userId);
@@ -68,9 +69,8 @@ public class ContactMessageHandler implements UpdateHandler {
         }
         //Сюда придет если попало неправильное значение
         log.info("{}: неправильный формат контакта", update.getMessage().getFrom().getId());
-        return SendMessage.builder().chatId(userId).text(MessageUtils.WRONG_CONTACT_FORMAT).build();
+        throw new WrongContactException(MessageUtils.WRONG_CONTACT_FORMAT,userId.toString());
     }
-
 
     private BotApiMethod<?> processName(ContactModel contact, String name){
         if(name.length()>250){
@@ -114,7 +114,7 @@ public class ContactMessageHandler implements UpdateHandler {
         else {
             log.info("{}: не корректный телефонный номер", contact.getUserId());
             return SendMessage.builder().chatId(contact.getUserId())
-                    .text(MessageUtils.WRONG_PHONE)
+                    .text(MessageUtils.WRONG_PHONE).replyMarkup(keyBoardUtils.contactKeyBoard())
                     .build();
         }
     }
@@ -128,7 +128,7 @@ public class ContactMessageHandler implements UpdateHandler {
         }else{
             log.info("{}: Некорректный ввод email",contact.getUserId());
             return SendMessage.builder().chatId(contact.getUserId())
-                    .text(MessageUtils.WRONG_EMAIL)
+                    .text(MessageUtils.WRONG_EMAIL).replyMarkup(keyBoardUtils.contactKeyBoard())
                     .build();
         }
     }

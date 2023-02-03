@@ -11,6 +11,7 @@ import ru.veselov.CompanyBot.bot.BotState;
 import ru.veselov.CompanyBot.bot.UpdateHandler;
 import ru.veselov.CompanyBot.cache.UserDataCache;
 import ru.veselov.CompanyBot.entity.Division;
+import ru.veselov.CompanyBot.exception.NoAvailableActionCallbackException;
 import ru.veselov.CompanyBot.exception.NoDivisionsException;
 import ru.veselov.CompanyBot.model.DivisionModel;
 import ru.veselov.CompanyBot.util.DivisionKeyboardUtils;
@@ -31,7 +32,7 @@ public class DivisionCallbackHandler implements UpdateHandler {
     }
 
     @Override
-    public BotApiMethod<?> processUpdate(Update update) {
+    public BotApiMethod<?> processUpdate(Update update) throws NoAvailableActionCallbackException {
         Long userId = update.getCallbackQuery().getFrom().getId();
         String data = update.getCallbackQuery().getData();
         Map<String, DivisionModel> cachedDivisions;
@@ -48,9 +49,7 @@ public class DivisionCallbackHandler implements UpdateHandler {
             return SendMessage.builder().chatId(userId)
                     .text("Введите ваш вопрос или перешлите мне сообщение").build();
         }
-
-
-        return AnswerCallbackQuery.builder().callbackQueryId(update.getCallbackQuery().getId())
-                .text(MessageUtils.ERROR).build();
+        throw new NoAvailableActionCallbackException(MessageUtils.NOT_SUPPORTED_ACTION,
+                update.getCallbackQuery().getId());
     }
 }

@@ -1,5 +1,6 @@
 package ru.veselov.CompanyBot.bot.handler;
 
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,6 +15,7 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import ru.veselov.CompanyBot.bot.BotState;
 import ru.veselov.CompanyBot.bot.CompanyBot;
 import ru.veselov.CompanyBot.cache.UserDataCache;
+import ru.veselov.CompanyBot.exception.NoAvailableActionSendMessageException;
 import ru.veselov.CompanyBot.service.CustomerService;
 import ru.veselov.CompanyBot.util.MessageUtils;
 
@@ -45,6 +47,7 @@ class CommandHandlerTest {
     }
 
     @Test
+    @SneakyThrows
     void startCommandNoStateTest(){
         /*Проверка входа в case с отсутствием статуса */
         userDataCache.setUserBotState(user.getId(), null);
@@ -56,6 +59,7 @@ class CommandHandlerTest {
     }
 
     @Test
+    @SneakyThrows
     void startCommandWithStateTest(){
         /*Проверка входа в case с любого статуса бота, кроме BEGIN*/
         when(message.getText()).thenReturn("/start");
@@ -73,6 +77,7 @@ class CommandHandlerTest {
     }
 
     @Test
+    @SneakyThrows
     void inquiryCommandWithStateTest(){
         /*Проверка входа в case с правильным статусом*/
         when(message.getText()).thenReturn("/inquiry");
@@ -83,20 +88,22 @@ class CommandHandlerTest {
     }
 
     @Test
+    @SneakyThrows
     void inquiryCommandWithWrongStateTest(){
         /*Проверка входа в case с неправильным статусом*/
         when(message.getText()).thenReturn("/inquiry");
         for(var b: BotState.values()){
             if(b!=BotState.READY){
                 userDataCache.setUserBotState(user.getId(), b);
-                BotApiMethod<?> botApiMethod = commandHandler.processUpdate(update);
-                assertEquals(MessageUtils.NOT_READY,((SendMessage) botApiMethod).getText());
+                assertThrows(NoAvailableActionSendMessageException.class,
+                        ()-> commandHandler.processUpdate(update));
                 assertEquals(b,userDataCache.getUserBotState(user.getId()));
             }
         }
     }
 
     @Test
+    @SneakyThrows
     void aboutCommandTest(){
         /*Проверка входа в case с любым статусом*/
         when(message.getText()).thenReturn("/about");
@@ -108,6 +115,7 @@ class CommandHandlerTest {
     }
 
     @Test
+    @SneakyThrows
     void infoCommandTest(){
         /*Проверка входа в case с любым статусом*/
         when(message.getText()).thenReturn("/info");
@@ -123,7 +131,7 @@ class CommandHandlerTest {
     void wrongCommandTest(){
         /*Проверка работы при подаче любой неправильной команды*/
         when(message.getText()).thenReturn("/anyCommand");
-        BotApiMethod<?> botApiMethod = commandHandler.processUpdate(update);
-        assertEquals(MessageUtils.UNKNOWN_COMMAND,((SendMessage) botApiMethod).getText());
+        assertThrows(NoAvailableActionSendMessageException.class,
+                ()->commandHandler.processUpdate(update));
     }
 }

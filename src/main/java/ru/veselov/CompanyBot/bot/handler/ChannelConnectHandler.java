@@ -11,7 +11,9 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMember;
 import ru.veselov.CompanyBot.bot.CompanyBot;
 import ru.veselov.CompanyBot.bot.UpdateHandler;
+import ru.veselov.CompanyBot.exception.NoAvailableActionSendMessageException;
 import ru.veselov.CompanyBot.service.ChatService;
+import ru.veselov.CompanyBot.util.MessageUtils;
 
 @Component
 @Slf4j
@@ -25,7 +27,7 @@ public class ChannelConnectHandler implements UpdateHandler {
     }
 
     @Override
-    public BotApiMethod<?> processUpdate(Update update) {
+    public BotApiMethod<?> processUpdate(Update update) throws NoAvailableActionSendMessageException {
         User user = update.getMyChatMember().getFrom();
         Long userId = user.getId();
         ChatMember newChatMember = update.getMyChatMember().getNewChatMember();
@@ -53,7 +55,7 @@ public class ChannelConnectHandler implements UpdateHandler {
                         .text("Вы кикнули меня с канала "+chat.getTitle()).build();
             }
         }
-        log.info("Администратор проводит действия с каналом, в котором есть бот");
-        return null;
+        log.info("{}: не поддерживаемое действие с каналом", userId);
+        throw new NoAvailableActionSendMessageException(MessageUtils.ERROR,userId.toString());
     }
 }

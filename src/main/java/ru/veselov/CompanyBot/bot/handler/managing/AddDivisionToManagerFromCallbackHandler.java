@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
@@ -13,6 +12,8 @@ import ru.veselov.CompanyBot.bot.BotState;
 import ru.veselov.CompanyBot.bot.UpdateHandler;
 import ru.veselov.CompanyBot.cache.AdminCache;
 import ru.veselov.CompanyBot.cache.UserDataCache;
+import ru.veselov.CompanyBot.exception.NoAvailableActionCallbackException;
+import ru.veselov.CompanyBot.exception.NoAvailableActionSendMessageException;
 import ru.veselov.CompanyBot.exception.NoDivisionKeyboardException;
 import ru.veselov.CompanyBot.exception.NoDivisionsException;
 import ru.veselov.CompanyBot.model.DivisionModel;
@@ -43,7 +44,7 @@ public class AddDivisionToManagerFromCallbackHandler implements UpdateHandler {
     }
 
     @Override
-    public BotApiMethod<?> processUpdate(Update update) {
+    public BotApiMethod<?> processUpdate(Update update) throws NoAvailableActionCallbackException, NoAvailableActionSendMessageException {
         Long userId = update.getCallbackQuery().getFrom().getId();
         String data = update.getCallbackQuery().getData();
         //Manager was forwarded and now waiting for adding him divisions
@@ -67,12 +68,13 @@ public class AddDivisionToManagerFromCallbackHandler implements UpdateHandler {
                         .text(MessageUtils.MANAGER_SAVED)
                         .build();
             }
-            return AnswerCallbackQuery.builder().callbackQueryId(update.getCallbackQuery().getId())
-                    .text(MessageUtils.ERROR)
-                    .build();//TODO throw NotSupportedUpdateException
-        } catch (NoDivisionsException | NoDivisionKeyboardException e) {
-            return SendMessage.builder().chatId(userId)
-                    .text(e.getMessage()).build();
+            throw new NoAvailableActionCallbackException(MessageUtils.ERROR,
+                    update.getCallbackQuery().getId());
+
+        }
+        catch (NoDivisionsException | NoDivisionKeyboardException e) {
+            throw new NoAvailableActionSendMessageException(e.getMessage(), userId.toString(),
+                    e);
         }
     }
 }

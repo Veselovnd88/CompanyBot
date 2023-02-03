@@ -3,13 +3,13 @@ package ru.veselov.CompanyBot.bot.handler.managing;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.veselov.CompanyBot.bot.BotState;
 import ru.veselov.CompanyBot.bot.UpdateHandler;
 import ru.veselov.CompanyBot.cache.UserDataCache;
+import ru.veselov.CompanyBot.exception.NoAvailableActionCallbackException;
 import ru.veselov.CompanyBot.util.ManageKeyboardUtils;
 import ru.veselov.CompanyBot.util.MessageUtils;
 
@@ -25,7 +25,7 @@ public class ManageModeCallbackHandler implements UpdateHandler {
     }
 
     @Override
-    public BotApiMethod<?> processUpdate(Update update) {
+    public BotApiMethod<?> processUpdate(Update update) throws NoAvailableActionCallbackException {
         Long userId = update.getCallbackQuery().getFrom().getId();
         String data = update.getCallbackQuery().getData();
         log.info("{}: нажата кнопка {}", userId, data);
@@ -41,7 +41,6 @@ public class ManageModeCallbackHandler implements UpdateHandler {
 
             case "about":
                 userDataCache.setUserBotState(userId, BotState.MANAGE_ABOUT);
-                //TODO принимать новое описание компании
                 String currentInfo = MessageUtils.about.getText();
                 return SendMessage.builder().chatId(userId)
                         .text(currentInfo+"\nПришлите новое описание")
@@ -52,9 +51,8 @@ public class ManageModeCallbackHandler implements UpdateHandler {
                         .text("Готов к работе, ожидаю следующей команды")
                         .build();
         }
-        return AnswerCallbackQuery.builder().callbackQueryId(update.getCallbackQuery().getId())
-                .text(MessageUtils.ERROR)
-                .build();
+        throw new NoAvailableActionCallbackException(MessageUtils.NOT_SUPPORTED_ACTION,
+                update.getCallbackQuery().getId());
     }
 
 }

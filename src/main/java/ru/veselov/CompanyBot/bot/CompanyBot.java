@@ -7,6 +7,7 @@ import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramWebhookBot;
 import org.telegram.telegrambots.meta.TelegramBotsApi;
+import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -17,7 +18,12 @@ import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScope
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.veselov.CompanyBot.bot.handler.TelegramFacadeUpdateHandler;
+import ru.veselov.CompanyBot.exception.NoAvailableActionCallbackException;
+import ru.veselov.CompanyBot.exception.NoAvailableActionException;
+import ru.veselov.CompanyBot.exception.NoAvailableActionSendMessageException;
+import ru.veselov.CompanyBot.exception.WrongContactException;
 import ru.veselov.CompanyBot.util.BotProperties;
+import ru.veselov.CompanyBot.util.MessageUtils;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -75,7 +81,23 @@ public class CompanyBot extends TelegramWebhookBot {
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
             }
-            return telegramFacadeUpdateHandler.processUpdate(update);
+            try {
+                return telegramFacadeUpdateHandler.processUpdate(update);
+            } catch (NoAvailableActionException e) {
+                if(e instanceof WrongContactException){
+                    return SendMessage.builder().chatId(e.getChatId())
+                            .text(e.getMessage()).build();        
+                }
+                else if(e instanceof NoAvailableActionSendMessageException){
+                    return SendMessage.builder().chatId(e.getChatId())
+                            .text(e.getMessage()).build();
+                }
+                else if(e instanceof NoAvailableActionCallbackException){
+                    return AnswerCallbackQuery.builder()
+                            .callbackQueryId(e.getChatId().toString())
+                            .text(e.getMessage()).build();
+                }
+            }
         }
         return null;
     }

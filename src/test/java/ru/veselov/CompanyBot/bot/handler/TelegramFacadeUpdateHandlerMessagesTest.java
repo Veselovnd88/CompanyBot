@@ -1,5 +1,6 @@
 package ru.veselov.CompanyBot.bot.handler;
 
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,6 +75,7 @@ class TelegramFacadeUpdateHandlerMessagesTest {
     }
 
     @Test
+    @SneakyThrows
     void addManagerFromForwardMessageHandlerNoCallsTest() {
         for (var b : BotState.values()) {
             userDataCache.setUserBotState(user.getId(), b);
@@ -85,6 +87,7 @@ class TelegramFacadeUpdateHandlerMessagesTest {
     }
 
     @Test
+    @SneakyThrows
     void addManagerFromForwardMessageHandlerCallTest() {
         userDataCache.setUserBotState(user.getId(), BotState.AWAIT_MANAGER);
         telegramFacadeUpdateHandler.processUpdate(update);
@@ -94,6 +97,7 @@ class TelegramFacadeUpdateHandlerMessagesTest {
         verify(addManagerFromForwardMessageHandler, times(2)).processUpdate(any(Update.class));
     }
     @Test
+    @SneakyThrows
     void addDivisionTextMessageHandlerNoCallsTest() {
         for (var b : BotState.values()) {
             userDataCache.setUserBotState(user.getId(), b);
@@ -105,6 +109,7 @@ class TelegramFacadeUpdateHandlerMessagesTest {
     }
 
     @Test
+    @SneakyThrows
     void addDivisionTextMessageHandlerCallTest() {
         userDataCache.setUserBotState(user.getId(), BotState.AWAIT_DIVISION);
         telegramFacadeUpdateHandler.processUpdate(update);
@@ -112,6 +117,7 @@ class TelegramFacadeUpdateHandlerMessagesTest {
     }
 
     @Test
+    @SneakyThrows
     void contactNoCallsTest() {
         for (var b : BotState.values()) {
             userDataCache.setUserBotState(user.getId(), b);
@@ -123,6 +129,7 @@ class TelegramFacadeUpdateHandlerMessagesTest {
     }
 
     @Test
+    @SneakyThrows
     void contactCallTest() {
         List<BotState> states = List.of(BotState.AWAIT_NAME, BotState.AWAIT_SHARED, BotState.AWAIT_PHONE,
                 BotState.AWAIT_EMAIL, BotState.AWAIT_CONTACT);
@@ -134,6 +141,7 @@ class TelegramFacadeUpdateHandlerMessagesTest {
     }
 
     @Test
+    @SneakyThrows
     void inquiryNoCallsTest() {
         for (var b : BotState.values()) {
             userDataCache.setUserBotState(user.getId(), b);
@@ -145,15 +153,12 @@ class TelegramFacadeUpdateHandlerMessagesTest {
     }
 
     @Test
+    @SneakyThrows
     void inquiryCallTest() {
         userDataCache.setUserBotState(user.getId(), BotState.AWAIT_MESSAGE);
         telegramFacadeUpdateHandler.processUpdate(update);
         verify(inquiryMessageHandler).processUpdate(any(Update.class));
     }
-
-
-
-
 
     private boolean isContactInputState(BotState botState) {
         List<BotState> states = List.of(BotState.AWAIT_NAME, BotState.AWAIT_SHARED, BotState.AWAIT_PHONE,
@@ -161,7 +166,3 @@ class TelegramFacadeUpdateHandlerMessagesTest {
         return states.contains(botState);
     }
 }
-
-
-
-

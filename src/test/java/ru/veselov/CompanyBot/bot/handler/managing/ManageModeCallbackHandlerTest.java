@@ -1,5 +1,6 @@
 package ru.veselov.CompanyBot.bot.handler.managing;
 
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,7 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import ru.veselov.CompanyBot.bot.BotState;
 import ru.veselov.CompanyBot.bot.CompanyBot;
 import ru.veselov.CompanyBot.cache.UserDataCache;
+import ru.veselov.CompanyBot.exception.NoAvailableActionCallbackException;
 import ru.veselov.CompanyBot.util.MessageUtils;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -47,6 +49,7 @@ class ManageModeCallbackHandlerTest {
     }
 
     @Test
+    @SneakyThrows
     void enteringTest(){
         callbackQuery.setData("managers");
         assertInstanceOf(SendMessage.class, manageModeCallbackHandler.processUpdate(update));
@@ -66,7 +69,7 @@ class ManageModeCallbackHandlerTest {
     void notCorrectData(){
         /*Не корректные данные с коллбэка*/
         callbackQuery.setData("unknown");
-        BotApiMethod<?> botApiMethod = manageModeCallbackHandler.processUpdate(update);
-        assertEquals(MessageUtils.ERROR,((AnswerCallbackQuery) botApiMethod).getText());
+        assertThrows(NoAvailableActionCallbackException.class,
+                ()->manageModeCallbackHandler.processUpdate(update));
     }
 }
