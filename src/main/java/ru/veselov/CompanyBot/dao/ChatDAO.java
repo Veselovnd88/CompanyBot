@@ -15,7 +15,6 @@ import java.util.Optional;
 @Transactional(readOnly = true)
 @Slf4j
 public class ChatDAO {
-
     @PersistenceContext
     private final EntityManager entityManager;
     @Autowired
@@ -44,6 +43,5 @@ public class ChatDAO {
     public void deleteById(Long chatId) {
         Optional<ChatEntity> chat = findOne(chatId);
         chat.ifPresent(this::delete);
-
     }
 }
