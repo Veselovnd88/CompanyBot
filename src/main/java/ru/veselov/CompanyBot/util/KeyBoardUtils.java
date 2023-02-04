@@ -26,12 +26,11 @@ public class KeyBoardUtils implements Cache {
         rowsIndexes.put("email",1);
         rowsIndexes.put("phone",2);
         rowsIndexes.put("shared",3);
-
     }
     public InlineKeyboardMarkup contactKeyBoard(){
         var markup = new InlineKeyboardMarkup();
         var inputName = new InlineKeyboardButton();
-        inputName.setText("Введите ФИО");
+        inputName.setText("Ввести ФИО");
         inputName.setCallbackData("name");
         List<InlineKeyboardButton> row1 = new ArrayList<>();
         row1.add(inputName);
@@ -41,17 +40,17 @@ public class KeyBoardUtils implements Cache {
         List<InlineKeyboardButton> row2 = new ArrayList<>();
         row2.add(inputEmail);
         var inputPhone = new InlineKeyboardButton();
-        inputPhone.setText("Ввести номер телефона (c +)");
+        inputPhone.setText("Ввести номер телефона");
         inputPhone.setCallbackData("phone");
         List<InlineKeyboardButton> row3 = new ArrayList<>();
         row3.add(inputPhone);
         var inputContact = new InlineKeyboardButton();
-        inputContact.setText("Прикрепите контакт");
+        inputContact.setText("Прикрепить контакт");
         inputContact.setCallbackData("shared");
         List<InlineKeyboardButton> row4 = new ArrayList<>();
         row4.add(inputContact);
         var save=new InlineKeyboardButton();
-        save.setText("Сохранить контактные данные");
+        save.setText("Сохранить и отправить контактные данные");
         save.setCallbackData("save");
         List<InlineKeyboardButton> row5 = new ArrayList<>();
         row5.add(save);

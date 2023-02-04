@@ -37,7 +37,7 @@ logging:
     max-size: 10MB
   logback:
     rollingpolicy:
-      file-name-pattern: ${logging.file.path}archived/app.%d{yyyy-MM-dd}.%i.log
+      file-name-pattern: ${logging.file.path}archived/company_bot.%d{yyyy-MM-dd}.%i.log
       max-file-size: 10MB
       max-history: 30
       total-size-cap: 2GB

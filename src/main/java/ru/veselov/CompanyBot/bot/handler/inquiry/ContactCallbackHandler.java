@@ -81,7 +81,6 @@ public class ContactCallbackHandler implements UpdateHandler {
                     if(userDataCache.getInquiry(userId)!=null){
                         inquiryService.save(userDataCache.getInquiry(userId));
                     }
-                    //В сервис отправки передаются оба параметра, контакт и запрос, нуллы определяются внутри
                     try {
                         senderService.send(userDataCache.getInquiry(userId),contactCache.getContact(userId));
                     } catch (TelegramApiException | NoSuchDivisionException e) {
