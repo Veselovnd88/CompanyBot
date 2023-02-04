@@ -18,8 +18,7 @@ public enum BotState {
     AWAIT_DIVISION,
     MANAGE_ABOUT,
     AWAIT_MANAGER,
-    ASSIGN_DIV, DELETE_DIV;
-
+    ASSIGN_DIV, DELETE_DIV
 
 
 }

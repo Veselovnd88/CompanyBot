@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
 import ru.veselov.CompanyBot.model.DivisionModel;
@@ -28,7 +29,8 @@ public class Config {
         return new EmailValidator();
     }
 
-    @Bean//FIXME потом перенесется в тест профиль
+    @Bean
+    @Profile("test")
     public CommandLineRunner dataLoader(DivisionService divisionService){
         return args -> {
             divisionService.save(

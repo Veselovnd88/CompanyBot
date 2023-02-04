@@ -21,7 +21,7 @@ import java.util.*;
 
 @Component
 @Slf4j
-public class DivisionKeyboardUtils implements Cache {//FIXME возможно есть смысл сделать общего предка у клавиатурных классов
+public class DivisionKeyboardUtils implements Cache {
     private final String mark="+marked";
     private final String emojiMark = ":white_check_mark:";
     private final HashMap<String, DivisionModel> idToDivision =new HashMap<>();

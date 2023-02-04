@@ -134,8 +134,8 @@ public class ContactMessageHandler implements UpdateHandler {
     }
 
     @Profile("test")
-    public BotApiMethod<?> getProcessedName(ContactModel contact, String name){
-        return processName(contact,name);
+    public void getProcessedName(ContactModel contact, String name){
+        processName(contact, name);
     }
 
 }

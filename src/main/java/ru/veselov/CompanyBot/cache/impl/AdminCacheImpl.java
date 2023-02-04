@@ -1,15 +1,12 @@
 package ru.veselov.CompanyBot.cache.impl;
 
 import lombok.extern.slf4j.Slf4j;
-import org.checkerframework.checker.units.qual.A;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.objects.User;
 import ru.veselov.CompanyBot.cache.AdminCache;
 import ru.veselov.CompanyBot.entity.Division;
 import ru.veselov.CompanyBot.model.ManagerModel;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.List;
 
 @Component

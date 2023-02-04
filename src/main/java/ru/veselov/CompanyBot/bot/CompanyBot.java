@@ -23,7 +23,6 @@ import ru.veselov.CompanyBot.exception.NoAvailableActionException;
 import ru.veselov.CompanyBot.exception.NoAvailableActionSendMessageException;
 import ru.veselov.CompanyBot.exception.WrongContactException;
 import ru.veselov.CompanyBot.util.BotProperties;
-import ru.veselov.CompanyBot.util.MessageUtils;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -94,7 +93,7 @@ public class CompanyBot extends TelegramWebhookBot {
                 }
                 else if(e instanceof NoAvailableActionCallbackException){
                     return AnswerCallbackQuery.builder()
-                            .callbackQueryId(e.getChatId().toString())
+                            .callbackQueryId(e.getChatId())
                             .text(e.getMessage()).build();
                 }
             }

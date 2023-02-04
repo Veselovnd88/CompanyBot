@@ -1,6 +1,5 @@
 package ru.veselov.CompanyBot.cache;
 
-import org.telegram.telegrambots.meta.api.objects.User;
 import ru.veselov.CompanyBot.entity.Division;
 import ru.veselov.CompanyBot.model.ManagerModel;
 

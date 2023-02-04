@@ -1,7 +1,6 @@
 package ru.veselov.CompanyBot.cache;
 
 import ru.veselov.CompanyBot.bot.BotState;
-import ru.veselov.CompanyBot.entity.Division;
 import ru.veselov.CompanyBot.model.DivisionModel;
 import ru.veselov.CompanyBot.model.InquiryModel;
 
