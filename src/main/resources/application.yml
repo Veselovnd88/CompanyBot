@@ -33,7 +33,7 @@ logging:
     file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36}: %msg%n"
   file:
     name: ${logging.file.path}company_bot.log
-    path: /home/nikolay/log/
+    path: /opt/log/
     max-size: 10MB
   logback:
     rollingpolicy:

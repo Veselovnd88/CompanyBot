@@ -49,7 +49,3 @@ ______________________________________
 RELEASE 1.0<br>
 Рабочая версия работает: https://t.me/AllImpexBot
 ____________________________________________
-
-В разработке - создание контейнера Docker:<br>
-docker run --network=host -e "POSTGRES_NAME=${POSTGRES_NAME}" -e "POSTGRES_PASSWORD=${POSTGRES_PASSWORD}" -e "PL_BOT_NAME=${PL_BOT_NAME}" -e "PL_BOT_TOKEN=${PL_BOT_TOKEN}" -p 9100:9100  -t companybot:latest
--name mybot
