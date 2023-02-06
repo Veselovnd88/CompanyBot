@@ -49,3 +49,20 @@ ______________________________________
 RELEASE 1.0<br>
 Рабочая версия работает: https://t.me/AllImpexBot
 ____________________________________________
+Запуск через Docker
+1) Сначала собрать приложение mvn clean install "-Dmaven.test.skip=true"
+2) Создание образа docker build -t <name> .
+3) Создание контейнера
+   docker create --network=host --name <name> \
+   -v <source>:/opt/log \
+   -v <source>/application.yml:/opt/app/application.yml \
+   -e "POSTGRES_NAME=${POSTGRES_NAME}" \
+   -e "POSTGRES_PASSWORD=${POSTGRES_PASSWORD}" \
+   -e "PL_BOT_NAME=${PL_BOT_NAME}" -e "PL_BOT_TOKEN=${PL_BOT_TOKEN}" \
+   -p 9100:9100 -t companybot:latest
+4) Запуск контейнера
+docker start <name>
+5) Просмотр логов
+docker logs <name>
+6) Остановка контейнера
+docker stop <name>
