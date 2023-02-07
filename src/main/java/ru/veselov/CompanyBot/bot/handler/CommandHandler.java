@@ -106,7 +106,7 @@ public class CommandHandler implements UpdateHandler {
 
     private SendMessage contactMessage(Long userId) {
         InlineKeyboardButton finishMessages = new InlineKeyboardButton();
-        finishMessages.setText("Ввести данные для обратной связи");
+        finishMessages.setText("Нажмите для ввода данных для обратной связи");
         finishMessages.setCallbackData("contact");
         List<InlineKeyboardButton> row1 = new ArrayList<>();
         row1.add(finishMessages);

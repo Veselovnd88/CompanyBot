@@ -27,8 +27,8 @@ public class MessageUtils {
     public static String CAPTION_TOO_LONG="Текст подписи превышает длину 1024 символа, сократите размер подписи," +
             " или отправьте текст отдельно";
     public static String NO_CUSTOM_EMOJI="Я не поддерживаю кастомные эмодзи";
-    public static String CHOOSE_DEP="Выберите направление";
-    public static String AWAIT_CONTENT_MESSAGE="Ожидаю сообщений для формирования запроса";
+    public static String CHOOSE_DEP="Выберите тематику";
+    public static String AWAIT_CONTENT_MESSAGE="Ожидаю сообщение для формирования запроса";
     public static String INPUT_CONTACT = """
             Введите ФИО и контактные данные для обратной связи
             Нажмите на кнопку клавиатуры для ввода информации
@@ -42,6 +42,6 @@ public class MessageUtils {
     public static String WRONG_EMAIL="Неправильный формат электронной почты";
     public static String NOT_ENOUGH_CONTACT = "Недостаточно данных для обратной связи (отсутствует e-mail, номер телефона, ФИО)";
     public static final String AWAIT_MANAGER = "Перешлите любое сообщение от менеджера для добавления/удаления";
-    public static final String AWAIT_DEPARTMENT="Выберите направление";
+    public static final String AWAIT_DEPARTMENT="Выберите тематику запроса";
     public static String ANOTHER_ACTION = "Ожидаю другое действие, нажмите /start для сброса";
 }
