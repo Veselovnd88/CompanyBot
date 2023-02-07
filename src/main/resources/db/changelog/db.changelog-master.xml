@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+                      http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
+
+    <preConditions>
+        <dbms type="postgresql"/>
+    </preConditions>
+
+    <!--Добавление id и автора, к тегу можно потом вернуться (откатить, если возникнут ошибки в изменении)
+     Тег соответствует пустой БД-->
+    <changeSet id="0" author="veselov">
+        <tagDatabase tag="db_init"/>
+    </changeSet>
+    <!--указание чендж лога отдельным файлом, будет сохраняться только относительный путь к файлу -
+    параметр тру -->
+    <include file="v-1.0/db.changelog-v.1.0.xml" relativeToChangelogFile="true"/>
+
+    <!--Тег соответствует версии 1.0-->
+    <changeSet id="11" author="veselov">
+        <tagDatabase tag="v.1.0"/>
+    </changeSet>
+
+
+
+
+
+
+
+</databaseChangeLog>

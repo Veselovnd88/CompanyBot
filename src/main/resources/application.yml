@@ -23,9 +23,10 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQL95Dialect
-        show_sql: false
+        show_sql: true
+        format_sql: true
         hbm2ddl:
-          auto: update
+          auto: create-drop
 
 
 
