@@ -85,10 +85,10 @@ public class CommandHandler implements UpdateHandler {
                         .text(MessageUtils.INFO).build();
 
             case "/manage":
-                userDataCache.setUserBotState(userId,BotState.MANAGE);
+                userDataCache.setUserBotState(userId,BotState.ADMIN_PASSWORD);
                 return SendMessage.builder().chatId(userId)
-                        .text("Режим управления").replyMarkup(
-                                manageKeyboardUtils.manageKeyboard()).build();
+                        .text("Введите пароль Администратора")
+                        .build();
         }
         throw new NoAvailableActionSendMessageException(MessageUtils.NOT_SUPPORTED_ACTION, userId.toString());
     }

@@ -27,7 +27,7 @@ public class HandlerContext {
                           DivisionCallbackHandler divisionCallbackHandler,
                           ContactCallbackHandler contactCallbackHandler,
                           ContactMessageHandler contactMessageHandler,
-                          InquiryMessageHandler inquiryMessageHandler) {
+                          InquiryMessageHandler inquiryMessageHandler, AuthenticateAdminMessageHandler authenticateAdminMessageHandler) {
         callbackHandlerContext.put(BotState.MANAGE_MANAGER, managerMenuCallbackHandler);
         callbackHandlerContext.put(BotState.MANAGE, manageModeCallbackHandler);
         callbackHandlerContext.put(BotState.ASSIGN_DIV, addDivisionToManagerFromCallbackHandler);
@@ -46,6 +46,7 @@ public class HandlerContext {
         messageHandlerContext.put(BotState.AWAIT_DIVISION, addDivisionTextMessageHandler);
         messageHandlerContext.put(BotState.MANAGE_ABOUT, informationAboutMessageHandler);
         messageHandlerContext.put(BotState.AWAIT_MESSAGE, inquiryMessageHandler);
+        messageHandlerContext.put(BotState.ADMIN_PASSWORD, authenticateAdminMessageHandler);
 
         messageHandlerContext.put(BotState.AWAIT_CONTACT,contactMessageHandler);
         messageHandlerContext.put(BotState.AWAIT_EMAIL,contactMessageHandler);

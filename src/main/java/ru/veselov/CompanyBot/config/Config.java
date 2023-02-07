@@ -9,6 +9,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.context.event.EventListener;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import ru.veselov.CompanyBot.model.DivisionModel;
 import ru.veselov.CompanyBot.service.CompanyInfoService;
 import ru.veselov.CompanyBot.service.DivisionService;
@@ -48,6 +49,11 @@ public class Config {
     @EventListener({ContextRefreshedEvent.class})
     public void fillFieldsInformation(){
         companyInfoService.getLast();
+    }
+
+    @Bean
+    BCryptPasswordEncoder encoder(){
+        return new BCryptPasswordEncoder();
     }
 
 }

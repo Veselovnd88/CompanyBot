@@ -6,10 +6,14 @@ bot:
   token: ${PL_BOT_TOKEN}
   webhookpath:   https://82e6-93-174-229-214.eu.ngrok.io
   adminId: 101516610
+  admin_pass: "$2y$10$kZ/E/QRkBHTUZSqV/YF2PezE6b/npo0gvUaKvrJ9Uyql1k489M8bG"
   chat-interval: 1000
 
 
 spring:
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
+
   datasource:
     driver-class-name: org.postgresql.Driver
     url: jdbc:postgresql://localhost:5432/companybottest
