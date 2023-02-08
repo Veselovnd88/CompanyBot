@@ -14,6 +14,7 @@
     <include file="50-changeset-customer-message-table.xml" relativeToChangelogFile="true"/>
     <include file="60-changeset-division-table.xml" relativeToChangelogFile="true"/>
     <include file="70-changeset-manager-table.xml" relativeToChangelogFile="true"/>
+    <include file="80-changeset-manager-division-table.xml" relativeToChangelogFile="true"/>
 
 
 

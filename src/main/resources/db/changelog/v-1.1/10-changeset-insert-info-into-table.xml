@@ -5,8 +5,8 @@
         xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
 
-    <changeSet id="12" author="veselov">
-        <sqlFile path="01-insert-division-table.sql"
+    <changeSet id="13" author="veselov">
+        <sqlFile path="10-insert-into-info-table.sql"
                  dbms="postgresql"
                  encoding="UTF-8"
                  endDelimiter="\nGO"
@@ -15,7 +15,7 @@
                  stripComments="true"
         />
         <rollback>
-            <sqlFile path="01-delete-division-table.sql"
+            <sqlFile path="10-delete-from-info-table.sql"
                      dbms="postgresql"
                      encoding="UTF-8"
                      endDelimiter="\nGO"

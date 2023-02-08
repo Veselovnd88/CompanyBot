@@ -1,5 +1,5 @@
 create table manager_division (
-       manager_id int8 not null,
+        manager_id int8 not null,
         division_id varchar(255) not null,
         primary key (manager_id, division_id)
     )

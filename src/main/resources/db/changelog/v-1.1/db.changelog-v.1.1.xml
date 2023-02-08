@@ -6,9 +6,8 @@
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
 
     <!--Удобно нумеровать через десяток, чтобы можно было удобно добавлять строки между -->
-    <include file="01-changeset-insert-division-table.xml" relativeToChangelogFile="true"/>
-    <include file="02-changeset-insert-info-table.xml" relativeToChangelogFile="true"/>
-
+    <include file="01-changeset-insert-division-into-table.xml" relativeToChangelogFile="true"/>
+    <include file="10-changeset-insert-info-into-table.xml" relativeToChangelogFile="true"/>
 
 
 

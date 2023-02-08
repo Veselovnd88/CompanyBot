@@ -17,15 +17,14 @@
     <!--указание чендж лога отдельным файлом, будет сохраняться только относительный путь к файлу -
     параметр тру -->
     <include file="v-1.0/db.changelog-v.1.0.xml" relativeToChangelogFile="true"/>
-
     <!--Тег соответствует версии 1.0-->
     <changeSet id="11" author="veselov">
         <tagDatabase tag="v.1.0"/>
     </changeSet>
-
-
-
-
+    <include file="v-1.1/db.changelog-v.1.1.xml" relativeToChangelogFile="true"/>
+    <changeSet id="14" author="veselov">
+        <tagDatabase tag="v.1.1"/>
+    </changeSet>
 
 
 
