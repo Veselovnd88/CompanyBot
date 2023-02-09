@@ -104,6 +104,9 @@
 				<version>3.6.3</version>
 				<configuration>
 					<propertyFile>${project.basedir}/src/main/resources/liquibase.properties</propertyFile>
+					<changeLogFile>${project.basedir}/src/main/resources/db/changelog/db.changelog-master.xml</changeLogFile>
+					<username>${env.POSTGRES_NAME}</username>
+					<password>${env.POSTGRES_PASSWORD}</password>
 				</configuration>
 			</plugin>
 		</plugins>
