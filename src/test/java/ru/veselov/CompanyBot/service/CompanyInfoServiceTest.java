@@ -8,7 +8,6 @@ import org.springframework.test.context.ActiveProfiles;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.MessageEntity;
 import ru.veselov.CompanyBot.bot.CompanyBot;
-import ru.veselov.CompanyBot.dao.CompanyInfoDao;
 
 import java.util.List;
 

@@ -3,7 +3,7 @@ package ru.veselov.CompanyBot.service;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import ru.veselov.CompanyBot.dao.DivisionDAO;
+import ru.veselov.CompanyBot.dao.DivisionRepository;
 import ru.veselov.CompanyBot.entity.Division;
 import ru.veselov.CompanyBot.entity.ManagerEntity;
 import ru.veselov.CompanyBot.exception.NoSuchDivisionException;
@@ -17,23 +17,23 @@ import java.util.stream.Collectors;
 @Service
 @Slf4j
 public class DivisionService{
-    private final DivisionDAO divisionDAO;
+    private final DivisionRepository divisionRepository;
     @Autowired
-    public DivisionService(DivisionDAO divisionDAO) {
-        this.divisionDAO = divisionDAO;
+    public DivisionService(DivisionRepository divisionRepository) {
+        this.divisionRepository = divisionRepository;
     }
 
     public List<DivisionModel> findAll(){
-        return divisionDAO.findAll().stream().map(this::toDivisionModel).toList();
+        return divisionRepository.findAll().stream().map(this::toDivisionModel).toList();
     }
 
     public void save(DivisionModel division){
         log.info("{}:отдел сохранен/обновлен",division.getDivisionId());
-        divisionDAO.save(toDivisionEntity(division));
+        divisionRepository.save(toDivisionEntity(division));
     }
 
     public DivisionModel findOneWithManagers(DivisionModel division) throws NoSuchDivisionException {
-        Optional<Division> oneWithManagers = divisionDAO.findOneWithManagers(division.getDivisionId());
+        Optional<Division> oneWithManagers = divisionRepository.findOneWithManagers(division.getDivisionId());
         if(oneWithManagers.isPresent()){
             DivisionModel divisionModel = toDivisionModel(oneWithManagers.get());
             divisionModel.setManagers(
@@ -45,7 +45,7 @@ public class DivisionService{
     }
 
     public DivisionModel findOne(DivisionModel division) throws NoSuchDivisionException {
-        Optional<Division> one = divisionDAO.findOne(division.getDivisionId());
+        Optional<Division> one = divisionRepository.findOne(division.getDivisionId());
         if(one.isPresent()){
             return toDivisionModel(one.get());
         }
@@ -53,7 +53,7 @@ public class DivisionService{
     }
 
     public void remove(DivisionModel division){
-        divisionDAO.deleteById(division.getDivisionId());
+        divisionRepository.deleteById(division.getDivisionId());
         log.info("{}: отдел удален",division.getDivisionId() );
     }
 

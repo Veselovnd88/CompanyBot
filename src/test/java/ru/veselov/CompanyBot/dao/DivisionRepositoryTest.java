@@ -12,20 +12,19 @@ import ru.veselov.CompanyBot.model.ManagerModel;
 import ru.veselov.CompanyBot.service.DivisionService;
 import ru.veselov.CompanyBot.service.ManagerService;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @ActiveProfiles("test")
-class DivisionDAOTest {
+class DivisionRepositoryTest {
 
     @MockBean
     CompanyBot bot;
 
     @Autowired
-    DivisionDAO divisionDAO;
+    DivisionRepository divisionRepository;
 
     @Autowired
     DivisionService divisionService;
@@ -51,7 +50,7 @@ class DivisionDAOTest {
         managerService.save(managerModel);
         managerService.save(managerModel1);
 
-        Optional<Division> ll = divisionDAO.findOneWithManagers("LL");
+        Optional<Division> ll = divisionRepository.findOneWithManagers("LL");
         assertEquals(2,ll.get().getManagers().size());
 
     }

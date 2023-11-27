@@ -1,5 +1,6 @@
 package ru.veselov.CompanyBot.config;
 
+import lombok.RequiredArgsConstructor;
 import org.hibernate.validator.internal.constraintvalidators.bv.EmailValidator;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,9 +16,9 @@ import ru.veselov.CompanyBot.service.CompanyInfoService;
 import ru.veselov.CompanyBot.service.DivisionService;
 
 @Configuration
+@RequiredArgsConstructor
 public class Config {
 
-    @Autowired
     CompanyInfoService companyInfoService;
 
     @Bean

@@ -12,7 +12,7 @@ import org.telegram.telegrambots.meta.api.objects.*;
 import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMember;
 import ru.veselov.CompanyBot.bot.CompanyBot;
 import ru.veselov.CompanyBot.exception.NoAvailableActionSendMessageException;
-import ru.veselov.CompanyBot.service.ChatService;
+import ru.veselov.CompanyBot.service.impl.ChatServiceImpl;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -27,7 +27,7 @@ class ChannelConnectHandlerTest {
     ChannelConnectHandler channelConnectHandler;
 
     @MockBean
-    ChatService chatService;
+    ChatServiceImpl chatService;
 
     Update update;
     User user;

@@ -1,36 +1,42 @@
 package ru.veselov.CompanyBot.entity;
 
-import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import org.telegram.telegrambots.meta.api.objects.Message;
 
-import javax.persistence.*;
 import java.util.Objects;
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
-@TypeDef(name="jsonb",typeClass = JsonBinaryType.class)
 @Table(name = "message")
 public class CustomerMessageEntity {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "message_id")
     private Integer messageId;
-    //Сразу сохраняем в json со всеми разметками и ссылками, для более удобной пересылки в чат
-    @Type(type = "jsonb")
-    @Column(name = "message",columnDefinition = "jsonb")
+
+    //More convenient for save all message with all markups
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "message", columnDefinition = "jsonb")
     private Message message;
 
     @ManyToOne
-    @JoinColumn(name = "inquiry_id",referencedColumnName = "inquiry_id")
+    @JoinColumn(name = "inquiry_id", referencedColumnName = "inquiry_id")
     private Inquiry inquiry;
-
 
     @Override
     public boolean equals(Object o) {
@@ -44,4 +50,5 @@ public class CustomerMessageEntity {
     public int hashCode() {
         return Objects.hash(message);
     }
+
 }

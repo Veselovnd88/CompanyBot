@@ -14,6 +14,6 @@ GO
 alter table if exists contact
        add constraint FKckoarj5a5jmet3b3smgdhaopw
        foreign key (customer_id)
-       references customer
+       references customerEntity
 GO
 

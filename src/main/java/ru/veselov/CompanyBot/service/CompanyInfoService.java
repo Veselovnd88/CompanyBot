@@ -1,9 +1,11 @@
 package ru.veselov.CompanyBot.service;
 
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Message;
-import ru.veselov.CompanyBot.dao.CompanyInfoDao;
+import ru.veselov.CompanyBot.dao.CompanyInfoRepository;
 import ru.veselov.CompanyBot.entity.CompanyInfoEntity;
 import ru.veselov.CompanyBot.util.MessageUtils;
 
@@ -11,21 +13,23 @@ import java.util.Date;
 import java.util.List;
 
 @Service
+@RequiredArgsConstructor
+@Slf4j
 public class CompanyInfoService {
-    private final CompanyInfoDao companyInfoDao;
+    private final CompanyInfoRepository companyInfoRepository;
     @Autowired
-    public CompanyInfoService(CompanyInfoDao companyInfoDao) {
-        this.companyInfoDao = companyInfoDao;
+    public CompanyInfoService(CompanyInfoRepository companyInfoRepository) {
+        this.companyInfoRepository = companyInfoRepository;
     }
 
 
 
     public void save(Message message){
-        companyInfoDao.save(toEntity(message));
+        companyInfoRepository.save(toEntity(message));
     }
 
     public Message getLast(){
-        List<CompanyInfoEntity> last = companyInfoDao.findLast();
+        List<CompanyInfoEntity> last = companyInfoRepository.findLast();
         Message message;
         if(last.size()==0){
             message=new Message();
@@ -44,10 +48,12 @@ public class CompanyInfoService {
         companyInfoEntity.setChangedAt(new Date());
         return companyInfoEntity;
     }
+
     private Message toMessage(CompanyInfoEntity companyInfoEntity){
         Message message = new Message();
         message.setText(companyInfoEntity.getInfo().getText());
         message.setEntities(companyInfoEntity.getInfo().getEntities());
         return message;
     }
+
 }

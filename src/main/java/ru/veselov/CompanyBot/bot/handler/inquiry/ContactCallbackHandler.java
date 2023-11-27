@@ -21,7 +21,7 @@ import ru.veselov.CompanyBot.exception.NoSuchDivisionException;
 import ru.veselov.CompanyBot.model.ContactModel;
 import ru.veselov.CompanyBot.service.CustomerService;
 import ru.veselov.CompanyBot.service.InquiryService;
-import ru.veselov.CompanyBot.service.SenderService;
+import ru.veselov.CompanyBot.service.impl.SenderService;
 import ru.veselov.CompanyBot.util.KeyBoardUtils;
 import ru.veselov.CompanyBot.util.MessageUtils;
 

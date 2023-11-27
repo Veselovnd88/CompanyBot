@@ -1,4 +1,4 @@
-create table customer (
+create table customerEntity (
        id int8 not null,
         first_name varchar(255),
         last_name varchar(255),

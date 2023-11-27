@@ -1,3 +1,3 @@
-drop table customer
+drop table customerEntity
 
 GO

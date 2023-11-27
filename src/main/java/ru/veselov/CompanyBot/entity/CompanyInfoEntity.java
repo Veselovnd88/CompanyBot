@@ -1,14 +1,20 @@
 package ru.veselov.CompanyBot.entity;
 
-import com.vladmihalcea.hibernate.type.json.JsonBinaryType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.type.SqlTypes;
 import org.telegram.telegrambots.meta.api.objects.Message;
 
-import javax.persistence.*;
 import java.util.Date;
 
 @Entity
@@ -16,14 +22,16 @@ import java.util.Date;
 @Setter
 @NoArgsConstructor
 @Table(name = "company_info")
-@TypeDef(name="jsonb",typeClass = JsonBinaryType.class)
 public class CompanyInfoEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
-    @Type(type = "jsonb")
-    @Column(name = "info",columnDefinition = "jsonb")
+
+    @JdbcTypeCode(SqlTypes.JSON)
+    @Column(name = "info", columnDefinition = "jsonb")
     private Message info;
+
     @Temporal(TemporalType.TIMESTAMP)
     Date changedAt;
+
 }

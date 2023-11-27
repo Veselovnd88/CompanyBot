@@ -20,7 +20,7 @@ import ru.veselov.CompanyBot.model.DivisionModel;
 import ru.veselov.CompanyBot.model.InquiryModel;
 import ru.veselov.CompanyBot.service.CustomerService;
 import ru.veselov.CompanyBot.service.InquiryService;
-import ru.veselov.CompanyBot.service.SenderService;
+import ru.veselov.CompanyBot.service.impl.SenderService;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;

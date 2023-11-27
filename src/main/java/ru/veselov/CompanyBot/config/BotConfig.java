@@ -18,7 +18,7 @@ public class BotConfig {
     public TelegramBotsApi telegramBotsApi(){
         try {
             TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);
-            log.info("Экземпляр Api создан");
+            log.info("Api is created");
             return telegramBotsApi;
         } catch (TelegramApiException e) {
             throw new RuntimeException(e);

@@ -1,4 +1,4 @@
-package ru.veselov.CompanyBot.service;
+package ru.veselov.CompanyBot.service.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +12,7 @@ import ru.veselov.CompanyBot.bot.CompanyBot;
 import ru.veselov.CompanyBot.exception.NoSuchDivisionException;
 import ru.veselov.CompanyBot.model.ContactModel;
 import ru.veselov.CompanyBot.model.InquiryModel;
+import ru.veselov.CompanyBot.service.impl.ChatServiceImpl;
 import ru.veselov.CompanyBot.service.sender.ContactSender;
 import ru.veselov.CompanyBot.service.sender.InquirySender;
 
@@ -25,15 +26,15 @@ public class SenderService {
     @Value("${bot.chat-interval}")
     private long chatInterval;
     private final CompanyBot bot;
-    private final ChatService chatService;
+    private final ChatServiceImpl chatServiceImpl;
     private final InquirySender inquirySender;
     private final ContactSender contactSender;
     private final Map<Long, Date> chatTimers = new HashMap<>();
     private Chat adminChat;
     @Autowired
-    public SenderService(CompanyBot bot, ChatService chatService, InquirySender inquirySender, ContactSender contactSender) {
+    public SenderService(CompanyBot bot, ChatServiceImpl chatServiceImpl, InquirySender inquirySender, ContactSender contactSender) {
         this.bot = bot;
-        this.chatService = chatService;
+        this.chatServiceImpl = chatServiceImpl;
         this.inquirySender = inquirySender;
         this.contactSender = contactSender;
     }
@@ -44,7 +45,7 @@ public class SenderService {
         adminChat.setTitle("Администратору");
         Long userId = contact.getUserId();
         removeOldChats();
-        List<Chat> allChats = chatService.findAll();
+        List<Chat> allChats = chatServiceImpl.findAll();
         List<Chat> sending = new ArrayList<>(allChats);
         sending.add(adminChat);
         for(Chat chat: sending) {

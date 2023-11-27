@@ -6,12 +6,12 @@
                       http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-3.1.xsd">
 
     <!--Удобно нумеровать через десяток, чтобы можно было удобно добавлять строки между -->
-    <include file="01-changeset-customer-table.xml" relativeToChangelogFile="true"/>
+    <include file="01-changeset-customerEntity-table.xml" relativeToChangelogFile="true"/>
     <include file="10-changeset-inquiry-table.xml" relativeToChangelogFile="true"/>
     <include file="20-changeset-chat-table.xml" relativeToChangelogFile="true"/>
     <include file="30-changeset-info-table.xml" relativeToChangelogFile="true"/>
     <include file="40-changeset-contact-table.xml" relativeToChangelogFile="true"/>
-    <include file="50-changeset-customer-message-table.xml" relativeToChangelogFile="true"/>
+    <include file="50-changeset-customerEntity-message-table.xml" relativeToChangelogFile="true"/>
     <include file="60-changeset-division-table.xml" relativeToChangelogFile="true"/>
     <include file="70-changeset-manager-table.xml" relativeToChangelogFile="true"/>
     <include file="80-changeset-manager-division-table.xml" relativeToChangelogFile="true"/>

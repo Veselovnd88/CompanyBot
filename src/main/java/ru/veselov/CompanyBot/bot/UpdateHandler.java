@@ -6,4 +6,5 @@ import ru.veselov.CompanyBot.exception.NoAvailableActionException;
 
 public interface UpdateHandler {
     BotApiMethod<?> processUpdate(Update update) throws NoAvailableActionException;
+
 }

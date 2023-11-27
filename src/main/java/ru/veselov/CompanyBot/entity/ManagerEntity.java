@@ -1,10 +1,19 @@
 package ru.veselov.CompanyBot.entity;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.NamedQueries;
+import jakarta.persistence.NamedQuery;
+import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -15,9 +24,9 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @NamedQueries({
-        @NamedQuery(name = "ManagerEntity.findManager",
-                query = "SELECT m FROM ManagerEntity m "+
-                        "LEFT JOIN FETCH m.divisions d "+
+        @NamedQuery(name = "ManagerEntity.findOneWithDivisions",
+                query = "SELECT m FROM ManagerEntity m " +
+                        "LEFT JOIN FETCH m.divisions d " +
                         "WHERE m.managerId=:id")
 })
 public class ManagerEntity {
@@ -32,22 +41,24 @@ public class ManagerEntity {
     @Column(name = "last_name")
     private String lastName;
 
-    @Column(name="username")
+    @Column(name = "username")
     private String userName;
 
-    @ManyToMany(cascade = {CascadeType.PERSIST,CascadeType.MERGE,CascadeType.REFRESH})
+    @ManyToMany(cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
     @JoinTable(
-            name="manager_division",
-            joinColumns = @JoinColumn(name="manager_id"),
+            name = "manager_division",
+            joinColumns = @JoinColumn(name = "manager_id"),
             inverseJoinColumns = @JoinColumn(name = "division_id")
     )
     private Set<Division> divisions = new HashSet<>();
+
     //Bidirectional relations for ManyToMany
-    public void addDivision(Division division){
+    public void addDivision(Division division) {
         this.divisions.add(division);
         division.getManagers().add(this);
     }
-    public void removeDivision(Division division){
+
+    public void removeDivision(Division division) {
         this.divisions.remove(division);
         division.getManagers().remove(this);
     }
@@ -64,4 +75,5 @@ public class ManagerEntity {
     public int hashCode() {
         return Objects.hash(managerId, firstName, lastName, userName);
     }
+
 }

@@ -13,7 +13,7 @@ import ru.veselov.CompanyBot.model.ContactModel;
 import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @ActiveProfiles("test")
-class CustomerServiceTest {
+class CustomerEntityServiceTest {
     @MockBean
     private CompanyBot companyBot;
 

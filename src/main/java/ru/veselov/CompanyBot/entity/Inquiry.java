@@ -1,10 +1,21 @@
 package ru.veselov.CompanyBot.entity;
 
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import jakarta.persistence.Temporal;
+import jakarta.persistence.TemporalType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.*;
 import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.Objects;
@@ -16,10 +27,12 @@ import java.util.Set;
 @Getter
 @Table(name = "inquiry")
 public class Inquiry {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "inquiry_id")
     private Integer inquiryId;
+
     @Column
     @Temporal(TemporalType.TIMESTAMP)
     private Date date;
@@ -33,23 +46,24 @@ public class Inquiry {
 
     @ManyToOne
     @JoinColumn(name = "customer_id", referencedColumnName = "id")
-    private Customer customer;
+    private CustomerEntity customerEntity;
 
     public void addMessage(CustomerMessageEntity message){
         messages.add(message);
         message.setInquiry(this);
     }
-    //Так как объект помещается в сет - переопределили
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Inquiry inquiry = (Inquiry) o;
-        return date.equals(inquiry.date) && division == inquiry.division && messages.equals(inquiry.messages) && customer.equals(inquiry.customer);
+        return date.equals(inquiry.date) && division == inquiry.division && messages.equals(inquiry.messages) && customerEntity.equals(inquiry.customerEntity);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(date, division, messages, customer);
+        return Objects.hash(date, division, messages, customerEntity);
     }
+
 }

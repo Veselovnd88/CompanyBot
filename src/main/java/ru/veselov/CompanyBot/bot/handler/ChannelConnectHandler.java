@@ -12,18 +12,18 @@ import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMember;
 import ru.veselov.CompanyBot.bot.CompanyBot;
 import ru.veselov.CompanyBot.bot.UpdateHandler;
 import ru.veselov.CompanyBot.exception.NoAvailableActionSendMessageException;
-import ru.veselov.CompanyBot.service.ChatService;
+import ru.veselov.CompanyBot.service.impl.ChatServiceImpl;
 import ru.veselov.CompanyBot.util.MessageUtils;
 
 @Component
 @Slf4j
 public class ChannelConnectHandler implements UpdateHandler {
     private final CompanyBot companyBot;
-    private final ChatService chatService;
+    private final ChatServiceImpl chatServiceImpl;
     @Autowired
-    public ChannelConnectHandler(CompanyBot companyBot, ChatService chatService) {
+    public ChannelConnectHandler(CompanyBot companyBot, ChatServiceImpl chatServiceImpl) {
         this.companyBot = companyBot;
-        this.chatService = chatService;
+        this.chatServiceImpl = chatServiceImpl;
     }
 
     @Override
@@ -36,20 +36,20 @@ public class ChannelConnectHandler implements UpdateHandler {
         if(addedUserId.equals(companyBot.getBotId())){
             Chat chat = update.getMyChatMember().getChat();
             if(newChatMember.getStatus().equalsIgnoreCase("administrator")){
-                chatService.save(chat);
+                chatServiceImpl.save(chat);
                 log.info("{}: бот добавлен в канал {}",userId,chat.getTitle());
                 return SendMessage.builder().chatId(userId)
                         .text("Вы добавили меня к каналу "+chat.getTitle()).build();
             }
             if(newChatMember.getStatus().equalsIgnoreCase("left")){
-                chatService.remove(chat.getId());
+                chatServiceImpl.remove(chat.getId());
                 log.info("{}: бот удален из канала {}",userId,chat.getTitle());
                 return SendMessage.builder().chatId(userId)
                         .text("Вы удалили меня из канала "+chat.getTitle()).build();
 
             }
             if(newChatMember.getStatus().equalsIgnoreCase("kicked")){
-                chatService.remove(chat.getId());
+                chatServiceImpl.remove(chat.getId());
                 log.info("{}: бот кикнут из канала {}",userId,chat.getTitle());
                 return SendMessage.builder().chatId(userId)
                         .text("Вы кикнули меня с канала "+chat.getTitle()).build();

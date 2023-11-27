@@ -16,12 +16,12 @@ import ru.veselov.CompanyBot.bot.CompanyBot;
 import ru.veselov.CompanyBot.model.ContactModel;
 import ru.veselov.CompanyBot.model.DivisionModel;
 import ru.veselov.CompanyBot.model.InquiryModel;
-import ru.veselov.CompanyBot.model.ManagerModel;
+import ru.veselov.CompanyBot.service.impl.ChatServiceImpl;
+import ru.veselov.CompanyBot.service.impl.SenderService;
 
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -36,7 +36,7 @@ class SenderServiceTest {
     CompanyBot bot;
 
     @MockBean
-    ChatService chatService;
+    ChatServiceImpl chatServiceImpl;
     @Value("${bot.adminId}")
     private String adminId;
     @Value("${bot.chat-interval}")
@@ -63,7 +63,7 @@ class SenderServiceTest {
         contactModel.setLastName("test");
         contactModel.setEmail("vasya@petya.ru");
         when(divisionService.findOneWithManagers(inquiryModel.getDivision())).thenReturn(divisionModel);
-        when(chatService.findAll()).thenReturn(Collections.emptyList());
+        when(chatServiceImpl.findAll()).thenReturn(Collections.emptyList());
     }
 
     @Test
@@ -81,7 +81,7 @@ class SenderServiceTest {
         chat.setId(-100L);
         chat.setTitle("Channel");
         chat.setType("group");
-        when(chatService.findAll()).thenReturn(List.of(chat));
+        when(chatServiceImpl.findAll()).thenReturn(List.of(chat));
         senderService.send(inquiryModel, contactModel);
         verify(bot,times(2)).execute(any(SendMessage.class));
         assertEquals(1,senderService.getChatTimers().size());

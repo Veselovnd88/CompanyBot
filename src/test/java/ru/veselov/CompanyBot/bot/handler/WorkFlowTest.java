@@ -13,7 +13,7 @@ import ru.veselov.CompanyBot.bot.BotState;
 import ru.veselov.CompanyBot.bot.CompanyBot;
 import ru.veselov.CompanyBot.cache.UserDataCache;
 import ru.veselov.CompanyBot.exception.NoAvailableActionException;
-import ru.veselov.CompanyBot.service.ChatService;
+import ru.veselov.CompanyBot.service.impl.ChatServiceImpl;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -33,7 +33,7 @@ public class WorkFlowTest {
     @Autowired
     TelegramFacadeUpdateHandler telegramFacadeUpdateHandler;
     @Autowired
-    ChatService chatService;
+    ChatServiceImpl chatServiceImpl;
 
     @Test
     void workFlowTest() {
@@ -41,7 +41,7 @@ public class WorkFlowTest {
         chat.setId(-100L);
         chat.setTitle("Channel");
         chat.setType("group");
-        chatService.save(chat);
+        chatServiceImpl.save(chat);
         ExecutorService executorService = Executors.newFixedThreadPool(10);
         int n=50;
         for(int i=0; i<n; i++) {

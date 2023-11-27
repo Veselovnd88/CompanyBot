@@ -2,7 +2,7 @@ package ru.veselov.CompanyBot.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.veselov.CompanyBot.dao.ManagerDAO;
+import ru.veselov.CompanyBot.dao.ManagerRepository;
 import ru.veselov.CompanyBot.entity.Division;
 import ru.veselov.CompanyBot.entity.ManagerEntity;
 import ru.veselov.CompanyBot.exception.NoSuchManagerException;
@@ -17,16 +17,16 @@ import java.util.stream.Collectors;
 @Slf4j
 public class ManagerService {
 
-    private final ManagerDAO managerDAO;
+    private final ManagerRepository managerRepository;
 
 
-    public ManagerService(ManagerDAO managerDAO) {
-        this.managerDAO = managerDAO;
+    public ManagerService(ManagerRepository managerRepository) {
+        this.managerRepository = managerRepository;
     }
 
     public void save(ManagerModel manager){
         ManagerEntity entity = toManagerEntity(manager);
-        managerDAO.saveWithDivisions(entity,
+        managerRepository.saveWithDivisions(entity,
                     manager.getDivisions().stream()
                             .map(this::toDivisionEntity).collect(Collectors.toSet()));
         log.info("{}: сохранен/обновлен менеджер с набором отделов {}", manager.getManagerId()
@@ -34,7 +34,7 @@ public class ManagerService {
     }
 
     public ManagerModel findOne(Long userId) throws NoSuchManagerException {
-        Optional<ManagerEntity> one = managerDAO.findOne(userId);
+        Optional<ManagerEntity> one = managerRepository.findOne(userId);
         if(one.isPresent()){
             return toManagerModel(one.get());
         }
@@ -43,11 +43,11 @@ public class ManagerService {
         }
     }
     public List<ManagerModel> findAll(){
-        return managerDAO.findAll().stream().map(this::toManagerModel).toList();
+        return managerRepository.findAll().stream().map(this::toManagerModel).toList();
     }
 
     public ManagerModel findOneWithDivisions(Long userId) throws NoSuchManagerException {
-        Optional<ManagerEntity> oneWithDivisions = managerDAO.findOneWithDivisions(userId);
+        Optional<ManagerEntity> oneWithDivisions = managerRepository.findOneWithDivisions(userId);
         if(oneWithDivisions.isPresent()){
             ManagerModel managerModel = toManagerModel(oneWithDivisions.get());
             managerModel.setDivisions(oneWithDivisions.get().getDivisions().stream().map(this::toDivisionModel)
@@ -59,12 +59,12 @@ public class ManagerService {
 
     public void remove(ManagerModel managerModel){
         log.info("{}: менеджер удален из БД", managerModel.getManagerId());
-        managerDAO.deleteById(managerModel.getManagerId());
+        managerRepository.deleteById(managerModel.getManagerId());
     }
 
     public void removeDivisions(ManagerModel managerModel){
         log.info("{}: удалены все отделы у менеджера", managerModel.getManagerId());
-        managerDAO.removeDivisions(toManagerEntity(managerModel));
+        managerRepository.removeDivisions(toManagerEntity(managerModel));
     }
 
 

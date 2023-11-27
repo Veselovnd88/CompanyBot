@@ -8,17 +8,17 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.telegram.telegrambots.meta.api.objects.Chat;
 import ru.veselov.CompanyBot.bot.CompanyBot;
-import ru.veselov.CompanyBot.service.ChatService;
+import ru.veselov.CompanyBot.service.impl.ChatServiceImpl;
 
 import static org.junit.jupiter.api.Assertions.*;
 @SpringBootTest
 @ActiveProfiles("test")
-class ChatServiceTest {
+class ChatServiceImplTest {
     @MockBean
     CompanyBot companyBot;
 
     @Autowired
-    private ChatService chatService;
+    private ChatServiceImpl chatService;
 
     private Chat chat;
     @BeforeEach

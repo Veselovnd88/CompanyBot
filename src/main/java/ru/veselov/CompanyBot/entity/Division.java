@@ -1,8 +1,20 @@
 package ru.veselov.CompanyBot.entity;
 
-import lombok.*;
+import jakarta.persistence.CascadeType;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.NamedQueries;
+import jakarta.persistence.NamedQuery;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-import javax.persistence.*;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
@@ -15,23 +27,26 @@ import java.util.Set;
 @Builder
 @AllArgsConstructor
 @NamedQueries({
-        @NamedQuery(name = "Division.findDivision",
-        query = "SELECT d FROM Division d "+
-        "LEFT JOIN FETCH d.managers m "+
-                "WHERE d.divisionId=:id")
+        @NamedQuery(name = "Division.findOneWithManagers",
+                query = "SELECT d FROM Division d " +
+                        "LEFT JOIN FETCH d.managers m " +
+                        "WHERE d.divisionId=:id")
 })
 public class Division {
+
     @Id
     @Column(name = "division_id")
     private String divisionId;
+
     @Column(columnDefinition = "varchar(950)")
     private String name;
-    @ManyToMany(mappedBy = "divisions",cascade = {CascadeType.PERSIST,CascadeType.MERGE, CascadeType.REFRESH})
+
+    @ManyToMany(mappedBy = "divisions", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
     private final Set<ManagerEntity> managers = new HashSet<>();
 
     @OneToMany(mappedBy = "division",
-            cascade = {CascadeType.PERSIST,CascadeType.REFRESH,CascadeType.MERGE})
-    private final Set<Inquiry> inquiries=new HashSet<>();
+            cascade = {CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.MERGE})
+    private final Set<Inquiry> inquiries = new HashSet<>();
 
     @Override
     public boolean equals(Object o) {
@@ -53,4 +68,5 @@ public class Division {
                 ", name='" + name + '\'' +
                 '}';
     }
+
 }

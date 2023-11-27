@@ -10,5 +10,5 @@ GO
 alter table if exists inquiry
        add constraint FK9q9qboj7w0w2hp1wwdjna08qp
        foreign key (customer_id)
-       references customer
+       references customerEntity
 GO
