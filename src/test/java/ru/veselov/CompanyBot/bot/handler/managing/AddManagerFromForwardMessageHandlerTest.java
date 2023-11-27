@@ -17,7 +17,6 @@ import ru.veselov.CompanyBot.bot.BotState;
 import ru.veselov.CompanyBot.bot.CompanyBot;
 import ru.veselov.CompanyBot.cache.AdminCache;
 import ru.veselov.CompanyBot.cache.UserDataCache;
-import ru.veselov.CompanyBot.model.ManagerModel;
 import ru.veselov.CompanyBot.service.ManagerService;
 import ru.veselov.CompanyBot.util.DivisionKeyboardUtils;
 

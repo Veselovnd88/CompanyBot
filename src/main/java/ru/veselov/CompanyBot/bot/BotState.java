@@ -21,5 +21,4 @@ public enum BotState {
     ASSIGN_DIV, DELETE_DIV,
     ADMIN_PASSWORD
 
-
 }

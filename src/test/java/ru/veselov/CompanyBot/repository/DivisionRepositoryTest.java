@@ -1,4 +1,4 @@
-package ru.veselov.CompanyBot.dao;
+package ru.veselov.CompanyBot.repository;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -8,7 +8,6 @@ import org.springframework.test.context.ActiveProfiles;
 import ru.veselov.CompanyBot.bot.CompanyBot;
 import ru.veselov.CompanyBot.entity.Division;
 import ru.veselov.CompanyBot.model.DivisionModel;
-import ru.veselov.CompanyBot.model.ManagerModel;
 import ru.veselov.CompanyBot.service.DivisionService;
 import ru.veselov.CompanyBot.service.ManagerService;
 

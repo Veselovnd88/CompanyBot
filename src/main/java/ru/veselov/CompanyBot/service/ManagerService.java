@@ -2,12 +2,10 @@ package ru.veselov.CompanyBot.service;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import ru.veselov.CompanyBot.dao.ManagerRepository;
 import ru.veselov.CompanyBot.entity.Division;
 import ru.veselov.CompanyBot.entity.ManagerEntity;
 import ru.veselov.CompanyBot.exception.NoSuchManagerException;
 import ru.veselov.CompanyBot.model.DivisionModel;
-import ru.veselov.CompanyBot.model.ManagerModel;
 
 import java.util.List;
 import java.util.Optional;

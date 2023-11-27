@@ -19,7 +19,6 @@ import ru.veselov.CompanyBot.entity.ManagerEntity;
 import ru.veselov.CompanyBot.exception.NoDivisionKeyboardException;
 import ru.veselov.CompanyBot.exception.NoDivisionsException;
 import ru.veselov.CompanyBot.model.DivisionModel;
-import ru.veselov.CompanyBot.model.ManagerModel;
 import ru.veselov.CompanyBot.service.DivisionService;
 import ru.veselov.CompanyBot.service.ManagerService;
 

@@ -11,7 +11,6 @@ import org.springframework.test.context.ActiveProfiles;
 import ru.veselov.CompanyBot.bot.CompanyBot;
 import ru.veselov.CompanyBot.exception.NoSuchManagerException;
 import ru.veselov.CompanyBot.model.DivisionModel;
-import ru.veselov.CompanyBot.model.ManagerModel;
 
 import java.util.HashSet;
 import java.util.Set;

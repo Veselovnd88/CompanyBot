@@ -13,7 +13,6 @@ import ru.veselov.CompanyBot.bot.CompanyBot;
 import ru.veselov.CompanyBot.exception.NoSuchDivisionException;
 import ru.veselov.CompanyBot.model.DivisionModel;
 import ru.veselov.CompanyBot.model.InquiryModel;
-import ru.veselov.CompanyBot.model.ManagerModel;
 import ru.veselov.CompanyBot.service.DivisionService;
 import ru.veselov.CompanyBot.service.Sender;
 

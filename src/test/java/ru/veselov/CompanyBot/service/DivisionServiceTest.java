@@ -9,7 +9,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import ru.veselov.CompanyBot.bot.CompanyBot;
 import ru.veselov.CompanyBot.model.DivisionModel;
-import ru.veselov.CompanyBot.model.ManagerModel;
 
 import java.util.Set;
 

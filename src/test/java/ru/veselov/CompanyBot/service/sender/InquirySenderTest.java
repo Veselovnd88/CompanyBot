@@ -1,7 +1,6 @@
 package ru.veselov.CompanyBot.service.sender;
 
 import lombok.SneakyThrows;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,7 +11,6 @@ import org.telegram.telegrambots.meta.api.objects.Chat;
 import ru.veselov.CompanyBot.bot.CompanyBot;
 import ru.veselov.CompanyBot.model.DivisionModel;
 import ru.veselov.CompanyBot.model.InquiryModel;
-import ru.veselov.CompanyBot.model.ManagerModel;
 import ru.veselov.CompanyBot.service.DivisionService;
 
 import java.util.Set;

@@ -1,7 +1,6 @@
 package ru.veselov.CompanyBot.cache;
 
 import ru.veselov.CompanyBot.entity.Division;
-import ru.veselov.CompanyBot.model.ManagerModel;
 
 import java.util.List;
 

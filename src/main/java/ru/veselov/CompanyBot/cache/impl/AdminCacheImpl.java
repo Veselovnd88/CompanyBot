@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.veselov.CompanyBot.cache.AdminCache;
 import ru.veselov.CompanyBot.entity.Division;
-import ru.veselov.CompanyBot.model.ManagerModel;
 
 import java.util.HashMap;
 import java.util.List;

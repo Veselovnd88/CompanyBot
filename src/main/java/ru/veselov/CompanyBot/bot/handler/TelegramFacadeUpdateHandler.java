@@ -22,14 +22,18 @@ import java.util.Optional;
 @Component
 @Slf4j
 public class TelegramFacadeUpdateHandler implements UpdateHandler {
-    //Фасад
+
     @Value("${bot.adminId}")
     private String adminId;
+
     private final CommandHandler commandHandler;
+
     private final ChannelConnectHandler channelConnectHandler;
 
     private final HandlerContext handlerContext;
+
     private final UserDataCache userDataCache;
+
     @Autowired
     public TelegramFacadeUpdateHandler(CommandHandler commandHandler,
                                        ChannelConnectHandler channelConnectHandler, HandlerContext handlerContext, UserDataCache userDataCache) {
@@ -41,7 +45,7 @@ public class TelegramFacadeUpdateHandler implements UpdateHandler {
 
     @Override
     public synchronized BotApiMethod<?> processUpdate(Update update) throws NoAvailableActionException {
-        //Обработка апдейтов, связанных с присоединением бота к чату
+        //updates for connecting bot to chat
         if(update.hasMyChatMember()){
             if(update.getMyChatMember().getFrom().getId().toString().equals(adminId)){
                 return channelConnectHandler.processUpdate(update);
