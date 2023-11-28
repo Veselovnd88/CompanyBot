@@ -96,7 +96,7 @@ class ChannelConnectHandlerTest {
 
     @Test
     void notBotIdTest(){
-        /*ID не бота*/
+        /*id не бота*/
         botUser.setId(9L);
         assertThrows(NoAvailableActionSendMessageException.class,
                 ()->channelConnectHandler.processUpdate(update));

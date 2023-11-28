@@ -20,16 +20,17 @@ spring:
   jpa:
     properties:
       hibernate:
-        dialect: org.hibernate.dialect.PostgreSQL95Dialect
         show_sql: true
         format_sql: true
+        use_sql_comments: true
         hbm2ddl:
           auto: validate
 
-
-
   liquibase:
-    change-log: classpath:db/changelog/db.changelog-master.xml
+    change-log: classpath:db/changelog/db.changelog-master.yaml
+    enabled: true
+    default-schema: public
+    drop-first: false
 
 logging:
   level:

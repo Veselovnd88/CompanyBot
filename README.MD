@@ -28,7 +28,7 @@ _________________
 - пароль Postgresql: POSTGRES_PASSWORD=  
   В application.yml указать:
 - spring.datasource.url:адрес базы данных;
-- bot.adminId: телеграм ID администратора;
+- bot.adminId: телеграм id администратора;
 - bot.webhookpath: ссылка на вебхук;
 - chat-interval: интервал между отправлениями сообщений ботом в один канал
 ______________________________________

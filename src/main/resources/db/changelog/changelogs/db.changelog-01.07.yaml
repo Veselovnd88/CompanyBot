@@ -1,27 +1,27 @@
 databaseChangeLog:
   - changeSet:
-      id: 'tag-01-00'
+      id: 'tag-01-06'
       author: 'veselov.nikolay'
-      comment: 'tag before creating division table'
+      comment: 'tag before insert company-info'
       changes:
         - tagDatabase:
-            tag: 'before-create-division-table-01-00'
+            tag: 'before-insert-company-info-01-06'
 
   - changeSet:
-      id: 'create-division-table-01-01'
+      id: 'insert-company-info-01-07'
       author: 'veselov.nikolay'
-      labels: 'create-division-table-01-01, division'
-      comment: 'create division table'
+      labels: 'insert-company-info-01-07, company-info'
+      comment: 'insert company-info'
       created: '2023-11-28'
       changes:
         - sqlFile:
             dbms: postgresql
             encoding: utf8
             endDelimiter: GO
-            path: script/01-01-create-division-table.sql
+            path: script/01-07-insert-company-info.sql
             relativeToChangelogFile: true
             splitStatements: true
             stripComments: true
       rollback:
-        - dropTable:
-            tableName: 'division'
+        - delete:
+            tableName: 'company_info'

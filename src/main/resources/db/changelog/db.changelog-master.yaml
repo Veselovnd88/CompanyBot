@@ -18,3 +18,20 @@ databaseChangeLog:
   - include:
       relativeToChangelogFile: true
       file: changelogs/db.changelog-01.03.yaml
+
+  - include:
+      relativeToChangelogFile: true
+      file: changelogs/db.changelog-01.04.yaml
+
+  - include:
+      relativeToChangelogFile: true
+      file: changelogs/db.changelog-01.05.yaml
+
+  - include:
+      relativeToChangelogFile: true
+      file: changelogs/db.changelog-01.06.yaml
+
+  - include:
+      relativeToChangelogFile: true
+      file: changelogs/db.changelog-01.07.yaml
+
