@@ -15,7 +15,6 @@ import org.telegram.telegrambots.meta.api.objects.*;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import ru.veselov.companybot.bot.CompanyBot;
 import ru.veselov.companybot.entity.DivisionEntity;
-import ru.veselov.companybot.entity.ManagerEntity;
 import ru.veselov.companybot.exception.NoDivisionKeyboardException;
 import ru.veselov.companybot.exception.NoDivisionsException;
 import ru.veselov.companybot.model.DivisionModel;

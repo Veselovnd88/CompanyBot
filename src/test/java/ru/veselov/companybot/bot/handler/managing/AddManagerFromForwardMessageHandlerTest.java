@@ -15,7 +15,6 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import ru.veselov.companybot.bot.BotState;
 import ru.veselov.companybot.bot.CompanyBot;
-import ru.veselov.companybot.cache.AdminCache;
 import ru.veselov.companybot.cache.UserDataCache;
 import ru.veselov.companybot.util.DivisionKeyboardUtils;
 

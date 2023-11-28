@@ -28,11 +28,11 @@ public class Config {
     public CommandLineRunner dataLoader(DivisionServiceImpl divisionService) {
         return args -> {
             divisionService.save(
-                    DivisionModel.builder().divisionId("LEUZE").name("Ультразвуковые, оптические датчики LEUZE").build());
+                    DivisionModel.builder().divisionId(1L).name("Ультразвуковые, оптические датчики LEUZE").build());
             divisionService.save(
-                    DivisionModel.builder().divisionId("PRESSURE").name("Датчики давления, расхода, температуры").build());
+                    DivisionModel.builder().divisionId(2L).name("Датчики давления, расхода, температуры").build());
             divisionService.save(
-                    DivisionModel.builder().divisionId("COMMON").name("Общие вопросы").build());
+                    DivisionModel.builder().divisionId(3L).name("Общие вопросы").build());
 
         };
     }

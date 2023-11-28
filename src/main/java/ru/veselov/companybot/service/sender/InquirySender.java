@@ -1,22 +1,35 @@
 package ru.veselov.companybot.service.sender;
 
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.methods.send.*;
-import org.telegram.telegrambots.meta.api.objects.*;
-import org.telegram.telegrambots.meta.api.objects.media.*;
+import org.telegram.telegrambots.meta.api.methods.send.SendAnimation;
+import org.telegram.telegrambots.meta.api.methods.send.SendAudio;
+import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
+import org.telegram.telegrambots.meta.api.methods.send.SendMediaGroup;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
+import org.telegram.telegrambots.meta.api.methods.send.SendVideo;
+import org.telegram.telegrambots.meta.api.objects.Chat;
+import org.telegram.telegrambots.meta.api.objects.InputFile;
+import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.media.InputMedia;
+import org.telegram.telegrambots.meta.api.objects.media.InputMediaAnimation;
+import org.telegram.telegrambots.meta.api.objects.media.InputMediaAudio;
+import org.telegram.telegrambots.meta.api.objects.media.InputMediaDocument;
+import org.telegram.telegrambots.meta.api.objects.media.InputMediaPhoto;
+import org.telegram.telegrambots.meta.api.objects.media.InputMediaVideo;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.veselov.companybot.bot.CompanyBot;
 import ru.veselov.companybot.exception.NoSuchDivisionException;
-import ru.veselov.companybot.model.DivisionModel;
 import ru.veselov.companybot.model.InquiryModel;
-import ru.veselov.companybot.service.impl.DivisionServiceImpl;
 import ru.veselov.companybot.service.Sender;
+import ru.veselov.companybot.service.impl.DivisionServiceImpl;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 @Slf4j
 @Component
@@ -39,10 +52,6 @@ public class InquirySender implements Sender {
         Map<String, SendMediaGroup> groupsCache = new HashMap<>();
 
         log.info("{}: отправляю запрос пользователя в канал {}", inquiry.getUserId(), chat.getTitle());
-        SendMessage managerMessage = markResponsibleManager(chat,inquiry);
-        if(managerMessage!=null){
-            bot.sendMessageWithDelay(managerMessage);
-        }
         //отправка сообщения с отмеченными юзерами
         bot.sendMessageWithDelay(SendMessage.builder().chatId(chat.getId())
                 .text("Направлен следующий запрос по тематике "+inquiry.getDivision().getName()).build());
@@ -198,52 +207,4 @@ public class InquirySender implements Sender {
         return sendMediaGroup;
     }
 
-    private String managerName(ManagerModel manager){
-        StringBuilder sb = new StringBuilder();
-        if(manager.getLastName()!=null){
-            sb.append(manager.getLastName()).append(" ");
-        }
-        if(manager.getFirstName()!=null){
-            sb.append(manager.getFirstName());
-        }
-        return sb.toString();
-    }
-
-    private SendMessage markResponsibleManager(Chat chat, InquiryModel inquiry) throws NoSuchDivisionException {
-        DivisionModel oneWithManagers = divisionService.findOneWithManagers(inquiry.getDivision());
-        if(oneWithManagers.getManagers().size()!=0) {
-            List<MessageEntity> entities= new ArrayList<>();
-            StringBuilder sb = new StringBuilder();
-            int offset = 0;
-            for (var manager : oneWithManagers.getManagers()) {
-                User user = userFromManager(manager);
-                String name = managerName(manager);
-                sb.append(name).append("\n");
-                MessageEntity messageEntity = new MessageEntity("text_mention", offset, name.length());
-                entities.add(messageEntity);
-                messageEntity.setUser(user);
-                offset += name.length() + 1;
-                if(sb.toString().length()>900){
-                    break;
-                }
-            }
-            return SendMessage.builder().chatId(chat.getId()).text(sb.toString()).entities(entities).build();
-        }
-        return null;
-    }
-
-    private User userFromManager(ManagerModel manager){
-        User user = new User();
-        user.setId(manager.getManagerId());
-        user.setFirstName(manager.getFirstName());
-        user.setLastName(manager.getLastName());
-        user.setUserName(manager.getUserName());
-        return user;
-    }
-
-    @Profile("test")
-    @SneakyThrows
-    public SendMessage markManagerForTest(Chat chat, InquiryModel inquiry){
-        return markResponsibleManager(chat,inquiry);
-    }
 }

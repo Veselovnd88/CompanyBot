@@ -45,9 +45,9 @@ class DivisionEntityServiceTest {
     void saveTest(){
         //Checking if division saved correctly
         divisionService.save(division1);
-        assertInstanceOf(DivisionModel.class,divisionService.findOne(division1));
+        assertInstanceOf(DivisionModel.class,divisionService.findById(division1));
         divisionService.save(division2);
-        assertInstanceOf(DivisionModel.class,divisionService.findOne(division2));
+        assertInstanceOf(DivisionModel.class,divisionService.findById(division2));
     }
     @Test
     @SneakyThrows
@@ -56,7 +56,7 @@ class DivisionEntityServiceTest {
         divisionService.save(division1);
         division1.setName("VASYAPETYA");
         divisionService.save(division1);
-        assertEquals(division1.getDivisionId(),divisionService.findOne(division1).getDivisionId());
+        assertEquals(division1.getDivisionId(),divisionService.findById(division1).getDivisionId());
     }
 
     @Test

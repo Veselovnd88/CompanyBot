@@ -1,7 +1,7 @@
 package ru.veselov.companybot.bot.handler;
 
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -15,31 +15,25 @@ import ru.veselov.companybot.cache.ContactCache;
 import ru.veselov.companybot.cache.UserDataCache;
 import ru.veselov.companybot.exception.NoAvailableActionException;
 import ru.veselov.companybot.exception.NoAvailableActionSendMessageException;
-import ru.veselov.companybot.exception.NoDivisionsException;
 import ru.veselov.companybot.service.CustomerService;
 import ru.veselov.companybot.util.DivisionKeyboardUtils;
-import ru.veselov.companybot.util.ManageKeyboardUtils;
 import ru.veselov.companybot.util.MessageUtils;
 
 import java.util.ArrayList;
 import java.util.List;
 
 @Component
+@RequiredArgsConstructor
 @Slf4j
 public class CommandHandler implements UpdateHandler {
+
     private final UserDataCache userDataCache;
+
     private final ContactCache contactCache;
+
     private final CustomerService customerService;
+
     private final DivisionKeyboardUtils divisionKeyboardUtils;
-    private final ManageKeyboardUtils manageKeyboardUtils;
-    @Autowired
-    public CommandHandler(UserDataCache userDataCache, ContactCache contactCache, CustomerService customerService, DivisionKeyboardUtils divisionKeyboardUtils, ManageKeyboardUtils manageKeyboardUtils) {
-        this.userDataCache = userDataCache;
-        this.contactCache = contactCache;
-        this.customerService = customerService;
-        this.divisionKeyboardUtils = divisionKeyboardUtils;
-        this.manageKeyboardUtils = manageKeyboardUtils;
-    }
 
     @Override
     public BotApiMethod<?> processUpdate(Update update) throws NoAvailableActionException {
@@ -95,11 +89,7 @@ public class CommandHandler implements UpdateHandler {
 
     private SendMessage departmentMessageInlineKeyBoard(Long userId){
         InlineKeyboardMarkup customerDivisionKeyboard;
-        try {
-            customerDivisionKeyboard = divisionKeyboardUtils.getCustomerDivisionKeyboard();
-        } catch (NoDivisionsException e) {
-            return SendMessage.builder().chatId(userId).text(e.getMessage()).build();
-        }
+        customerDivisionKeyboard = divisionKeyboardUtils.getCustomerDivisionKeyboard();
         return SendMessage.builder().chatId(userId).text(MessageUtils.CHOOSE_DEP)
                 .replyMarkup(customerDivisionKeyboard).build();
     }

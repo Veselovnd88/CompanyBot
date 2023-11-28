@@ -59,8 +59,8 @@ public class InquiryServiceImpl implements InquiryService {
     }
 
     @Override
-    public Optional<Inquiry> findWithMessages(Integer id) {
-        return inquiryRepository.findOneWithMessages(id);
+    public Optional<Inquiry> findWithMessages(Long id) {
+        return inquiryRepository.findByIdWithMessages(id);
     }
 
     @Override

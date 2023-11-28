@@ -31,24 +31,24 @@ public class Inquiry {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "inquiry_id")
-    private Integer inquiryId;
+    private Long inquiryId;
 
     @Column
     @Temporal(TemporalType.TIMESTAMP)
     private Date date;
 
     @ManyToOne
-    @JoinColumn(name="division_id",referencedColumnName = "division_id")
+    @JoinColumn(name = "division_id", referencedColumnName = "division_id")
     private DivisionEntity divisionEntity;
 
-    @OneToMany(mappedBy = "inquiry",orphanRemoval = true,cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "inquiry", orphanRemoval = true, cascade = CascadeType.ALL)
     private final Set<CustomerMessageEntity> messages = new LinkedHashSet<>();
 
     @ManyToOne
     @JoinColumn(name = "customer_id", referencedColumnName = "id")
     private CustomerEntity customerEntity;
 
-    public void addMessage(CustomerMessageEntity message){
+    public void addMessage(CustomerMessageEntity message) {
         messages.add(message);
         message.setInquiry(this);
     }

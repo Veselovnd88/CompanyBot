@@ -22,6 +22,7 @@ import java.util.Map;
 public class DivisionCallbackHandler implements UpdateHandler {
     private final UserDataCache userDataCache;
     private final DivisionKeyboardUtils divisionKeyboardUtils;
+
     @Autowired
     public DivisionCallbackHandler(UserDataCache userDataCache, DivisionKeyboardUtils divisionKeyboardUtils) {
         this.userDataCache = userDataCache;
@@ -32,16 +33,16 @@ public class DivisionCallbackHandler implements UpdateHandler {
     public BotApiMethod<?> processUpdate(Update update) throws NoAvailableActionCallbackException {
         Long userId = update.getCallbackQuery().getFrom().getId();
         String data = update.getCallbackQuery().getData();
-        Map<String, DivisionModel> cachedDivisions;
+        Map<Long, DivisionModel> cachedDivisions;
         try {
             cachedDivisions = divisionKeyboardUtils.getCachedDivisions();
         } catch (NoDivisionsException e) {
             return SendMessage.builder().chatId(userId)
                     .text(e.getMessage()).build();
         }
-        DivisionModel division=cachedDivisions.get(data);
-        if(division!=null){
-            userDataCache.createInquiry(userId,division);
+        DivisionModel division = cachedDivisions.get(Long.parseLong(data));
+        if (division != null) {
+            userDataCache.createInquiry(userId, division);
             userDataCache.setUserBotState(userId, BotState.AWAIT_MESSAGE);
             return SendMessage.builder().chatId(userId)
                     .text("Введите ваш вопрос или перешлите мне сообщение").build();

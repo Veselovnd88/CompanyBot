@@ -4,9 +4,6 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.NamedQueries;
-import jakarta.persistence.NamedQuery;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -26,12 +23,6 @@ import java.util.Set;
 @NoArgsConstructor
 @Builder
 @AllArgsConstructor
-@NamedQueries({
-        @NamedQuery(name = "Division.findOneWithManagers",
-                query = "SELECT d FROM DivisionEntity d " +
-                        "LEFT JOIN FETCH d.managers m " +
-                        "WHERE d.divisionId=:id")
-})
 public class DivisionEntity {
 
     @Id
@@ -40,9 +31,6 @@ public class DivisionEntity {
 
     @Column(columnDefinition = "varchar(950)")
     private String name;
-
-    @ManyToMany(mappedBy = "divisions", cascade = {CascadeType.PERSIST, CascadeType.MERGE, CascadeType.REFRESH})
-    private final Set<ManagerEntity> managers = new HashSet<>();
 
     @OneToMany(mappedBy = "division",
             cascade = {CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.MERGE})

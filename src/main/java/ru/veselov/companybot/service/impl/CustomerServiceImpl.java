@@ -7,6 +7,9 @@ import org.springframework.transaction.annotation.Transactional;
 import org.telegram.telegrambots.meta.api.objects.User;
 import ru.veselov.companybot.entity.ContactEntity;
 import ru.veselov.companybot.entity.CustomerEntity;
+import ru.veselov.companybot.exception.CustomerNotFoundException;
+import ru.veselov.companybot.mapper.ContactMapper;
+import ru.veselov.companybot.mapper.CustomerMapper;
 import ru.veselov.companybot.model.ContactModel;
 import ru.veselov.companybot.repository.ContactRepository;
 import ru.veselov.companybot.repository.CustomerRepository;
@@ -25,15 +28,19 @@ public class CustomerServiceImpl implements CustomerService {
 
     private final ContactRepository contactRepository;
 
+    private final ContactMapper contactMapper;
+
+    private final CustomerMapper customerMapper;
+
     @Override
     @Transactional
     public void save(User user) {
         Optional<CustomerEntity> one = findOne(user.getId());
         if (one.isEmpty()) {
-            customerRepository.save(toCustomer(user));//FIXME map
+            customerRepository.save(customerMapper.toEntity(user));
             log.info("New user with [id: {}] saved", user.getId());
         } else {
-            customerRepository.save(toCustomer(user));
+            customerRepository.save(customerMapper.toEntity(user));
             log.info("New user with [id: {}] updated", user.getId());
         }
     }
@@ -62,13 +69,19 @@ public class CustomerServiceImpl implements CustomerService {
     @Override
     @Transactional
     public void saveContact(ContactModel contact) {
-        Optional<CustomerEntity> one = customerRepository.findOneWithContacts(contact.getUserId());
-        if (one.isPresent()) {
-            ContactEntity contactEntity = toContactEntity(contact);
-            contactEntity.setCustomerEntity(one.get());
-            contactRepository.save(contactEntity);
-            log.info("New contact with [id: {}] saved", contact.getUserId());
-        }
+        Long customerId = contact.getUserId();
+        CustomerEntity customerEntity = customerRepository.findOneWithContacts(customerId)
+                .orElseThrow(
+                        () -> {
+                            log.error("Customer with [id: {}] not found", customerId);
+                            return new CustomerNotFoundException("Customer with [id: %s] not found"
+                                    .formatted(customerId));
+                        }
+                );
+        ContactEntity contactEntity = contactMapper.toEntity(contact);
+        contactEntity.setCustomerEntity(customerEntity);
+        contactRepository.save(contactEntity);
+        log.info("New contact with [id: {}] saved", customerId);
     }
 
 }

@@ -10,9 +10,8 @@ public interface DivisionService {
 
     void save(DivisionModel division);
 
-    DivisionModel findOneWithManagers(DivisionModel division) throws NoSuchDivisionException;
-
-    DivisionModel findOne(DivisionModel division) throws NoSuchDivisionException;
+    DivisionModel findById(Long divisionId) throws NoSuchDivisionException;
 
     void remove(DivisionModel division);
+
 }
