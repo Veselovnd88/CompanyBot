@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: 'create-inquiry-01-01'
+      author: 'veselov.nikolay'
+      labels: 'create-inquiry-01-01, inquiry'
+      comment: 'create inquriy table'
+      created: '2023-11-28'
+      changes:
+        - sqlFile:
+            dbms: postgresql
+            encoding: utf8
+            endDelimiter: GO
+            path: script/01-01-create-inquiry-table.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true
+      rollback:
+        - dropTable:
+            tableName: 'inquiry'

@@ -1,0 +1,19 @@
+databaseChangeLog:
+  - changeSet:
+      id: 'create-customer-01-00'
+      author: 'veselov.nikolay'
+      labels: 'create-customer-01-00, customer'
+      comment: 'create task table'
+      created: '2023-11-28'
+      changes:
+        - sqlFile:
+            dbms: postgresql
+            encoding: utf8
+            endDelimiter: GO
+            path: script/01-00-create-customer-table.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true
+      rollback:
+        - dropTable:
+            tableName: 'customer'
