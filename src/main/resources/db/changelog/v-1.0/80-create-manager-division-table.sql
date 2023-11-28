@@ -9,6 +9,6 @@ GO
 alter table if exists manager_division
        add constraint FKf9bmvrjliatpekesgy6t62u4b
        foreign key (division_id)
-       references division
+       references divisionEntity
 
 GO

@@ -7,7 +7,7 @@
 
 
     <changeSet id="8" author="veselov">
-        <sqlFile path="60-create-division-table.sql"
+        <sqlFile path="60-create-divisionEntity-table.sql"
                  dbms="postgresql"
                  encoding="UTF-8"
                  endDelimiter="\nGO"
@@ -16,7 +16,7 @@
                  stripComments="true"
         />
         <rollback>
-            <sqlFile path="60-drop-division-table.sql"
+            <sqlFile path="60-drop-divisionEntity-table.sql"
                      dbms="postgresql"
                      encoding="UTF-8"
                      endDelimiter="\nGO"

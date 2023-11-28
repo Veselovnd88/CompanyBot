@@ -12,9 +12,9 @@
     <include file="30-changeset-info-table.xml" relativeToChangelogFile="true"/>
     <include file="40-changeset-contact-table.xml" relativeToChangelogFile="true"/>
     <include file="50-changeset-customerEntity-message-table.xml" relativeToChangelogFile="true"/>
-    <include file="60-changeset-division-table.xml" relativeToChangelogFile="true"/>
+    <include file="60-changeset-divisionEntity-table.xml" relativeToChangelogFile="true"/>
     <include file="70-changeset-manager-table.xml" relativeToChangelogFile="true"/>
-    <include file="80-changeset-manager-division-table.xml" relativeToChangelogFile="true"/>
+    <include file="80-changeset-manager-divisionEntity-table.xml" relativeToChangelogFile="true"/>
 
 
 

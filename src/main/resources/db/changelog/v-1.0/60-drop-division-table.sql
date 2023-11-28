@@ -1,3 +1,3 @@
-drop table if exists division cascade
+drop table if exists divisionEntity cascade
 
 GO
