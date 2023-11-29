@@ -52,7 +52,7 @@ public class CustomerServiceImpl implements CustomerService {
 
     @Override
     public Optional<CustomerEntity> findOneWithContacts(Long userId) {
-        return customerRepository.findOneWithContacts(userId);
+        return customerRepository.findCustomerWithContacts(userId);
     }
 
     @Override
@@ -70,7 +70,7 @@ public class CustomerServiceImpl implements CustomerService {
     @Transactional
     public void saveContact(ContactModel contact) {
         Long customerId = contact.getUserId();
-        CustomerEntity customerEntity = customerRepository.findOneWithContacts(customerId)
+        CustomerEntity customerEntity = customerRepository.findCustomerWithContacts(customerId)
                 .orElseThrow(
                         () -> {
                             log.error("Customer with [id: {}] not found", customerId);

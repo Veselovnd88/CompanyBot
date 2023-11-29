@@ -6,11 +6,11 @@ import org.springframework.data.repository.query.Param;
 import ru.veselov.companybot.entity.DivisionEntity;
 
 import java.util.Optional;
+import java.util.UUID;
 
-public interface DivisionRepository extends JpaRepository<DivisionEntity, Long> {
-
+public interface DivisionRepository extends JpaRepository<DivisionEntity, UUID> {
 
     @Query("SELECT d from DivisionEntity d WHERE d.name = :name")
-    public Optional<DivisionEntity> findByName(@Param("name") String name);
+    Optional<DivisionEntity> findByName(@Param("name") String name);
 
 }

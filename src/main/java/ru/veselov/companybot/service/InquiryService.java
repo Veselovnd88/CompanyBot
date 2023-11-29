@@ -1,17 +1,18 @@
 package ru.veselov.companybot.service;
 
-import ru.veselov.companybot.entity.Inquiry;
+import ru.veselov.companybot.entity.InquiryEntity;
 import ru.veselov.companybot.model.InquiryModel;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 public interface InquiryService {
 
-    Inquiry save(InquiryModel inquiry);
+    InquiryEntity save(InquiryModel inquiry);
 
-    Optional<Inquiry> findWithMessages(Long id);
+    Optional<InquiryEntity> findWithMessages(UUID id);
 
-    List<Inquiry> findAll();
+    List<InquiryEntity> findAll();
 
 }

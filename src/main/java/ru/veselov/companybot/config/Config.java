@@ -12,6 +12,8 @@ import ru.veselov.companybot.model.DivisionModel;
 import ru.veselov.companybot.service.impl.CompanyInfoServiceImpl;
 import ru.veselov.companybot.service.impl.DivisionServiceImpl;
 
+import java.util.UUID;
+
 @Configuration
 @RequiredArgsConstructor
 public class Config {
@@ -28,11 +30,11 @@ public class Config {
     public CommandLineRunner dataLoader(DivisionServiceImpl divisionService) {
         return args -> {
             divisionService.save(
-                    DivisionModel.builder().divisionId(1L).name("Ультразвуковые, оптические датчики LEUZE").build());
+                    DivisionModel.builder().divisionId(UUID.randomUUID()).name("Ультразвуковые, оптические датчики LEUZE").build());
             divisionService.save(
-                    DivisionModel.builder().divisionId(2L).name("Датчики давления, расхода, температуры").build());
+                    DivisionModel.builder().divisionId(UUID.randomUUID()).name("Датчики давления, расхода, температуры").build());
             divisionService.save(
-                    DivisionModel.builder().divisionId(3L).name("Общие вопросы").build());
+                    DivisionModel.builder().divisionId(UUID.randomUUID()).name("Общие вопросы").build());
 
         };
     }

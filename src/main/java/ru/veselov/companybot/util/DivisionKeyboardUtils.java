@@ -21,6 +21,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -31,7 +32,7 @@ public class DivisionKeyboardUtils implements Cache {
 
     private static final String EMOJI_MARK = ":white_check_mark:";
 
-    private final HashMap<Long, DivisionModel> idToDivision = new HashMap<>();
+    private final HashMap<UUID, DivisionModel> idToDivision = new HashMap<>();
 
     private final HashMap<Long, InlineKeyboardMarkup> divisionKeyboardCache = new HashMap<>();
 
@@ -44,7 +45,7 @@ public class DivisionKeyboardUtils implements Cache {
         InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
         for (var d : allDivisions) {
             String name = d.getName();
-            Long callback = d.getDivisionId();
+            UUID callback = d.getDivisionId();
             InlineKeyboardButton button = new InlineKeyboardButton();
             button.setText(name);
             button.setCallbackData(callback.toString());
@@ -111,7 +112,7 @@ public class DivisionKeyboardUtils implements Cache {
         return withMarked;
     }
 
-    public Map<Long, DivisionModel> getCachedDivisions() throws NoDivisionsException {
+    public Map<UUID, DivisionModel> getCachedDivisions() throws NoDivisionsException {
         if (idToDivision.isEmpty()) {
             throw new NoDivisionsException();
         }

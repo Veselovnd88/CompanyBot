@@ -21,7 +21,7 @@ import java.util.Set;
 @Entity
 @Table(name = "customer")
 @NamedQueries({
-        @NamedQuery(name = "Customer.findCustomerWithContacts",
+        @NamedQuery(name = "CustomerEntity.findCustomerWithContacts",
                 query = "SELECT c FROM CustomerEntity c " +
                         "LEFT JOIN FETCH c.contacts cn " +
                         "WHERE c.id=:id")
@@ -47,6 +47,6 @@ public class CustomerEntity {
 
     //mappedBy - to this object we bind list
     @OneToMany(mappedBy = "customerEntity", orphanRemoval = true, cascade = CascadeType.ALL)
-    private Set<Inquiry> inquiryList = new HashSet<>();
+    private Set<InquiryEntity> inquiryEntityList = new HashSet<>();
 
 }

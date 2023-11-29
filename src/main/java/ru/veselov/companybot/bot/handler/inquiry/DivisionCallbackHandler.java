@@ -16,6 +16,7 @@ import ru.veselov.companybot.util.DivisionKeyboardUtils;
 import ru.veselov.companybot.util.MessageUtils;
 
 import java.util.Map;
+import java.util.UUID;
 
 @Component
 @Slf4j
@@ -33,14 +34,14 @@ public class DivisionCallbackHandler implements UpdateHandler {
     public BotApiMethod<?> processUpdate(Update update) throws NoAvailableActionCallbackException {
         Long userId = update.getCallbackQuery().getFrom().getId();
         String data = update.getCallbackQuery().getData();
-        Map<Long, DivisionModel> cachedDivisions;
+        Map<UUID, DivisionModel> cachedDivisions;
         try {
             cachedDivisions = divisionKeyboardUtils.getCachedDivisions();
         } catch (NoDivisionsException e) {
             return SendMessage.builder().chatId(userId)
                     .text(e.getMessage()).build();
         }
-        DivisionModel division = cachedDivisions.get(Long.parseLong(data));
+        DivisionModel division = cachedDivisions.get(UUID.fromString(data));
         if (division != null) {
             userDataCache.createInquiry(userId, division);
             userDataCache.setUserBotState(userId, BotState.AWAIT_MESSAGE);

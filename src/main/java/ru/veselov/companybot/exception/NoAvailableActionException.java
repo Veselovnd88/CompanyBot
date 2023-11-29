@@ -2,7 +2,7 @@ package ru.veselov.companybot.exception;
 
 import lombok.Getter;
 
-public class NoAvailableActionException extends Exception{
+public class NoAvailableActionException extends RuntimeException{
     @Getter
     private final String chatId;
 

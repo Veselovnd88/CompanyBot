@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 @Data
 @NoArgsConstructor
@@ -16,7 +17,7 @@ import java.util.Set;
 @Builder
 public class DivisionModel {
 
-    private Long divisionId;
+    private UUID divisionId;
 
     private String name;
 

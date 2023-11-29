@@ -23,7 +23,7 @@ import static org.mockito.Mockito.spy;
 
 @SpringBootTest
 @ActiveProfiles("test")
-class InquiryMessageHandlerTest {
+class InquiryEntityMessageHandlerTest {
     @MockBean
     CompanyBot companyBot;
     @Autowired

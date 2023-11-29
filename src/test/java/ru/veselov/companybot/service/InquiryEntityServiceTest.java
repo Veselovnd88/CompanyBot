@@ -10,7 +10,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.User;
 import ru.veselov.companybot.bot.CompanyBot;
-import ru.veselov.companybot.entity.Inquiry;
+import ru.veselov.companybot.entity.InquiryEntity;
 import ru.veselov.companybot.model.DivisionModel;
 import ru.veselov.companybot.model.InquiryModel;
 import ru.veselov.companybot.service.impl.DivisionServiceImpl;
@@ -23,7 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @SpringBootTest
 @ActiveProfiles("test")
-class InquiryServiceTest {
+class InquiryEntityServiceTest {
     @MockBean
     CompanyBot companyBot;
     @Autowired
@@ -64,11 +64,11 @@ class InquiryServiceTest {
             message = new Message();
             message.setText("Test "+i);
             inquiry.setMessages(List.of(message));
-            Inquiry save = inquiryService.save(inquiry);
+            InquiryEntity save = inquiryService.save(inquiry);
             assertTrue(inquiryService.findWithMessages(save.getInquiryId()).isPresent());
             assertEquals(1,inquiryService.findWithMessages(save.getInquiryId()).get().getMessages().size());
         }
-        List<Inquiry> all = inquiryService.findAll();
+        List<InquiryEntity> all = inquiryService.findAll();
         assertEquals(10,all.size());
     }
 }

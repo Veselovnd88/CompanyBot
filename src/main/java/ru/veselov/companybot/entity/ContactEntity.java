@@ -3,11 +3,11 @@ package ru.veselov.companybot.entity;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Email;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -16,6 +16,7 @@ import org.hibernate.type.SqlTypes;
 import org.telegram.telegrambots.meta.api.objects.Contact;
 
 import java.util.Objects;
+import java.util.UUID;
 
 @Entity
 @Table(name = "contact")
@@ -25,9 +26,9 @@ import java.util.Objects;
 public class ContactEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue
     @Column(name = "contact_id")
-    private int contactId;
+    private UUID contactId;
 
     @Column(name = "last_name")
     private String lastName;
@@ -41,6 +42,7 @@ public class ContactEntity {
     @Column(name = "phone")
     private String phone;
 
+    @Email
     @Column(name = "email")
     private String email;
 

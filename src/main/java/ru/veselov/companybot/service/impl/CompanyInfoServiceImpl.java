@@ -10,7 +10,6 @@ import ru.veselov.companybot.repository.CompanyInfoRepository;
 import ru.veselov.companybot.service.CompanyInfoService;
 import ru.veselov.companybot.util.MessageUtils;
 
-import java.util.Date;
 import java.util.List;
 
 @Service
@@ -44,7 +43,6 @@ public class CompanyInfoServiceImpl implements CompanyInfoService {
     private CompanyInfoEntity toEntity(Message message) {
         CompanyInfoEntity companyInfoEntity = new CompanyInfoEntity();
         companyInfoEntity.setInfo(message);
-        companyInfoEntity.setChangedAt(new Date());
         return companyInfoEntity;
     }
 

@@ -20,7 +20,7 @@ import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @ActiveProfiles("test")
-class InquirySenderTest {
+class InquiryEntitySenderTest {
     @Value("${bot.adminId}")
     private String adminId;
     @MockBean

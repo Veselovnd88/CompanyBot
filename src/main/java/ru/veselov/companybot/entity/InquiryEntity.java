@@ -4,44 +4,43 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import jakarta.persistence.Temporal;
-import jakarta.persistence.TemporalType;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 
-import java.util.Date;
+import java.time.LocalDateTime;
 import java.util.LinkedHashSet;
 import java.util.Objects;
 import java.util.Set;
+import java.util.UUID;
 
 @Entity
 @NoArgsConstructor
 @Setter
 @Getter
 @Table(name = "inquiry")
-public class Inquiry {
+public class InquiryEntity {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue
     @Column(name = "inquiry_id")
-    private Long inquiryId;
+    private UUID inquiryId;
 
     @Column
-    @Temporal(TemporalType.TIMESTAMP)
-    private Date date;
+    @CreationTimestamp
+    private LocalDateTime date;
 
     @ManyToOne
     @JoinColumn(name = "division_id", referencedColumnName = "division_id")
-    private DivisionEntity divisionEntity;
+    private DivisionEntity division;
 
-    @OneToMany(mappedBy = "inquiry", orphanRemoval = true, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "inquiryEntity", orphanRemoval = true, cascade = CascadeType.ALL)
     private final Set<CustomerMessageEntity> messages = new LinkedHashSet<>();
 
     @ManyToOne
@@ -50,20 +49,20 @@ public class Inquiry {
 
     public void addMessage(CustomerMessageEntity message) {
         messages.add(message);
-        message.setInquiry(this);
+        message.setInquiryEntity(this);
     }
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        Inquiry inquiry = (Inquiry) o;
-        return date.equals(inquiry.date) && divisionEntity == inquiry.divisionEntity && messages.equals(inquiry.messages) && customerEntity.equals(inquiry.customerEntity);
+        InquiryEntity inquiryEntity = (InquiryEntity) o;
+        return date.equals(inquiryEntity.date) && division == inquiryEntity.division && messages.equals(inquiryEntity.messages) && customerEntity.equals(inquiryEntity.customerEntity);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(date, divisionEntity, messages, customerEntity);
+        return Objects.hash(date, division, messages, customerEntity);
     }
 
 }

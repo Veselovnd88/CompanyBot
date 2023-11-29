@@ -3,6 +3,7 @@ package ru.veselov.companybot.bot;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
@@ -34,7 +35,7 @@ public class CompanyBot extends TelegramLongPollingBot {
 
     private final TelegramFacadeUpdateHandler telegramFacadeUpdateHandler;
 
-    public CompanyBot(BotProperties botProperties, TelegramFacadeUpdateHandler telegramFacadeUpdateHandler) {
+    public CompanyBot(BotProperties botProperties, @Lazy TelegramFacadeUpdateHandler telegramFacadeUpdateHandler) {
         super(botProperties.getToken());
         this.botProperties = botProperties;
         this.telegramFacadeUpdateHandler = telegramFacadeUpdateHandler;
@@ -61,7 +62,6 @@ public class CompanyBot extends TelegramLongPollingBot {
         }
     }
 
-
     public void sendMessageWithDelay(SendMessage sendMessage) {
         try {
             this.execute(sendMessage);
@@ -74,11 +74,11 @@ public class CompanyBot extends TelegramLongPollingBot {
     }
 
     private List<BotCommand> setUpCommands() {
-        BotCommand startCommand = new BotCommand("/start", "Приветствие, начало работы с ботом");
-        BotCommand inquiryCommand = new BotCommand("/inquiry", "Отправить заявку боту");
-        BotCommand callMeCommand = new BotCommand("/call", "Оставить заявку на звонок");
-        BotCommand aboutCommand = new BotCommand("/about", "Информация о компании");
-        BotCommand infoCommand = new BotCommand("/info", "Информация о боте");
+        BotCommand startCommand = new BotCommand(BotCommands.START, "Приветствие, начало работы с ботом");
+        BotCommand inquiryCommand = new BotCommand(BotCommands.INQUIRY, "Отправить заявку боту");
+        BotCommand callMeCommand = new BotCommand(BotCommands.CALL, "Оставить заявку на звонок");
+        BotCommand aboutCommand = new BotCommand(BotCommands.ABOUT, "Информация о компании");
+        BotCommand infoCommand = new BotCommand(BotCommands.INFO, "Информация о боте");
         return List.of(startCommand, inquiryCommand, callMeCommand, aboutCommand, infoCommand);
     }
 

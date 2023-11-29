@@ -11,6 +11,7 @@ import ru.veselov.companybot.repository.DivisionRepository;
 import ru.veselov.companybot.service.DivisionService;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -33,7 +34,7 @@ public class DivisionServiceImpl implements DivisionService {
     }
 
     @Override
-    public DivisionModel findById(Long divisionId) {
+    public DivisionModel findById(UUID divisionId) {
         DivisionEntity divisionEntity = divisionRepository.findById(divisionId)
                 .orElseThrow(
                         () -> {
