@@ -1,0 +1,27 @@
+databaseChangeLog:
+  - changeSet:
+      id: 'tag-01-04'
+      author: 'veselov.nikolay'
+      comment: 'tag before creating contact table'
+      changes:
+        - tagDatabase:
+            tag: 'before-create-contact-table-01-04'
+
+  - changeSet:
+      id: 'create-contact-table-01-05'
+      author: 'veselov.nikolay'
+      labels: 'create-contact-table-01-05, contact'
+      comment: 'create contact table'
+      created: '2023-11-28'
+      changes:
+        - sqlFile:
+            dbms: postgresql
+            encoding: utf8
+            endDelimiter: GO
+            path: script/01-05-create-contact-table.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true
+      rollback:
+        - dropTable:
+            tableName: 'contact'

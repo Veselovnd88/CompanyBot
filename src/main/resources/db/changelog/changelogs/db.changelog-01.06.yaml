@@ -1,0 +1,27 @@
+databaseChangeLog:
+  - changeSet:
+      id: 'tag-01-05'
+      author: 'veselov.nikolay'
+      comment: 'tag before creating message table'
+      changes:
+        - tagDatabase:
+            tag: 'before-create-message-table-01-05'
+
+  - changeSet:
+      id: 'create-message-table-01-06'
+      author: 'veselov.nikolay'
+      labels: 'create-message-table-01-06, contact'
+      comment: 'create message table'
+      created: '2023-11-28'
+      changes:
+        - sqlFile:
+            dbms: postgresql
+            encoding: utf8
+            endDelimiter: GO
+            path: script/01-06-create-message-table.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true
+      rollback:
+        - dropTable:
+            tableName: 'message'

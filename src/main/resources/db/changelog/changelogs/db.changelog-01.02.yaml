@@ -1,0 +1,27 @@
+databaseChangeLog:
+  - changeSet:
+      id: 'tag-01-01'
+      author: 'veselov.nikolay'
+      comment: 'tag before creating inquiry table'
+      changes:
+        - tagDatabase:
+            tag: 'before-create-inquiry-table-01-01'
+
+  - changeSet:
+      id: 'create-inquiry-01-02'
+      author: 'veselov.nikolay'
+      labels: 'create-inquiry-01-02, inquiry'
+      comment: 'create inquiry table'
+      created: '2023-11-28'
+      changes:
+        - sqlFile:
+            dbms: postgresql
+            encoding: utf8
+            endDelimiter: GO
+            path: script/01-02-create-inquiry-table.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true
+      rollback:
+        - dropTable:
+            tableName: 'inquiry'

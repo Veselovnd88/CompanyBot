@@ -1,0 +1,27 @@
+databaseChangeLog:
+  - changeSet:
+      id: 'tag-01-02'
+      author: 'veselov.nikolay'
+      comment: 'tag before creating chat table'
+      changes:
+        - tagDatabase:
+            tag: 'before-create-chat-table-01-02'
+
+  - changeSet:
+      id: 'create-chat-table-01-03'
+      author: 'veselov.nikolay'
+      labels: 'create-chat-table-01-03, chat'
+      comment: 'create chat table'
+      created: '2023-11-28'
+      changes:
+        - sqlFile:
+            dbms: postgresql
+            encoding: utf8
+            endDelimiter: GO
+            path: script/01-03-create-chat-table.sql
+            relativeToChangelogFile: true
+            splitStatements: true
+            stripComments: true
+      rollback:
+        - dropTable:
+            tableName: 'chat'
