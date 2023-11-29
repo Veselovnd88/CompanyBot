@@ -1,7 +1,7 @@
 package ru.veselov.companybot.bot.handler;
 
 
-import lombok.SneakyThrows;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -9,12 +9,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.ChatMemberUpdated;
-import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMember;
+import ru.veselov.companybot.bot.BotConstant;
 import ru.veselov.companybot.bot.BotInfo;
 import ru.veselov.companybot.bot.handler.impl.ChannelConnectUpdateHandlerImpl;
 import ru.veselov.companybot.exception.NoAvailableActionSendMessageException;
@@ -30,78 +31,76 @@ class ChannelConnectUpdateHandlerImplTest {
     ChannelConnectUpdateHandlerImpl channelConnectUpdateHandler;
 
     Update update;
+
     User user;
+
     User botUser;
-    Message message;
+
     ChatMemberUpdated chatMemberUpdated;
+
     ChatMember chatMember;
+
     Chat chat;
 
     @BeforeEach
     void init() {
+        BotInfo.botId = 1L;
         update = Mockito.spy(Update.class);
-        user = spy(User.class);
+        user = Mockito.spy(User.class);
         user.setId(100L);
-        botUser = spy(User.class);
-        message = spy(Message.class);
-        chatMemberUpdated = spy(ChatMemberUpdated.class);
-        chatMember = spy(ChatMember.class);
-        chat = spy(Chat.class);
+        botUser = Mockito.spy(User.class);
+        chatMemberUpdated = Mockito.spy(ChatMemberUpdated.class);
+        chatMember = Mockito.spy(ChatMember.class);
+        chat = Mockito.spy(Chat.class);
         chat.setId(-100L);
         update.setMyChatMember(chatMemberUpdated);
         chatMemberUpdated.setFrom(user);
         chatMemberUpdated.setNewChatMember(chatMember);
-        when(chatMemberUpdated.getNewChatMember()).thenReturn(chatMember);
-        when(chatMember.getUser()).thenReturn(botUser);
+        Mockito.when(chatMemberUpdated.getNewChatMember()).thenReturn(chatMember);
+        Mockito.when(chatMember.getUser()).thenReturn(botUser);
         chatMemberUpdated.setChat(chat);
-
     }
 
     @Test
-    @SneakyThrows
-    void connectBotToChannelTest() {
-        /*Бот присоединен к каналу админом*/
+    void shouldSaveChatWhenBotIsConnectedToChannel() {
         botUser.setId(BotInfo.botId);
-        when(chatMember.getStatus()).thenReturn("administrator");
-        assertNotNull(channelConnectHandler.processUpdate(update));
-        verify(chatService).save(chat);
+        Mockito.when(chatMember.getStatus()).thenReturn(BotConstant.ADMINISTRATOR);
+        SendMessage sendMessage = channelConnectUpdateHandler.processUpdate(update);
+        Assertions.assertThat(sendMessage.getChatId()).isEqualTo(user.getId().toString());
+        Mockito.verify(chatService).save(chat);
     }
 
     @Test
-    @SneakyThrows
-    void removeBotFromChannelTest() {
-        /*Бот удален с канала*/
-        botUser.setId(companyBot.getBotId());
-        when(chatMember.getStatus()).thenReturn("left");
-        assertNotNull(channelConnectHandler.processUpdate(update));
-        verify(chatService).remove(chat.getId());
+    void shouldRemoveChatWhenBotIsRemovedFromChannel() {
+        botUser.setId(BotInfo.botId);
+        Mockito.when(chatMember.getStatus()).thenReturn(BotConstant.LEFT);
+        channelConnectUpdateHandler.processUpdate(update);
+        Mockito.verify(chatService).remove(chat.getId());
     }
 
     @Test
-    @SneakyThrows
-    void kickBotFromChannelTest() {
-        /*Бот кикнут с канала*/
-        botUser.setId(companyBot.getBotId());
-        when(chatMember.getStatus()).thenReturn("kicked");
-        assertNotNull(channelConnectHandler.processUpdate(update));
-        verify(chatService).remove(chat.getId());
+    void shouldRemoveChatIfBotWasKickedFromChat() {
+        botUser.setId(BotInfo.botId);
+        Mockito.when(chatMember.getStatus()).thenReturn(BotConstant.KICKED);
+        channelConnectUpdateHandler.processUpdate(update);
+        Mockito.verify(chatService).remove(chat.getId());
     }
 
     @Test
-    void unknownStatusTest() {
-        /*Прошла неизвестная команда*/
-        botUser.setId(companyBot.getBotId());
-        when(chatMember.getStatus()).thenReturn("unknown");
-        assertThrows(NoAvailableActionSendMessageException.class,
-                () -> channelConnectHandler.processUpdate(update));
+    void shouldThrowExceptionIfUnavailableCommandOccurred() {
+        botUser.setId(BotInfo.botId);
+        Mockito.when(chatMember.getStatus()).thenReturn("unknown");
+        Assertions.assertThatThrownBy(
+                () -> channelConnectUpdateHandler.processUpdate(update)
+        ).isInstanceOf(NoAvailableActionSendMessageException.class);
     }
 
     @Test
-    void notBotIdTest() {
-        /*id не бота*/
+    void shouldThrowExceptionIfNotBotIdWasHandled() {
         botUser.setId(9L);
-        assertThrows(NoAvailableActionSendMessageException.class,
-                () -> channelConnectHandler.processUpdate(update));
+        Assertions.assertThatThrownBy(
+                () -> channelConnectUpdateHandler.processUpdate(update)
+        ).isInstanceOf(NoAvailableActionSendMessageException.class);
     }
 
 }
