@@ -29,8 +29,6 @@ import java.util.List;
 @Slf4j
 public class CompanyBot extends TelegramLongPollingBot {
 
-    private Long botId;
-
     private final BotProperties botProperties;
 
     private final TelegramFacadeUpdateHandler telegramFacadeUpdateHandler;
@@ -55,8 +53,8 @@ public class CompanyBot extends TelegramLongPollingBot {
         try {
             this.execute(new SetMyCommands(setUpCommands(), new BotCommandScopeDefault(), null));
             log.info("Menu was set up");
-            botId = this.getMe().getId();
-            log.info("Bot [id: {}]", botId);
+            BotInfo.botId = this.getMe().getId();
+            log.info("Bot [id: {}]", BotInfo.botId);
         } catch (TelegramApiException e) {
             log.error("Error occurred during starting bot: {}", e.getMessage());
         }

@@ -11,6 +11,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.veselov.companybot.bot.BotState;
 import ru.veselov.companybot.bot.HandlerContext;
 import ru.veselov.companybot.bot.UpdateHandler;
+import ru.veselov.companybot.bot.handler.impl.ChannelConnectUpdateHandlerImpl;
 import ru.veselov.companybot.cache.UserDataCache;
 import ru.veselov.companybot.exception.NoAvailableActionCallbackException;
 import ru.veselov.companybot.exception.NoAvailableActionException;
@@ -29,7 +30,7 @@ public class TelegramFacadeUpdateHandler implements UpdateHandler {
 
     private final CommandHandler commandHandler;
 
-    private final ChannelConnectHandler channelConnectHandler;
+    private final ChannelConnectUpdateHandlerImpl channelConnectUpdateHandlerImpl;
 
     private final HandlerContext handlerContext;
 
@@ -40,7 +41,7 @@ public class TelegramFacadeUpdateHandler implements UpdateHandler {
         //updates for connecting bot to chat
         if (update.hasMyChatMember()) {
             if (update.getMyChatMember().getFrom().getId().toString().equals(adminId)) {
-                return channelConnectHandler.processUpdate(update);
+                return channelConnectUpdateHandlerImpl.processUpdate(update);
             } else {
                 return SendMessage.builder().chatId(update.getMyChatMember().getFrom().getId())
                         .text("Я работаю только в тех каналах, куда меня добавил администратор")

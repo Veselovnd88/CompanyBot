@@ -4,30 +4,30 @@ package ru.veselov.companybot.bot.handler;
 import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.ActiveProfiles;
-import org.telegram.telegrambots.meta.api.objects.*;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.telegram.telegrambots.meta.api.objects.Chat;
+import org.telegram.telegrambots.meta.api.objects.ChatMemberUpdated;
+import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMember;
-import ru.veselov.companybot.bot.CompanyBot;
+import ru.veselov.companybot.bot.BotInfo;
+import ru.veselov.companybot.bot.handler.impl.ChannelConnectUpdateHandlerImpl;
 import ru.veselov.companybot.exception.NoAvailableActionSendMessageException;
-import ru.veselov.companybot.service.impl.ChatServiceImpl;
+import ru.veselov.companybot.service.ChatService;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+@ExtendWith(MockitoExtension.class)
+class ChannelConnectUpdateHandlerImplTest {
 
-@SpringBootTest
-@ActiveProfiles("test")
-class ChannelConnectHandlerTest {
-    @MockBean
-    private CompanyBot companyBot;
+    @Mock
+    ChatService chatService;
 
-    @Autowired
-    ChannelConnectHandler channelConnectHandler;
-
-    @MockBean
-    ChatServiceImpl chatService;
+    @InjectMocks
+    ChannelConnectUpdateHandlerImpl channelConnectUpdateHandler;
 
     Update update;
     User user;
@@ -38,14 +38,14 @@ class ChannelConnectHandlerTest {
     Chat chat;
 
     @BeforeEach
-    void init(){
-        update= spy(Update.class);
-        user= spy(User.class);
+    void init() {
+        update = Mockito.spy(Update.class);
+        user = spy(User.class);
         user.setId(100L);
-        botUser=spy(User.class);
-        message=spy(Message.class);
+        botUser = spy(User.class);
+        message = spy(Message.class);
         chatMemberUpdated = spy(ChatMemberUpdated.class);
-        chatMember= spy(ChatMember.class);
+        chatMember = spy(ChatMember.class);
         chat = spy(Chat.class);
         chat.setId(-100L);
         update.setMyChatMember(chatMemberUpdated);
@@ -59,16 +59,17 @@ class ChannelConnectHandlerTest {
 
     @Test
     @SneakyThrows
-    void connectBotToChannelTest(){
+    void connectBotToChannelTest() {
         /*Бот присоединен к каналу админом*/
-        botUser.setId(companyBot.getBotId());
+        botUser.setId(BotInfo.botId);
         when(chatMember.getStatus()).thenReturn("administrator");
         assertNotNull(channelConnectHandler.processUpdate(update));
         verify(chatService).save(chat);
     }
+
     @Test
     @SneakyThrows
-    void removeBotFromChannelTest(){
+    void removeBotFromChannelTest() {
         /*Бот удален с канала*/
         botUser.setId(companyBot.getBotId());
         when(chatMember.getStatus()).thenReturn("left");
@@ -78,28 +79,29 @@ class ChannelConnectHandlerTest {
 
     @Test
     @SneakyThrows
-    void kickBotFromChannelTest(){
+    void kickBotFromChannelTest() {
         /*Бот кикнут с канала*/
         botUser.setId(companyBot.getBotId());
         when(chatMember.getStatus()).thenReturn("kicked");
         assertNotNull(channelConnectHandler.processUpdate(update));
         verify(chatService).remove(chat.getId());
     }
+
     @Test
-    void unknownStatusTest(){
+    void unknownStatusTest() {
         /*Прошла неизвестная команда*/
         botUser.setId(companyBot.getBotId());
         when(chatMember.getStatus()).thenReturn("unknown");
         assertThrows(NoAvailableActionSendMessageException.class,
-                ()->channelConnectHandler.processUpdate(update));
+                () -> channelConnectHandler.processUpdate(update));
     }
 
     @Test
-    void notBotIdTest(){
+    void notBotIdTest() {
         /*id не бота*/
         botUser.setId(9L);
         assertThrows(NoAvailableActionSendMessageException.class,
-                ()->channelConnectHandler.processUpdate(update));
+                () -> channelConnectHandler.processUpdate(update));
     }
 
 }
