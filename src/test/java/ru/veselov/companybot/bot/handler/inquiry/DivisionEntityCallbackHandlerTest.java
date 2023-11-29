@@ -22,6 +22,7 @@ import ru.veselov.companybot.model.DivisionModel;
 import ru.veselov.companybot.util.DivisionKeyboardUtils;
 
 import java.util.HashMap;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.spy;
@@ -43,7 +44,7 @@ class DivisionEntityCallbackHandlerTest {
     Update update;
     CallbackQuery callbackQuery;
     User user;
-    HashMap<String,DivisionModel> divs=new HashMap<>();
+    HashMap<UUID,DivisionModel> divs=new HashMap<>();
 
 
     @BeforeEach
@@ -55,7 +56,7 @@ class DivisionEntityCallbackHandlerTest {
         user.setId(100L);
         callbackQuery.setFrom(user);
         callbackQuery.setId("100");
-        divs.put("L", DivisionModel.builder().divisionId("L").build());
+        divs.put(UUID.randomUUID(), DivisionModel.builder().divisionId(UUID.randomUUID()).build());
         when(divisionKeyboardUtils.getCachedDivisions()).thenReturn(divs);
     }
 

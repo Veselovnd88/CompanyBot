@@ -22,8 +22,11 @@ import ru.veselov.companybot.cache.UserDataCache;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -41,17 +44,7 @@ class TelegramFacadeUpdateHandlerMessagesTest {
     @MockBean
     InquiryMessageHandler inquiryMessageHandler;
     @MockBean
-    ManageModeCallbackHandler manageModeCallbackHandler;
-    @MockBean
-    ManagerMenuCallbackHandler managerMenuCallbackHandler;
-    @MockBean
-    DivisionMenuCallbackHandler divisionMenuCallbackHandler;
-    @MockBean
-    AddDivisionToManagerFromCallbackHandler addDivisionToManagerFromCallbackHandler;
-    @MockBean
-    AddDivisionTextMessageHandler addDivisionTextMessageHandler;
-    @MockBean
-    AddManagerFromForwardMessageHandler addManagerFromForwardMessageHandler;
+
     @Autowired
     UserDataCache userDataCache;
     @Autowired
@@ -72,52 +65,6 @@ class TelegramFacadeUpdateHandlerMessagesTest {
         user.setId(100L);
         update.setMessage(message);
         message.setFrom(user);
-    }
-
-    @Test
-    @SneakyThrows
-    void addManagerFromForwardMessageHandlerNoCallsTest() {
-        for (var b : BotState.values()) {
-            if(handlerContext.isInMessageContext(b)){
-                userDataCache.setUserBotState(user.getId(), b);
-                if (b != BotState.AWAIT_MANAGER&&b!=BotState.DELETE_MANAGER) {
-                    telegramFacadeUpdateHandler.processUpdate(update);
-                    verify(addManagerFromForwardMessageHandler, never()).processUpdate(any(Update.class));
-                }
-            }
-        }
-    }
-
-    @Test
-    @SneakyThrows
-    void addManagerFromForwardMessageHandlerCallTest() {
-        userDataCache.setUserBotState(user.getId(), BotState.AWAIT_MANAGER);
-        telegramFacadeUpdateHandler.processUpdate(update);
-        verify(addManagerFromForwardMessageHandler).processUpdate(any(Update.class));
-        userDataCache.setUserBotState(user.getId(), BotState.DELETE_MANAGER);
-        telegramFacadeUpdateHandler.processUpdate(update);
-        verify(addManagerFromForwardMessageHandler, times(2)).processUpdate(any(Update.class));
-    }
-    @Test
-    @SneakyThrows
-    void addDivisionTextMessageHandlerNoCallsTest() {
-        for (var b : BotState.values()) {
-            if(handlerContext.isInMessageContext(b)){
-                userDataCache.setUserBotState(user.getId(), b);
-                if (b != BotState.AWAIT_DIVISION) {
-                    telegramFacadeUpdateHandler.processUpdate(update);
-                    verify(addDivisionTextMessageHandler, never()).processUpdate(any(Update.class));
-                }
-            }
-        }
-    }
-
-    @Test
-    @SneakyThrows
-    void addDivisionTextMessageHandlerCallTest() {
-        userDataCache.setUserBotState(user.getId(), BotState.AWAIT_DIVISION);
-        telegramFacadeUpdateHandler.processUpdate(update);
-        verify(addDivisionTextMessageHandler).processUpdate(any(Update.class));
     }
 
     @Test

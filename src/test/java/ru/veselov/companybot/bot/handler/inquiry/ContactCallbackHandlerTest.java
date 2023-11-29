@@ -22,6 +22,8 @@ import ru.veselov.companybot.service.CustomerService;
 import ru.veselov.companybot.service.impl.InquiryServiceImpl;
 import ru.veselov.companybot.service.impl.SenderService;
 
+import java.util.UUID;
+
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -83,7 +85,7 @@ class ContactCallbackHandlerTest {
         ContactModel contact = contactCache.getContact(user.getId());
         contact.setEmail("vasya@vasya.ru");
         contact.setLastName("Petrov");
-        userDataCache.createInquiry(user.getId(), DivisionModel.builder().divisionId("L").build());
+        userDataCache.createInquiry(user.getId(), DivisionModel.builder().divisionId(UUID.randomUUID()).build());
         InquiryModel inquiry = userDataCache.getInquiry(user.getId());
         assertNotNull(contactCallbackHandler.processUpdate(update));
         assertEquals(BotState.READY,userDataCache.getUserBotState(user.getId()));

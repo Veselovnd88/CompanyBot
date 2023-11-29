@@ -21,13 +21,16 @@ import ru.veselov.companybot.service.impl.DivisionServiceImpl;
 import ru.veselov.companybot.service.impl.SenderService;
 
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -54,8 +57,7 @@ class SenderServiceTest {
     @SneakyThrows
     void init(){
         inquiryModel =spy(InquiryModel.class);
-        divisionModel = DivisionModel.builder().divisionId("LEUZE").build();
-        divisionModel.setManagers(new HashSet<>());
+        divisionModel = DivisionModel.builder().divisionId(UUID.randomUUID()).build();
         inquiryModel.setDivision(divisionModel);
         inquiryModel.setUserId(100L);
         inquiryModel.setMessages(List.of(new Message()));
@@ -63,7 +65,6 @@ class SenderServiceTest {
         contactModel.setUserId(100L);
         contactModel.setLastName("test");
         contactModel.setEmail("vasya@petya.ru");
-        when(divisionService.findOneWithManagers(inquiryModel.getDivision())).thenReturn(divisionModel);
         when(chatServiceImpl.findAll()).thenReturn(Collections.emptyList());
     }
 

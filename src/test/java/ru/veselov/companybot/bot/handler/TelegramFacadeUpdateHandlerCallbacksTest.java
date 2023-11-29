@@ -18,10 +18,6 @@ import ru.veselov.companybot.bot.handler.inquiry.ContactCallbackHandler;
 import ru.veselov.companybot.bot.handler.inquiry.ContactMessageHandler;
 import ru.veselov.companybot.bot.handler.inquiry.DivisionCallbackHandler;
 import ru.veselov.companybot.bot.handler.inquiry.InquiryMessageHandler;
-import ru.veselov.companybot.bot.handler.managing.AddDivisionToManagerFromCallbackHandler;
-import ru.veselov.companybot.bot.handler.managing.DivisionMenuCallbackHandler;
-import ru.veselov.companybot.bot.handler.managing.ManageModeCallbackHandler;
-import ru.veselov.companybot.bot.handler.managing.ManagerMenuCallbackHandler;
 import ru.veselov.companybot.cache.UserDataCache;
 
 import java.util.List;
@@ -43,14 +39,7 @@ class TelegramFacadeUpdateHandlerCallbacksTest {
     ContactMessageHandler contactMessageHandler;
     @MockBean
     InquiryMessageHandler inquiryMessageHandler;
-    @MockBean
-    ManageModeCallbackHandler manageModeCallbackHandler;
-    @MockBean
-    ManagerMenuCallbackHandler managerMenuCallbackHandler;
-    @MockBean
-    DivisionMenuCallbackHandler divisionMenuCallbackHandler;
-    @MockBean
-    AddDivisionToManagerFromCallbackHandler addDivisionToManagerFromCallbackHandler;
+
     @Autowired
     HandlerContext handlerContext;
 
@@ -96,91 +85,7 @@ class TelegramFacadeUpdateHandlerCallbacksTest {
 
     }
 
-    @Test
-    @SneakyThrows
-    void AddDivisionToManagerNoCallsTest(){
-        for(var  b: BotState.values()){
-            if(handlerContext.isInCallbackContext(b)){
-                userDataCache.setUserBotState(user.getId(),b);
-                if(b!=BotState.ASSIGN_DIV){
-                    telegramFacadeUpdateHandler.processUpdate(update);
-                    verify(addDivisionToManagerFromCallbackHandler,never()).processUpdate(any(Update.class));
-                }
-            }
-        }
-    }
-    @Test
-    @SneakyThrows
-    void AddDivisionToManagerTest(){
-        userDataCache.setUserBotState(user.getId(),BotState.ASSIGN_DIV);
-        telegramFacadeUpdateHandler.processUpdate(update);
-        verify(addDivisionToManagerFromCallbackHandler).processUpdate(any(Update.class));
-    }
-
-    @Test
-    @SneakyThrows
-    void DivisionMenuNoCallsTest(){
-        for(var  b: BotState.values()){
-            if(handlerContext.isInCallbackContext(b)){
-                userDataCache.setUserBotState(user.getId(),b);
-                if(b!=BotState.MANAGE_DIVISION&&b!=BotState.DELETE_DIV){
-                    telegramFacadeUpdateHandler.processUpdate(update);
-                    verify(divisionMenuCallbackHandler,never()).processUpdate(any(Update.class));
-            }}
-        }
-    }
-    @Test
-    @SneakyThrows
-    void DivisionMenuCallTest(){
-        userDataCache.setUserBotState(user.getId(),BotState.MANAGE_DIVISION);
-        telegramFacadeUpdateHandler.processUpdate(update);
-        verify(divisionMenuCallbackHandler).processUpdate(any(Update.class));
-    }
-
-    @Test
-    @SneakyThrows
-    void ManagerMenuNoCallsTest(){
-        for(var  b: BotState.values()){
-            if(handlerContext.isInCallbackContext(b)){
-                userDataCache.setUserBotState(user.getId(),b);
-                if(b!=BotState.MANAGE_MANAGER){
-                    telegramFacadeUpdateHandler.processUpdate(update);
-                    verify(managerMenuCallbackHandler,never()).processUpdate(any(Update.class));
-                }
-            }
-        }
-    }
-    @Test
-    @SneakyThrows
-    void ManagerMenuCallTest(){
-        userDataCache.setUserBotState(user.getId(),BotState.MANAGE_MANAGER);
-        telegramFacadeUpdateHandler.processUpdate(update);
-        verify(managerMenuCallbackHandler).processUpdate(any(Update.class));
-    }
-
-    @Test
-    @SneakyThrows
-    void ManageMenuNoCallsTest(){
-        for(var  b: BotState.values()){
-            if(handlerContext.isInCallbackContext(b)){
-                userDataCache.setUserBotState(user.getId(),b);
-                if(b!=BotState.MANAGE){
-                    telegramFacadeUpdateHandler.processUpdate(update);
-                    verify(manageModeCallbackHandler,never()).processUpdate(any(Update.class));
-                }
-            }
-        }
-    }
-
-    @Test
-    @SneakyThrows
-    void ManageMenuCallTest(){
-        userDataCache.setUserBotState(user.getId(),BotState.MANAGE);
-        telegramFacadeUpdateHandler.processUpdate(update);
-        verify(manageModeCallbackHandler).processUpdate(any(Update.class));
-    }
-
-    @Test
+        @Test
     @SneakyThrows
     void ContactCallbackHandlerNoCallsTest(){
         for(var  b: BotState.values()){

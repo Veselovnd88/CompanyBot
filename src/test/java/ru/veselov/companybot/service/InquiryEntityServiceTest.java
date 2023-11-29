@@ -17,6 +17,7 @@ import ru.veselov.companybot.service.impl.DivisionServiceImpl;
 import ru.veselov.companybot.service.impl.InquiryServiceImpl;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -46,7 +47,7 @@ class InquiryEntityServiceTest {
         user.setUserName("UserName");
         inquiry=new InquiryModel();
 
-        inquiry.setDivision(DivisionModel.builder().divisionId("LEUZE").build());
+        inquiry.setDivision(DivisionModel.builder().divisionId(UUID.randomUUID()).build());
         message = new Message();
         message.setText("Test");
         inquiry.setMessages(List.of(message));
@@ -56,7 +57,7 @@ class InquiryEntityServiceTest {
     @Test
     @DisplayName("Testing how to save inquiries")
     void saveTest() {
-        DivisionModel leuze = DivisionModel.builder().divisionId("LEUZE").build();
+        DivisionModel leuze = DivisionModel.builder().divisionId(UUID.randomUUID()).build();
         divisionService.save(leuze);
         customerService.save(user);
         for(int i=0; i<10; i++){

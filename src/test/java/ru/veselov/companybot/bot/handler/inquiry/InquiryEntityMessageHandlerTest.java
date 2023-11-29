@@ -17,6 +17,7 @@ import ru.veselov.companybot.model.DivisionModel;
 import ru.veselov.companybot.util.MessageUtils;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.spy;
@@ -47,7 +48,7 @@ class InquiryEntityMessageHandlerTest {
         messageEntity.setOffset(0);
         messageEntity.setLength(0);
         message.setEntities(List.of(messageEntity));
-        userDataCache.createInquiry(user.getId(), DivisionModel.builder().divisionId("L").build());
+        userDataCache.createInquiry(user.getId(), DivisionModel.builder().divisionId(UUID.randomUUID()).build());
     }
 
     @Test
