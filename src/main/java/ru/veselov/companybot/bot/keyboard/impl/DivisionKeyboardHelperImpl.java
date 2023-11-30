@@ -1,4 +1,4 @@
-package ru.veselov.companybot.bot.keyboard;
+package ru.veselov.companybot.bot.keyboard.impl;
 
 import com.vdurmont.emoji.EmojiParser;
 import lombok.RequiredArgsConstructor;
@@ -8,6 +8,7 @@ import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageRe
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+import ru.veselov.companybot.bot.keyboard.DivisionKeyboardHelper;
 import ru.veselov.companybot.cache.Cache;
 import ru.veselov.companybot.exception.EmptyDivisionsException;
 import ru.veselov.companybot.exception.NoDivisionKeyboardException;

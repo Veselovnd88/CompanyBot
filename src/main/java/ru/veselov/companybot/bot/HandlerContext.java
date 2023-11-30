@@ -5,22 +5,23 @@ import org.springframework.stereotype.Component;
 import ru.veselov.companybot.bot.handler.inquiry.ContactCallbackHandler;
 import ru.veselov.companybot.bot.handler.inquiry.ContactMessageHandler;
 import ru.veselov.companybot.bot.handler.inquiry.DivisionCallbackHandler;
-import ru.veselov.companybot.bot.handler.inquiry.InquiryMessageHandler;
+import ru.veselov.companybot.bot.handler.inquiry.impl.InquiryMessageUpdateHandlerImpl;
 
 import java.util.HashMap;
+import java.util.Map;
 
 @Component
 @Slf4j
 public class HandlerContext {
 
-    private final HashMap<BotState, UpdateHandler> messageHandlerContext = new HashMap<>();
-    private final HashMap<BotState, UpdateHandler> callbackHandlerContext = new HashMap<>();
+    private final Map<BotState, UpdateHandler> messageHandlerContext = new HashMap<>();
+    private final Map<BotState, UpdateHandler> callbackHandlerContext = new HashMap<>();
 
     public HandlerContext(
             DivisionCallbackHandler divisionCallbackHandler,
             ContactCallbackHandler contactCallbackHandler,
             ContactMessageHandler contactMessageHandler,
-            InquiryMessageHandler inquiryMessageHandler) {
+            InquiryMessageUpdateHandlerImpl inquiryMessageHandler) {
         callbackHandlerContext.put(BotState.AWAIT_DIVISION_FOR_INQUIRY, divisionCallbackHandler);
         callbackHandlerContext.put(BotState.AWAIT_MESSAGE, contactCallbackHandler);
         callbackHandlerContext.put(BotState.AWAIT_CONTACT, contactCallbackHandler);
