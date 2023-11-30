@@ -10,7 +10,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import ru.veselov.companybot.bot.BotCommands;
 import ru.veselov.companybot.bot.BotState;
 import ru.veselov.companybot.bot.handler.CommandUpdateHandler;
-import ru.veselov.companybot.bot.util.DivisionKeyboardUtils;
+import ru.veselov.companybot.bot.keyboard.DivisionKeyboardHelper;
 import ru.veselov.companybot.bot.util.InlineKeyBoardUtils;
 import ru.veselov.companybot.bot.util.MessageUtils;
 import ru.veselov.companybot.cache.ContactCache;
@@ -34,14 +34,14 @@ public class CommandUpdateHandlerImpl implements CommandUpdateHandler {
 
     private final CustomerService customerService;
 
-    private final DivisionKeyboardUtils divisionKeyboardUtils;
+    private final DivisionKeyboardHelper divisionKeyboardHelper;
 
     @Override
     public SendMessage processUpdate(Update update) {
         Long userId = update.getMessage().getFrom().getId();
         User user = update.getMessage().getFrom();
         String receivedCommand = update.getMessage().getText();
-        log.debug("{}: pressed button with command {}", userId, receivedCommand);
+        log.debug("[Command {}] button pressed by user [id: {}]", receivedCommand, userId);
         BotState botState = userDataCache.getUserBotState(userId);
         log.debug(BOT_STATE_IS_FOR_USER_ID_LOG, botState, userId);
         switch (receivedCommand) {
@@ -68,23 +68,22 @@ public class CommandUpdateHandlerImpl implements CommandUpdateHandler {
                 } else {
                     throw new NoAvailableActionSendMessageException(MessageUtils.ANOTHER_ACTION, userId.toString());
                 }
-
             case BotCommands.ABOUT:
                 return SendMessage.builder().chatId(userId)
-                        .text(MessageUtils.about.getText())
-                        .entities(MessageUtils.about.getEntities())
+                        .text(MessageUtils.getABOUT().getText())
+                        .entities(MessageUtils.getABOUT().getEntities())
                         .build();
             case BotCommands.INFO:
                 return SendMessage.builder().chatId(userId)
                         .text(MessageUtils.INFO).build();
-
+            default:
+                throw new NoAvailableActionSendMessageException(MessageUtils.NOT_SUPPORTED_ACTION, userId.toString());
         }
-        throw new NoAvailableActionSendMessageException(MessageUtils.NOT_SUPPORTED_ACTION, userId.toString());
     }
 
     private SendMessage departmentMessageInlineKeyBoard(Long userId) {
         InlineKeyboardMarkup customerDivisionKeyboard;
-        customerDivisionKeyboard = divisionKeyboardUtils.getCustomerDivisionKeyboard();
+        customerDivisionKeyboard = divisionKeyboardHelper.getCustomerDivisionKeyboard();
         return SendMessage.builder().chatId(userId).text(MessageUtils.CHOOSE_DEP)
                 .replyMarkup(customerDivisionKeyboard).build();
     }

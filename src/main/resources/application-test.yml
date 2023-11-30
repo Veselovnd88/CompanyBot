@@ -35,7 +35,7 @@ spring:
 logging:
   level:
     org.springframework: INFO
-    ru.veselov: INFO
+    ru.veselov: DEBUG
     org.hibernate: INFO
   pattern:
     console: "%magenta(%d{yyyy-MM-dd HH:mm:ss}) [%yellow(%thread)] %highlight(%-5level) %logger{36} - %msg%n"
