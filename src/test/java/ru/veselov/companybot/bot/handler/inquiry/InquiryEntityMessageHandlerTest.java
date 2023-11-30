@@ -14,7 +14,7 @@ import ru.veselov.companybot.bot.CompanyBot;
 import ru.veselov.companybot.cache.UserDataCache;
 import ru.veselov.companybot.exception.NoAvailableActionSendMessageException;
 import ru.veselov.companybot.model.DivisionModel;
-import ru.veselov.companybot.util.MessageUtils;
+import ru.veselov.companybot.bot.util.MessageUtils;
 
 import java.util.List;
 import java.util.UUID;

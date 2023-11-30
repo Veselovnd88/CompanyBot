@@ -12,8 +12,8 @@ import ru.veselov.companybot.cache.UserDataCache;
 import ru.veselov.companybot.exception.NoAvailableActionCallbackException;
 import ru.veselov.companybot.exception.NoDivisionsException;
 import ru.veselov.companybot.model.DivisionModel;
-import ru.veselov.companybot.util.DivisionKeyboardUtils;
-import ru.veselov.companybot.util.MessageUtils;
+import ru.veselov.companybot.bot.util.DivisionKeyboardUtils;
+import ru.veselov.companybot.bot.util.MessageUtils;
 
 import java.util.Map;
 import java.util.UUID;

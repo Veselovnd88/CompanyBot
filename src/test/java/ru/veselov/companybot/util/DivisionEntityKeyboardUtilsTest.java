@@ -12,6 +12,7 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import ru.veselov.companybot.bot.CompanyBot;
+import ru.veselov.companybot.bot.util.DivisionKeyboardUtils;
 import ru.veselov.companybot.exception.NoDivisionsException;
 import ru.veselov.companybot.model.DivisionModel;
 import ru.veselov.companybot.service.impl.DivisionServiceImpl;

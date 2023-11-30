@@ -9,6 +9,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.ChatMemberUpdated;
@@ -16,10 +17,11 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMember;
 import ru.veselov.companybot.bot.BotConstant;
-import ru.veselov.companybot.bot.BotInfo;
+import ru.veselov.companybot.bot.BotProperties;
 import ru.veselov.companybot.bot.handler.impl.ChannelConnectUpdateHandlerImpl;
 import ru.veselov.companybot.exception.NoAvailableActionSendMessageException;
 import ru.veselov.companybot.service.ChatService;
+import ru.veselov.companybot.util.TestUtils;
 
 @ExtendWith(MockitoExtension.class)
 class ChannelConnectUpdateHandlerImplTest {
@@ -44,7 +46,10 @@ class ChannelConnectUpdateHandlerImplTest {
 
     @BeforeEach
     void init() {
-        BotInfo.botId = 1L;
+        BotProperties botProperties = new BotProperties();
+        botProperties.setBotId(TestUtils.botId);
+        ReflectionTestUtils.setField(channelConnectUpdateHandler, "botProperties",
+                botProperties, BotProperties.class);
         update = Mockito.spy(Update.class);
         user = Mockito.spy(User.class);
         user.setId(100L);
@@ -63,7 +68,7 @@ class ChannelConnectUpdateHandlerImplTest {
 
     @Test
     void shouldSaveChatWhenBotIsConnectedToChannel() {
-        botUser.setId(BotInfo.botId);
+        botUser.setId(TestUtils.botId);
         Mockito.when(chatMember.getStatus()).thenReturn(BotConstant.ADMINISTRATOR);
         SendMessage sendMessage = channelConnectUpdateHandler.processUpdate(update);
         Assertions.assertThat(sendMessage.getChatId()).isEqualTo(user.getId().toString());
@@ -72,7 +77,7 @@ class ChannelConnectUpdateHandlerImplTest {
 
     @Test
     void shouldRemoveChatWhenBotIsRemovedFromChannel() {
-        botUser.setId(BotInfo.botId);
+        botUser.setId(TestUtils.botId);
         Mockito.when(chatMember.getStatus()).thenReturn(BotConstant.LEFT);
         channelConnectUpdateHandler.processUpdate(update);
         Mockito.verify(chatService).remove(chat.getId());
@@ -80,7 +85,7 @@ class ChannelConnectUpdateHandlerImplTest {
 
     @Test
     void shouldRemoveChatIfBotWasKickedFromChat() {
-        botUser.setId(BotInfo.botId);
+        botUser.setId(TestUtils.botId);
         Mockito.when(chatMember.getStatus()).thenReturn(BotConstant.KICKED);
         channelConnectUpdateHandler.processUpdate(update);
         Mockito.verify(chatService).remove(chat.getId());
@@ -88,7 +93,7 @@ class ChannelConnectUpdateHandlerImplTest {
 
     @Test
     void shouldThrowExceptionIfUnavailableCommandOccurred() {
-        botUser.setId(BotInfo.botId);
+        botUser.setId(TestUtils.botId);
         Mockito.when(chatMember.getStatus()).thenReturn("unknown");
         Assertions.assertThatThrownBy(
                 () -> channelConnectUpdateHandler.processUpdate(update)

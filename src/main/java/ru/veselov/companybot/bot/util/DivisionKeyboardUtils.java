@@ -1,4 +1,4 @@
-package ru.veselov.companybot.util;
+package ru.veselov.companybot.bot.util;
 
 import com.vdurmont.emoji.EmojiParser;
 import lombok.RequiredArgsConstructor;

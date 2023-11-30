@@ -12,11 +12,12 @@ import ru.veselov.companybot.bot.BotState;
 import ru.veselov.companybot.bot.HandlerContext;
 import ru.veselov.companybot.bot.UpdateHandler;
 import ru.veselov.companybot.bot.handler.impl.ChannelConnectUpdateHandlerImpl;
+import ru.veselov.companybot.bot.handler.impl.CommandUpdateHandlerImpl;
 import ru.veselov.companybot.cache.UserDataCache;
 import ru.veselov.companybot.exception.NoAvailableActionCallbackException;
 import ru.veselov.companybot.exception.NoAvailableActionException;
 import ru.veselov.companybot.exception.NoAvailableActionSendMessageException;
-import ru.veselov.companybot.util.MessageUtils;
+import ru.veselov.companybot.bot.util.MessageUtils;
 
 import java.util.Optional;
 
@@ -28,7 +29,7 @@ public class TelegramFacadeUpdateHandler implements UpdateHandler {
     @Value("${bot.adminId}")
     private String adminId;
 
-    private final CommandHandler commandHandler;
+    private final CommandUpdateHandlerImpl commandHandler;
 
     private final ChannelConnectUpdateHandlerImpl channelConnectUpdateHandlerImpl;
 

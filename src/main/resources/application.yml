@@ -34,7 +34,7 @@ spring:
 logging:
   level:
     org.springframework: ERROR
-    ru.veselov: INFO
+    ru.veselov: DEBUG
     org.hibernate: ERROR
   pattern:
     console: "%magenta(%d{yyyy-MM-dd HH:mm:ss}) [%yellow(%thread)] %highlight(%-5level) %green(%logger{36}): %msg%n"
@@ -42,7 +42,7 @@ logging:
   file:
     name: ${logging.file.path}company_bot.log
     path: /opt/log/
-    max-size: 10MB
+
   logback:
     rollingpolicy:
       file-name-pattern: ${logging.file.path}archived/company_bot.%d{yyyy-MM-dd}.%i.log

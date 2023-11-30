@@ -22,8 +22,8 @@ import ru.veselov.companybot.model.ContactModel;
 import ru.veselov.companybot.service.CustomerService;
 import ru.veselov.companybot.service.impl.InquiryServiceImpl;
 import ru.veselov.companybot.service.impl.SenderService;
-import ru.veselov.companybot.util.KeyBoardUtils;
-import ru.veselov.companybot.util.MessageUtils;
+import ru.veselov.companybot.bot.util.KeyBoardUtils;
+import ru.veselov.companybot.bot.util.MessageUtils;
 
 @Component
 @Slf4j

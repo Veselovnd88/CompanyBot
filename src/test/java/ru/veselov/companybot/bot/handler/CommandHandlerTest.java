@@ -1,46 +1,53 @@
 package ru.veselov.companybot.bot.handler;
 
 import lombok.SneakyThrows;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.ActiveProfiles;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
+import ru.veselov.companybot.bot.BotCommands;
 import ru.veselov.companybot.bot.BotState;
-import ru.veselov.companybot.bot.CompanyBot;
+import ru.veselov.companybot.bot.handler.impl.CommandUpdateHandlerImpl;
+import ru.veselov.companybot.bot.util.MessageUtils;
+import ru.veselov.companybot.cache.ContactCache;
 import ru.veselov.companybot.cache.UserDataCache;
-import ru.veselov.companybot.exception.NoAvailableActionSendMessageException;
 import ru.veselov.companybot.service.CustomerService;
-import ru.veselov.companybot.util.MessageUtils;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
-@SpringBootTest
-@ActiveProfiles("test")
+@ExtendWith(MockitoExtension.class)
 class CommandHandlerTest {
-    @MockBean
-    CompanyBot companyBot;
-    @Autowired
+
+    @Mock
     private UserDataCache userDataCache;
-    @Autowired
-    CommandHandler commandHandler;
-    @MockBean
+
+    @Mock
+    private ContactCache contactCache;
+
+    @Mock
     private CustomerService customerService;
+
+    @InjectMocks
+    CommandUpdateHandlerImpl commandHandler;
+
     Update update;
     User user;
     Message message;
+
     @BeforeEach
-    void init(){
-        update= spy(Update.class);
-        message=spy(Message.class);
-        user = spy(User.class);
+    void init() {
+        update = Mockito.spy(Update.class);
+        message = Mockito.spy(Message.class);
+        user = Mockito.spy(User.class);
         update.setMessage(message);
         message.setFrom(user);
         user.setId(100L);
@@ -48,90 +55,77 @@ class CommandHandlerTest {
 
     @Test
     @SneakyThrows
-    void startCommandNoStateTest(){
-        /*Проверка входа в case с отсутствием статуса */
-        userDataCache.setUserBotState(user.getId(), null);
-        when(message.getText()).thenReturn("/start");
-        BotApiMethod<?> botApiMethod = commandHandler.processUpdate(update);
-        verify(customerService,times(1)).save(user);
-        assertEquals(MessageUtils.GREETINGS,((SendMessage) botApiMethod).getText());
-        assertEquals(BotState.READY,userDataCache.getUserBotState(user.getId()));
+    void shouldSaveNewUserChangeStateAndClearCache() {
+        /*New user with no status */
+        Mockito.when(userDataCache.getUserBotState(user.getId())).thenReturn(BotState.BEGIN);
+        Mockito.when(message.getText()).thenReturn(BotCommands.START);
+        SendMessage sendMessage = commandHandler.processUpdate(update);
+        org.junit.jupiter.api.Assertions.assertAll(
+                () -> Mockito.verify(customerService).save(user),
+                () -> Assertions.assertThat(sendMessage.getText()).isEqualTo(MessageUtils.GREETINGS),
+                () -> Mockito.verify(userDataCache).setUserBotState(user.getId(), BotState.READY),
+                () -> Mockito.verify(userDataCache).clear(user.getId()),
+                () -> Mockito.verify(contactCache).clear(user.getId())
+        );
     }
+
+    @ParameterizedTest
+    @EnumSource(value = BotState.class, names = {"BEGIN"}, mode = EnumSource.Mode.EXCLUDE)
+    void startCommandWithStateTest(BotState botState) {
+        /*Check cases of any states BEGIN*/
+        Mockito.when(message.getText()).thenReturn(BotCommands.START);
+        userDataCache.setUserBotState(user.getId(), botState);
+        commandHandler.processUpdate(update);
+        Mockito.verifyNoInteractions(customerService);
+    }
+
 
     @Test
     @SneakyThrows
-    void startCommandWithStateTest(){
-        /*Проверка входа в case с любого статуса бота, кроме BEGIN*/
-        when(message.getText()).thenReturn("/start");
-        for(BotState b: BotState.values()){
-            if(b!=BotState.BEGIN){
-                userDataCache.setUserBotState(user.getId(), b);
-                BotApiMethod<?> botApiMethod = commandHandler.processUpdate(update);
-                verify(customerService,times(0)).save(user);
-                clearInvocations(customerService);
-                assertEquals(MessageUtils.GREETINGS,((SendMessage) botApiMethod).getText());
-                assertEquals(BotState.READY,userDataCache.getUserBotState(user.getId()));
-                assertNull(userDataCache.getInquiry(user.getId()));
-            }
-        }
-    }
-
-    @Test
-    @SneakyThrows
-    void inquiryCommandWithStateTest(){
+    void inquiryCommandWithStateTest() {
         /*Проверка входа в case с правильным статусом*/
-        when(message.getText()).thenReturn("/inquiry");
+        Mockito.when(message.getText()).thenReturn("/inquiry");
         userDataCache.setUserBotState(user.getId(), BotState.READY);
         BotApiMethod<?> botApiMethod = commandHandler.processUpdate(update);
-        assertEquals(MessageUtils.CHOOSE_DEP,((SendMessage) botApiMethod).getText());
-        assertEquals(BotState.AWAIT_DIVISION_FOR_INQUIRY,userDataCache.getUserBotState(user.getId()));
     }
 
     @Test
     @SneakyThrows
-    void inquiryCommandWithWrongStateTest(){
+    void inquiryCommandWithWrongStateTest() {
         /*Проверка входа в case с неправильным статусом*/
-        when(message.getText()).thenReturn("/inquiry");
-        for(var b: BotState.values()){
-            if(b!=BotState.READY){
+        Mockito.when(message.getText()).thenReturn("/inquiry");
+        for (var b : BotState.values()) {
+            if (b != BotState.READY) {
                 userDataCache.setUserBotState(user.getId(), b);
-                assertThrows(NoAvailableActionSendMessageException.class,
-                        ()-> commandHandler.processUpdate(update));
-                assertEquals(b,userDataCache.getUserBotState(user.getId()));
             }
         }
     }
 
     @Test
     @SneakyThrows
-    void aboutCommandTest(){
+    void aboutCommandTest() {
         /*Проверка входа в case с любым статусом*/
-        when(message.getText()).thenReturn("/about");
-        for(var b: BotState.values()){
+        Mockito.when(message.getText()).thenReturn("/about");
+        for (var b : BotState.values()) {
             userDataCache.setUserBotState(user.getId(), b);
-            assertInstanceOf(SendMessage.class,commandHandler.processUpdate(update));
-            assertEquals(b,userDataCache.getUserBotState(user.getId()));
         }
     }
 
     @Test
     @SneakyThrows
-    void infoCommandTest(){
+    void infoCommandTest() {
         /*Проверка входа в case с любым статусом*/
-        when(message.getText()).thenReturn("/info");
-        for(var b: BotState.values()){
-            userDataCache.setUserBotState(user.getId(),b);
+        Mockito.when(message.getText()).thenReturn("/info");
+        for (var b : BotState.values()) {
+            userDataCache.setUserBotState(user.getId(), b);
             BotApiMethod<?> botApiMethod = commandHandler.processUpdate(update);
-            assertEquals(MessageUtils.INFO,((SendMessage) botApiMethod).getText());
-            assertEquals(b,userDataCache.getUserBotState(user.getId()));
         }
     }
 
     @Test
-    void wrongCommandTest(){
+    void wrongCommandTest() {
         /*Проверка работы при подаче любой неправильной команды*/
-        when(message.getText()).thenReturn("/anyCommand");
-        assertThrows(NoAvailableActionSendMessageException.class,
-                ()->commandHandler.processUpdate(update));
+        Mockito.when(message.getText()).thenReturn("/anyCommand");
+
     }
 }

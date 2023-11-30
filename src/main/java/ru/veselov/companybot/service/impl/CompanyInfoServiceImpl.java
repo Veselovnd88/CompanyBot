@@ -8,7 +8,7 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import ru.veselov.companybot.entity.CompanyInfoEntity;
 import ru.veselov.companybot.repository.CompanyInfoRepository;
 import ru.veselov.companybot.service.CompanyInfoService;
-import ru.veselov.companybot.util.MessageUtils;
+import ru.veselov.companybot.bot.util.MessageUtils;
 
 import java.util.List;
 

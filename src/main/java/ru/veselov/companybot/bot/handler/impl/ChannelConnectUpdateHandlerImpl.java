@@ -9,11 +9,11 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMember;
 import ru.veselov.companybot.bot.BotConstant;
-import ru.veselov.companybot.bot.BotInfo;
+import ru.veselov.companybot.bot.BotProperties;
 import ru.veselov.companybot.bot.handler.ChannelConnectUpdateHandler;
+import ru.veselov.companybot.bot.util.MessageUtils;
 import ru.veselov.companybot.exception.NoAvailableActionSendMessageException;
 import ru.veselov.companybot.service.ChatService;
-import ru.veselov.companybot.util.MessageUtils;
 
 @Component
 @RequiredArgsConstructor
@@ -23,6 +23,8 @@ public class ChannelConnectUpdateHandlerImpl implements ChannelConnectUpdateHand
 
     private final ChatService chatService;
 
+    private final BotProperties botProperties;
+
     @Override
     public SendMessage processUpdate(Update update) {
         User user = update.getMyChatMember().getFrom();
@@ -30,7 +32,7 @@ public class ChannelConnectUpdateHandlerImpl implements ChannelConnectUpdateHand
         ChatMember newChatMember = update.getMyChatMember().getNewChatMember();
         User addedUser = update.getMyChatMember().getNewChatMember().getUser();
         Long addedUserId = addedUser.getId();
-        if (addedUserId.equals(BotInfo.botId)) {
+        if (addedUserId.equals(botProperties.getBotId())) {
             Chat chat = update.getMyChatMember().getChat();
             String chatMemberStatus = newChatMember.getStatus();
             if (chatMemberStatus.equalsIgnoreCase(BotConstant.ADMINISTRATOR)) {
