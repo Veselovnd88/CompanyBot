@@ -8,12 +8,12 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.veselov.companybot.bot.BotState;
 import ru.veselov.companybot.bot.UpdateHandler;
+import ru.veselov.companybot.bot.keyboard.DivisionKeyboardHelper;
 import ru.veselov.companybot.cache.UserDataCache;
 import ru.veselov.companybot.exception.NoAvailableActionCallbackException;
 import ru.veselov.companybot.exception.NoDivisionsException;
 import ru.veselov.companybot.model.DivisionModel;
-import ru.veselov.companybot.util.DivisionKeyboardUtils;
-import ru.veselov.companybot.util.MessageUtils;
+import ru.veselov.companybot.bot.util.MessageUtils;
 
 import java.util.Map;
 import java.util.UUID;
@@ -22,12 +22,12 @@ import java.util.UUID;
 @Slf4j
 public class DivisionCallbackHandler implements UpdateHandler {
     private final UserDataCache userDataCache;
-    private final DivisionKeyboardUtils divisionKeyboardUtils;
+    private final DivisionKeyboardHelper divisionKeyboardHelper;
 
     @Autowired
-    public DivisionCallbackHandler(UserDataCache userDataCache, DivisionKeyboardUtils divisionKeyboardUtils) {
+    public DivisionCallbackHandler(UserDataCache userDataCache, DivisionKeyboardHelper divisionKeyboardHelper) {
         this.userDataCache = userDataCache;
-        this.divisionKeyboardUtils = divisionKeyboardUtils;
+        this.divisionKeyboardHelper = divisionKeyboardHelper;
     }
 
     @Override
@@ -36,7 +36,7 @@ public class DivisionCallbackHandler implements UpdateHandler {
         String data = update.getCallbackQuery().getData();
         Map<UUID, DivisionModel> cachedDivisions;
         try {
-            cachedDivisions = divisionKeyboardUtils.getCachedDivisions();
+            cachedDivisions = divisionKeyboardHelper.getCachedDivisions();
         } catch (NoDivisionsException e) {
             return SendMessage.builder().chatId(userId)
                     .text(e.getMessage()).build();

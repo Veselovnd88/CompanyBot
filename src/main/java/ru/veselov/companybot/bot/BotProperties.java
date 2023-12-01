@@ -1,14 +1,12 @@
-package ru.veselov.companybot.util;
+package ru.veselov.companybot.bot;
 
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
 import org.springframework.stereotype.Component;
 
 @Component
-@Getter
-@Setter
+@Data
 @ConfigurationProperties(prefix = "bot")
 @NoArgsConstructor
 public class BotProperties {
@@ -18,5 +16,7 @@ public class BotProperties {
     private String token;
 
     private String adminId;
+
+    private Long botId;
 
 }

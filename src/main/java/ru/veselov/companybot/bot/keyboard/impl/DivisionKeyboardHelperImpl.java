@@ -1,4 +1,4 @@
-package ru.veselov.companybot.util;
+package ru.veselov.companybot.bot.keyboard.impl;
 
 import com.vdurmont.emoji.EmojiParser;
 import lombok.RequiredArgsConstructor;
@@ -8,6 +8,7 @@ import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageRe
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+import ru.veselov.companybot.bot.keyboard.DivisionKeyboardHelper;
 import ru.veselov.companybot.cache.Cache;
 import ru.veselov.companybot.exception.EmptyDivisionsException;
 import ru.veselov.companybot.exception.NoDivisionKeyboardException;
@@ -22,23 +23,25 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class DivisionKeyboardUtils implements Cache {
+public class DivisionKeyboardHelperImpl implements Cache, DivisionKeyboardHelper {
 
     private static final String MARKED = "+marked";
 
     private static final String EMOJI_MARK = ":white_check_mark:";
 
-    private final HashMap<UUID, DivisionModel> idToDivision = new HashMap<>();
+    private final Map<UUID, DivisionModel> idToDivision = new HashMap<>();
 
-    private final HashMap<Long, InlineKeyboardMarkup> divisionKeyboardCache = new HashMap<>();
+    private final Map<Long, InlineKeyboardMarkup> divisionKeyboardCache = new ConcurrentHashMap<>();
 
     private final DivisionServiceImpl divisionService;
 
 
+    @Override
     public InlineKeyboardMarkup getCustomerDivisionKeyboard() {
         List<DivisionModel> allDivisions = refreshDivisions();
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
@@ -58,6 +61,7 @@ public class DivisionKeyboardUtils implements Cache {
     }
 
 
+    @Override
     public EditMessageReplyMarkup divisionChooseField(Update update, String field) throws NoDivisionKeyboardException {
         Long userId = update.getCallbackQuery().getFrom().getId();
         InlineKeyboardMarkup inlineKeyboardMarkup;
@@ -88,6 +92,7 @@ public class DivisionKeyboardUtils implements Cache {
         return editedKeyboard;
     }
 
+    @Override
     public Set<DivisionModel> getMarkedDivisions(Long userId) {
         HashSet<DivisionModel> divNames = new HashSet<>();
         InlineKeyboardMarkup editMessageReplyMarkup = divisionKeyboardCache.get(userId);
@@ -100,6 +105,7 @@ public class DivisionKeyboardUtils implements Cache {
         return divNames;
     }
 
+    @Override
     public HashMap<String, DivisionModel> getMapKeyboardDivisions() {
         if (idToDivision.isEmpty()) {
             refreshDivisions();
@@ -112,6 +118,7 @@ public class DivisionKeyboardUtils implements Cache {
         return withMarked;
     }
 
+    @Override
     public Map<UUID, DivisionModel> getCachedDivisions() throws NoDivisionsException {
         if (idToDivision.isEmpty()) {
             throw new NoDivisionsException();

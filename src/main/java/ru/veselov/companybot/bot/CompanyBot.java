@@ -11,7 +11,6 @@ import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
-import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeChat;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.veselov.companybot.bot.handler.TelegramFacadeUpdateHandler;
@@ -19,7 +18,6 @@ import ru.veselov.companybot.exception.NoAvailableActionCallbackException;
 import ru.veselov.companybot.exception.NoAvailableActionException;
 import ru.veselov.companybot.exception.NoAvailableActionSendMessageException;
 import ru.veselov.companybot.exception.WrongContactException;
-import ru.veselov.companybot.util.BotProperties;
 
 import java.util.List;
 
@@ -28,8 +26,6 @@ import java.util.List;
 @Setter
 @Slf4j
 public class CompanyBot extends TelegramLongPollingBot {
-
-    private Long botId;
 
     private final BotProperties botProperties;
 
@@ -50,12 +46,11 @@ public class CompanyBot extends TelegramLongPollingBot {
     @Override
     public void onRegister() {
         super.onRegister();
-        BotCommandScopeChat botCommandScopeChat = new BotCommandScopeChat();
-        botCommandScopeChat.setChatId(Long.valueOf(botProperties.getAdminId()));
         try {
             this.execute(new SetMyCommands(setUpCommands(), new BotCommandScopeDefault(), null));
             log.info("Menu was set up");
-            botId = this.getMe().getId();
+            Long botId = this.getMe().getId();
+            botProperties.setBotId(botId);
             log.info("Bot [id: {}]", botId);
         } catch (TelegramApiException e) {
             log.error("Error occurred during starting bot: {}", e.getMessage());

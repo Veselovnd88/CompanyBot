@@ -12,6 +12,7 @@ import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageRe
 import org.telegram.telegrambots.meta.api.objects.*;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import ru.veselov.companybot.bot.CompanyBot;
+import ru.veselov.companybot.bot.util.KeyBoardUtils;
 
 import java.util.List;
 

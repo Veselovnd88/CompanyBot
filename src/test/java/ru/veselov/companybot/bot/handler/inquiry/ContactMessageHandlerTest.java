@@ -19,8 +19,8 @@ import ru.veselov.companybot.cache.ContactCache;
 import ru.veselov.companybot.cache.UserDataCache;
 import ru.veselov.companybot.exception.WrongContactException;
 import ru.veselov.companybot.model.ContactModel;
-import ru.veselov.companybot.util.KeyBoardUtils;
-import ru.veselov.companybot.util.MessageUtils;
+import ru.veselov.companybot.bot.util.KeyBoardUtils;
+import ru.veselov.companybot.bot.util.MessageUtils;
 
 import java.util.List;
 
