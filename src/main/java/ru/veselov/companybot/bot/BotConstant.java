@@ -8,5 +8,8 @@ public class BotConstant {
 
     public static final String KICKED = "kicked";
 
-    private BotConstant(){}
+    public static final String CUSTOM_EMOJI = "custom_emoji";
+
+    private BotConstant() {
+    }
 }

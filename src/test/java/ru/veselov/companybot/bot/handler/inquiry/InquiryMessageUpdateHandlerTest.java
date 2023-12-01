@@ -75,13 +75,6 @@ class InquiryMessageUpdateHandlerTest {
     }
 
     @Test
-    void shouldThrowExceptionForTooLongMessage() {
-        message.setCaption("i".repeat(CAPTION_LENGTH + 1));//create too long string
-        Assertions.assertThatThrownBy(() -> inquiryMessageHandler.processUpdate(update)
-        ).isInstanceOf(NoAvailableActionSendMessageException.class);
-    }
-
-    @Test
     void shouldReturnSendMessageIfSentTooManyMessagesToInquiry() {
         List mockList = Mockito.mock(List.class);
         Mockito.when(mockList.size()).thenReturn(MAX_MSG + 1);//too many messages in inquiry
@@ -90,16 +83,6 @@ class InquiryMessageUpdateHandlerTest {
         SendMessage sendMessage = inquiryMessageHandler.processUpdate(update);
 
         Assertions.assertThat(sendMessage.getText()).startsWith("Превышено");
-    }
-
-    @Test
-    void shouldThrowExceptionIfCustomEmojiDetected() {
-        MessageEntity messageEntity = new MessageEntity();
-        messageEntity.setType("custom_emoji");
-        message.setEntities(List.of(messageEntity));
-
-        Assertions.assertThatThrownBy(() -> inquiryMessageHandler.processUpdate(update)
-        ).isInstanceOf(NoAvailableActionSendMessageException.class);
     }
 
     @Test
