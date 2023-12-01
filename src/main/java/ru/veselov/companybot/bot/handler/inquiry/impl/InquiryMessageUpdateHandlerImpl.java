@@ -18,6 +18,7 @@ import ru.veselov.companybot.bot.util.InlineKeyBoardUtils;
 import ru.veselov.companybot.bot.util.MessageUtils;
 import ru.veselov.companybot.bot.util.UserMessageChecker;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
+import ru.veselov.companybot.model.InquiryModel;
 
 import java.util.Comparator;
 import java.util.List;
@@ -40,7 +41,8 @@ public class InquiryMessageUpdateHandlerImpl implements InquiryMessageUpdateHand
     public SendMessage processUpdate(Update update) {
         Message receivedMessage = update.getMessage();
         Long userId = receivedMessage.getFrom().getId();
-        if (userDataCacheFacade.getInquiry(userId).getMessages().size() > maxMessages) {
+        InquiryModel userCachedInquiry = userDataCacheFacade.getInquiry(userId);
+        if (userCachedInquiry.getMessages().size() > maxMessages) {
             SendMessage addContentMessage = askAddContactData(userId);
             addContentMessage.setText("Превышено максимальное количество сообщений (%s)".formatted(maxMessages + 1));
             log.warn("Max qnt of messages exceed for [user id: {}]", userId);
@@ -54,7 +56,7 @@ public class InquiryMessageUpdateHandlerImpl implements InquiryMessageUpdateHand
             String text = receivedMessage.getText();
             message.setText(text);
             message.setEntities(receivedMessage.getEntities());
-            userDataCacheFacade.getInquiry(userId).addMessage(message);
+            userCachedInquiry.addMessage(message);
             log.info(CACHED_FOR_USER_ID.formatted("Text with markUp"), userId);
         }
         if (receivedMessage.hasPhoto()) {
@@ -65,35 +67,35 @@ public class InquiryMessageUpdateHandlerImpl implements InquiryMessageUpdateHand
                     .orElse(photoSizes.get(photoSizes.size() - 1));
             message.setPhoto(List.of(photoSize));
             log.info(CACHED_FOR_USER_ID.formatted("Image"), userId);
-            userDataCacheFacade.getInquiry(userId).addMessage(message);
+            userCachedInquiry.addMessage(message);
         }
         if (receivedMessage.hasAudio()) {
             Message message = createMessageWithMedia(update);
             Audio audio = receivedMessage.getAudio();
             message.setAudio(audio);
             log.info(CACHED_FOR_USER_ID.formatted("Audio"), userId);
-            userDataCacheFacade.getInquiry(userId).addMessage(message);
+            userCachedInquiry.addMessage(message);
         }
         if (receivedMessage.hasDocument()) {
             Message message = createMessageWithMedia(update);
             Document document = receivedMessage.getDocument();
             message.setDocument(document);
             log.info(CACHED_FOR_USER_ID.formatted("Document"), userId);
-            userDataCacheFacade.getInquiry(userId).addMessage(message);
+            userCachedInquiry.addMessage(message);
         }
         if (receivedMessage.hasVideo()) {
             Message message = createMessageWithMedia(update);
             Video video = receivedMessage.getVideo();
             message.setVideo(video);
             log.info(CACHED_FOR_USER_ID.formatted("Video"), userId);
-            userDataCacheFacade.getInquiry(userId).addMessage(message);
+            userCachedInquiry.addMessage(message);
         }
         if (receivedMessage.hasAnimation()) {
             Message message = createMessageWithMedia(update);
             Animation animation = receivedMessage.getAnimation();
             message.setAnimation(animation);
             log.info(CACHED_FOR_USER_ID.formatted("Animation"), userId);
-            userDataCacheFacade.getInquiry(userId).addMessage(message);
+            userCachedInquiry.addMessage(message);
         }
         return askAddContactData(userId);
     }

@@ -22,15 +22,14 @@ import org.telegram.telegrambots.meta.api.objects.Video;
 import org.telegram.telegrambots.meta.api.objects.games.Animation;
 import ru.veselov.companybot.bot.handler.inquiry.impl.InquiryMessageUpdateHandlerImpl;
 import ru.veselov.companybot.bot.util.MessageUtils;
+import ru.veselov.companybot.bot.util.UserMessageChecker;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
-import ru.veselov.companybot.exception.NoAvailableActionSendMessageException;
 import ru.veselov.companybot.model.DivisionModel;
 import ru.veselov.companybot.model.InquiryModel;
 
 import java.util.List;
 import java.util.UUID;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.spy;
 
 @ExtendWith(MockitoExtension.class)
@@ -39,10 +38,11 @@ class InquiryMessageUpdateHandlerTest {
 
     private static final Integer MAX_MSG = 10;
 
-    private final static Integer CAPTION_LENGTH = 1024;
-
     @Mock
     UserDataCacheFacade userDataCacheFacade;
+
+    @Mock
+    UserMessageChecker userMessageChecker;
 
     @InjectMocks
     InquiryMessageUpdateHandlerImpl inquiryMessageHandler;
@@ -71,7 +71,6 @@ class InquiryMessageUpdateHandlerTest {
         Mockito.when(userDataCacheFacade.getInquiry(user.getId())).thenReturn(inquiryModel);
         userDataCacheFacade.createInquiry(user.getId(), DivisionModel.builder().divisionId(UUID.randomUUID()).build());
         ReflectionTestUtils.setField(inquiryMessageHandler, "maxMessages", MAX_MSG, Integer.class);
-        ReflectionTestUtils.setField(inquiryMessageHandler, "captionLength", CAPTION_LENGTH, Integer.class);
     }
 
     @Test
@@ -91,67 +90,74 @@ class InquiryMessageUpdateHandlerTest {
         message.setText("Test");
 
         SendMessage sendMessage = inquiryMessageHandler.processUpdate(update);
-        org.junit.jupiter.api.Assertions.assertAll(
-                () -> Assertions.assertThat(sendMessage.getText()).isEqualTo(MessageUtils.AWAIT_CONTENT_MESSAGE),
-                () -> Mockito.verify(userDataCacheFacade, Mockito.times(2)).getInquiry(user.getId()),
-                () -> Mockito.verify(inquiryModel).addMessage(Mockito.any())
-        );
 
+        checkAnsweredSendMessage(sendMessage);
     }
 
     @Test
-    @SneakyThrows
-    void messageWithPhoto() {
+    void shouldAddMessageWithPhoto() {
         message.setEntities(null);
         PhotoSize photoSize = new PhotoSize();
         photoSize.setFileSize(100);
         message.setPhoto(List.of(photoSize));
-        assertEquals(MessageUtils.AWAIT_CONTENT_MESSAGE,
-                ((SendMessage) inquiryMessageHandler.processUpdate(update)).getText());
-        assertEquals(1, userDataCacheFacade.getInquiry(user.getId()).getMessages().size());
+
+        SendMessage sendMessage = inquiryMessageHandler.processUpdate(update);
+        checkAnsweredSendMessage(sendMessage);
     }
 
     @Test
     @SneakyThrows
-    void messageWithAudio() {
+    void shouldAddMessageWithAudio() {
         message.setEntities(null);
         Audio audio = new Audio();
         message.setAudio(audio);
-        assertEquals(MessageUtils.AWAIT_CONTENT_MESSAGE,
-                ((SendMessage) inquiryMessageHandler.processUpdate(update)).getText());
-        assertEquals(1, userDataCacheFacade.getInquiry(user.getId()).getMessages().size());
+
+        SendMessage sendMessage = inquiryMessageHandler.processUpdate(update);
+
+        checkAnsweredSendMessage(sendMessage);
     }
 
     @Test
-    @SneakyThrows
-    void messageWithDocument() {
+    void shouldAddMessageWithDocument() {
         message.setEntities(null);
         Document document = new Document();
         message.setDocument(document);
-        assertEquals(MessageUtils.AWAIT_CONTENT_MESSAGE,
-                ((SendMessage) inquiryMessageHandler.processUpdate(update)).getText());
-        assertEquals(1, userDataCacheFacade.getInquiry(user.getId()).getMessages().size());
+
+        SendMessage sendMessage = inquiryMessageHandler.processUpdate(update);
+
+        checkAnsweredSendMessage(sendMessage);
     }
 
     @Test
-    @SneakyThrows
-    void messageWithVideo() {
+    void shouldAddMessageWithVideo() {
         message.setEntities(null);
         Video video = new Video();
         message.setVideo(video);
-        assertEquals(MessageUtils.AWAIT_CONTENT_MESSAGE,
-                ((SendMessage) inquiryMessageHandler.processUpdate(update)).getText());
-        assertEquals(1, userDataCacheFacade.getInquiry(user.getId()).getMessages().size());
+
+        SendMessage sendMessage = inquiryMessageHandler.processUpdate(update);
+
+        checkAnsweredSendMessage(sendMessage);
     }
 
     @Test
-    @SneakyThrows
-    void messageWithAnimation() {
+    void shouldAddMessageWithAnimation() {
         message.setEntities(null);
         Animation animation = new Animation();
         message.setAnimation(animation);
-        assertEquals(MessageUtils.AWAIT_CONTENT_MESSAGE,
-                ((SendMessage) inquiryMessageHandler.processUpdate(update)).getText());
-        assertEquals(1, userDataCacheFacade.getInquiry(user.getId()).getMessages().size());
+
+        SendMessage sendMessage = inquiryMessageHandler.processUpdate(update);
+
+        checkAnsweredSendMessage(sendMessage);
     }
+
+    public void checkAnsweredSendMessage(SendMessage sendMessage) {
+        org.junit.jupiter.api.Assertions.assertAll(
+                () -> Assertions.assertThat(sendMessage.getText()).isEqualTo(MessageUtils.AWAIT_CONTENT_MESSAGE),
+                () -> Mockito.verify(userDataCacheFacade, Mockito.times(1)).getInquiry(user.getId()),
+                () -> Mockito.verify(inquiryModel).addMessage(Mockito.any()),
+                () -> Mockito.verify(userMessageChecker).checkForCustomEmojis(message),
+                () -> Mockito.verify(userMessageChecker).checkForLongCaption(message)
+        );
+    }
+
 }
