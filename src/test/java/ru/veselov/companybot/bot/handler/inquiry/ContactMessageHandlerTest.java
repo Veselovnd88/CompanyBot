@@ -16,7 +16,7 @@ import org.telegram.telegrambots.meta.api.objects.*;
 import ru.veselov.companybot.bot.BotState;
 import ru.veselov.companybot.bot.CompanyBot;
 import ru.veselov.companybot.cache.ContactCache;
-import ru.veselov.companybot.cache.UserDataCache;
+import ru.veselov.companybot.cache.UserDataCacheFacade;
 import ru.veselov.companybot.exception.WrongContactException;
 import ru.veselov.companybot.model.ContactModel;
 import ru.veselov.companybot.bot.util.KeyBoardUtils;
@@ -35,7 +35,7 @@ class ContactMessageHandlerTest {
     @MockBean
     CompanyBot companyBot;
     @Autowired
-    private UserDataCache userDataCache;
+    private UserDataCacheFacade userDataCacheFacade;
     @MockBean
     KeyBoardUtils keyBoardUtils;
     @Autowired
@@ -66,11 +66,11 @@ class ContactMessageHandlerTest {
     @SneakyThrows
     void nameTest(){
         /*Проверка ввода контакта текстом*/
-        userDataCache.setUserBotState(user.getId(),BotState.AWAIT_NAME);
+        userDataCacheFacade.setUserBotState(user.getId(),BotState.AWAIT_NAME);
         message.setText(" Ivanov Ivan Ivanovich");
         BotApiMethod<?> botApiMethod = contactMessageHandler.processUpdate(update);
         verify(keyBoardUtils).editMessageSavedField(user.getId(),"name");
-        assertEquals(BotState.AWAIT_CONTACT,userDataCache.getUserBotState(user.getId()));
+        assertEquals(BotState.AWAIT_CONTACT, userDataCacheFacade.getUserBotState(user.getId()));
         assertNotNull(contactCache.getContact(user.getId()));
     }
     @ParameterizedTest
@@ -78,11 +78,11 @@ class ContactMessageHandlerTest {
     @SneakyThrows
     void phoneTest(String phone){
         /*Проверка ввода контакта текстом*/
-        userDataCache.setUserBotState(user.getId(),BotState.AWAIT_PHONE);
+        userDataCacheFacade.setUserBotState(user.getId(),BotState.AWAIT_PHONE);
         message.setText(phone);
         BotApiMethod<?> botApiMethod = contactMessageHandler.processUpdate(update);
         verify(keyBoardUtils).editMessageSavedField(user.getId(),"phone");
-        assertEquals(BotState.AWAIT_CONTACT,userDataCache.getUserBotState(user.getId()));
+        assertEquals(BotState.AWAIT_CONTACT, userDataCacheFacade.getUserBotState(user.getId()));
         assertNotNull(contactCache.getContact(user.getId()));
     }
     @ParameterizedTest
@@ -90,11 +90,11 @@ class ContactMessageHandlerTest {
     @SneakyThrows
     void wrongPhoneTest(String phone){
         /*Проверка ввода контакта текстом*/
-        userDataCache.setUserBotState(user.getId(),BotState.AWAIT_PHONE);
+        userDataCacheFacade.setUserBotState(user.getId(),BotState.AWAIT_PHONE);
         message.setText(phone);
         BotApiMethod<?> botApiMethod = contactMessageHandler.processUpdate(update);
         verify(keyBoardUtils,never()).editMessageSavedField(user.getId(),"phone");
-        assertEquals(BotState.AWAIT_PHONE,userDataCache.getUserBotState(user.getId()));
+        assertEquals(BotState.AWAIT_PHONE, userDataCacheFacade.getUserBotState(user.getId()));
         assertNotNull(contactCache.getContact(user.getId()));
     }
 
@@ -103,11 +103,11 @@ class ContactMessageHandlerTest {
     @SneakyThrows
     void emailTest(String email){
         /*Проверка ввода электронной почты*/
-        userDataCache.setUserBotState(user.getId(),BotState.AWAIT_EMAIL);
+        userDataCacheFacade.setUserBotState(user.getId(),BotState.AWAIT_EMAIL);
         message.setText(email);
         BotApiMethod<?> botApiMethod = contactMessageHandler.processUpdate(update);
         verify(keyBoardUtils).editMessageSavedField(user.getId(),"email");
-        assertEquals(BotState.AWAIT_CONTACT,userDataCache.getUserBotState(user.getId()));
+        assertEquals(BotState.AWAIT_CONTACT, userDataCacheFacade.getUserBotState(user.getId()));
         assertNotNull(contactCache.getContact(user.getId()));
     }
     @ParameterizedTest
@@ -115,12 +115,12 @@ class ContactMessageHandlerTest {
     @SneakyThrows
     void wrongEmailTest(String email){
         /*Неправильные адреса*/
-        userDataCache.setUserBotState(user.getId(),BotState.AWAIT_EMAIL);
+        userDataCacheFacade.setUserBotState(user.getId(),BotState.AWAIT_EMAIL);
         message.setText(email);
         BotApiMethod<?> botApiMethod = contactMessageHandler.processUpdate(update);
         verify(keyBoardUtils,never()).editMessageSavedField(user.getId(),"email");
         assertEquals(MessageUtils.WRONG_EMAIL,((SendMessage)botApiMethod).getText());
-        assertEquals(BotState.AWAIT_EMAIL,userDataCache.getUserBotState(user.getId()));
+        assertEquals(BotState.AWAIT_EMAIL, userDataCacheFacade.getUserBotState(user.getId()));
     }
 
 
@@ -134,7 +134,7 @@ class ContactMessageHandlerTest {
         message.setEntities(null);
         BotApiMethod<?> botApiMethod = contactMessageHandler.processUpdate(update);
         verify(keyBoardUtils).editMessageSavedField(user.getId(),"shared");
-        assertEquals(BotState.AWAIT_CONTACT,userDataCache.getUserBotState(user.getId()));
+        assertEquals(BotState.AWAIT_CONTACT, userDataCacheFacade.getUserBotState(user.getId()));
         assertNotNull(contactCache.getContact(user.getId()));
     }
 

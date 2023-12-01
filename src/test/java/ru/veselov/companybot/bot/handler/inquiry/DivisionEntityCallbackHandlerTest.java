@@ -16,7 +16,7 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import ru.veselov.companybot.bot.BotState;
 import ru.veselov.companybot.bot.CompanyBot;
 import ru.veselov.companybot.bot.keyboard.DivisionKeyboardHelper;
-import ru.veselov.companybot.cache.UserDataCache;
+import ru.veselov.companybot.cache.UserDataCacheFacade;
 import ru.veselov.companybot.exception.NoAvailableActionCallbackException;
 import ru.veselov.companybot.exception.NoDivisionsException;
 import ru.veselov.companybot.model.DivisionModel;
@@ -36,7 +36,7 @@ class DivisionEntityCallbackHandlerTest {
     @MockBean
     CommandLineRunner commandLineRunner;
     @Autowired
-    UserDataCache userDataCache;
+    UserDataCacheFacade userDataCacheFacade;
     @Autowired
     DivisionCallbackHandler divisionCallbackHandler;
     @MockBean
@@ -66,17 +66,17 @@ class DivisionEntityCallbackHandlerTest {
         callbackQuery.setData("L");
         BotApiMethod<?> botApiMethod = divisionCallbackHandler.processUpdate(update);
         assertInstanceOf(SendMessage.class,botApiMethod);
-        assertNotNull(userDataCache.getInquiry(user.getId()));
-        assertEquals(BotState.AWAIT_MESSAGE,userDataCache.getUserBotState(user.getId()));
+        assertNotNull(userDataCacheFacade.getInquiry(user.getId()));
+        assertEquals(BotState.AWAIT_MESSAGE, userDataCacheFacade.getUserBotState(user.getId()));
     }
 
     @Test
     void departmentWrongTest(){
-        userDataCache.clear(user.getId());
+        userDataCacheFacade.clear(user.getId());
         callbackQuery.setData("wrong");
         assertThrows(NoAvailableActionCallbackException.class,
                 ()->divisionCallbackHandler.processUpdate(update));
-        assertNull(userDataCache.getInquiry(user.getId()));
+        assertNull(userDataCacheFacade.getInquiry(user.getId()));
     }
 
 }

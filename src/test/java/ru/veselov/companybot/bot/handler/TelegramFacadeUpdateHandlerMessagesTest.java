@@ -18,7 +18,7 @@ import ru.veselov.companybot.bot.handler.inquiry.ContactCallbackHandler;
 import ru.veselov.companybot.bot.handler.inquiry.ContactMessageHandler;
 import ru.veselov.companybot.bot.handler.inquiry.DivisionCallbackHandler;
 import ru.veselov.companybot.bot.handler.inquiry.impl.InquiryMessageUpdateHandlerImpl;
-import ru.veselov.companybot.cache.UserDataCache;
+import ru.veselov.companybot.cache.UserDataCacheFacade;
 
 import java.util.List;
 
@@ -46,7 +46,7 @@ class TelegramFacadeUpdateHandlerMessagesTest {
     @MockBean
 
     @Autowired
-    UserDataCache userDataCache;
+    UserDataCacheFacade userDataCacheFacade;
     @Autowired
     TelegramFacadeUpdateHandler telegramFacadeUpdateHandler;
     @Autowired
@@ -72,7 +72,7 @@ class TelegramFacadeUpdateHandlerMessagesTest {
     void contactNoCallsTest() {
         for (var b : BotState.values()) {
             if(handlerContext.isInMessageContext(b)) {
-                userDataCache.setUserBotState(user.getId(), b);
+                userDataCacheFacade.setUserBotState(user.getId(), b);
                 if (!isContactInputState(b)) {
                     telegramFacadeUpdateHandler.processUpdate(update);
                     verify(contactMessageHandler, never()).processUpdate(any(Update.class));
@@ -87,7 +87,7 @@ class TelegramFacadeUpdateHandlerMessagesTest {
         List<BotState> states = List.of(BotState.AWAIT_NAME, BotState.AWAIT_SHARED, BotState.AWAIT_PHONE,
                 BotState.AWAIT_EMAIL, BotState.AWAIT_CONTACT);
         for(var b: states){
-            userDataCache.setUserBotState(user.getId(), b);
+            userDataCacheFacade.setUserBotState(user.getId(), b);
             telegramFacadeUpdateHandler.processUpdate(update);
         }
         verify(contactMessageHandler, times(states.size())).processUpdate(any(Update.class));
@@ -98,7 +98,7 @@ class TelegramFacadeUpdateHandlerMessagesTest {
     void inquiryNoCallsTest() {
         for (var b : BotState.values()) {
             if(handlerContext.isInMessageContext(b)){
-                userDataCache.setUserBotState(user.getId(), b);
+                userDataCacheFacade.setUserBotState(user.getId(), b);
                 if (b!=BotState.AWAIT_MESSAGE) {
                     telegramFacadeUpdateHandler.processUpdate(update);
                     verify(inquiryMessageHandler, never()).processUpdate(any(Update.class));
@@ -110,7 +110,7 @@ class TelegramFacadeUpdateHandlerMessagesTest {
     @Test
     @SneakyThrows
     void inquiryCallTest() {
-        userDataCache.setUserBotState(user.getId(), BotState.AWAIT_MESSAGE);
+        userDataCacheFacade.setUserBotState(user.getId(), BotState.AWAIT_MESSAGE);
         telegramFacadeUpdateHandler.processUpdate(update);
         verify(inquiryMessageHandler).processUpdate(any(Update.class));
     }

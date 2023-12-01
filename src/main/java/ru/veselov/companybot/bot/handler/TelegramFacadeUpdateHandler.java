@@ -13,11 +13,11 @@ import ru.veselov.companybot.bot.HandlerContext;
 import ru.veselov.companybot.bot.UpdateHandler;
 import ru.veselov.companybot.bot.handler.impl.ChannelConnectUpdateHandlerImpl;
 import ru.veselov.companybot.bot.handler.impl.CommandUpdateHandlerImpl;
-import ru.veselov.companybot.cache.UserDataCache;
+import ru.veselov.companybot.bot.util.MessageUtils;
+import ru.veselov.companybot.cache.UserDataCacheFacade;
 import ru.veselov.companybot.exception.NoAvailableActionCallbackException;
 import ru.veselov.companybot.exception.NoAvailableActionException;
 import ru.veselov.companybot.exception.NoAvailableActionSendMessageException;
-import ru.veselov.companybot.bot.util.MessageUtils;
 
 import java.util.Optional;
 
@@ -35,7 +35,7 @@ public class TelegramFacadeUpdateHandler implements UpdateHandler {
 
     private final HandlerContext handlerContext;
 
-    private final UserDataCache userDataCache;
+    private final UserDataCacheFacade userDataCache;
 
     @Override
     public synchronized BotApiMethod<?> processUpdate(Update update) throws NoAvailableActionException {
