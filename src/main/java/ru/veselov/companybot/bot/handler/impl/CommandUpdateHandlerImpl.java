@@ -14,7 +14,7 @@ import ru.veselov.companybot.bot.keyboard.DivisionKeyboardHelper;
 import ru.veselov.companybot.bot.util.InlineKeyBoardUtils;
 import ru.veselov.companybot.bot.util.MessageUtils;
 import ru.veselov.companybot.cache.ContactCache;
-import ru.veselov.companybot.cache.UserDataCache;
+import ru.veselov.companybot.cache.UserDataCacheFacade;
 import ru.veselov.companybot.exception.NoAvailableActionSendMessageException;
 import ru.veselov.companybot.service.CustomerService;
 
@@ -28,7 +28,7 @@ public class CommandUpdateHandlerImpl implements CommandUpdateHandler {
 
     private static final String BOT_STATE_IS_FOR_USER_ID_LOG = "Bot state is {} for user [id: {}]";
 
-    private final UserDataCache userDataCache;
+    private final UserDataCacheFacade userDataCacheFacade;
 
     private final ContactCache contactCache;
 
@@ -42,28 +42,26 @@ public class CommandUpdateHandlerImpl implements CommandUpdateHandler {
         User user = update.getMessage().getFrom();
         String receivedCommand = update.getMessage().getText();
         log.debug("[Command {}] button pressed by user [id: {}]", receivedCommand, userId);
-        BotState botState = userDataCache.getUserBotState(userId);
-        log.debug(BOT_STATE_IS_FOR_USER_ID_LOG, botState, userId);
+        BotState botState = userDataCacheFacade.getUserBotState(userId);
         switch (receivedCommand) {
             case BotCommands.START:
                 if (botState == BotState.BEGIN) {
                     customerService.save(user);//TODO make async
                 }
-                userDataCache.setUserBotState(userId, BotState.READY);
-                userDataCache.clear(userId);
-                contactCache.clear(userId);
+                userDataCacheFacade.setUserBotState(userId, BotState.READY);
+                userDataCacheFacade.clear(userId);
                 return SendMessage.builder().chatId(userId)
                         .text(MessageUtils.GREETINGS).build();
             case BotCommands.INQUIRY:
                 if (botState == BotState.READY) {
-                    userDataCache.setUserBotState(userId, BotState.AWAIT_DIVISION_FOR_INQUIRY);
+                    userDataCacheFacade.setUserBotState(userId, BotState.AWAIT_DIVISION_FOR_INQUIRY);
                     return departmentMessageInlineKeyBoard(userId);
                 } else {
                     throw new NoAvailableActionSendMessageException(MessageUtils.ANOTHER_ACTION, userId.toString());
                 }
             case BotCommands.CALL:
                 if (botState == BotState.READY) {
-                    userDataCache.setUserBotState(userId, BotState.AWAIT_CONTACT);
+                    userDataCacheFacade.setUserBotState(userId, BotState.AWAIT_CONTACT);
                     return contactMessage(userId);
                 } else {
                     throw new NoAvailableActionSendMessageException(MessageUtils.ANOTHER_ACTION, userId.toString());

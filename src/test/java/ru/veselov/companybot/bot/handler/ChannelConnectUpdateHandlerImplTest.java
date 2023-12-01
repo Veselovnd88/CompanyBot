@@ -47,7 +47,7 @@ class ChannelConnectUpdateHandlerImplTest {
     @BeforeEach
     void init() {
         BotProperties botProperties = new BotProperties();
-        botProperties.setBotId(TestUtils.botId);
+        botProperties.setBotId(TestUtils.BOT_ID);
         ReflectionTestUtils.setField(channelConnectUpdateHandler, "botProperties",
                 botProperties, BotProperties.class);
         update = Mockito.spy(Update.class);
@@ -68,7 +68,7 @@ class ChannelConnectUpdateHandlerImplTest {
 
     @Test
     void shouldSaveChatWhenBotIsConnectedToChannel() {
-        botUser.setId(TestUtils.botId);
+        botUser.setId(TestUtils.BOT_ID);
         Mockito.when(chatMember.getStatus()).thenReturn(BotConstant.ADMINISTRATOR);
         SendMessage sendMessage = channelConnectUpdateHandler.processUpdate(update);
         Assertions.assertThat(sendMessage.getChatId()).isEqualTo(user.getId().toString());
@@ -77,7 +77,7 @@ class ChannelConnectUpdateHandlerImplTest {
 
     @Test
     void shouldRemoveChatWhenBotIsRemovedFromChannel() {
-        botUser.setId(TestUtils.botId);
+        botUser.setId(TestUtils.BOT_ID);
         Mockito.when(chatMember.getStatus()).thenReturn(BotConstant.LEFT);
         channelConnectUpdateHandler.processUpdate(update);
         Mockito.verify(chatService).remove(chat.getId());
@@ -85,7 +85,7 @@ class ChannelConnectUpdateHandlerImplTest {
 
     @Test
     void shouldRemoveChatIfBotWasKickedFromChat() {
-        botUser.setId(TestUtils.botId);
+        botUser.setId(TestUtils.BOT_ID);
         Mockito.when(chatMember.getStatus()).thenReturn(BotConstant.KICKED);
         channelConnectUpdateHandler.processUpdate(update);
         Mockito.verify(chatService).remove(chat.getId());
@@ -93,7 +93,7 @@ class ChannelConnectUpdateHandlerImplTest {
 
     @Test
     void shouldThrowExceptionIfUnavailableCommandOccurred() {
-        botUser.setId(TestUtils.botId);
+        botUser.setId(TestUtils.BOT_ID);
         Mockito.when(chatMember.getStatus()).thenReturn("unknown");
         Assertions.assertThatThrownBy(
                 () -> channelConnectUpdateHandler.processUpdate(update)

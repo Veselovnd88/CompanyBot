@@ -12,7 +12,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.veselov.companybot.bot.BotState;
 import ru.veselov.companybot.bot.UpdateHandler;
 import ru.veselov.companybot.cache.ContactCache;
-import ru.veselov.companybot.cache.UserDataCache;
+import ru.veselov.companybot.cache.UserDataCacheFacade;
 import ru.veselov.companybot.exception.WrongContactException;
 import ru.veselov.companybot.model.ContactModel;
 import ru.veselov.companybot.bot.util.KeyBoardUtils;
@@ -24,13 +24,13 @@ import java.util.regex.Pattern;
 @Component
 @Slf4j
 public class ContactMessageHandler implements UpdateHandler {
-    private final UserDataCache userDataCache;
+    private final UserDataCacheFacade userDataCacheFacade;
     private final ContactCache contactCache;
     private final KeyBoardUtils keyBoardUtils;
     private final EmailValidator emailValidator;
     @Autowired
-    public ContactMessageHandler(UserDataCache userDataCache, ContactCache contactCache, KeyBoardUtils keyBoardUtils, EmailValidator emailValidator) {
-        this.userDataCache = userDataCache;
+    public ContactMessageHandler(UserDataCacheFacade userDataCacheFacade, ContactCache contactCache, KeyBoardUtils keyBoardUtils, EmailValidator emailValidator) {
+        this.userDataCacheFacade = userDataCacheFacade;
         this.contactCache = contactCache;
         this.keyBoardUtils = keyBoardUtils;
         this.emailValidator = emailValidator;
@@ -39,7 +39,7 @@ public class ContactMessageHandler implements UpdateHandler {
     @Override
     public BotApiMethod<?> processUpdate(Update update) throws WrongContactException {
         Long userId = update.getMessage().getFrom().getId();
-        BotState botState = userDataCache.getUserBotState(userId);
+        BotState botState = userDataCacheFacade.getUserBotState(userId);
         ContactModel contact = contactCache.getContact(userId);
         if(update.getMessage().hasText()){
             String text = update.getMessage().getText();
@@ -64,7 +64,7 @@ public class ContactMessageHandler implements UpdateHandler {
             if(contact.getPhone()==null){
                 contact.setPhone(messageContact.getPhoneNumber());
             }
-            userDataCache.setUserBotState(contact.getUserId(),BotState.AWAIT_CONTACT);
+            userDataCacheFacade.setUserBotState(contact.getUserId(),BotState.AWAIT_CONTACT);
             return keyBoardUtils.editMessageSavedField(contact.getUserId(), "shared");
         }
         //Сюда придет если попало неправильное значение
@@ -98,7 +98,7 @@ public class ContactMessageHandler implements UpdateHandler {
             contact.setSecondName(sb.toString().trim());
         }
         log.info("{}: добавлено имя в контакт {}", contact.getUserId(), name);
-        userDataCache.setUserBotState(contact.getUserId(),BotState.AWAIT_CONTACT);
+        userDataCacheFacade.setUserBotState(contact.getUserId(),BotState.AWAIT_CONTACT);
         return keyBoardUtils.editMessageSavedField(contact.getUserId(),"name");
     }
 
@@ -108,7 +108,7 @@ public class ContactMessageHandler implements UpdateHandler {
         if(matcher.matches()){
             contact.setPhone(phone);
             log.info("{}: установлен телефонный номер {}", contact.getUserId(), phone);
-            userDataCache.setUserBotState(contact.getUserId(),BotState.AWAIT_CONTACT);
+            userDataCacheFacade.setUserBotState(contact.getUserId(),BotState.AWAIT_CONTACT);
             return keyBoardUtils.editMessageSavedField(contact.getUserId(), "phone");
         }
         else {
@@ -123,7 +123,7 @@ public class ContactMessageHandler implements UpdateHandler {
         if(emailValidator.isValid(email,null)){
             contact.setEmail(email);
             log.info("{}: email добавлен {}",contact.getUserId(),email);
-            userDataCache.setUserBotState(contact.getUserId(),BotState.AWAIT_CONTACT);
+            userDataCacheFacade.setUserBotState(contact.getUserId(),BotState.AWAIT_CONTACT);
             return keyBoardUtils.editMessageSavedField(contact.getUserId(), "email");
         }else{
             log.info("{}: Некорректный ввод email",contact.getUserId());

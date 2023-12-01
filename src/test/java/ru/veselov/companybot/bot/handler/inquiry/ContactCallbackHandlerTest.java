@@ -13,7 +13,7 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import ru.veselov.companybot.bot.BotState;
 import ru.veselov.companybot.bot.CompanyBot;
 import ru.veselov.companybot.cache.ContactCache;
-import ru.veselov.companybot.cache.UserDataCache;
+import ru.veselov.companybot.cache.UserDataCacheFacade;
 import ru.veselov.companybot.exception.NoAvailableActionCallbackException;
 import ru.veselov.companybot.model.ContactModel;
 import ru.veselov.companybot.model.DivisionModel;
@@ -35,7 +35,7 @@ class ContactCallbackHandlerTest {
     CompanyBot bot;
 
     @Autowired
-    private UserDataCache userDataCache;
+    private UserDataCacheFacade userDataCacheFacade;
     @Autowired
     private ContactCache contactCache;
     @Autowired
@@ -67,14 +67,14 @@ class ContactCallbackHandlerTest {
         /*Проверка смены статуса при нажатии кнопки контакт*/
         callbackQuery.setData("contact");
         assertNotNull(contactCallbackHandler.processUpdate(update));
-        assertEquals(BotState.AWAIT_CONTACT,userDataCache.getUserBotState(user.getId()));
+        assertEquals(BotState.AWAIT_CONTACT, userDataCacheFacade.getUserBotState(user.getId()));
     }
     @Test
     @SneakyThrows
     void repeatDataTest(){
         callbackQuery.setData("repeat");
         assertNotNull(contactCallbackHandler.processUpdate(update));
-        assertEquals(BotState.AWAIT_CONTACT,userDataCache.getUserBotState(user.getId()));
+        assertEquals(BotState.AWAIT_CONTACT, userDataCacheFacade.getUserBotState(user.getId()));
     }
     @Test
     @SneakyThrows
@@ -85,14 +85,14 @@ class ContactCallbackHandlerTest {
         ContactModel contact = contactCache.getContact(user.getId());
         contact.setEmail("vasya@vasya.ru");
         contact.setLastName("Petrov");
-        userDataCache.createInquiry(user.getId(), DivisionModel.builder().divisionId(UUID.randomUUID()).build());
-        InquiryModel inquiry = userDataCache.getInquiry(user.getId());
+        userDataCacheFacade.createInquiry(user.getId(), DivisionModel.builder().divisionId(UUID.randomUUID()).build());
+        InquiryModel inquiry = userDataCacheFacade.getInquiry(user.getId());
         assertNotNull(contactCallbackHandler.processUpdate(update));
-        assertEquals(BotState.READY,userDataCache.getUserBotState(user.getId()));
+        assertEquals(BotState.READY, userDataCacheFacade.getUserBotState(user.getId()));
         verify(customerService).saveContact(contact);
         verify(inquiryService).save(inquiry);
         assertNull(contactCache.getContact(user.getId()));
-        assertNull(userDataCache.getInquiry(user.getId()));
+        assertNull(userDataCacheFacade.getInquiry(user.getId()));
         verify(senderService).send(inquiry,contact);
     }
     @Test
@@ -104,13 +104,13 @@ class ContactCallbackHandlerTest {
         ContactModel contact = contactCache.getContact(user.getId());
         contact.setEmail("vasya@vasya.ru");
         contact.setLastName("Petrov");
-        InquiryModel inquiry = userDataCache.getInquiry(user.getId());
+        InquiryModel inquiry = userDataCacheFacade.getInquiry(user.getId());
         assertNotNull(contactCallbackHandler.processUpdate(update));
-        assertEquals(BotState.READY,userDataCache.getUserBotState(user.getId()));
+        assertEquals(BotState.READY, userDataCacheFacade.getUserBotState(user.getId()));
         verify(customerService).saveContact(contact);
         verify(inquiryService,times(0)).save(inquiry);
         assertNull(contactCache.getContact(user.getId()));
-        assertNull(userDataCache.getInquiry(user.getId()));
+        assertNull(userDataCacheFacade.getInquiry(user.getId()));
         verify(senderService).send(inquiry,contact);
     }
 

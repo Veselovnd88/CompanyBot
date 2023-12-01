@@ -1,10 +1,7 @@
 package ru.veselov.companybot.bot.handler;
 
-import ch.qos.logback.classic.Level;
-import ch.qos.logback.classic.Logger;
 import lombok.SneakyThrows;
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -15,7 +12,6 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import org.slf4j.LoggerFactory;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.MessageEntity;
@@ -28,7 +24,7 @@ import ru.veselov.companybot.bot.handler.impl.CommandUpdateHandlerImpl;
 import ru.veselov.companybot.bot.keyboard.DivisionKeyboardHelper;
 import ru.veselov.companybot.bot.util.MessageUtils;
 import ru.veselov.companybot.cache.ContactCache;
-import ru.veselov.companybot.cache.UserDataCache;
+import ru.veselov.companybot.cache.UserDataCacheFacade;
 import ru.veselov.companybot.exception.NoAvailableActionSendMessageException;
 import ru.veselov.companybot.service.CustomerService;
 
@@ -38,7 +34,7 @@ import java.util.List;
 class CommandUpdateHandlerTest {
 
     @Mock
-    private UserDataCache userDataCache;
+    private UserDataCacheFacade userDataCacheFacade;
 
     @Mock
     private ContactCache contactCache;
@@ -77,7 +73,7 @@ class CommandUpdateHandlerTest {
     @Test
     void shouldSaveNewUserChangeStateAndClearCache() {
         /*New user with no status */
-        Mockito.when(userDataCache.getUserBotState(user.getId())).thenReturn(BotState.BEGIN);
+        Mockito.when(userDataCacheFacade.getUserBotState(user.getId())).thenReturn(BotState.BEGIN);
         Mockito.when(message.getText()).thenReturn(BotCommands.START);
 
         SendMessage sendMessage = commandHandler.processUpdate(update);
@@ -85,8 +81,8 @@ class CommandUpdateHandlerTest {
         org.junit.jupiter.api.Assertions.assertAll(
                 () -> Mockito.verify(customerService).save(user),
                 () -> Assertions.assertThat(sendMessage.getText()).isEqualTo(MessageUtils.GREETINGS),
-                () -> Mockito.verify(userDataCache).setUserBotState(user.getId(), BotState.READY),
-                () -> Mockito.verify(userDataCache).clear(user.getId()),
+                () -> Mockito.verify(userDataCacheFacade).setUserBotState(user.getId(), BotState.READY),
+                () -> Mockito.verify(userDataCacheFacade).clear(user.getId()),
                 () -> Mockito.verify(contactCache).clear(user.getId())
         );
     }
@@ -96,15 +92,15 @@ class CommandUpdateHandlerTest {
     void shouldNotSaveCustomerIfStateIsBEGIN(BotState botState) {
         /*Check cases of any states except BEGIN*/
         Mockito.when(message.getText()).thenReturn(BotCommands.START);
-        Mockito.when(userDataCache.getUserBotState(user.getId())).thenReturn(botState);
+        Mockito.when(userDataCacheFacade.getUserBotState(user.getId())).thenReturn(botState);
 
         SendMessage sendMessage = commandHandler.processUpdate(update);
 
         org.junit.jupiter.api.Assertions.assertAll(
                 () -> Mockito.verifyNoInteractions(customerService),
                 () -> Assertions.assertThat(sendMessage.getText()).isEqualTo(MessageUtils.GREETINGS),
-                () -> Mockito.verify(userDataCache).setUserBotState(user.getId(), BotState.READY),
-                () -> Mockito.verify(userDataCache).clear(user.getId()),
+                () -> Mockito.verify(userDataCacheFacade).setUserBotState(user.getId(), BotState.READY),
+                () -> Mockito.verify(userDataCacheFacade).clear(user.getId()),
                 () -> Mockito.verify(contactCache).clear(user.getId())
         );
     }
@@ -115,7 +111,7 @@ class CommandUpdateHandlerTest {
     void shouldSetStateAndGiveKeyboard() {
         /*Check flow case with READY state */
         Mockito.when(message.getText()).thenReturn(BotCommands.INQUIRY);
-        Mockito.when(userDataCache.getUserBotState(user.getId())).thenReturn(BotState.READY);
+        Mockito.when(userDataCacheFacade.getUserBotState(user.getId())).thenReturn(BotState.READY);
         Mockito.when(divisionKeyboardHelper.getCustomerDivisionKeyboard()).thenReturn(new InlineKeyboardMarkup());
 
         SendMessage sendMessage = commandHandler.processUpdate(update);
@@ -123,7 +119,7 @@ class CommandUpdateHandlerTest {
         org.junit.jupiter.api.Assertions.assertAll(
                 () -> Assertions.assertThat(sendMessage.getText()).isEqualTo(MessageUtils.CHOOSE_DEP),
                 () -> Assertions.assertThat(sendMessage.getReplyMarkup()).isNotNull(),
-                () -> Mockito.verify(userDataCache).setUserBotState(user.getId(), BotState.AWAIT_DIVISION_FOR_INQUIRY)
+                () -> Mockito.verify(userDataCacheFacade).setUserBotState(user.getId(), BotState.AWAIT_DIVISION_FOR_INQUIRY)
         );
 
     }
@@ -132,7 +128,7 @@ class CommandUpdateHandlerTest {
     @EnumSource(value = BotState.class, names = {"READY"}, mode = EnumSource.Mode.EXCLUDE)
     void shouldThrowExceptionIfWrongStateForInquiryCommand(BotState botState) {
         Mockito.when(message.getText()).thenReturn(BotCommands.INQUIRY);
-        Mockito.when(userDataCache.getUserBotState(user.getId())).thenReturn(botState);
+        Mockito.when(userDataCacheFacade.getUserBotState(user.getId())).thenReturn(botState);
         Assertions.assertThatThrownBy(
                 () -> commandHandler.processUpdate(update)
         ).isInstanceOf(NoAvailableActionSendMessageException.class);
@@ -142,7 +138,7 @@ class CommandUpdateHandlerTest {
     @EnumSource(value = BotState.class)
     void shouldGiveAboutInformationForAllOfStates(BotState botState) {
         Mockito.when(message.getText()).thenReturn(BotCommands.ABOUT);
-        Mockito.when(userDataCache.getUserBotState(user.getId())).thenReturn(botState);
+        Mockito.when(userDataCacheFacade.getUserBotState(user.getId())).thenReturn(botState);
         Message aboutMessage = new Message();
         aboutMessage.setText("text");
         MessageEntity messageEntity = new MessageEntity();
@@ -162,7 +158,7 @@ class CommandUpdateHandlerTest {
     @EnumSource(value = BotState.class)
     void shouldGiveInfoTextForAllOfStates(BotState botState) {
         Mockito.when(message.getText()).thenReturn(BotCommands.INFO);
-        Mockito.when(userDataCache.getUserBotState(user.getId())).thenReturn(botState);
+        Mockito.when(userDataCacheFacade.getUserBotState(user.getId())).thenReturn(botState);
 
         SendMessage sendMessage = commandHandler.processUpdate(update);
 

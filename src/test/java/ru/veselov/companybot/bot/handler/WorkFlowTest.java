@@ -1,6 +1,5 @@
 package ru.veselov.companybot.bot.handler;
 
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -11,7 +10,7 @@ import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.User;
 import ru.veselov.companybot.bot.BotState;
 import ru.veselov.companybot.bot.CompanyBot;
-import ru.veselov.companybot.cache.UserDataCache;
+import ru.veselov.companybot.cache.UserDataCacheFacade;
 import ru.veselov.companybot.exception.NoAvailableActionException;
 import ru.veselov.companybot.service.impl.ChatServiceImpl;
 
@@ -29,7 +28,7 @@ public class WorkFlowTest {
     @MockBean
     CompanyBot bot;
     @Autowired
-    UserDataCache userDataCache;
+    UserDataCacheFacade userDataCacheFacade;
     @Autowired
     TelegramFacadeUpdateHandler telegramFacadeUpdateHandler;
     @Autowired
@@ -70,29 +69,29 @@ public class WorkFlowTest {
         UserActions userActions = new UserActions();
         assertInstanceOf(SendMessage.class,
                 telegramFacadeUpdateHandler.processUpdate(userActions.userPressStart(user)));
-        assertEquals(BotState.READY, userDataCache.getUserBotState(user.getId()));
+        assertEquals(BotState.READY, userDataCacheFacade.getUserBotState(user.getId()));
         assertInstanceOf(SendMessage.class,
                 telegramFacadeUpdateHandler.processUpdate(userActions.userPressInquiry(user)));
-        assertEquals(BotState.AWAIT_DIVISION_FOR_INQUIRY, userDataCache.getUserBotState(user.getId()));
+        assertEquals(BotState.AWAIT_DIVISION_FOR_INQUIRY, userDataCacheFacade.getUserBotState(user.getId()));
         assertInstanceOf(SendMessage.class,
                 telegramFacadeUpdateHandler.processUpdate(userActions.userPressInquiryButton(user)));
-        assertEquals(BotState.AWAIT_MESSAGE, userDataCache.getUserBotState(user.getId()));
+        assertEquals(BotState.AWAIT_MESSAGE, userDataCacheFacade.getUserBotState(user.getId()));
         for (int i1 = 0; i1 < 5; i1++) {
             telegramFacadeUpdateHandler.processUpdate(userActions.userSendMessage(user));
         }
-        assertEquals(BotState.AWAIT_MESSAGE, userDataCache.getUserBotState(user.getId()));
+        assertEquals(BotState.AWAIT_MESSAGE, userDataCacheFacade.getUserBotState(user.getId()));
         telegramFacadeUpdateHandler.processUpdate(userActions.userPressContactButton(user));
-        assertEquals(BotState.AWAIT_CONTACT, userDataCache.getUserBotState(user.getId()));
+        assertEquals(BotState.AWAIT_CONTACT, userDataCacheFacade.getUserBotState(user.getId()));
         telegramFacadeUpdateHandler.processUpdate(userActions.userChooseContactButton(user, "phone"));
-        assertEquals(BotState.AWAIT_PHONE, userDataCache.getUserBotState(user.getId()));
+        assertEquals(BotState.AWAIT_PHONE, userDataCacheFacade.getUserBotState(user.getId()));
         telegramFacadeUpdateHandler.processUpdate(userActions.userInputContactData(user, "+89156669009"));
-        assertEquals(BotState.AWAIT_CONTACT, userDataCache.getUserBotState(user.getId()));
+        assertEquals(BotState.AWAIT_CONTACT, userDataCacheFacade.getUserBotState(user.getId()));
         telegramFacadeUpdateHandler.processUpdate(userActions.userChooseContactButton(user, "name"));
-        assertEquals(BotState.AWAIT_NAME, userDataCache.getUserBotState(user.getId()));
+        assertEquals(BotState.AWAIT_NAME, userDataCacheFacade.getUserBotState(user.getId()));
         telegramFacadeUpdateHandler.processUpdate(userActions.userInputContactData(user, "Vasya Petya Valera"));
-        assertEquals(BotState.AWAIT_CONTACT, userDataCache.getUserBotState(user.getId()));
+        assertEquals(BotState.AWAIT_CONTACT, userDataCacheFacade.getUserBotState(user.getId()));
         telegramFacadeUpdateHandler.processUpdate(userActions.userChooseContactButton(user, "save"));
-        assertEquals(BotState.READY, userDataCache.getUserBotState(user.getId()));
+        assertEquals(BotState.READY, userDataCacheFacade.getUserBotState(user.getId()));
     }
 
 }

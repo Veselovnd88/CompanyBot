@@ -10,7 +10,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import ru.veselov.companybot.bot.CompanyBot;
 import ru.veselov.companybot.bot.HandlerContext;
-import ru.veselov.companybot.cache.UserDataCache;
+import ru.veselov.companybot.cache.UserDataCacheFacade;
 
 import static org.mockito.Mockito.*;
 
@@ -19,7 +19,7 @@ class TelegramUpdateHandlerTest {
     @MockBean
     CompanyBot bot;
     @Autowired
-    UserDataCache userDataCache;
+    UserDataCacheFacade userDataCacheFacade;
     Update update;
     CallbackQuery callbackQuery;
     Message message;

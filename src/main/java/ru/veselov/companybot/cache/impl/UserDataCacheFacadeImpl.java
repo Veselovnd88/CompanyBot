@@ -4,32 +4,41 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.veselov.companybot.bot.BotState;
+import ru.veselov.companybot.cache.ContactCache;
 import ru.veselov.companybot.cache.InquiryCache;
-import ru.veselov.companybot.cache.UserDataCache;
+import ru.veselov.companybot.cache.UserDataCacheFacade;
+import ru.veselov.companybot.cache.UserStateCache;
+import ru.veselov.companybot.model.ContactModel;
 import ru.veselov.companybot.model.DivisionModel;
 import ru.veselov.companybot.model.InquiryModel;
-
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class UserDataCacheImpl implements UserDataCache {
+public class UserDataCacheFacadeImpl implements UserDataCacheFacade {
 
     private final InquiryCache inquiryCache;
 
-    private final Map<Long, BotState> currentUserBotState = new ConcurrentHashMap<>();
+    private final UserStateCache userStateCache;
+
+    private final ContactCache contactCache;
+
+
+    @Override
+    public void clear(Long userId) {
+        userStateCache.clear(userId);
+        inquiryCache.clear(userId);
+        contactCache.clear(userId);
+    }
 
     @Override
     public BotState getUserBotState(Long id) {
-        return currentUserBotState.computeIfAbsent(id, k -> BotState.BEGIN);
+        return userStateCache.getUserBotState(id);
     }
 
     @Override
     public void setUserBotState(Long id, BotState botState) {
-        currentUserBotState.put(id, botState);
-        log.info("For [user id: {}] was set [bot state: {}]", id, botState);
+        userStateCache.setUserBotState(id, botState);
     }
 
     @Override
@@ -43,10 +52,13 @@ public class UserDataCacheImpl implements UserDataCache {
     }
 
     @Override
-    public void clear(Long userId) {
-        inquiryCache.clear(userId);
-        currentUserBotState.put(userId, BotState.READY);
-        log.debug("For [user id: {}] set [bot state is: {}]", userId, BotState.READY);
+    public void createContact(Long userId) {
+        contactCache.createContact(userId);
+    }
+
+    @Override
+    public ContactModel getContact(Long userId) {
+        return contactCache.getContact(userId);
     }
 
 }

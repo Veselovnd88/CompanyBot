@@ -9,6 +9,9 @@ import ru.veselov.companybot.model.InquiryModel;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Cache for storing temporary inquiry data of user(customer), customer will fill it in several steps/commands
+ */
 @Component
 @Slf4j
 public class InquiryCacheImpl implements InquiryCache {

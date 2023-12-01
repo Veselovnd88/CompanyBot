@@ -17,7 +17,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import ru.veselov.companybot.bot.handler.inquiry.InquiryMessageUpdateHandler;
 import ru.veselov.companybot.bot.util.InlineKeyBoardUtils;
 import ru.veselov.companybot.bot.util.MessageUtils;
-import ru.veselov.companybot.cache.UserDataCache;
+import ru.veselov.companybot.cache.UserDataCacheFacade;
 import ru.veselov.companybot.exception.NoAvailableActionSendMessageException;
 
 import java.util.Comparator;
@@ -36,12 +36,12 @@ public class InquiryMessageUpdateHandlerImpl implements InquiryMessageUpdateHand
 
     private static final String SAVED_FOR_USER_ID = "%s saved for [user id: {}]";
 
-    private final UserDataCache userDataCache;
+    private final UserDataCacheFacade userDataCacheFacade;
 
     @Override
     public SendMessage processUpdate(Update update) throws NoAvailableActionSendMessageException {
         Long userId = update.getMessage().getFrom().getId();
-        if (userDataCache.getInquiry(userId).getMessages().size() > maxMessages) {
+        if (userDataCacheFacade.getInquiry(userId).getMessages().size() > maxMessages) {
             SendMessage addContentMessage = askAddContent(userId);
             addContentMessage.setText("Превышено максимальное количество сообщений (%s)".formatted(maxMessages + 1));
             log.warn("Max qnt of messages exceed for [user id: {}]", userId);
@@ -68,7 +68,7 @@ public class InquiryMessageUpdateHandlerImpl implements InquiryMessageUpdateHand
             String text = update.getMessage().getText();
             message.setText(text);
             message.setEntities(update.getMessage().getEntities());
-            userDataCache.getInquiry(userId).addMessage(message);
+            userDataCacheFacade.getInquiry(userId).addMessage(message);
             log.info(SAVED_FOR_USER_ID.formatted("Text with markUp"), userId);
         }
         if (update.getMessage().hasPhoto()) {
@@ -79,35 +79,35 @@ public class InquiryMessageUpdateHandlerImpl implements InquiryMessageUpdateHand
                     .orElse(photoSizes.get(photoSizes.size() - 1));
             message.setPhoto(List.of(photoSize));
             log.info(SAVED_FOR_USER_ID.formatted("Image"), userId);
-            userDataCache.getInquiry(userId).addMessage(message);
+            userDataCacheFacade.getInquiry(userId).addMessage(message);
         }
         if (update.getMessage().hasAudio()) {
             Message message = createMessageWithMedia(update);
             Audio audio = update.getMessage().getAudio();
             message.setAudio(audio);
             log.info(SAVED_FOR_USER_ID.formatted("Audio"), userId);
-            userDataCache.getInquiry(userId).addMessage(message);
+            userDataCacheFacade.getInquiry(userId).addMessage(message);
         }
         if (update.getMessage().hasDocument()) {
             Message message = createMessageWithMedia(update);
             Document document = update.getMessage().getDocument();
             message.setDocument(document);
             log.info(SAVED_FOR_USER_ID.formatted("Document"), userId);
-            userDataCache.getInquiry(userId).addMessage(message);
+            userDataCacheFacade.getInquiry(userId).addMessage(message);
         }
         if (update.getMessage().hasVideo()) {
             Message message = createMessageWithMedia(update);
             Video video = update.getMessage().getVideo();
             message.setVideo(video);
             log.info(SAVED_FOR_USER_ID.formatted("Video"), userId);
-            userDataCache.getInquiry(userId).addMessage(message);
+            userDataCacheFacade.getInquiry(userId).addMessage(message);
         }
         if (update.getMessage().hasAnimation()) {
             Message message = createMessageWithMedia(update);
             Animation animation = update.getMessage().getAnimation();
             message.setAnimation(animation);
             log.info(SAVED_FOR_USER_ID.formatted("Animation"), userId);
-            userDataCache.getInquiry(userId).addMessage(message);
+            userDataCacheFacade.getInquiry(userId).addMessage(message);
         }
         return askAddContent(userId);
     }

@@ -22,7 +22,7 @@ import org.telegram.telegrambots.meta.api.objects.Video;
 import org.telegram.telegrambots.meta.api.objects.games.Animation;
 import ru.veselov.companybot.bot.handler.inquiry.impl.InquiryMessageUpdateHandlerImpl;
 import ru.veselov.companybot.bot.util.MessageUtils;
-import ru.veselov.companybot.cache.UserDataCache;
+import ru.veselov.companybot.cache.UserDataCacheFacade;
 import ru.veselov.companybot.exception.NoAvailableActionSendMessageException;
 import ru.veselov.companybot.model.DivisionModel;
 import ru.veselov.companybot.model.InquiryModel;
@@ -42,7 +42,7 @@ class InquiryMessageUpdateHandlerTest {
     private final static Integer CAPTION_LENGTH = 1024;
 
     @Mock
-    UserDataCache userDataCache;
+    UserDataCacheFacade userDataCacheFacade;
 
     @InjectMocks
     InquiryMessageUpdateHandlerImpl inquiryMessageHandler;
@@ -68,8 +68,8 @@ class InquiryMessageUpdateHandlerTest {
         messageEntity.setLength(0);
         message.setEntities(List.of(messageEntity));
         inquiryModel = Mockito.mock(InquiryModel.class);
-        Mockito.when(userDataCache.getInquiry(user.getId())).thenReturn(inquiryModel);
-        userDataCache.createInquiry(user.getId(), DivisionModel.builder().divisionId(UUID.randomUUID()).build());
+        Mockito.when(userDataCacheFacade.getInquiry(user.getId())).thenReturn(inquiryModel);
+        userDataCacheFacade.createInquiry(user.getId(), DivisionModel.builder().divisionId(UUID.randomUUID()).build());
         ReflectionTestUtils.setField(inquiryMessageHandler, "maxMessages", MAX_MSG, Integer.class);
         ReflectionTestUtils.setField(inquiryMessageHandler, "captionLength", CAPTION_LENGTH, Integer.class);
     }
@@ -110,7 +110,7 @@ class InquiryMessageUpdateHandlerTest {
         SendMessage sendMessage = inquiryMessageHandler.processUpdate(update);
         org.junit.jupiter.api.Assertions.assertAll(
                 () -> Assertions.assertThat(sendMessage.getText()).isEqualTo(MessageUtils.AWAIT_CONTENT_MESSAGE),
-                () -> Mockito.verify(userDataCache, Mockito.times(2)).getInquiry(user.getId()),
+                () -> Mockito.verify(userDataCacheFacade, Mockito.times(2)).getInquiry(user.getId()),
                 () -> Mockito.verify(inquiryModel).addMessage(Mockito.any())
         );
 
@@ -125,7 +125,7 @@ class InquiryMessageUpdateHandlerTest {
         message.setPhoto(List.of(photoSize));
         assertEquals(MessageUtils.AWAIT_CONTENT_MESSAGE,
                 ((SendMessage) inquiryMessageHandler.processUpdate(update)).getText());
-        assertEquals(1, userDataCache.getInquiry(user.getId()).getMessages().size());
+        assertEquals(1, userDataCacheFacade.getInquiry(user.getId()).getMessages().size());
     }
 
     @Test
@@ -136,7 +136,7 @@ class InquiryMessageUpdateHandlerTest {
         message.setAudio(audio);
         assertEquals(MessageUtils.AWAIT_CONTENT_MESSAGE,
                 ((SendMessage) inquiryMessageHandler.processUpdate(update)).getText());
-        assertEquals(1, userDataCache.getInquiry(user.getId()).getMessages().size());
+        assertEquals(1, userDataCacheFacade.getInquiry(user.getId()).getMessages().size());
     }
 
     @Test
@@ -147,7 +147,7 @@ class InquiryMessageUpdateHandlerTest {
         message.setDocument(document);
         assertEquals(MessageUtils.AWAIT_CONTENT_MESSAGE,
                 ((SendMessage) inquiryMessageHandler.processUpdate(update)).getText());
-        assertEquals(1, userDataCache.getInquiry(user.getId()).getMessages().size());
+        assertEquals(1, userDataCacheFacade.getInquiry(user.getId()).getMessages().size());
     }
 
     @Test
@@ -158,7 +158,7 @@ class InquiryMessageUpdateHandlerTest {
         message.setVideo(video);
         assertEquals(MessageUtils.AWAIT_CONTENT_MESSAGE,
                 ((SendMessage) inquiryMessageHandler.processUpdate(update)).getText());
-        assertEquals(1, userDataCache.getInquiry(user.getId()).getMessages().size());
+        assertEquals(1, userDataCacheFacade.getInquiry(user.getId()).getMessages().size());
     }
 
     @Test
@@ -169,6 +169,6 @@ class InquiryMessageUpdateHandlerTest {
         message.setAnimation(animation);
         assertEquals(MessageUtils.AWAIT_CONTENT_MESSAGE,
                 ((SendMessage) inquiryMessageHandler.processUpdate(update)).getText());
-        assertEquals(1, userDataCache.getInquiry(user.getId()).getMessages().size());
+        assertEquals(1, userDataCacheFacade.getInquiry(user.getId()).getMessages().size());
     }
 }

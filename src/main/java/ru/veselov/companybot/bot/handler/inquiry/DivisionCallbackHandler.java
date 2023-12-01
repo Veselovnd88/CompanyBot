@@ -9,7 +9,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.veselov.companybot.bot.BotState;
 import ru.veselov.companybot.bot.UpdateHandler;
 import ru.veselov.companybot.bot.keyboard.DivisionKeyboardHelper;
-import ru.veselov.companybot.cache.UserDataCache;
+import ru.veselov.companybot.cache.UserDataCacheFacade;
 import ru.veselov.companybot.exception.NoAvailableActionCallbackException;
 import ru.veselov.companybot.exception.NoDivisionsException;
 import ru.veselov.companybot.model.DivisionModel;
@@ -21,12 +21,12 @@ import java.util.UUID;
 @Component
 @Slf4j
 public class DivisionCallbackHandler implements UpdateHandler {
-    private final UserDataCache userDataCache;
+    private final UserDataCacheFacade userDataCacheFacade;
     private final DivisionKeyboardHelper divisionKeyboardHelper;
 
     @Autowired
-    public DivisionCallbackHandler(UserDataCache userDataCache, DivisionKeyboardHelper divisionKeyboardHelper) {
-        this.userDataCache = userDataCache;
+    public DivisionCallbackHandler(UserDataCacheFacade userDataCacheFacade, DivisionKeyboardHelper divisionKeyboardHelper) {
+        this.userDataCacheFacade = userDataCacheFacade;
         this.divisionKeyboardHelper = divisionKeyboardHelper;
     }
 
@@ -43,8 +43,8 @@ public class DivisionCallbackHandler implements UpdateHandler {
         }
         DivisionModel division = cachedDivisions.get(UUID.fromString(data));
         if (division != null) {
-            userDataCache.createInquiry(userId, division);
-            userDataCache.setUserBotState(userId, BotState.AWAIT_MESSAGE);
+            userDataCacheFacade.createInquiry(userId, division);
+            userDataCacheFacade.setUserBotState(userId, BotState.AWAIT_MESSAGE);
             return SendMessage.builder().chatId(userId)
                     .text("Введите ваш вопрос или перешлите мне сообщение").build();
         }

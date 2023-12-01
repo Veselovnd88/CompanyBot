@@ -7,22 +7,26 @@ import ru.veselov.companybot.model.ContactModel;
 
 import java.util.HashMap;
 
+/**
+ * Cache for storing temporary contact data of user(customer), customer will fill it in several steps/commands
+ */
 @Component
 @Slf4j
 public class ContactCacheImpl implements ContactCache {
+
     private final HashMap<Long, ContactModel> contactCache = new HashMap<>();
+
     @Override
     public void clear(Long userId) {
         contactCache.remove(userId);
-        log.info("{}: контакт пользователя удален из кеша", userId);
+        log.debug("Contact for [user id: {}] removed from cache", userId);
     }
 
     @Override
     public void createContact(Long userId) {
-        log.info("{}: создан объект Contact для пользователя", userId);
-        ContactModel contactModel = new ContactModel();
-        contactModel.setUserId(userId);
+        ContactModel contactModel = ContactModel.builder().userId(userId).build();
         contactCache.put(userId, contactModel);
+        log.debug("Contact created for [user id: {}]", userId);
     }
 
     @Override
