@@ -6,6 +6,8 @@ bot:
   token: ${PL_BOT_TOKEN}
   adminId: 101516610
   chat-interval: 60000
+  max-messages: 14
+  caption-length: 1024
 
 spring:
   datasource:

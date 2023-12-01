@@ -9,6 +9,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Audio;
 import org.telegram.telegrambots.meta.api.objects.Document;
@@ -30,12 +31,15 @@ import java.util.List;
 import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.spy;
 
 @ExtendWith(MockitoExtension.class)
+@SuppressWarnings({"rawtypes", "unchecked"})
 class InquiryMessageUpdateHandlerTest {
+
+    private static final Integer MAX_MSG = 10;
+
+    private final static Integer CAPTION_LENGTH = 1024;
 
     @Mock
     UserDataCache userDataCache;
@@ -49,6 +53,8 @@ class InquiryMessageUpdateHandlerTest {
 
     User user;
 
+    InquiryModel inquiryModel;
+
     @BeforeEach
     void init() {
         update = spy(Update.class);
@@ -61,46 +67,53 @@ class InquiryMessageUpdateHandlerTest {
         messageEntity.setOffset(0);
         messageEntity.setLength(0);
         message.setEntities(List.of(messageEntity));
-        InquiryModel inquiryModel = new InquiryModel();
-        Mockito.when(userDataCache.getInquiry(user.getId())).thenReturn(DivisionModel.builder().divisionId(UUID.randomUUID()).build())
+        inquiryModel = Mockito.mock(InquiryModel.class);
+        Mockito.when(userDataCache.getInquiry(user.getId())).thenReturn(inquiryModel);
         userDataCache.createInquiry(user.getId(), DivisionModel.builder().divisionId(UUID.randomUUID()).build());
+        ReflectionTestUtils.setField(inquiryMessageHandler, "maxMessages", MAX_MSG, Integer.class);
+        ReflectionTestUtils.setField(inquiryMessageHandler, "captionLength", CAPTION_LENGTH, Integer.class);
     }
 
     @Test
     void shouldThrowExceptionForTooLongMessage() {
-        message.setCaption("i".repeat(1025));//create too long string
-        Assertions.assertThatThrownBy(
-                () -> inquiryMessageHandler.processUpdate(update)
+        message.setCaption("i".repeat(CAPTION_LENGTH + 1));//create too long string
+        Assertions.assertThatThrownBy(() -> inquiryMessageHandler.processUpdate(update)
         ).isInstanceOf(NoAvailableActionSendMessageException.class);
     }
 
     @Test
-    @SneakyThrows
-    void manyMessagesTest() {
-        for (int i = 0; i < 15; i++) {
-            userDataCache.getInquiry(user.getId()).addMessage(new Message());
-        }
-        assertTrue(((SendMessage) inquiryMessageHandler.processUpdate(update)).getText()
-                .startsWith("Превышено"));
+    void shouldReturnSendMessageIfSentTooManyMessagesToInquiry() {
+        List mockList = Mockito.mock(List.class);
+        Mockito.when(mockList.size()).thenReturn(MAX_MSG + 1);//too many messages in inquiry
+        Mockito.when(inquiryModel.getMessages()).thenReturn(mockList);
+
+        SendMessage sendMessage = inquiryMessageHandler.processUpdate(update);
+
+        Assertions.assertThat(sendMessage.getText()).startsWith("Превышено");
     }
 
     @Test
-    void customEmojiTest() {
+    void shouldThrowExceptionIfCustomEmojiDetected() {
         MessageEntity messageEntity = new MessageEntity();
         messageEntity.setType("custom_emoji");
         message.setEntities(List.of(messageEntity));
-        assertThrows(NoAvailableActionSendMessageException.class,
-                () -> inquiryMessageHandler.processUpdate(update));
+
+        Assertions.assertThatThrownBy(() -> inquiryMessageHandler.processUpdate(update)
+        ).isInstanceOf(NoAvailableActionSendMessageException.class);
     }
 
     @Test
-    @SneakyThrows
-    void messageWithText() {
+    void shouldAddMessageWithText() {
         message.setEntities(null);
         message.setText("Test");
-        assertEquals(MessageUtils.AWAIT_CONTENT_MESSAGE,
-                ((SendMessage) inquiryMessageHandler.processUpdate(update)).getText());
-        assertEquals(1, userDataCache.getInquiry(user.getId()).getMessages().size());
+
+        SendMessage sendMessage = inquiryMessageHandler.processUpdate(update);
+        org.junit.jupiter.api.Assertions.assertAll(
+                () -> Assertions.assertThat(sendMessage.getText()).isEqualTo(MessageUtils.AWAIT_CONTENT_MESSAGE),
+                () -> Mockito.verify(userDataCache, Mockito.times(2)).getInquiry(user.getId()),
+                () -> Mockito.verify(inquiryModel).addMessage(Mockito.any())
+        );
+
     }
 
     @Test

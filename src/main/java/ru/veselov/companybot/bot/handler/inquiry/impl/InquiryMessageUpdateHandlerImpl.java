@@ -2,6 +2,7 @@ package ru.veselov.companybot.bot.handler.inquiry.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Audio;
@@ -27,6 +28,12 @@ import java.util.List;
 @Slf4j
 public class InquiryMessageUpdateHandlerImpl implements InquiryMessageUpdateHandler {
 
+    @Value("${bot.max-messages}")
+    private Integer maxMessages;
+
+    @Value("${bot.caption-length}")
+    private Integer captionLength;
+
     private static final String SAVED_FOR_USER_ID = "%s saved for [user id: {}]";
 
     private final UserDataCache userDataCache;
@@ -34,15 +41,15 @@ public class InquiryMessageUpdateHandlerImpl implements InquiryMessageUpdateHand
     @Override
     public SendMessage processUpdate(Update update) throws NoAvailableActionSendMessageException {
         Long userId = update.getMessage().getFrom().getId();
-        if (userDataCache.getInquiry(userId).getMessages().size() > 14) {
+        if (userDataCache.getInquiry(userId).getMessages().size() > maxMessages) {
             SendMessage addContentMessage = askAddContent(userId);
-            addContentMessage.setText("Превышено максимальное количество сообщений (15)");
+            addContentMessage.setText("Превышено максимальное количество сообщений (%s)".formatted(maxMessages + 1));
             log.warn("Max qnt of messages exceed for [user id: {}]", userId);
             return addContentMessage;
         }
         //Try to send caption more than 1024 symbols
-        if (update.getMessage().getCaption() != null && (update.getMessage().getCaption().length() > 1024)) {
-            log.warn("Try to send too long (>1024 symbols) caption by [user with id: {}]", userId);
+        if (update.getMessage().getCaption() != null && (update.getMessage().getCaption().length() > captionLength)) {
+            log.warn("Try to send too long (> {} symbols) caption by [user with id: {}]", captionLength, userId);
             throw new NoAvailableActionSendMessageException(MessageUtils.CAPTION_TOO_LONG,
                     userId.toString());
         }
