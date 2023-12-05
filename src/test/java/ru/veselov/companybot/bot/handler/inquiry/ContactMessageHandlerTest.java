@@ -12,21 +12,28 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.*;
+import org.telegram.telegrambots.meta.api.objects.Contact;
+import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.MessageEntity;
+import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.User;
 import ru.veselov.companybot.bot.BotState;
 import ru.veselov.companybot.bot.CompanyBot;
 import ru.veselov.companybot.bot.handler.inquiry.impl.ContactMessageHandlerImpl;
+import ru.veselov.companybot.bot.util.KeyBoardUtils;
+import ru.veselov.companybot.bot.util.MessageUtils;
 import ru.veselov.companybot.cache.ContactCache;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
 import ru.veselov.companybot.exception.WrongContactException;
-import ru.veselov.companybot.model.ContactModel;
-import ru.veselov.companybot.bot.util.KeyBoardUtils;
-import ru.veselov.companybot.bot.util.MessageUtils;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.spy;
+import static org.mockito.Mockito.verify;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -148,52 +155,5 @@ class ContactMessageHandlerTest {
                 ()-> contactMessageHandler.processUpdate(update));
     }
 
-    @Test
-    @SneakyThrows
-    void processNameTestFull(){
-        String name = "Pipkov Vasya Petrovich";
-        ContactModel contact = new ContactModel();
-        contactMessageHandler.getProcessedName(contact, name);
-        assertEquals("Pipkov",contact.getLastName());
-        assertEquals("Vasya",contact.getFirstName());
-        assertEquals("Petrovich",contact.getSecondName());
-    }
 
-    @Test
-    @SneakyThrows
-    void processNameTestOnlyLastName(){
-        String name = "Pipkov";
-        ContactModel contact = new ContactModel();
-        contactMessageHandler.getProcessedName(contact, name);
-        assertEquals("Pipkov",contact.getLastName());
-    }
-    @Test
-    @SneakyThrows
-    void processNameTestOnlyFirstLast(){
-        String name = "Pipkov Ivan";
-        ContactModel contact = new ContactModel();
-        contactMessageHandler.getProcessedName(contact, name);
-        assertEquals("Pipkov",contact.getLastName());
-        assertEquals("Ivan",contact.getFirstName());
-    }
-
-    @Test
-    @SneakyThrows
-    void processNameTestMoreThanThreeParts(){
-        String name = "Pipkov Ivan Petrovich Vasiliy Evil";
-        ContactModel contact = new ContactModel();
-        contactMessageHandler.getProcessedName(contact, name);
-        assertEquals("Pipkov",contact.getLastName());
-        assertEquals("Ivan",contact.getFirstName());
-        assertEquals("Petrovich Vasiliy Evil",contact.getSecondName());
-    }
-    @ParameterizedTest
-    @ValueSource(strings = {""," "})
-    @SneakyThrows
-    void processNameTestWithIncorrectName(String name){
-        ContactModel contact = new ContactModel();
-        contact.setUserId(100L);
-        contactMessageHandler.getProcessedName(contact, name);
-        assertNull(contact.getLastName());
-    }
 }

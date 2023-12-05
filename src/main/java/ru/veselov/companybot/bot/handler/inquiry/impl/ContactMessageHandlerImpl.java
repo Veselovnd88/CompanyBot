@@ -40,8 +40,9 @@ public class ContactMessageHandlerImpl implements ContactMessageHandler {
         Long userId = update.getMessage().getFrom().getId();
         BotState botState = userDataCacheFacade.getUserBotState(userId);
         ContactModel contact = contactCache.getContact(userId);
-        log.debug("Checking text message for contact");
+        log.debug("[User id: {}] with [bot state {}] send contact data", userId, botState);
         if (update.getMessage().hasText()) {
+            log.debug("Checking text message for contact");
             String text = update.getMessage().getText();
             try {
                 switch (botState) {
@@ -60,6 +61,7 @@ public class ContactMessageHandlerImpl implements ContactMessageHandler {
                     default:
                         throw new ContactProcessingException("Wrong bot state for this action");
                 }
+
             } catch (ContactProcessingException e) {
                 log.warn("Error during processing contact: {}, [user id: {}]", e.getMessage(), userId);
                 return SendMessage.builder().chatId(userId)
@@ -84,7 +86,7 @@ public class ContactMessageHandlerImpl implements ContactMessageHandler {
             return keyBoardUtils.editMessageSavedField(contact.getUserId(), "shared");
         }
         //Сюда придет если попало неправильное значение
-        log.info("{}: неправильный формат контакта", update.getMessage().getFrom().getId());
+        log.warn("Wrong contact format for [user id: {}]", userId);
         throw new WrongContactException(MessageUtils.WRONG_CONTACT_FORMAT, userId.toString());
     }
 

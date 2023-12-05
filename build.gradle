@@ -46,6 +46,7 @@ dependencies {
     testAnnotationProcessor 'org.projectlombok:lombok'
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.springframework.security:spring-security-test'
+    testImplementation 'net.datafaker:datafaker:2.0.2'
 }
 
 tasks.named('test') {

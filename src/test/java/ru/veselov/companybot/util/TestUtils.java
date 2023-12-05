@@ -13,6 +13,7 @@ public class TestUtils {
     public static final String DIVISION_NAME = "NAME";
 
 
+
     public static DivisionModel getDivision() {
         return DivisionModel.builder()
                 .divisionId(UUID.randomUUID())
