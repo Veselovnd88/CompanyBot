@@ -3,7 +3,7 @@ package ru.veselov.companybot.bot;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.veselov.companybot.bot.handler.inquiry.ContactCallbackHandler;
-import ru.veselov.companybot.bot.handler.inquiry.ContactMessageHandler;
+import ru.veselov.companybot.bot.handler.inquiry.impl.ContactMessageHandlerImpl;
 import ru.veselov.companybot.bot.handler.inquiry.DivisionCallbackHandler;
 import ru.veselov.companybot.bot.handler.inquiry.impl.InquiryMessageUpdateHandlerImpl;
 
@@ -20,7 +20,7 @@ public class HandlerContext {
     public HandlerContext(
             DivisionCallbackHandler divisionCallbackHandler,
             ContactCallbackHandler contactCallbackHandler,
-            ContactMessageHandler contactMessageHandler,
+            ContactMessageHandlerImpl contactMessageHandler,
             InquiryMessageUpdateHandlerImpl inquiryMessageHandler) {
         callbackHandlerContext.put(BotState.AWAIT_DIVISION_FOR_INQUIRY, divisionCallbackHandler);
         callbackHandlerContext.put(BotState.AWAIT_MESSAGE, contactCallbackHandler);

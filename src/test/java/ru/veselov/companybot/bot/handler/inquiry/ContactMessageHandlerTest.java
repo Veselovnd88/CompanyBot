@@ -15,6 +15,7 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.*;
 import ru.veselov.companybot.bot.BotState;
 import ru.veselov.companybot.bot.CompanyBot;
+import ru.veselov.companybot.bot.handler.inquiry.impl.ContactMessageHandlerImpl;
 import ru.veselov.companybot.cache.ContactCache;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
 import ru.veselov.companybot.exception.WrongContactException;
@@ -41,7 +42,7 @@ class ContactMessageHandlerTest {
     @Autowired
     private ContactCache contactCache;
     @Autowired
-    ContactMessageHandler contactMessageHandler;
+    ContactMessageHandlerImpl contactMessageHandler;
     Update update;
     Message message;
     User user;
