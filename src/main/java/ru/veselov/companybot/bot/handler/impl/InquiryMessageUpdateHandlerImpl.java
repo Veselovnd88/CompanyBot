@@ -1,4 +1,4 @@
-package ru.veselov.companybot.bot.handler.inquiry.impl;
+package ru.veselov.companybot.bot.handler.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

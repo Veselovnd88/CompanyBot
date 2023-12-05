@@ -3,9 +3,9 @@ package ru.veselov.companybot.bot;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.veselov.companybot.bot.handler.inquiry.ContactCallbackHandler;
-import ru.veselov.companybot.bot.handler.inquiry.impl.ContactMessageHandlerImpl;
+import ru.veselov.companybot.bot.handler.impl.ContactMessageHandlerImpl;
 import ru.veselov.companybot.bot.handler.inquiry.DivisionCallbackHandler;
-import ru.veselov.companybot.bot.handler.inquiry.impl.InquiryMessageUpdateHandlerImpl;
+import ru.veselov.companybot.bot.handler.impl.InquiryMessageUpdateHandlerImpl;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -1,4 +1,4 @@
-package ru.veselov.companybot.bot.handler.inquiry.impl;
+package ru.veselov.companybot.bot.handler.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -6,16 +6,16 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
-import org.telegram.telegrambots.meta.api.objects.Contact;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.veselov.companybot.bot.BotState;
-import ru.veselov.companybot.bot.handler.inquiry.ContactMessageHandler;
+import ru.veselov.companybot.bot.handler.ContactMessageHandler;
 import ru.veselov.companybot.bot.util.ContactMessageProcessor;
 import ru.veselov.companybot.bot.util.KeyBoardUtils;
 import ru.veselov.companybot.bot.util.MessageUtils;
 import ru.veselov.companybot.cache.ContactCache;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
 import ru.veselov.companybot.exception.ContactProcessingException;
+import ru.veselov.companybot.exception.NoAvailableActionSendMessageException;
 import ru.veselov.companybot.exception.WrongContactException;
 import ru.veselov.companybot.model.ContactModel;
 
@@ -59,9 +59,9 @@ public class ContactMessageHandlerImpl implements ContactMessageHandler {
                         userDataCacheFacade.setUserBotState(contact.getUserId(), BotState.AWAIT_CONTACT);
                         return addedEmailMarkUp;
                     default:
-                        throw new ContactProcessingException("Wrong bot state for this action");
+                        throw new NoAvailableActionSendMessageException("Wrong bot state for this action",
+                                userId.toString());
                 }
-
             } catch (ContactProcessingException e) {
                 log.warn("Error during processing contact: {}, [user id: {}]", e.getMessage(), userId);
                 return SendMessage.builder().chatId(userId)
@@ -71,21 +71,14 @@ public class ContactMessageHandlerImpl implements ContactMessageHandler {
         }
         log.debug("Checking Contact Object for contact data");
         if (update.getMessage().hasContact()) {
-            Contact messageContact = update.getMessage().getContact();
-            contact.setContact(messageContact);
-            if (contact.getFirstName() == null) {
-                contact.setFirstName(messageContact.getFirstName());
+            if (botState != BotState.AWAIT_SHARED) {
+                throw new NoAvailableActionSendMessageException("Wrong bot state for this action", userId.toString());
             }
-            if (contact.getLastName() == null) {
-                contact.setLastName(messageContact.getLastName());
-            }
-            if (contact.getPhone() == null) {
-                contact.setPhone(messageContact.getPhoneNumber());
-            }
+            EditMessageReplyMarkup editMessageReplyMarkup = contactMessageProcessor
+                    .processSharedContact(contact, update.getMessage().getContact());
             userDataCacheFacade.setUserBotState(contact.getUserId(), BotState.AWAIT_CONTACT);
-            return keyBoardUtils.editMessageSavedField(contact.getUserId(), "shared");
+            return editMessageReplyMarkup;
         }
-        //Сюда придет если попало неправильное значение
         log.warn("Wrong contact format for [user id: {}]", userId);
         throw new WrongContactException(MessageUtils.WRONG_CONTACT_FORMAT, userId.toString());
     }

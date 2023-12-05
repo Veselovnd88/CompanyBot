@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.hibernate.validator.internal.constraintvalidators.bv.EmailValidator;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
+import org.telegram.telegrambots.meta.api.objects.Contact;
 import ru.veselov.companybot.bot.util.ContactMessageProcessor;
 import ru.veselov.companybot.bot.util.KeyBoardUtils;
 import ru.veselov.companybot.bot.util.MessageUtils;
@@ -78,6 +79,23 @@ public class ContactMessageProcessorImpl implements ContactMessageProcessor {
             log.warn("Not correct email format for [user id: {}]", userId);
             throw new ContactProcessingException(MessageUtils.WRONG_EMAIL);
         }
+    }
+
+    @Override
+    public EditMessageReplyMarkup processSharedContact(ContactModel contact, Contact shared) {
+        log.debug("Processing shared contact");
+        contact.setContact(shared);
+        if (contact.getFirstName() == null) {
+            contact.setFirstName(shared.getFirstName());
+        }
+        if (contact.getLastName() == null) {
+            contact.setLastName(shared.getLastName());
+        }
+        if (contact.getPhone() == null) {
+            contact.setPhone(shared.getPhoneNumber());
+        }
+        log.info("Shared contact added for [user id: {}]", contact.getUserId());
+        return keyBoardUtils.editMessageSavedField(contact.getUserId(), "shared");
     }
 
 }
