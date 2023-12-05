@@ -70,42 +70,6 @@ class ContactMessageHandlerTest {
     }
 
 
-    @Test
-    @SneakyThrows
-    void nameTest(){
-        /*Проверка ввода контакта текстом*/
-        userDataCacheFacade.setUserBotState(user.getId(),BotState.AWAIT_NAME);
-        message.setText(" Ivanov Ivan Ivanovich");
-        BotApiMethod<?> botApiMethod = contactMessageHandler.processUpdate(update);
-        verify(keyBoardUtils).editMessageSavedField(user.getId(),"name");
-        assertEquals(BotState.AWAIT_CONTACT, userDataCacheFacade.getUserBotState(user.getId()));
-        assertNotNull(contactCache.getContact(user.getId()));
-    }
-    @ParameterizedTest
-    @ValueSource(strings = {"+79175550335","89167861234","8-495-250-23-93","+2 234 345-24-66"})
-    @SneakyThrows
-    void phoneTest(String phone){
-        /*Проверка ввода контакта текстом*/
-        userDataCacheFacade.setUserBotState(user.getId(),BotState.AWAIT_PHONE);
-        message.setText(phone);
-        BotApiMethod<?> botApiMethod = contactMessageHandler.processUpdate(update);
-        verify(keyBoardUtils).editMessageSavedField(user.getId(),"phone");
-        assertEquals(BotState.AWAIT_CONTACT, userDataCacheFacade.getUserBotState(user.getId()));
-        assertNotNull(contactCache.getContact(user.getId()));
-    }
-    @ParameterizedTest
-    @ValueSource(strings = {"+7a9175550335","891","8-495asdf-250-23-93","+99999992 234 345-24-66"})
-    @SneakyThrows
-    void wrongPhoneTest(String phone){
-        /*Проверка ввода контакта текстом*/
-        userDataCacheFacade.setUserBotState(user.getId(),BotState.AWAIT_PHONE);
-        message.setText(phone);
-        BotApiMethod<?> botApiMethod = contactMessageHandler.processUpdate(update);
-        verify(keyBoardUtils,never()).editMessageSavedField(user.getId(),"phone");
-        assertEquals(BotState.AWAIT_PHONE, userDataCacheFacade.getUserBotState(user.getId()));
-        assertNotNull(contactCache.getContact(user.getId()));
-    }
-
     @ParameterizedTest
     @ValueSource(strings = {"veselovnd@gmail.com","123@123.com","sfd@asdf.ru"})
     @SneakyThrows

@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
@@ -29,6 +30,8 @@ class ContactMessageProcessorImplTest {
 
     private final String SECOND_NAME = faker.name().firstName();
 
+    ContactModel contact = ContactModel.builder().userId(TestUtils.USER_ID).build();
+
     @Mock
     KeyBoardUtils keyBoardUtils;
 
@@ -41,7 +44,7 @@ class ContactMessageProcessorImplTest {
     @Test
     void shouldProcessFullName() {
         String name = LAST_NAME + " " + FIRST_NAME + " " + SECOND_NAME;
-        ContactModel contact = new ContactModel();
+
         contactMessageProcessor.processName(contact, name);
         org.junit.jupiter.api.Assertions.assertAll(
                 () -> Assertions.assertThat(contact.getLastName()).isEqualTo(LAST_NAME),
@@ -54,7 +57,6 @@ class ContactMessageProcessorImplTest {
 
     @Test
     void shouldProcessOnlyLastName() {
-        ContactModel contact = new ContactModel();
         contactMessageProcessor.processName(contact, LAST_NAME);
 
         org.junit.jupiter.api.Assertions.assertAll(
@@ -68,7 +70,7 @@ class ContactMessageProcessorImplTest {
     @Test
     void shouldProcessOnlyFirstAndLastName() {
         String name = LAST_NAME + " " + FIRST_NAME;
-        ContactModel contact = new ContactModel();
+
         contactMessageProcessor.processName(contact, name);
 
         org.junit.jupiter.api.Assertions.assertAll(
@@ -82,7 +84,7 @@ class ContactMessageProcessorImplTest {
     @Test
     void shouldProcessMoreThanThreePartsOfName() {
         String name = LAST_NAME + " " + FIRST_NAME + " " + SECOND_NAME + " " + FIRST_NAME;
-        ContactModel contact = new ContactModel();
+
         contactMessageProcessor.processName(contact, name);
 
         org.junit.jupiter.api.Assertions.assertAll(
@@ -96,7 +98,7 @@ class ContactMessageProcessorImplTest {
     @ParameterizedTest
     @MethodSource("getIncorrectNames")
     void shouldThrowExceptionForIncorrectName(String name) {
-        ContactModel contact = ContactModel.builder().userId(TestUtils.USER_ID).build();
+
 
         Assertions.assertThatThrownBy(() -> contactMessageProcessor.processName(contact, name))
                 .isInstanceOf(ContactProcessingException.class);
@@ -104,12 +106,47 @@ class ContactMessageProcessorImplTest {
         Mockito.verifyNoInteractions(emailValidator);
     }
 
-    @Test
-    void processPhone() {
+    @ParameterizedTest
+    @ValueSource(strings = {"+79175550335", "89167861234", "8-495-250-23-93", "+2 234 345-24-66"})
+    void shouldProcessPhone(String phone) {
+        contactMessageProcessor.processPhone(contact, phone);
+
+        org.junit.jupiter.api.Assertions.assertAll(
+                () -> Assertions.assertThat(contact.getPhone()).isEqualTo(phone),
+                () -> Mockito.verify(keyBoardUtils).editMessageSavedField(Mockito.any(), Mockito.any())
+        );
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"+7a9175550335", "891", "8-495asdf-250-23-93", "+99999992 234 345-24-66"})
+    void shouldThrowExceptionForWrongPhoneFormat(String phone) {
+        Assertions.assertThatThrownBy(() -> contactMessageProcessor.processPhone(contact, phone))
+                .isInstanceOf(ContactProcessingException.class);
+        Mockito.verifyNoInteractions(keyBoardUtils);
+        Mockito.verifyNoInteractions(emailValidator);
     }
 
     @Test
-    void processEmail() {
+    void shouldProcessEmail() {
+        Mockito.when(emailValidator.isValid(Mockito.any(), Mockito.any())).thenReturn(true);
+
+        contactMessageProcessor.processEmail(contact, "123@123.com");
+
+        org.junit.jupiter.api.Assertions.assertAll(
+                () -> Assertions.assertThat(contact.getEmail()).isEqualTo("123@123.com"),
+                () -> Mockito.verify(keyBoardUtils).editMessageSavedField(Mockito.any(), Mockito.any())
+        );
+    }
+
+    @Test
+    void shouldThrowExceptionIfEmailIsNotCorrect() {
+        Mockito.when(emailValidator.isValid(Mockito.any(), Mockito.any())).thenReturn(false);
+
+        Assertions.assertThatThrownBy(() -> contactMessageProcessor.processEmail(contact, "123"))
+                .isInstanceOf(ContactProcessingException.class);
+
+        Mockito.verifyNoInteractions(keyBoardUtils);
+        Mockito.verify(emailValidator).isValid(Mockito.any(), Mockito.any());
     }
 
     private static Stream<String> getIncorrectNames() {
