@@ -14,7 +14,7 @@ import org.telegram.telegrambots.meta.api.objects.MessageEntity;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import ru.veselov.companybot.bot.BotState;
-import ru.veselov.companybot.bot.handler.impl.ContactMessageHandlerImpl;
+import ru.veselov.companybot.bot.handler.impl.ContactMessageUpdateHandlerImpl;
 import ru.veselov.companybot.bot.util.ContactMessageProcessor;
 import ru.veselov.companybot.cache.ContactCache;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
@@ -26,7 +26,7 @@ import ru.veselov.companybot.util.TestUtils;
 import java.util.List;
 
 @ExtendWith(MockitoExtension.class)
-class ContactMessageHandlerTest {
+class ContactMessageUpdateHandlerTest {
 
     @Mock
     UserDataCacheFacade userDataCacheFacade;
@@ -38,7 +38,7 @@ class ContactMessageHandlerTest {
     ContactMessageProcessor contactMessageProcessor;
 
     @InjectMocks
-    ContactMessageHandlerImpl contactMessageHandler;
+    ContactMessageUpdateHandlerImpl contactMessageHandler;
 
     Update update;
     Message message;

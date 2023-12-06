@@ -1,4 +1,4 @@
-package ru.veselov.companybot.bot.handler.inquiry;
+package ru.veselov.companybot.bot.handler.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,8 +10,9 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.veselov.companybot.bot.BotState;
-import ru.veselov.companybot.bot.CompanyBot;
-import ru.veselov.companybot.bot.UpdateHandler;
+import ru.veselov.companybot.bot.handler.ContactCallbackUpdateHandler;
+import ru.veselov.companybot.bot.util.CallBackButtonUtils;
+import ru.veselov.companybot.bot.util.ContactMessageProcessor;
 import ru.veselov.companybot.bot.util.KeyBoardUtils;
 import ru.veselov.companybot.bot.util.MessageUtils;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
@@ -24,12 +25,17 @@ import ru.veselov.companybot.service.CustomerService;
 import ru.veselov.companybot.service.impl.InquiryServiceImpl;
 import ru.veselov.companybot.service.impl.SenderService;
 
+/**
+ * Class for handling updates containing CallBacks for contact managing;
+ *
+ * @see UserDataCacheFacade
+ * @see CustomerService
+ * @see ContactMessageProcessor
+ */
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class ContactCallbackHandler implements UpdateHandler {
-
-    private final CompanyBot bot;
+public class ContactCallbackUpdateHandlerImpl implements ContactCallbackUpdateHandler {
 
     private final UserDataCacheFacade userDataCache;
 
@@ -49,29 +55,28 @@ public class ContactCallbackHandler implements UpdateHandler {
     public BotApiMethod<?> processUpdate(Update update) throws NoAvailableActionException {
         Long userId = update.getCallbackQuery().getFrom().getId();
         String data = update.getCallbackQuery().getData();
-        log.info("{}: меню ввода контактов через Callback", userId);
+        log.debug("Process [callback: {}] from contact keyboard [user id: {}]", data, userId);
         switch (data) {
-            case "email":
+            case CallBackButtonUtils.EMAIL:
                 userDataCache.setUserBotState(userId, BotState.AWAIT_EMAIL);
-                return keyBoardUtils.editMessageChooseField(update, "email");
-            case "phone":
+                return keyBoardUtils.editMessageChooseField(update, CallBackButtonUtils.EMAIL);
+            case CallBackButtonUtils.PHONE:
                 userDataCache.setUserBotState(userId, BotState.AWAIT_PHONE);
-                return keyBoardUtils.editMessageChooseField(update, "phone");
-            case "shared":
+                return keyBoardUtils.editMessageChooseField(update, CallBackButtonUtils.PHONE);
+            case CallBackButtonUtils.SHARED:
                 userDataCache.setUserBotState(userId, BotState.AWAIT_SHARED);
-                return keyBoardUtils.editMessageChooseField(update, "shared");
-            case "name":
+                return keyBoardUtils.editMessageChooseField(update, CallBackButtonUtils.SHARED);
+            case CallBackButtonUtils.NAME:
                 userDataCache.setUserBotState(userId, BotState.AWAIT_NAME);
-                return keyBoardUtils.editMessageChooseField(update, "name");
-            case "contact"://приходит из InquiryMessageHandler
-            case "repeat":
+                return keyBoardUtils.editMessageChooseField(update, CallBackButtonUtils.NAME);
+            case CallBackButtonUtils.CONTACT, CallBackButtonUtils.REPEAT://went from InquiryMessageHandler
                 userDataCache.setUserBotState(userId, BotState.AWAIT_CONTACT);
                 userDataCache.createContact(userId);
                 return SendMessage.builder().chatId(userId)
                         .text(MessageUtils.INPUT_CONTACT)
                         .replyMarkup(keyBoardUtils.contactKeyBoard())
                         .build();
-            case "save":
+            case CallBackButtonUtils.SAVE:
                 if (checkIsContactOK(userDataCache.getContact(userId))) {
                     customerService.saveContact(userDataCache.getContact(userId));
                     if (userDataCache.getInquiry(userId) != null) {
@@ -99,6 +104,8 @@ public class ContactCallbackHandler implements UpdateHandler {
                     throw new NoAvailableActionSendMessageException(MessageUtils.NOT_ENOUGH_CONTACT,
                             userId.toString());
                 }
+            default:
+                throw new IllegalStateException("Unexpected value: " + data);
         }
         throw new NoAvailableActionCallbackException(MessageUtils.ANOTHER_ACTION, update.getCallbackQuery().getId());
     }

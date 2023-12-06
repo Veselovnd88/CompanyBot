@@ -12,6 +12,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import ru.veselov.companybot.bot.BotState;
 import ru.veselov.companybot.bot.CompanyBot;
+import ru.veselov.companybot.bot.handler.impl.ContactCallbackUpdateHandlerImpl;
 import ru.veselov.companybot.cache.ContactCache;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
 import ru.veselov.companybot.exception.NoAvailableActionCallbackException;
@@ -39,7 +40,7 @@ class ContactCallbackHandlerTest {
     @Autowired
     private ContactCache contactCache;
     @Autowired
-    ContactCallbackHandler contactCallbackHandler;
+    ContactCallbackUpdateHandlerImpl contactCallbackHandler;
     @MockBean
     private CustomerService customerService;
     @MockBean

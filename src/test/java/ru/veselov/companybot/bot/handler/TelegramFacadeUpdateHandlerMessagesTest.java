@@ -14,8 +14,7 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import ru.veselov.companybot.bot.BotState;
 import ru.veselov.companybot.bot.CompanyBot;
 import ru.veselov.companybot.bot.HandlerContext;
-import ru.veselov.companybot.bot.handler.inquiry.ContactCallbackHandler;
-import ru.veselov.companybot.bot.handler.impl.ContactMessageHandlerImpl;
+import ru.veselov.companybot.bot.handler.impl.ContactMessageUpdateHandlerImpl;
 import ru.veselov.companybot.bot.handler.inquiry.DivisionCallbackHandler;
 import ru.veselov.companybot.bot.handler.impl.InquiryMessageUpdateHandlerImpl;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
@@ -38,9 +37,9 @@ class TelegramFacadeUpdateHandlerMessagesTest {
     @MockBean
     DivisionCallbackHandler divisionCallbackHandler;
     @MockBean
-    ContactCallbackHandler contactCallbackHandler;
+    ContactCallbackUpdateHandler contactCallbackHandler;
     @MockBean
-    ContactMessageHandlerImpl contactMessageHandler;
+    ContactMessageUpdateHandlerImpl contactMessageHandler;
     @MockBean
     InquiryMessageUpdateHandlerImpl inquiryMessageHandler;
     @MockBean
