@@ -8,4 +8,5 @@ import ru.veselov.companybot.bot.UpdateHandler;
 public interface ContactCallbackUpdateHandler extends UpdateHandler {
     @Override
     BotApiMethod<?> processUpdate(Update update);
+
 }
