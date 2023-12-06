@@ -8,7 +8,8 @@ import ru.veselov.companybot.model.ContactModel;
 import java.util.HashMap;
 
 /**
- * Cache for storing temporary contact data of user(customer), customer will fill it in several steps/commands
+ * Cache for storing temporary contact data of user(customer) in {@link ContactModel},
+ * customer will fill it in several steps/commands
  */
 @Component
 @Slf4j
@@ -16,12 +17,18 @@ public class ContactCacheImpl implements ContactCache {
 
     private final HashMap<Long, ContactModel> contactCache = new HashMap<>();
 
+    /**
+     * Clear data for passed userId
+     */
     @Override
     public void clear(Long userId) {
         contactCache.remove(userId);
         log.debug("Contact for [user id: {}] removed from cache", userId);
     }
 
+    /**
+     * Create new {@link ContactModel} for passed userId, place it in map
+     */
     @Override
     public void createContact(Long userId) {
         ContactModel contactModel = ContactModel.builder().userId(userId).build();
@@ -29,6 +36,11 @@ public class ContactCacheImpl implements ContactCache {
         log.debug("Contact created for [user id: {}]", userId);
     }
 
+    /**
+     * Get {@link ContactModel} by specified userId
+     *
+     * @return {@link ContactModel}
+     */
     @Override
     public ContactModel getContact(Long userId) {
         return contactCache.get(userId);

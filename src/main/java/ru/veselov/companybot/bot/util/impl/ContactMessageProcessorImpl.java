@@ -15,6 +15,13 @@ import ru.veselov.companybot.model.ContactModel;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * Class for setting up passed contact data to {@link ContactModel}
+ *
+ * @author Veselov Nikolay
+ * @see KeyBoardUtils
+ * @see EmailValidator
+ */
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -24,6 +31,13 @@ public class ContactMessageProcessorImpl implements ContactMessageProcessor {
 
     private final EmailValidator emailValidator;
 
+    /**
+     * Parsing String with name and fill fields of passed {@link ContactModel} object
+     *
+     * @return {@link EditMessageReplyMarkup} TG object for changing current message
+     * @throws ContactProcessingException if length > 250 chars, empty String
+     * @see EditMessageReplyMarkup
+     */
     @Override
     public EditMessageReplyMarkup processName(ContactModel contact, String name) {
         log.debug("Processing name of contact");
@@ -52,6 +66,13 @@ public class ContactMessageProcessorImpl implements ContactMessageProcessor {
         return keyBoardUtils.editMessageSavedField(userId, "name");
     }
 
+    /**
+     * Parsing String with phone number and fill fields of passed {@link ContactModel} object
+     *
+     * @return {@link EditMessageReplyMarkup} TG object for changing current message
+     * @throws ContactProcessingException if number doesn't match pattern "^[+]?[-. 0-9{}]{11,18}$"
+     * @see EditMessageReplyMarkup
+     */
     @Override
     public EditMessageReplyMarkup processPhone(ContactModel contact, String phone) {
         log.debug("Processing phone of contact");
@@ -67,6 +88,13 @@ public class ContactMessageProcessorImpl implements ContactMessageProcessor {
         }
     }
 
+    /**
+     * Parsing String with email and fill fields of passed {@link ContactModel} object
+     *
+     * @return {@link EditMessageReplyMarkup} TG object for changing current message
+     * @throws ContactProcessingException if email doesn't match email format
+     * @see EditMessageReplyMarkup
+     */
     @Override
     public EditMessageReplyMarkup processEmail(ContactModel contact, String email) {
         log.debug("Processing email of contact");
@@ -81,6 +109,14 @@ public class ContactMessageProcessorImpl implements ContactMessageProcessor {
         }
     }
 
+    /**
+     * Setting up passed {@link Contact} to our {@link ContactModel}, and also setting up first name, last name,
+     * phone number, if it were not set
+     *
+     * @return {@link EditMessageReplyMarkup} TG object for changing current message
+     * @see EditMessageReplyMarkup
+     * @see Contact
+     */
     @Override
     public EditMessageReplyMarkup processSharedContact(ContactModel contact, Contact shared) {
         log.debug("Processing shared contact");

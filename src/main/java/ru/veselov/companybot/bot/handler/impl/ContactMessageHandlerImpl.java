@@ -20,7 +20,12 @@ import ru.veselov.companybot.exception.WrongContactException;
 import ru.veselov.companybot.model.ContactModel;
 
 /**
- * Class for handling updates containing contact data
+ * Class for handling updates containing contact data for setting up {@link ContactModel};
+ *
+ * @see UserDataCacheFacade
+ * @see ContactCache
+ * @see KeyBoardUtils
+ * @see ContactMessageProcessor
  */
 @Component
 @RequiredArgsConstructor
@@ -35,6 +40,15 @@ public class ContactMessageHandlerImpl implements ContactMessageHandler {
 
     private final ContactMessageProcessor contactMessageProcessor;
 
+    /**
+     * Processing update from Telegram, processing is only available for {@link BotState}:
+     * AWAIT_NAME, AWAIT_PHONE, AWAIT_EMAIL, AWAIT_SHARED;
+     * after successful processing set up {@link BotState} to AWAIT_CONTACT
+     *
+     * @return {@link EditMessageReplyMarkup} TG object for changing current message
+     * @throws NoAvailableActionSendMessageException if entering with wrong BotState
+     * @throws WrongContactException                 if update's message doesn't contain text or shared contact
+     */
     @Override
     public BotApiMethod<?> processUpdate(Update update) {
         Long userId = update.getMessage().getFrom().getId();
