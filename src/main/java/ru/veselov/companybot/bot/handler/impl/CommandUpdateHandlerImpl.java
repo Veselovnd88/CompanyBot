@@ -15,6 +15,7 @@ import ru.veselov.companybot.bot.util.InlineKeyBoardUtils;
 import ru.veselov.companybot.bot.util.MessageUtils;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
 import ru.veselov.companybot.exception.WrongBotStateException;
+import ru.veselov.companybot.exception.handler.BotExceptionToMessage;
 import ru.veselov.companybot.service.CustomerService;
 
 /**
@@ -46,6 +47,7 @@ public class CommandUpdateHandlerImpl implements CommandUpdateHandler {
      * @return {@link SendMessage} message for sending to user to Telegram
      * @throws WrongBotStateException if entering with wrong BotState
      */
+    @BotExceptionToMessage
     @Override
     public SendMessage processUpdate(Update update) {
         Long userId = update.getMessage().getFrom().getId();
