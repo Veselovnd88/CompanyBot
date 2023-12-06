@@ -12,6 +12,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.telegram.telegrambots.meta.api.objects.Contact;
 import ru.veselov.companybot.bot.util.KeyBoardUtils;
 import ru.veselov.companybot.exception.ContactProcessingException;
 import ru.veselov.companybot.model.ContactModel;
@@ -52,7 +53,6 @@ class ContactMessageProcessorImplTest {
                 () -> Assertions.assertThat(contact.getSecondName()).isEqualTo(SECOND_NAME),
                 () -> Mockito.verify(keyBoardUtils).editMessageSavedField(Mockito.any(), Mockito.any())
         );
-
     }
 
     @Test
@@ -98,10 +98,9 @@ class ContactMessageProcessorImplTest {
     @ParameterizedTest
     @MethodSource("getIncorrectNames")
     void shouldThrowExceptionForIncorrectName(String name) {
-
-
         Assertions.assertThatThrownBy(() -> contactMessageProcessor.processName(contact, name))
                 .isInstanceOf(ContactProcessingException.class);
+
         Mockito.verifyNoInteractions(keyBoardUtils);
         Mockito.verifyNoInteractions(emailValidator);
     }
@@ -147,6 +146,23 @@ class ContactMessageProcessorImplTest {
 
         Mockito.verifyNoInteractions(keyBoardUtils);
         Mockito.verify(emailValidator).isValid(Mockito.any(), Mockito.any());
+    }
+
+    @Test
+    void shouldProcessSharedContact() {
+        Contact shared = new Contact();
+        shared.setFirstName(FIRST_NAME);
+        shared.setLastName(LAST_NAME);
+        shared.setPhoneNumber("+1 123 456 78 90");
+
+        contactMessageProcessor.processSharedContact(contact, shared);
+
+        org.junit.jupiter.api.Assertions.assertAll(
+                () -> Assertions.assertThat(contact.getContact()).isEqualTo(shared),
+                () -> Assertions.assertThat(contact.getFirstName()).isEqualTo(FIRST_NAME),
+                () -> Assertions.assertThat(contact.getLastName()).isEqualTo(LAST_NAME),
+                () -> Assertions.assertThat(contact.getPhone()).isEqualTo(shared.getPhoneNumber())
+        );
     }
 
     private static Stream<String> getIncorrectNames() {

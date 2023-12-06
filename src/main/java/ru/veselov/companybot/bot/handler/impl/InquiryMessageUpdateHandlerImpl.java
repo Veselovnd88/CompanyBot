@@ -13,7 +13,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.Video;
 import org.telegram.telegrambots.meta.api.objects.games.Animation;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
-import ru.veselov.companybot.bot.handler.inquiry.InquiryMessageUpdateHandler;
+import ru.veselov.companybot.bot.handler.InquiryMessageUpdateHandler;
 import ru.veselov.companybot.bot.util.InlineKeyBoardUtils;
 import ru.veselov.companybot.bot.util.MessageUtils;
 import ru.veselov.companybot.bot.util.UserMessageChecker;

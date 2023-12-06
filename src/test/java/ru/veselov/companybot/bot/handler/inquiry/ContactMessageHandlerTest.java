@@ -16,7 +16,6 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import ru.veselov.companybot.bot.BotState;
 import ru.veselov.companybot.bot.handler.impl.ContactMessageHandlerImpl;
 import ru.veselov.companybot.bot.util.ContactMessageProcessor;
-import ru.veselov.companybot.bot.util.KeyBoardUtils;
 import ru.veselov.companybot.cache.ContactCache;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
 import ru.veselov.companybot.exception.NoAvailableActionSendMessageException;
@@ -26,8 +25,6 @@ import ru.veselov.companybot.util.TestUtils;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
 @ExtendWith(MockitoExtension.class)
 class ContactMessageHandlerTest {
 
@@ -36,9 +33,6 @@ class ContactMessageHandlerTest {
 
     @Mock
     ContactCache contactCache;
-
-    @Mock
-    KeyBoardUtils keyBoardUtils;
 
     @Mock
     ContactMessageProcessor contactMessageProcessor;
@@ -130,13 +124,25 @@ class ContactMessageHandlerTest {
     }
 
     @Test
-    void noTextTest() {
-        /*Проверка когда поступают неправильные данные*/
+    void shouldThrowExceptionIfMessageHasNotTextOrSharedContact() {
         message.setText(null);
         message.setContact(null);
-        assertThrows(WrongContactException.class,
-                () -> contactMessageHandler.processUpdate(update));
+
+        Assertions.assertThatThrownBy(() -> contactMessageHandler.processUpdate(update))
+                .isInstanceOf(WrongContactException.class);
     }
 
+    @Test
+    void shouldThrowExceptionIfWrongBotStateForSharedContactProcessing() {
+        Mockito.when(userDataCacheFacade.getUserBotState(TestUtils.USER_ID))
+                .thenReturn(BotState.READY);
+        message.setText(null);
+        Contact shared = new Contact();
+        message.setContact(shared);
+        message.setEntities(null);
+
+        Assertions.assertThatThrownBy(() -> contactMessageHandler.processUpdate(update))
+                .isInstanceOf(NoAvailableActionSendMessageException.class);
+    }
 
 }
