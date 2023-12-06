@@ -1,198 +1,148 @@
 package ru.veselov.companybot.bot.handler.inquiry;
 
-import lombok.SneakyThrows;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.CommandLineRunner;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.ActiveProfiles;
-import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.*;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.telegram.telegrambots.meta.api.objects.Contact;
+import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.MessageEntity;
+import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.User;
 import ru.veselov.companybot.bot.BotState;
-import ru.veselov.companybot.bot.CompanyBot;
+import ru.veselov.companybot.bot.handler.impl.ContactMessageHandlerImpl;
+import ru.veselov.companybot.bot.util.ContactMessageProcessor;
 import ru.veselov.companybot.cache.ContactCache;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
+import ru.veselov.companybot.exception.NoAvailableActionSendMessageException;
 import ru.veselov.companybot.exception.WrongContactException;
 import ru.veselov.companybot.model.ContactModel;
-import ru.veselov.companybot.bot.util.KeyBoardUtils;
-import ru.veselov.companybot.bot.util.MessageUtils;
+import ru.veselov.companybot.util.TestUtils;
 
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
-@SpringBootTest
-@ActiveProfiles("test")
+@ExtendWith(MockitoExtension.class)
 class ContactMessageHandlerTest {
-    @MockBean
-    CommandLineRunner commandLineRunner;
-    @MockBean
-    CompanyBot companyBot;
-    @Autowired
-    private UserDataCacheFacade userDataCacheFacade;
-    @MockBean
-    KeyBoardUtils keyBoardUtils;
-    @Autowired
-    private ContactCache contactCache;
-    @Autowired
-    ContactMessageHandler contactMessageHandler;
+
+    @Mock
+    UserDataCacheFacade userDataCacheFacade;
+
+    @Mock
+    ContactCache contactCache;
+
+    @Mock
+    ContactMessageProcessor contactMessageProcessor;
+
+    @InjectMocks
+    ContactMessageHandlerImpl contactMessageHandler;
+
     Update update;
     Message message;
     User user;
 
+    ContactModel contact = ContactModel.builder().userId(TestUtils.USER_ID).build();
+
     @BeforeEach
-    void init(){
-        update=spy(Update.class);
-        message=spy(Message.class);
-        user =spy(User.class);
+    void init() {
+        update = Mockito.spy(Update.class);
+        message = Mockito.spy(Message.class);
+        user = Mockito.spy(User.class);
         update.setMessage(message);
         message.setFrom(user);
-        user.setId(100L);
+        user.setId(TestUtils.USER_ID);
         MessageEntity messageEntity = new MessageEntity();
         messageEntity.setOffset(0);
         messageEntity.setLength(0);
         message.setEntities(List.of(messageEntity));
-        contactCache.createContact(user.getId());
+        Mockito.when(contactCache.getContact(TestUtils.USER_ID)).thenReturn(contact);
     }
 
 
     @Test
-    @SneakyThrows
-    void nameTest(){
-        /*Проверка ввода контакта текстом*/
-        userDataCacheFacade.setUserBotState(user.getId(),BotState.AWAIT_NAME);
-        message.setText(" Ivanov Ivan Ivanovich");
-        BotApiMethod<?> botApiMethod = contactMessageHandler.processUpdate(update);
-        verify(keyBoardUtils).editMessageSavedField(user.getId(),"name");
-        assertEquals(BotState.AWAIT_CONTACT, userDataCacheFacade.getUserBotState(user.getId()));
-        assertNotNull(contactCache.getContact(user.getId()));
-    }
-    @ParameterizedTest
-    @ValueSource(strings = {"+79175550335","89167861234","8-495-250-23-93","+2 234 345-24-66"})
-    @SneakyThrows
-    void phoneTest(String phone){
-        /*Проверка ввода контакта текстом*/
-        userDataCacheFacade.setUserBotState(user.getId(),BotState.AWAIT_PHONE);
-        message.setText(phone);
-        BotApiMethod<?> botApiMethod = contactMessageHandler.processUpdate(update);
-        verify(keyBoardUtils).editMessageSavedField(user.getId(),"phone");
-        assertEquals(BotState.AWAIT_CONTACT, userDataCacheFacade.getUserBotState(user.getId()));
-        assertNotNull(contactCache.getContact(user.getId()));
-    }
-    @ParameterizedTest
-    @ValueSource(strings = {"+7a9175550335","891","8-495asdf-250-23-93","+99999992 234 345-24-66"})
-    @SneakyThrows
-    void wrongPhoneTest(String phone){
-        /*Проверка ввода контакта текстом*/
-        userDataCacheFacade.setUserBotState(user.getId(),BotState.AWAIT_PHONE);
-        message.setText(phone);
-        BotApiMethod<?> botApiMethod = contactMessageHandler.processUpdate(update);
-        verify(keyBoardUtils,never()).editMessageSavedField(user.getId(),"phone");
-        assertEquals(BotState.AWAIT_PHONE, userDataCacheFacade.getUserBotState(user.getId()));
-        assertNotNull(contactCache.getContact(user.getId()));
-    }
+    void shouldHandleContactUpdateWithTextName() {
+        String name = "name name name";
+        message.setText(name);
+        Mockito.when(userDataCacheFacade.getUserBotState(TestUtils.USER_ID))
+                .thenReturn(BotState.AWAIT_NAME);
+        contactMessageHandler.processUpdate(update);
 
-    @ParameterizedTest
-    @ValueSource(strings = {"veselovnd@gmail.com","123@123.com","sfd@asdf.ru"})
-    @SneakyThrows
-    void emailTest(String email){
-        /*Проверка ввода электронной почты*/
-        userDataCacheFacade.setUserBotState(user.getId(),BotState.AWAIT_EMAIL);
-        message.setText(email);
-        BotApiMethod<?> botApiMethod = contactMessageHandler.processUpdate(update);
-        verify(keyBoardUtils).editMessageSavedField(user.getId(),"email");
-        assertEquals(BotState.AWAIT_CONTACT, userDataCacheFacade.getUserBotState(user.getId()));
-        assertNotNull(contactCache.getContact(user.getId()));
+        Mockito.verify(userDataCacheFacade).setUserBotState(TestUtils.USER_ID, BotState.AWAIT_CONTACT);
+        Mockito.verify(contactMessageProcessor).processName(contact, name);
     }
-    @ParameterizedTest
-    @ValueSource(strings = {"gmail.com","asdf@","hate@."})
-    @SneakyThrows
-    void wrongEmailTest(String email){
-        /*Неправильные адреса*/
-        userDataCacheFacade.setUserBotState(user.getId(),BotState.AWAIT_EMAIL);
-        message.setText(email);
-        BotApiMethod<?> botApiMethod = contactMessageHandler.processUpdate(update);
-        verify(keyBoardUtils,never()).editMessageSavedField(user.getId(),"email");
-        assertEquals(MessageUtils.WRONG_EMAIL,((SendMessage)botApiMethod).getText());
-        assertEquals(BotState.AWAIT_EMAIL, userDataCacheFacade.getUserBotState(user.getId()));
-    }
-
 
     @Test
-    @SneakyThrows
-    void contactTest(){
-        /*Проверка ввода контакта*/
+    void shouldHandleContactUpdateWithTextPhone() {
+        String phone = "+7 916 788 88 88";
+        message.setText(phone);
+        Mockito.when(userDataCacheFacade.getUserBotState(TestUtils.USER_ID))
+                .thenReturn(BotState.AWAIT_PHONE);
+        contactMessageHandler.processUpdate(update);
+
+        Mockito.verify(userDataCacheFacade).setUserBotState(TestUtils.USER_ID, BotState.AWAIT_CONTACT);
+        Mockito.verify(contactMessageProcessor).processPhone(contact, phone);
+    }
+
+    @Test
+    void shouldHandleContactUpdateWithTextEmail() {
+        String email = "123@123.com";
+        message.setText(email);
+        Mockito.when(userDataCacheFacade.getUserBotState(TestUtils.USER_ID))
+                .thenReturn(BotState.AWAIT_EMAIL);
+        contactMessageHandler.processUpdate(update);
+
+        Mockito.verify(userDataCacheFacade).setUserBotState(TestUtils.USER_ID, BotState.AWAIT_CONTACT);
+        Mockito.verify(contactMessageProcessor).processEmail(contact, email);
+    }
+
+    @Test
+    void shouldThrowExceptionIfNotSuitableBotState() {
+        String name = "name name name";
+        message.setText(name);
+        Mockito.when(userDataCacheFacade.getUserBotState(TestUtils.USER_ID))
+                .thenReturn(BotState.READY);
+        Assertions.assertThatThrownBy(() -> contactMessageHandler.processUpdate(update))
+                .isInstanceOf(NoAvailableActionSendMessageException.class);
+    }
+
+    @Test
+    void shouldHandleContactUpdateWithSharedContact() {
+        Mockito.when(userDataCacheFacade.getUserBotState(TestUtils.USER_ID))
+                .thenReturn(BotState.AWAIT_SHARED);
         message.setText(null);
-        Contact contact= new Contact();
-        message.setContact(contact);
+        Contact shared = new Contact();
+        message.setContact(shared);
         message.setEntities(null);
-        BotApiMethod<?> botApiMethod = contactMessageHandler.processUpdate(update);
-        verify(keyBoardUtils).editMessageSavedField(user.getId(),"shared");
-        assertEquals(BotState.AWAIT_CONTACT, userDataCacheFacade.getUserBotState(user.getId()));
-        assertNotNull(contactCache.getContact(user.getId()));
+
+        contactMessageHandler.processUpdate(update);
+
+        Mockito.verify(userDataCacheFacade).setUserBotState(TestUtils.USER_ID, BotState.AWAIT_CONTACT);
+        Mockito.verify(contactMessageProcessor).processSharedContact(contact, shared);
     }
 
     @Test
-    void noTextTest(){
-        /*Проверка когда поступают неправильные данные*/
+    void shouldThrowExceptionIfMessageHasNotTextOrSharedContact() {
         message.setText(null);
         message.setContact(null);
-        assertThrows(WrongContactException.class,
-                ()-> contactMessageHandler.processUpdate(update));
+
+        Assertions.assertThatThrownBy(() -> contactMessageHandler.processUpdate(update))
+                .isInstanceOf(WrongContactException.class);
     }
 
     @Test
-    @SneakyThrows
-    void processNameTestFull(){
-        String name = "Pipkov Vasya Petrovich";
-        ContactModel contact = new ContactModel();
-        contactMessageHandler.getProcessedName(contact, name);
-        assertEquals("Pipkov",contact.getLastName());
-        assertEquals("Vasya",contact.getFirstName());
-        assertEquals("Petrovich",contact.getSecondName());
+    void shouldThrowExceptionIfWrongBotStateForSharedContactProcessing() {
+        Mockito.when(userDataCacheFacade.getUserBotState(TestUtils.USER_ID))
+                .thenReturn(BotState.READY);
+        message.setText(null);
+        Contact shared = new Contact();
+        message.setContact(shared);
+        message.setEntities(null);
+
+        Assertions.assertThatThrownBy(() -> contactMessageHandler.processUpdate(update))
+                .isInstanceOf(NoAvailableActionSendMessageException.class);
     }
 
-    @Test
-    @SneakyThrows
-    void processNameTestOnlyLastName(){
-        String name = "Pipkov";
-        ContactModel contact = new ContactModel();
-        contactMessageHandler.getProcessedName(contact, name);
-        assertEquals("Pipkov",contact.getLastName());
-    }
-    @Test
-    @SneakyThrows
-    void processNameTestOnlyFirstLast(){
-        String name = "Pipkov Ivan";
-        ContactModel contact = new ContactModel();
-        contactMessageHandler.getProcessedName(contact, name);
-        assertEquals("Pipkov",contact.getLastName());
-        assertEquals("Ivan",contact.getFirstName());
-    }
-
-    @Test
-    @SneakyThrows
-    void processNameTestMoreThanThreeParts(){
-        String name = "Pipkov Ivan Petrovich Vasiliy Evil";
-        ContactModel contact = new ContactModel();
-        contactMessageHandler.getProcessedName(contact, name);
-        assertEquals("Pipkov",contact.getLastName());
-        assertEquals("Ivan",contact.getFirstName());
-        assertEquals("Petrovich Vasiliy Evil",contact.getSecondName());
-    }
-    @ParameterizedTest
-    @ValueSource(strings = {""," "})
-    @SneakyThrows
-    void processNameTestWithIncorrectName(String name){
-        ContactModel contact = new ContactModel();
-        contact.setUserId(100L);
-        contactMessageHandler.getProcessedName(contact, name);
-        assertNull(contact.getLastName());
-    }
 }
