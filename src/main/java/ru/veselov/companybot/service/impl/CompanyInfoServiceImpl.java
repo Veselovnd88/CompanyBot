@@ -36,7 +36,7 @@ public class CompanyInfoServiceImpl implements CompanyInfoService {
         } else {
             message = toMessage(last.get(0));
         }
-        MessageUtils.setABOUT(message);
+        MessageUtils.setAbout(message);
         return message;
     }
 

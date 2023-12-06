@@ -19,7 +19,6 @@ import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMember;
 import ru.veselov.companybot.bot.BotConstant;
 import ru.veselov.companybot.bot.BotProperties;
 import ru.veselov.companybot.bot.handler.impl.ChannelConnectUpdateHandlerImpl;
-import ru.veselov.companybot.exception.NoAvailableActionSendMessageException;
 import ru.veselov.companybot.service.ChatService;
 import ru.veselov.companybot.util.TestUtils;
 
@@ -92,20 +91,22 @@ class ChannelConnectUpdateHandlerImplTest {
     }
 
     @Test
-    void shouldThrowExceptionIfUnavailableCommandOccurred() {
+    void shouldReturnNullIfUnavailableCommandOccurred() {
         botUser.setId(TestUtils.BOT_ID);
         Mockito.when(chatMember.getStatus()).thenReturn("unknown");
-        Assertions.assertThatThrownBy(
-                () -> channelConnectUpdateHandler.processUpdate(update)
-        ).isInstanceOf(NoAvailableActionSendMessageException.class);
+
+        SendMessage sendMessage = channelConnectUpdateHandler.processUpdate(update);
+
+        Assertions.assertThat(sendMessage).isNull();
     }
 
     @Test
     void shouldThrowExceptionIfNotBotIdWasHandled() {
         botUser.setId(9L);
-        Assertions.assertThatThrownBy(
-                () -> channelConnectUpdateHandler.processUpdate(update)
-        ).isInstanceOf(NoAvailableActionSendMessageException.class);
+
+        SendMessage sendMessage = channelConnectUpdateHandler.processUpdate(update);
+
+        Assertions.assertThat(sendMessage).isNull();
     }
 
 }

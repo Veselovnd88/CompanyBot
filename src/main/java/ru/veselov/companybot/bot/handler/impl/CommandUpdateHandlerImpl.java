@@ -13,29 +13,39 @@ import ru.veselov.companybot.bot.handler.CommandUpdateHandler;
 import ru.veselov.companybot.bot.keyboard.DivisionKeyboardHelper;
 import ru.veselov.companybot.bot.util.InlineKeyBoardUtils;
 import ru.veselov.companybot.bot.util.MessageUtils;
-import ru.veselov.companybot.cache.ContactCache;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
-import ru.veselov.companybot.exception.NoAvailableActionSendMessageException;
+import ru.veselov.companybot.exception.WrongBotStateException;
 import ru.veselov.companybot.service.CustomerService;
 
 /**
- * Handling Updates containing bot commands
+ * Class for handling updates containing commands {@link  BotCommands}:
+ * <p>
+ * {@link BotCommands#START},{@link BotCommands#INQUIRY},{@link BotCommands#CALL},{@link BotCommands#INFO}
+ * {@link BotCommands#ABOUT}
+ * </p>
+ *
+ * @see UserDataCacheFacade
+ * @see CustomerService
+ * @see DivisionKeyboardHelper
  */
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class CommandUpdateHandlerImpl implements CommandUpdateHandler {
 
-    private static final String BOT_STATE_IS_FOR_USER_ID_LOG = "Bot state is {} for user [id: {}]";
-
     private final UserDataCacheFacade userDataCacheFacade;
-
-    private final ContactCache contactCache;
 
     private final CustomerService customerService;
 
     private final DivisionKeyboardHelper divisionKeyboardHelper;
 
+    /**
+     * Processing update from Telegram depends on command from {@link BotCommands},
+     * after successful processing set up to according {@link BotState}
+     *
+     * @return {@link SendMessage} message for sending to user to Telegram
+     * @throws WrongBotStateException if entering with wrong BotState
+     */
     @Override
     public SendMessage processUpdate(Update update) {
         Long userId = update.getMessage().getFrom().getId();
@@ -57,25 +67,25 @@ public class CommandUpdateHandlerImpl implements CommandUpdateHandler {
                     userDataCacheFacade.setUserBotState(userId, BotState.AWAIT_DIVISION_FOR_INQUIRY);
                     return departmentMessageInlineKeyBoard(userId);
                 } else {
-                    throw new NoAvailableActionSendMessageException(MessageUtils.ANOTHER_ACTION, userId.toString());
+                    throw new WrongBotStateException(MessageUtils.ANOTHER_ACTION, userId.toString());
                 }
             case BotCommands.CALL:
                 if (botState == BotState.READY) {
                     userDataCacheFacade.setUserBotState(userId, BotState.AWAIT_CONTACT);
                     return contactMessage(userId);
                 } else {
-                    throw new NoAvailableActionSendMessageException(MessageUtils.ANOTHER_ACTION, userId.toString());
+                    throw new WrongBotStateException(MessageUtils.ANOTHER_ACTION, userId.toString());
                 }
             case BotCommands.ABOUT:
                 return SendMessage.builder().chatId(userId)
-                        .text(MessageUtils.getABOUT().getText())
-                        .entities(MessageUtils.getABOUT().getEntities())
+                        .text(MessageUtils.getAbout().getText())
+                        .entities(MessageUtils.getAbout().getEntities())
                         .build();
             case BotCommands.INFO:
                 return SendMessage.builder().chatId(userId)
                         .text(MessageUtils.INFO).build();
             default:
-                throw new NoAvailableActionSendMessageException(MessageUtils.NOT_SUPPORTED_ACTION, userId.toString());
+                throw new WrongBotStateException(MessageUtils.NOT_SUPPORTED_ACTION, userId.toString());
         }
     }
 
