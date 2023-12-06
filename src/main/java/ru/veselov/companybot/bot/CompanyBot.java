@@ -17,7 +17,6 @@ import ru.veselov.companybot.bot.handler.TelegramFacadeUpdateHandler;
 import ru.veselov.companybot.exception.NoAvailableActionCallbackException;
 import ru.veselov.companybot.exception.NoAvailableActionException;
 import ru.veselov.companybot.exception.NoAvailableActionSendMessageException;
-import ru.veselov.companybot.exception.WrongContactException;
 
 import java.util.List;
 
@@ -89,18 +88,13 @@ public class CompanyBot extends TelegramLongPollingBot {
             try {
                 execute(telegramFacadeUpdateHandler.processUpdate(update));
             } catch (NoAvailableActionException e) {
-                if (e instanceof WrongContactException) {
+
+                if (e instanceof NoAvailableActionSendMessageException) {
                     try {
-                        execute(SendMessage.builder().chatId(e.getChatId())
-                                .text(e.getMessage()).build());
-                    } catch (TelegramApiException ex) {
-                        log.error(ex.getMessage());
-                    }
-                } else if (e instanceof NoAvailableActionSendMessageException) {
-                    try {
-                        execute(SendMessage.builder().chatId(e.getChatId())
-                                .text(e.getMessage()).build());
-                    } catch (TelegramApiException ex) {
+                        log.warn("Sending message after error");
+                        //execute(SendMessage.builder().chatId(e.getChatId())
+                        //      .text(e.getMessage()).build());
+                    } catch (Exception ex) {
                         log.error(ex.getMessage());
                     }
                 } else if (e instanceof NoAvailableActionCallbackException) {

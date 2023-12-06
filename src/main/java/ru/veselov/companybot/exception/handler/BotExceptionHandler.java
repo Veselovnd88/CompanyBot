@@ -1,0 +1,69 @@
+package ru.veselov.companybot.exception.handler;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.aspectj.lang.annotation.AfterThrowing;
+import org.aspectj.lang.annotation.Aspect;
+import org.aspectj.lang.annotation.Pointcut;
+import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import ru.veselov.companybot.bot.CompanyBot;
+import ru.veselov.companybot.bot.util.KeyBoardUtils;
+import ru.veselov.companybot.exception.ContactProcessingException;
+import ru.veselov.companybot.exception.WrongBotStateException;
+import ru.veselov.companybot.exception.WrongContactException;
+
+@Aspect
+@Component
+@RequiredArgsConstructor
+@Slf4j
+public class BotExceptionHandler {
+
+    public static final String EXCEPTION_HANDLED = "Exception handled: {}";
+    public static final String SMTH_WENT_WRONG = "Something went wrong during send message to {}, msg: {}";
+
+    private final CompanyBot companyBot;
+
+    private final KeyBoardUtils keyBoardUtils;
+
+
+    @Pointcut("@annotation(ru.veselov.companybot.exception.handler.BotExceptionToMessage)")
+    public void handledMethods() {
+    }
+
+    @AfterThrowing(pointcut = "handledMethods()", throwing = "ex")
+    public void handleWrongBotStateExceptionAndConvertToSendMessage(WrongBotStateException ex) {
+        log.debug(EXCEPTION_HANDLED, ex.getMessage());
+        try {
+            companyBot.execute(SendMessage.builder().chatId(ex.getChatId()).text(ex.getMessage()).build());
+        } catch (TelegramApiException e) {
+            log.error(SMTH_WENT_WRONG, ex.getChatId(), e.getMessage());
+        }
+    }
+
+    @AfterThrowing(pointcut = "handledMethods()", throwing = "ex")
+    public void handleContactProcessingExceptionAndConvertToSendMessage(ContactProcessingException ex) {
+        log.debug(EXCEPTION_HANDLED, ex.getMessage());
+        try {
+            companyBot.execute(SendMessage.builder().chatId(ex.getChatId())
+                    .text(ex.getMessage()).replyMarkup(keyBoardUtils.contactKeyBoard())
+                    .build());
+        } catch (TelegramApiException e) {
+            log.error(SMTH_WENT_WRONG, ex.getChatId(), e.getMessage());
+        }
+    }
+
+    @AfterThrowing(pointcut = "handledMethods()", throwing = "ex")
+    public void handleWrongContactExceptionAndConvertToSendMessage(WrongContactException ex) {
+        log.debug(EXCEPTION_HANDLED, ex.getMessage());
+        try {
+            companyBot.execute(SendMessage.builder().chatId(ex.getChatId()).text(ex.getMessage()).build());
+        } catch (TelegramApiException e) {
+            log.error(SMTH_WENT_WRONG, ex.getChatId(), e.getMessage());
+        }
+    }
+
+
+}
+

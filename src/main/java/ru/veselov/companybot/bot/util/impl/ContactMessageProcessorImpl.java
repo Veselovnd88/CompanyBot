@@ -44,12 +44,12 @@ public class ContactMessageProcessorImpl implements ContactMessageProcessor {
         Long userId = contact.getUserId();
         if (name.length() > 250) {
             log.info("Try to enter name more >250 symbols: [user id {}]", userId);
-            throw new ContactProcessingException(MessageUtils.NAME_TOO_LONG);
+            throw new ContactProcessingException(MessageUtils.NAME_TOO_LONG, userId.toString());
         }
         String[] s = name.split(" ");
         if (s.length == 0 || name.isEmpty()) {
             log.info("Entered empty string by [user id {}]", userId);
-            throw new ContactProcessingException(MessageUtils.WRONG_CONTACT_FORMAT);
+            throw new ContactProcessingException(MessageUtils.WRONG_CONTACT_FORMAT, userId.toString());
         }
         contact.setLastName(s[0].trim());
         if (s.length > 1) {
@@ -84,7 +84,7 @@ public class ContactMessageProcessorImpl implements ContactMessageProcessor {
             return keyBoardUtils.editMessageSavedField(contact.getUserId(), "phone");
         } else {
             log.warn("Incorrect phone number for [user id: {}]", contact.getUserId());
-            throw new ContactProcessingException(MessageUtils.WRONG_PHONE);
+            throw new ContactProcessingException(MessageUtils.WRONG_PHONE, contact.getUserId().toString());
         }
     }
 
@@ -105,7 +105,7 @@ public class ContactMessageProcessorImpl implements ContactMessageProcessor {
             return keyBoardUtils.editMessageSavedField(userId, "email");
         } else {
             log.warn("Not correct email format for [user id: {}]", userId);
-            throw new ContactProcessingException(MessageUtils.WRONG_EMAIL);
+            throw new ContactProcessingException(MessageUtils.WRONG_EMAIL, userId.toString());
         }
     }
 

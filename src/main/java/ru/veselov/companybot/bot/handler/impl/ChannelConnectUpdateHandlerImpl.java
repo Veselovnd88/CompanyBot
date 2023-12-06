@@ -11,20 +11,30 @@ import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMember;
 import ru.veselov.companybot.bot.BotConstant;
 import ru.veselov.companybot.bot.BotProperties;
 import ru.veselov.companybot.bot.handler.ChannelConnectUpdateHandler;
-import ru.veselov.companybot.bot.util.MessageUtils;
-import ru.veselov.companybot.exception.NoAvailableActionSendMessageException;
 import ru.veselov.companybot.service.ChatService;
 
+/**
+ * Class for handling updates containing logic of connecting/disconnecting to channels
+ *
+ * @see ChatService
+ */
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class ChannelConnectUpdateHandlerImpl implements ChannelConnectUpdateHandler {
 
-
     private final ChatService chatService;
 
     private final BotProperties botProperties;
 
+    /**
+     * Processing update from Telegram with connecting/disconnecting bot event,
+     * checking if user has botId, and send message to this chat;
+     * <p>
+     * Ignores events if not bot was connected to channel
+     *
+     * @return {@link SendMessage} message for sending to chat/user to Telegram
+     */
     @Override
     public SendMessage processUpdate(Update update) {
         User user = update.getMyChatMember().getFrom();
@@ -46,7 +56,6 @@ public class ChannelConnectUpdateHandlerImpl implements ChannelConnectUpdateHand
                 log.info("Bot was removed from [channel: {} by user: {}]", chat.getTitle(), userId);
                 return SendMessage.builder().chatId(userId)
                         .text("Вы удалили меня из канала " + chat.getTitle()).build();
-
             }
             if (chatMemberStatus.equalsIgnoreCase(BotConstant.KICKED)) {
                 chatService.remove(chat.getId());
@@ -54,8 +63,9 @@ public class ChannelConnectUpdateHandlerImpl implements ChannelConnectUpdateHand
                 return SendMessage.builder().chatId(userId)
                         .text("Вы кикнули меня с канала " + chat.getTitle()).build();
             }
+            log.error("Not supported action for [user: {}]", userId);
         }
-        log.error("Not supported action for [user: {}]", userId);
-        throw new NoAvailableActionSendMessageException(MessageUtils.ANOTHER_ACTION, userId.toString());
+        //ignore another connection and disconnections
+        return null;
     }
 }

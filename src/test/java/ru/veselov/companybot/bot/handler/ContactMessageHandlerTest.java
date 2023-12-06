@@ -1,4 +1,4 @@
-package ru.veselov.companybot.bot.handler.inquiry;
+package ru.veselov.companybot.bot.handler;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,7 +18,7 @@ import ru.veselov.companybot.bot.handler.impl.ContactMessageHandlerImpl;
 import ru.veselov.companybot.bot.util.ContactMessageProcessor;
 import ru.veselov.companybot.cache.ContactCache;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
-import ru.veselov.companybot.exception.NoAvailableActionSendMessageException;
+import ru.veselov.companybot.exception.WrongBotStateException;
 import ru.veselov.companybot.exception.WrongContactException;
 import ru.veselov.companybot.model.ContactModel;
 import ru.veselov.companybot.util.TestUtils;
@@ -105,7 +105,7 @@ class ContactMessageHandlerTest {
         Mockito.when(userDataCacheFacade.getUserBotState(TestUtils.USER_ID))
                 .thenReturn(BotState.READY);
         Assertions.assertThatThrownBy(() -> contactMessageHandler.processUpdate(update))
-                .isInstanceOf(NoAvailableActionSendMessageException.class);
+                .isInstanceOf(WrongBotStateException.class);
     }
 
     @Test
@@ -142,7 +142,7 @@ class ContactMessageHandlerTest {
         message.setEntities(null);
 
         Assertions.assertThatThrownBy(() -> contactMessageHandler.processUpdate(update))
-                .isInstanceOf(NoAvailableActionSendMessageException.class);
+                .isInstanceOf(WrongBotStateException.class);
     }
 
 }

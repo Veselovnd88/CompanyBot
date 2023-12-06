@@ -11,7 +11,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.MessageEntity;
@@ -23,10 +22,10 @@ import ru.veselov.companybot.bot.BotState;
 import ru.veselov.companybot.bot.handler.impl.CommandUpdateHandlerImpl;
 import ru.veselov.companybot.bot.keyboard.DivisionKeyboardHelper;
 import ru.veselov.companybot.bot.util.MessageUtils;
-import ru.veselov.companybot.cache.ContactCache;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
-import ru.veselov.companybot.exception.NoAvailableActionSendMessageException;
+import ru.veselov.companybot.exception.WrongBotStateException;
 import ru.veselov.companybot.service.CustomerService;
+import ru.veselov.companybot.util.TestUtils;
 
 import java.util.List;
 
@@ -35,9 +34,6 @@ class CommandUpdateHandlerTest {
 
     @Mock
     private UserDataCacheFacade userDataCacheFacade;
-
-    @Mock
-    private ContactCache contactCache;
 
     @Mock
     private CustomerService customerService;
@@ -54,12 +50,6 @@ class CommandUpdateHandlerTest {
 
     Message message;
 
-/*    @BeforeAll
-    static void setUp() {
-        final Logger logger = (Logger) LoggerFactory.getLogger(Logger.ROOT_LOGGER_NAME);
-        logger.setLevel(Level.DEBUG);
-    }*/
-
     @BeforeEach
     void init() {
         update = Mockito.spy(Update.class);
@@ -67,7 +57,7 @@ class CommandUpdateHandlerTest {
         user = Mockito.spy(User.class);
         update.setMessage(message);
         message.setFrom(user);
-        user.setId(100L);
+        user.setId(TestUtils.USER_ID);
     }
 
     @Test
@@ -82,8 +72,7 @@ class CommandUpdateHandlerTest {
                 () -> Mockito.verify(customerService).save(user),
                 () -> Assertions.assertThat(sendMessage.getText()).isEqualTo(MessageUtils.GREETINGS),
                 () -> Mockito.verify(userDataCacheFacade).setUserBotState(user.getId(), BotState.READY),
-                () -> Mockito.verify(userDataCacheFacade).clear(user.getId()),
-                () -> Mockito.verify(contactCache).clear(user.getId())
+                () -> Mockito.verify(userDataCacheFacade).clear(user.getId())
         );
     }
 
@@ -100,8 +89,7 @@ class CommandUpdateHandlerTest {
                 () -> Mockito.verifyNoInteractions(customerService),
                 () -> Assertions.assertThat(sendMessage.getText()).isEqualTo(MessageUtils.GREETINGS),
                 () -> Mockito.verify(userDataCacheFacade).setUserBotState(user.getId(), BotState.READY),
-                () -> Mockito.verify(userDataCacheFacade).clear(user.getId()),
-                () -> Mockito.verify(contactCache).clear(user.getId())
+                () -> Mockito.verify(userDataCacheFacade).clear(user.getId())
         );
     }
 
@@ -131,7 +119,7 @@ class CommandUpdateHandlerTest {
         Mockito.when(userDataCacheFacade.getUserBotState(user.getId())).thenReturn(botState);
         Assertions.assertThatThrownBy(
                 () -> commandHandler.processUpdate(update)
-        ).isInstanceOf(NoAvailableActionSendMessageException.class);
+        ).isInstanceOf(WrongBotStateException.class);
     }
 
     @ParameterizedTest
@@ -146,7 +134,7 @@ class CommandUpdateHandlerTest {
         messageEntity.setType("bold");
         messageEntity.setOffset(2);
         aboutMessage.setEntities(List.of(messageEntity));
-        MessageUtils.setABOUT(aboutMessage);
+        MessageUtils.setAbout(aboutMessage);
 
         SendMessage sendMessage = commandHandler.processUpdate(update);
 
@@ -170,7 +158,7 @@ class CommandUpdateHandlerTest {
         Mockito.when(message.getText()).thenReturn("/anyCommand");
         Assertions.assertThatThrownBy(
                 () -> commandHandler.processUpdate(update)
-        ).isInstanceOf(NoAvailableActionSendMessageException.class);
+        ).isInstanceOf(WrongBotStateException.class);
     }
 
 }

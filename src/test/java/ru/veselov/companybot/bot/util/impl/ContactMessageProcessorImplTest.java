@@ -172,4 +172,5 @@ class ContactMessageProcessorImplTest {
                 "a".repeat(251)
         );
     }
+
 }

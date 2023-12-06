@@ -11,6 +11,7 @@ import org.telegram.telegrambots.meta.api.objects.MessageEntity;
 import org.telegram.telegrambots.meta.api.objects.User;
 import ru.veselov.companybot.bot.BotConstant;
 import ru.veselov.companybot.exception.NoAvailableActionSendMessageException;
+import ru.veselov.companybot.util.TestUtils;
 
 import java.util.Collections;
 import java.util.List;
@@ -33,7 +34,7 @@ class UserMessageCheckerImplTest {
         message = spy(Message.class);
         user = spy(User.class);
         message.setFrom(user);
-        user.setId(100L);
+        user.setId(TestUtils.USER_ID);
         MessageEntity messageEntity = new MessageEntity();
         messageEntity.setOffset(0);
         messageEntity.setLength(0);
