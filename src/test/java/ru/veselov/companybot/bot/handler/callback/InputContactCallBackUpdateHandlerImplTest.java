@@ -1,4 +1,4 @@
-package ru.veselov.companybot.bot.handler.impl;
+package ru.veselov.companybot.bot.handler.callback;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,12 +15,15 @@ import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import ru.veselov.companybot.bot.BotState;
+import ru.veselov.companybot.bot.context.CallbackQueryHandlerContext;
+import ru.veselov.companybot.bot.handler.callback.impl.InputContactCallBackUpdateHandlerImpl;
 import ru.veselov.companybot.bot.util.CallBackButtonUtils;
 import ru.veselov.companybot.bot.util.KeyBoardUtils;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
 import ru.veselov.companybot.exception.UnexpectedActionException;
 import ru.veselov.companybot.util.TestUtils;
 
+import java.util.Set;
 import java.util.stream.Stream;
 
 @ExtendWith(MockitoExtension.class)
@@ -31,6 +34,9 @@ class InputContactCallBackUpdateHandlerImplTest {
 
     @Mock
     UserDataCacheFacade userDataCache;
+
+    @Mock
+    CallbackQueryHandlerContext context;
 
     @InjectMocks
     InputContactCallBackUpdateHandlerImpl inputContactCallBackUpdateHandler;
@@ -76,6 +82,25 @@ class InputContactCallBackUpdateHandlerImplTest {
                 Arguments.of(CallBackButtonUtils.PHONE, BotState.AWAIT_PHONE),
                 Arguments.of(CallBackButtonUtils.NAME, BotState.AWAIT_NAME),
                 Arguments.of(CallBackButtonUtils.SHARED, BotState.AWAIT_SHARED));
+    }
+
+    @Test
+    void shouldRegisterInContext() {
+        inputContactCallBackUpdateHandler.registerInContext();
+
+        Mockito.verify(context).add(CallBackButtonUtils.EMAIL, inputContactCallBackUpdateHandler);
+        Mockito.verify(context).add(CallBackButtonUtils.PHONE, inputContactCallBackUpdateHandler);
+        Mockito.verify(context).add(CallBackButtonUtils.NAME, inputContactCallBackUpdateHandler);
+        Mockito.verify(context).add(CallBackButtonUtils.SHARED, inputContactCallBackUpdateHandler);
+    }
+
+    @Test
+    void shouldReturnAvailableStates() {
+        Set<BotState> availableStates = inputContactCallBackUpdateHandler.getAvailableStates();
+
+        Assertions.assertThat(availableStates)
+                .isEqualTo(Set.of(BotState.READY, BotState.AWAIT_CONTACT, BotState.AWAIT_NAME, BotState.AWAIT_PHONE,
+                        BotState.AWAIT_EMAIL, BotState.AWAIT_SHARED, BotState.AWAIT_MESSAGE));
     }
 
 

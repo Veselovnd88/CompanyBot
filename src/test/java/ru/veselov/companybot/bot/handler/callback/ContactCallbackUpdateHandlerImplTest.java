@@ -1,24 +1,27 @@
-package ru.veselov.companybot.bot.handler.impl;
+package ru.veselov.companybot.bot.handler.callback;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
+import org.telegram.telegrambots.meta.api.objects.Chat;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import ru.veselov.companybot.bot.BotState;
+import ru.veselov.companybot.bot.context.CallbackQueryHandlerContext;
+import ru.veselov.companybot.bot.handler.callback.impl.ContactCallbackUpdateHandlerImpl;
 import ru.veselov.companybot.bot.util.CallBackButtonUtils;
 import ru.veselov.companybot.bot.util.KeyBoardUtils;
-import ru.veselov.companybot.bot.util.MessageUtils;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
 import ru.veselov.companybot.util.TestUtils;
+
+import java.util.Set;
 
 @ExtendWith(MockitoExtension.class)
 class ContactCallbackUpdateHandlerImplTest {
@@ -28,6 +31,9 @@ class ContactCallbackUpdateHandlerImplTest {
 
     @Mock
     KeyBoardUtils keyBoardUtils;
+
+    @Mock
+    CallbackQueryHandlerContext context;
 
     @InjectMocks
     ContactCallbackUpdateHandlerImpl contactCallbackUpdateHandler;
@@ -43,24 +49,44 @@ class ContactCallbackUpdateHandlerImplTest {
         update.setCallbackQuery(callbackQuery);
         user = Mockito.spy(User.class);
         user.setId(TestUtils.USER_ID);
+        Message message = new Message();
+        message.setMessageId(100);
+        message.setFrom(user);
+        Chat chat = new Chat();
+        chat.setId(100L);
+        message.setChat(chat);
         callbackQuery.setFrom(user);
+        callbackQuery.setMessage(message);
         callbackQuery.setId("100");
     }
 
-    @ParameterizedTest
-    @ValueSource(strings = {CallBackButtonUtils.CONTACT, CallBackButtonUtils.REPEAT})
-    void shouldHandleCallBackDataAndInviteToInputContactData(String data) {
-        callbackQuery.setData(data);
-
-        SendMessage sendMessage = (SendMessage) contactCallbackUpdateHandler.processUpdate(update);
+    @Test
+    void shouldCallbackDataSetUpStateCreateContactAndReturnKeyboardForInputData() {
+        contactCallbackUpdateHandler.processUpdate(update);
 
         Long userId = user.getId();
         org.junit.jupiter.api.Assertions.assertAll(
-                () -> Assertions.assertThat(sendMessage.getText()).isEqualTo(MessageUtils.INPUT_CONTACT),
                 () -> Mockito.verify(userDataCache).setUserBotState(userId, BotState.AWAIT_CONTACT),
                 () -> Mockito.verify(userDataCache).createContact(userId),
                 () -> Mockito.verify(keyBoardUtils).contactKeyBoard()
         );
+    }
+
+    @Test
+    void shouldRegisterInContext() {
+        contactCallbackUpdateHandler.registerInContext();
+
+        Mockito.verify(context).add(CallBackButtonUtils.CONTACT, contactCallbackUpdateHandler);
+        Mockito.verify(context).add(CallBackButtonUtils.REPEAT, contactCallbackUpdateHandler);
+    }
+
+    @Test
+    void shouldReturnAvailableStates() {
+        Set<BotState> availableStates = contactCallbackUpdateHandler.getAvailableStates();
+
+        Assertions.assertThat(availableStates)
+                .isEqualTo(Set.of(BotState.READY, BotState.AWAIT_CONTACT, BotState.AWAIT_NAME, BotState.AWAIT_PHONE,
+                        BotState.AWAIT_EMAIL, BotState.AWAIT_SHARED, BotState.AWAIT_MESSAGE));
     }
 
 }

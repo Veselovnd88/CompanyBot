@@ -10,7 +10,8 @@ import org.telegram.telegrambots.meta.api.objects.MessageEntity;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.veselov.companybot.bot.BotState;
 import ru.veselov.companybot.bot.HandlerContext;
-import ru.veselov.companybot.bot.UpdateHandler;
+import ru.veselov.companybot.bot.context.CallbackQueryHandlerContext;
+import ru.veselov.companybot.bot.context.UpdateHandler;
 import ru.veselov.companybot.bot.handler.impl.ChannelConnectUpdateHandlerImpl;
 import ru.veselov.companybot.bot.handler.impl.CommandUpdateHandlerImpl;
 import ru.veselov.companybot.bot.util.MessageUtils;
@@ -24,7 +25,7 @@ import java.util.Optional;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class TelegramFacadeUpdateHandler implements UpdateHandler {
+public class TelegramFacadeUpdateHandler {
 
     @Value("${bot.adminId}")
     private String adminId;
@@ -37,8 +38,9 @@ public class TelegramFacadeUpdateHandler implements UpdateHandler {
 
     private final UserDataCacheFacade userDataCache;
 
-    @Override
-    public synchronized BotApiMethod<?> processUpdate(Update update) throws NoAvailableActionException {
+    private final CallbackQueryHandlerContext callbackQueryHandlerContext;
+
+    public BotApiMethod<?> processUpdate(Update update) throws NoAvailableActionException {
         //updates for connecting bot to chat
         if (update.hasMyChatMember()) {
             if (update.getMyChatMember().getFrom().getId().toString().equals(adminId)) {
@@ -64,15 +66,21 @@ public class TelegramFacadeUpdateHandler implements UpdateHandler {
         }
 
         if (update.hasCallbackQuery()) {
-            BotState botState = userDataCache.getUserBotState(update.getCallbackQuery().getFrom().getId());
-            if (handlerContext.isInCallbackContext(botState)) {
-                return handlerContext.getCallbackHandler(botState).processUpdate(update);
+            String callbackData = update.getCallbackQuery().getData();
+            UpdateHandler handler = callbackQueryHandlerContext.getHandler(callbackData);
+            if (handler == null) {
+                throw new NoAvailableActionCallbackException(MessageUtils.ANOTHER_ACTION, update.getCallbackQuery()
+                        .getId());
             }
-            throw new NoAvailableActionCallbackException(MessageUtils.ANOTHER_ACTION,
-                    update.getCallbackQuery().getId());
+            BotState botState = userDataCache.getUserBotState(update.getCallbackQuery().getFrom().getId());
+            if (!handler.getAvailableStates().contains(botState)) {
+                throw new NoAvailableActionCallbackException(MessageUtils.ANOTHER_ACTION, update.getCallbackQuery().getId());
+            }
+            return handler.processUpdate(update);
         }
         return null;
     }
+
 
     private boolean isCommand(Update update) {
         /*additional checking if message is not forwarded*/

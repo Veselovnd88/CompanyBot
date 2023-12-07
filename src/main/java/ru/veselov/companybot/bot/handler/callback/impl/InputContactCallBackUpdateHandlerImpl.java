@@ -1,17 +1,22 @@
-package ru.veselov.companybot.bot.handler.impl;
+package ru.veselov.companybot.bot.handler.callback.impl;
 
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.veselov.companybot.bot.BotState;
-import ru.veselov.companybot.bot.handler.InputContactCallBackUpdateHandler;
+import ru.veselov.companybot.bot.context.CallbackQueryHandlerContext;
+import ru.veselov.companybot.bot.handler.callback.InputContactCallBackUpdateHandler;
 import ru.veselov.companybot.bot.util.CallBackButtonUtils;
 import ru.veselov.companybot.bot.util.KeyBoardUtils;
 import ru.veselov.companybot.bot.util.MessageUtils;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
 import ru.veselov.companybot.exception.UnexpectedActionException;
+import ru.veselov.companybot.exception.handler.BotExceptionToMessage;
+
+import java.util.Set;
 
 @Component
 @RequiredArgsConstructor
@@ -22,6 +27,17 @@ public class InputContactCallBackUpdateHandlerImpl implements InputContactCallBa
 
     private final KeyBoardUtils keyBoardUtils;
 
+    private final CallbackQueryHandlerContext context;
+
+    @PostConstruct
+    public void registerInContext() {
+        context.add(CallBackButtonUtils.EMAIL, this);
+        context.add(CallBackButtonUtils.PHONE, this);
+        context.add(CallBackButtonUtils.NAME, this);
+        context.add(CallBackButtonUtils.SHARED, this);
+    }
+
+    @BotExceptionToMessage
     @Override
     public EditMessageReplyMarkup processUpdate(Update update) {
         Long userId = update.getCallbackQuery().getFrom().getId();
@@ -47,6 +63,12 @@ public class InputContactCallBackUpdateHandlerImpl implements InputContactCallBa
             default ->
                     throw new UnexpectedActionException(MessageUtils.ANOTHER_ACTION, update.getCallbackQuery().getId());
         };
+    }
+
+    @Override
+    public Set<BotState> getAvailableStates() {
+        return Set.of(BotState.READY, BotState.AWAIT_CONTACT, BotState.AWAIT_NAME, BotState.AWAIT_PHONE,
+                BotState.AWAIT_EMAIL, BotState.AWAIT_SHARED, BotState.AWAIT_MESSAGE);
     }
 
 }

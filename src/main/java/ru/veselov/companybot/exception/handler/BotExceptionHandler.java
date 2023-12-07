@@ -11,6 +11,8 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.veselov.companybot.bot.CompanyBot;
 import ru.veselov.companybot.bot.util.KeyBoardUtils;
 import ru.veselov.companybot.exception.ContactProcessingException;
+import ru.veselov.companybot.exception.ProcessUpdateException;
+import ru.veselov.companybot.exception.UnexpectedActionException;
 import ru.veselov.companybot.exception.WrongBotStateException;
 import ru.veselov.companybot.exception.WrongContactException;
 
@@ -34,12 +36,7 @@ public class BotExceptionHandler {
 
     @AfterThrowing(pointcut = "handledMethods()", throwing = "ex")
     public void handleWrongBotStateExceptionAndConvertToSendMessage(WrongBotStateException ex) {
-        log.debug(EXCEPTION_HANDLED, ex.getMessage());
-        try {
-            companyBot.execute(SendMessage.builder().chatId(ex.getChatId()).text(ex.getMessage()).build());
-        } catch (TelegramApiException e) {
-            log.error(SMTH_WENT_WRONG, ex.getChatId(), e.getMessage());
-        }
+        convertAndSendMessage(ex);
     }
 
     @AfterThrowing(pointcut = "handledMethods()", throwing = "ex")
@@ -56,6 +53,15 @@ public class BotExceptionHandler {
 
     @AfterThrowing(pointcut = "handledMethods()", throwing = "ex")
     public void handleWrongContactExceptionAndConvertToSendMessage(WrongContactException ex) {
+        convertAndSendMessage(ex);
+    }
+
+    @AfterThrowing(pointcut = "handledMethods()", throwing = "ex")
+    public void handleUnexpectedActionExceptionAndConvertToSendMessage(UnexpectedActionException ex) {
+        convertAndSendMessage(ex);
+    }
+
+    private void convertAndSendMessage(ProcessUpdateException ex) {
         log.debug(EXCEPTION_HANDLED, ex.getMessage());
         try {
             companyBot.execute(SendMessage.builder().chatId(ex.getChatId()).text(ex.getMessage()).build());
@@ -64,6 +70,4 @@ public class BotExceptionHandler {
         }
     }
 
-
 }
-

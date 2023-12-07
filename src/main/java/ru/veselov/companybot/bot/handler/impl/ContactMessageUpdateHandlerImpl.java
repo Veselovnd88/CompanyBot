@@ -6,7 +6,6 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.veselov.companybot.bot.BotState;
-import ru.veselov.companybot.bot.handler.ContactMessageUpdateHandler;
 import ru.veselov.companybot.bot.util.ContactMessageProcessor;
 import ru.veselov.companybot.bot.util.MessageUtils;
 import ru.veselov.companybot.cache.ContactCache;
@@ -17,6 +16,8 @@ import ru.veselov.companybot.exception.WrongContactException;
 import ru.veselov.companybot.exception.handler.BotExceptionToMessage;
 import ru.veselov.companybot.exception.util.ExceptionMessageUtils;
 import ru.veselov.companybot.model.ContactModel;
+
+import java.util.Set;
 
 /**
  * Class for handling updates containing contact data for setting up {@link ContactModel};
@@ -91,5 +92,11 @@ public class ContactMessageUpdateHandlerImpl implements ContactMessageUpdateHand
         log.warn("Wrong contact format for [user id: {}]", userId);
         throw new WrongContactException(MessageUtils.WRONG_CONTACT_FORMAT, userId.toString());
     }
+
+    @Override
+    public Set<BotState> getAvailableStates() {
+        return null;
+    }
+
 
 }

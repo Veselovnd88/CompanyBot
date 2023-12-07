@@ -7,7 +7,7 @@ import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.veselov.companybot.bot.BotState;
-import ru.veselov.companybot.bot.UpdateHandler;
+import ru.veselov.companybot.bot.context.UpdateHandler;
 import ru.veselov.companybot.bot.keyboard.DivisionKeyboardHelper;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
 import ru.veselov.companybot.exception.NoAvailableActionCallbackException;
@@ -16,6 +16,7 @@ import ru.veselov.companybot.model.DivisionModel;
 import ru.veselov.companybot.bot.util.MessageUtils;
 
 import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 @Component
@@ -50,5 +51,10 @@ public class DivisionCallbackHandler implements UpdateHandler {
         }
         throw new NoAvailableActionCallbackException(MessageUtils.ANOTHER_ACTION,
                 update.getCallbackQuery().getId());
+    }
+
+    @Override
+    public Set<BotState> getAvailableStates() {
+        return null;
     }
 }

@@ -2,8 +2,8 @@ package ru.veselov.companybot.bot;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import ru.veselov.companybot.bot.handler.ContactCallbackUpdateHandler;
-import ru.veselov.companybot.bot.handler.InputContactCallBackUpdateHandler;
+import ru.veselov.companybot.bot.context.UpdateHandler;
+import ru.veselov.companybot.bot.handler.callback.ContactCallbackUpdateHandler;
 import ru.veselov.companybot.bot.handler.impl.ContactMessageUpdateHandlerImpl;
 import ru.veselov.companybot.bot.handler.impl.InquiryMessageUpdateHandlerImpl;
 import ru.veselov.companybot.bot.handler.inquiry.DivisionCallbackHandler;
@@ -22,8 +22,7 @@ public class HandlerContext {
             DivisionCallbackHandler divisionCallbackHandler,
             ContactCallbackUpdateHandler contactCallbackHandler,
             ContactMessageUpdateHandlerImpl contactMessageHandler,
-            InquiryMessageUpdateHandlerImpl inquiryMessageHandler,
-            InputContactCallBackUpdateHandler inputContactCallBackUpdateHandler) {
+            InquiryMessageUpdateHandlerImpl inquiryMessageHandler) {
         callbackHandlerContext.put(BotState.AWAIT_DIVISION_FOR_INQUIRY, divisionCallbackHandler);
         callbackHandlerContext.put(BotState.AWAIT_MESSAGE, contactCallbackHandler);
         callbackHandlerContext.put(BotState.AWAIT_CONTACT, contactCallbackHandler);

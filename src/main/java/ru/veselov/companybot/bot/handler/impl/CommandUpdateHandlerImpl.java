@@ -73,7 +73,7 @@ public class CommandUpdateHandlerImpl implements CommandUpdateHandler {
                 }
             case BotCommands.CALL:
                 if (botState == BotState.READY) {
-                    userDataCacheFacade.setUserBotState(userId, BotState.AWAIT_CONTACT);
+                  //  userDataCacheFacade.setUserBotState(userId, BotState.AWAIT_CONTACT);
                     return contactMessage(userId);
                 } else {
                     throw new WrongBotStateException(MessageUtils.ANOTHER_ACTION, userId.toString());
