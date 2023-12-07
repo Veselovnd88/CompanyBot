@@ -1,8 +1,11 @@
-package ru.veselov.companybot.service.impl;
+package ru.veselov.companybot.bot.handler.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
+import org.telegram.telegrambots.meta.api.objects.Update;
+import ru.veselov.companybot.bot.handler.SaveContactCallbackUpdateHandler;
 import ru.veselov.companybot.bot.util.KeyBoardUtils;
 import ru.veselov.companybot.bot.util.MessageUtils;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
@@ -10,14 +13,13 @@ import ru.veselov.companybot.event.SendCustomerDataEventPublisher;
 import ru.veselov.companybot.exception.ContactProcessingException;
 import ru.veselov.companybot.model.ContactModel;
 import ru.veselov.companybot.model.InquiryModel;
-import ru.veselov.companybot.service.CustomerDataHandler;
 import ru.veselov.companybot.service.CustomerService;
 import ru.veselov.companybot.service.InquiryService;
 
-@Service
+@Component
 @RequiredArgsConstructor
 @Slf4j
-public class CustomerDataHandlerImpl implements CustomerDataHandler {
+public class SaveContactCallbackUpdateHandlerImpl implements SaveContactCallbackUpdateHandler {
 
     private final UserDataCacheFacade userDataCache;
 
@@ -30,7 +32,8 @@ public class CustomerDataHandlerImpl implements CustomerDataHandler {
     private final KeyBoardUtils keyBoardUtils;
 
     @Override
-    public void handle(Long userId) {
+    public AnswerCallbackQuery processUpdate(Update update) {
+        Long userId = update.getCallbackQuery().getFrom().getId();
         ContactModel contact = userDataCache.getContact(userId);
         if (checkIsContactOK(contact)) {
             InquiryModel inquiry = userDataCache.getInquiry(userId);
@@ -41,12 +44,13 @@ public class CustomerDataHandlerImpl implements CustomerDataHandler {
             }
             keyBoardUtils.clear(userId);
             userDataCache.clear(userId);
-
+            return AnswerCallbackQuery.builder().callbackQueryId(update.getCallbackQuery().getId())
+                    .text(MessageUtils.SAVED).showAlert(true)
+                    .build();
         } else {
             throw new ContactProcessingException(MessageUtils.NOT_ENOUGH_CONTACT, userId.toString());
         }
     }
-
 
     private boolean checkIsContactOK(ContactModel contact) {
         if (contact.getLastName() == null && contact.getFirstName() == null && contact.getSecondName() == null) {
@@ -54,4 +58,5 @@ public class CustomerDataHandlerImpl implements CustomerDataHandler {
         }
         return contact.getEmail() != null || contact.getPhone() != null || contact.getContact() != null;
     }
+
 }

@@ -27,10 +27,10 @@ public class HandlerContext {
         callbackHandlerContext.put(BotState.AWAIT_DIVISION_FOR_INQUIRY, divisionCallbackHandler);
         callbackHandlerContext.put(BotState.AWAIT_MESSAGE, contactCallbackHandler);
         callbackHandlerContext.put(BotState.AWAIT_CONTACT, contactCallbackHandler);
-        callbackHandlerContext.put(BotState.AWAIT_EMAIL, inputContactCallBackUpdateHandler);
-        callbackHandlerContext.put(BotState.AWAIT_PHONE, inputContactCallBackUpdateHandler);
-        callbackHandlerContext.put(BotState.AWAIT_SHARED, inputContactCallBackUpdateHandler);
-        callbackHandlerContext.put(BotState.AWAIT_NAME, inputContactCallBackUpdateHandler);
+        callbackHandlerContext.put(BotState.AWAIT_EMAIL, contactCallbackHandler);
+        callbackHandlerContext.put(BotState.AWAIT_PHONE, contactCallbackHandler);
+        callbackHandlerContext.put(BotState.AWAIT_SHARED, contactCallbackHandler);
+        callbackHandlerContext.put(BotState.AWAIT_NAME, contactCallbackHandler);
 
         messageHandlerContext.put(BotState.AWAIT_MESSAGE, inquiryMessageHandler);
 
