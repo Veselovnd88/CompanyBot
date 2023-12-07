@@ -13,6 +13,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.Video;
 import org.telegram.telegrambots.meta.api.objects.games.Animation;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import ru.veselov.companybot.bot.BotState;
 import ru.veselov.companybot.bot.handler.InquiryMessageUpdateHandler;
 import ru.veselov.companybot.bot.util.InlineKeyBoardUtils;
 import ru.veselov.companybot.bot.util.MessageUtils;
@@ -22,6 +23,7 @@ import ru.veselov.companybot.model.InquiryModel;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 
 @Component
 @RequiredArgsConstructor
@@ -98,6 +100,11 @@ public class InquiryMessageUpdateHandlerImpl implements InquiryMessageUpdateHand
             userCachedInquiry.addMessage(message);
         }
         return askAddContactData(userId);
+    }
+
+    @Override
+    public Set<BotState> getAvailableStates() {
+        return null;
     }
 
     private SendMessage askAddContactData(Long userId) {

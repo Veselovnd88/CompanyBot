@@ -3,11 +3,9 @@ package ru.veselov.companybot.bot.handler.impl;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.veselov.companybot.bot.BotState;
-import ru.veselov.companybot.bot.handler.ContactMessageHandler;
 import ru.veselov.companybot.bot.util.ContactMessageProcessor;
 import ru.veselov.companybot.bot.util.MessageUtils;
 import ru.veselov.companybot.cache.ContactCache;
@@ -19,6 +17,8 @@ import ru.veselov.companybot.exception.handler.BotExceptionToMessage;
 import ru.veselov.companybot.exception.util.ExceptionMessageUtils;
 import ru.veselov.companybot.model.ContactModel;
 
+import java.util.Set;
+
 /**
  * Class for handling updates containing contact data for setting up {@link ContactModel};
  *
@@ -29,7 +29,7 @@ import ru.veselov.companybot.model.ContactModel;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class ContactMessageHandlerImpl implements ContactMessageHandler {
+public class ContactMessageUpdateHandlerImpl implements ContactMessageUpdateHandler {
 
     private final UserDataCacheFacade userDataCacheFacade;
 
@@ -52,7 +52,7 @@ public class ContactMessageHandlerImpl implements ContactMessageHandler {
      */
     @BotExceptionToMessage
     @Override
-    public BotApiMethod<?> processUpdate(Update update) {
+    public EditMessageReplyMarkup processUpdate(Update update) {
         Long userId = update.getMessage().getFrom().getId();
         BotState botState = userDataCacheFacade.getUserBotState(userId);
         ContactModel contact = contactCache.getContact(userId);
@@ -92,5 +92,11 @@ public class ContactMessageHandlerImpl implements ContactMessageHandler {
         log.warn("Wrong contact format for [user id: {}]", userId);
         throw new WrongContactException(MessageUtils.WRONG_CONTACT_FORMAT, userId.toString());
     }
+
+    @Override
+    public Set<BotState> getAvailableStates() {
+        return null;
+    }
+
 
 }
