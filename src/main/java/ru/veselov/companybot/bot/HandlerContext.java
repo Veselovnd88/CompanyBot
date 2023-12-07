@@ -3,32 +3,34 @@ package ru.veselov.companybot.bot;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.veselov.companybot.bot.handler.ContactCallbackUpdateHandler;
+import ru.veselov.companybot.bot.handler.InputContactCallBackUpdateHandler;
 import ru.veselov.companybot.bot.handler.impl.ContactMessageUpdateHandlerImpl;
-import ru.veselov.companybot.bot.handler.inquiry.DivisionCallbackHandler;
 import ru.veselov.companybot.bot.handler.impl.InquiryMessageUpdateHandlerImpl;
+import ru.veselov.companybot.bot.handler.inquiry.DivisionCallbackHandler;
 
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.Map;
 
 @Component
 @Slf4j
 public class HandlerContext {
 
-    private final Map<BotState, UpdateHandler> messageHandlerContext = new HashMap<>();
-    private final Map<BotState, UpdateHandler> callbackHandlerContext = new HashMap<>();
+    private final Map<BotState, UpdateHandler> messageHandlerContext = new EnumMap<>(BotState.class);
+    private final Map<BotState, UpdateHandler> callbackHandlerContext = new EnumMap<>(BotState.class);
 
     public HandlerContext(
             DivisionCallbackHandler divisionCallbackHandler,
             ContactCallbackUpdateHandler contactCallbackHandler,
             ContactMessageUpdateHandlerImpl contactMessageHandler,
-            InquiryMessageUpdateHandlerImpl inquiryMessageHandler) {
+            InquiryMessageUpdateHandlerImpl inquiryMessageHandler,
+            InputContactCallBackUpdateHandler inputContactCallBackUpdateHandler) {
         callbackHandlerContext.put(BotState.AWAIT_DIVISION_FOR_INQUIRY, divisionCallbackHandler);
         callbackHandlerContext.put(BotState.AWAIT_MESSAGE, contactCallbackHandler);
         callbackHandlerContext.put(BotState.AWAIT_CONTACT, contactCallbackHandler);
-        callbackHandlerContext.put(BotState.AWAIT_EMAIL, contactCallbackHandler);
-        callbackHandlerContext.put(BotState.AWAIT_PHONE, contactCallbackHandler);
-        callbackHandlerContext.put(BotState.AWAIT_SHARED, contactCallbackHandler);
-        callbackHandlerContext.put(BotState.AWAIT_NAME, contactCallbackHandler);
+        callbackHandlerContext.put(BotState.AWAIT_EMAIL, inputContactCallBackUpdateHandler);
+        callbackHandlerContext.put(BotState.AWAIT_PHONE, inputContactCallBackUpdateHandler);
+        callbackHandlerContext.put(BotState.AWAIT_SHARED, inputContactCallBackUpdateHandler);
+        callbackHandlerContext.put(BotState.AWAIT_NAME, inputContactCallBackUpdateHandler);
 
         messageHandlerContext.put(BotState.AWAIT_MESSAGE, inquiryMessageHandler);
 
