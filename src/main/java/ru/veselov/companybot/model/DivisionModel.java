@@ -21,6 +21,8 @@ public class DivisionModel {
 
     private String name;
 
+    private String description;
+
     @Builder.Default
     private final Set<InquiryModel> inquiries = new HashSet<>();
 
