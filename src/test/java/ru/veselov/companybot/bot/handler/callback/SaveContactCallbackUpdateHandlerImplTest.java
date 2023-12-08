@@ -17,7 +17,7 @@ import ru.veselov.companybot.bot.BotState;
 import ru.veselov.companybot.bot.context.CallbackQueryDataHandlerContext;
 import ru.veselov.companybot.bot.handler.callback.impl.SaveContactCallbackUpdateHandlerImpl;
 import ru.veselov.companybot.bot.util.CallBackButtonUtils;
-import ru.veselov.companybot.bot.util.KeyBoardUtils;
+import ru.veselov.companybot.bot.keyboard.impl.ContactKeyboardHelperImpl;
 import ru.veselov.companybot.bot.util.MessageUtils;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
 import ru.veselov.companybot.event.SendCustomerDataEventPublisher;
@@ -46,7 +46,7 @@ class SaveContactCallbackUpdateHandlerImplTest {
     InquiryService inquiryService;
 
     @Mock
-    KeyBoardUtils keyBoardUtils;
+    ContactKeyboardHelperImpl contactKeyboardHelper;
 
     @Mock
     CallbackQueryDataHandlerContext context;
@@ -79,7 +79,7 @@ class SaveContactCallbackUpdateHandlerImplTest {
                 () -> Mockito.verify(userDataCache).getInquiry(user.getId()),
                 () -> Mockito.verify(customerService).saveContact(contactModel),
                 () -> Mockito.verify(customerDataEventPublisher).publishEvent(null, contactModel),
-                () -> Mockito.verify(keyBoardUtils).clear(user.getId()),
+                () -> Mockito.verify(contactKeyboardHelper).clear(user.getId()),
                 () -> Mockito.verify(userDataCache).clear(user.getId()),
                 () -> Assertions.assertThat(answerCallbackQuery.getText()).isEqualTo(MessageUtils.SAVED),
                 () -> Mockito.verifyNoInteractions(inquiryService)
@@ -98,7 +98,7 @@ class SaveContactCallbackUpdateHandlerImplTest {
                 () -> Mockito.verify(userDataCache).getInquiry(user.getId()),
                 () -> Mockito.verify(customerService).saveContact(contactModel),
                 () -> Mockito.verify(customerDataEventPublisher).publishEvent(inquiryModel, contactModel),
-                () -> Mockito.verify(keyBoardUtils).clear(user.getId()),
+                () -> Mockito.verify(contactKeyboardHelper).clear(user.getId()),
                 () -> Mockito.verify(userDataCache).clear(user.getId()),
                 () -> Assertions.assertThat(answerCallbackQuery.getText()).isEqualTo(MessageUtils.SAVED),
                 () -> Mockito.verify(inquiryService).save(inquiryModel)

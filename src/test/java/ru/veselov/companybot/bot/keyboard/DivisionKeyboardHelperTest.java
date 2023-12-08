@@ -78,7 +78,8 @@ class DivisionKeyboardHelperTest {
                 () -> Assertions.assertThat(customerDivisionKeyboard.getKeyboard().get(1).get(0)
                         .getCallbackData()).isEqualTo(div2.getDivisionId().toString()),
                 () -> Assertions.assertThat(customerDivisionKeyboard.getKeyboard().get(1).get(0)
-                        .getText()).isEqualTo(div2.getDescription())
+                        .getText()).isEqualTo(div2.getDescription()),
+                () -> Mockito.verify(divisionService).findAll()
         );
     }
 
@@ -90,7 +91,8 @@ class DivisionKeyboardHelperTest {
                 () -> Assertions.assertThat(customerDivisionKeyboard.getKeyboard().get(0).get(0)
                         .getCallbackData()).isNotBlank(),
                 () -> Assertions.assertThat(customerDivisionKeyboard.getKeyboard().get(0).get(0)
-                        .getText()).isEqualTo(MessageUtils.COMMON_DIV)
+                        .getText()).isEqualTo(MessageUtils.COMMON_DIV),
+                () -> Mockito.verify(divisionService).findAll()
         );
     }
 

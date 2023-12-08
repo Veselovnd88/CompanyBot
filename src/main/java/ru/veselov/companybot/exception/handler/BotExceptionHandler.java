@@ -9,7 +9,7 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.veselov.companybot.bot.CompanyBot;
-import ru.veselov.companybot.bot.util.KeyBoardUtils;
+import ru.veselov.companybot.bot.keyboard.impl.ContactKeyboardHelperImpl;
 import ru.veselov.companybot.exception.ContactProcessingException;
 import ru.veselov.companybot.exception.ProcessUpdateException;
 import ru.veselov.companybot.exception.UnexpectedActionException;
@@ -27,7 +27,7 @@ public class BotExceptionHandler {
 
     private final CompanyBot companyBot;
 
-    private final KeyBoardUtils keyBoardUtils;
+    private final ContactKeyboardHelperImpl contactKeyboardHelper;
 
 
     @Pointcut("@annotation(ru.veselov.companybot.exception.handler.BotExceptionToMessage)")
@@ -44,7 +44,7 @@ public class BotExceptionHandler {
         log.debug(EXCEPTION_HANDLED, ex.getMessage());
         try {
             companyBot.execute(SendMessage.builder().chatId(ex.getChatId())
-                    .text(ex.getMessage()).replyMarkup(keyBoardUtils.contactKeyBoard())
+                    .text(ex.getMessage()).replyMarkup(contactKeyboardHelper.contactKeyBoard())
                     .build());
         } catch (TelegramApiException e) {
             log.error(SMTH_WENT_WRONG, ex.getChatId(), e.getMessage());

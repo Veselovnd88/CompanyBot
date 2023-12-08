@@ -12,7 +12,7 @@ import ru.veselov.companybot.bot.BotState;
 import ru.veselov.companybot.bot.context.CallbackQueryDataHandlerContext;
 import ru.veselov.companybot.bot.handler.callback.ContactCallbackUpdateHandler;
 import ru.veselov.companybot.bot.util.CallBackButtonUtils;
-import ru.veselov.companybot.bot.util.KeyBoardUtils;
+import ru.veselov.companybot.bot.keyboard.impl.ContactKeyboardHelperImpl;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
 
 import java.util.Set;
@@ -21,7 +21,7 @@ import java.util.Set;
  * Class for handling updates containing CallBacks for contact managing;
  *
  * @see UserDataCacheFacade
- * @see KeyBoardUtils
+ * @see ContactKeyboardHelperImpl
  */
 @Component
 @RequiredArgsConstructor
@@ -30,7 +30,7 @@ public class ContactCallbackUpdateHandlerImpl implements ContactCallbackUpdateHa
 
     private final UserDataCacheFacade userDataCache;
 
-    private final KeyBoardUtils keyBoardUtils;
+    private final ContactKeyboardHelperImpl contactKeyboardHelper;
 
     private final CallbackQueryDataHandlerContext context;
 
@@ -64,7 +64,7 @@ public class ContactCallbackUpdateHandlerImpl implements ContactCallbackUpdateHa
         return EditMessageReplyMarkup.builder()
                 .chatId(message.getChatId().toString())
                 .messageId(message.getMessageId())
-                .replyMarkup(keyBoardUtils.contactKeyBoard()).build();
+                .replyMarkup(contactKeyboardHelper.contactKeyBoard()).build();
     }
 
     @Override

@@ -18,7 +18,7 @@ import ru.veselov.companybot.bot.BotState;
 import ru.veselov.companybot.bot.context.CallbackQueryDataHandlerContext;
 import ru.veselov.companybot.bot.handler.callback.impl.InputContactCallBackUpdateHandlerImpl;
 import ru.veselov.companybot.bot.util.CallBackButtonUtils;
-import ru.veselov.companybot.bot.util.KeyBoardUtils;
+import ru.veselov.companybot.bot.keyboard.impl.ContactKeyboardHelperImpl;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
 import ru.veselov.companybot.exception.UnexpectedActionException;
 import ru.veselov.companybot.util.TestUtils;
@@ -30,7 +30,7 @@ import java.util.stream.Stream;
 class InputContactCallBackUpdateHandlerImplTest {
 
     @Mock
-    KeyBoardUtils keyBoardUtils;
+    ContactKeyboardHelperImpl contactKeyboardHelper;
 
     @Mock
     UserDataCacheFacade userDataCache;
@@ -64,7 +64,7 @@ class InputContactCallBackUpdateHandlerImplTest {
 
         inputContactCallBackUpdateHandler.processUpdate(update);
 
-        Mockito.verify(keyBoardUtils).editMessageChooseField(update, field);
+        Mockito.verify(contactKeyboardHelper).editMessageChooseField(update, field);
         Mockito.verify(userDataCache).setUserBotState(user.getId(), botState);
     }
 

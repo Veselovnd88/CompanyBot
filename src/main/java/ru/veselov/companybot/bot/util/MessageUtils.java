@@ -9,6 +9,11 @@ public class MessageUtils {
     public static final String NOT_SUPPORTED_ACTION = "Это действие не поддерживается, или бот ожидает другой команды," +
             " нажмите /info для информации";
     public static final String COMMON_DIV = "Общие вопросы";
+    public static final String INPUT_FIO = "Ввести ФИО";
+    public static final String INPUT_EMAIL = "Ввести email";
+    public static final String INPUT_PHONE = "Ввести номер телефона";
+    public static final String ATTACH_CONTACT = "Прикрепить контакт";
+    public static final String SAVE_AND_SEND = "Сохранить и отправить контактные данные";
 
     @Getter
     @Setter

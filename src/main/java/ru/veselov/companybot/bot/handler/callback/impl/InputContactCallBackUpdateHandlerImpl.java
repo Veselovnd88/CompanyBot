@@ -10,7 +10,7 @@ import ru.veselov.companybot.bot.BotState;
 import ru.veselov.companybot.bot.context.CallbackQueryDataHandlerContext;
 import ru.veselov.companybot.bot.handler.callback.InputContactCallBackUpdateHandler;
 import ru.veselov.companybot.bot.util.CallBackButtonUtils;
-import ru.veselov.companybot.bot.util.KeyBoardUtils;
+import ru.veselov.companybot.bot.keyboard.impl.ContactKeyboardHelperImpl;
 import ru.veselov.companybot.bot.util.MessageUtils;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
 import ru.veselov.companybot.exception.UnexpectedActionException;
@@ -25,7 +25,7 @@ public class InputContactCallBackUpdateHandlerImpl implements InputContactCallBa
 
     private final UserDataCacheFacade userDataCache;
 
-    private final KeyBoardUtils keyBoardUtils;
+    private final ContactKeyboardHelperImpl contactKeyboardHelper;
 
     private final CallbackQueryDataHandlerContext context;
 
@@ -47,19 +47,19 @@ public class InputContactCallBackUpdateHandlerImpl implements InputContactCallBa
         return switch (data) {
             case CallBackButtonUtils.EMAIL -> {
                 userDataCache.setUserBotState(userId, BotState.AWAIT_EMAIL);
-                yield keyBoardUtils.editMessageChooseField(update, CallBackButtonUtils.EMAIL);
+                yield contactKeyboardHelper.editMessageChooseField(update, CallBackButtonUtils.EMAIL);
             }
             case CallBackButtonUtils.PHONE -> {
                 userDataCache.setUserBotState(userId, BotState.AWAIT_PHONE);
-                yield keyBoardUtils.editMessageChooseField(update, CallBackButtonUtils.PHONE);
+                yield contactKeyboardHelper.editMessageChooseField(update, CallBackButtonUtils.PHONE);
             }
             case CallBackButtonUtils.SHARED -> {
                 userDataCache.setUserBotState(userId, BotState.AWAIT_SHARED);
-                yield keyBoardUtils.editMessageChooseField(update, CallBackButtonUtils.SHARED);
+                yield contactKeyboardHelper.editMessageChooseField(update, CallBackButtonUtils.SHARED);
             }
             case CallBackButtonUtils.NAME -> {
                 userDataCache.setUserBotState(userId, BotState.AWAIT_NAME);
-                yield keyBoardUtils.editMessageChooseField(update, CallBackButtonUtils.NAME);
+                yield contactKeyboardHelper.editMessageChooseField(update, CallBackButtonUtils.NAME);
             }
             default ->
                     throw new UnexpectedActionException(MessageUtils.ANOTHER_ACTION, update.getCallbackQuery().getId());

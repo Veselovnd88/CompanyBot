@@ -7,7 +7,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import ru.veselov.companybot.bot.keyboard.DivisionKeyboardHelper;
 import ru.veselov.companybot.bot.util.MessageUtils;
-import ru.veselov.companybot.cache.Cache;
+import ru.veselov.companybot.cache.Clearable;
 import ru.veselov.companybot.model.DivisionModel;
 import ru.veselov.companybot.service.impl.DivisionServiceImpl;
 
@@ -22,7 +22,7 @@ import java.util.stream.Collectors;
 @Component
 @RequiredArgsConstructor
 @Slf4j
-public class DivisionKeyboardHelperImpl implements Cache, DivisionKeyboardHelper {
+public class DivisionKeyboardHelperImpl implements Clearable, DivisionKeyboardHelper {
 
     private Map<String, DivisionModel> idDivisionMapCache = new ConcurrentHashMap<>();
 
@@ -83,7 +83,6 @@ public class DivisionKeyboardHelperImpl implements Cache, DivisionKeyboardHelper
                     .name("COMMON").description(MessageUtils.COMMON_DIV).build();
             allDivisions.add(baseDivision);
         }
-
         idDivisionMapCache = allDivisions.stream().collect(Collectors.toMap(d -> d.getDivisionId().toString(), Function.identity()));
         log.debug("Divisions retrieved from DB and placed to cache");
         return allDivisions;

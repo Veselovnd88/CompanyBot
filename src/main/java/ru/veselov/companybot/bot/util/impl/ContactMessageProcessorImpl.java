@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.objects.Contact;
 import ru.veselov.companybot.bot.util.ContactMessageProcessor;
-import ru.veselov.companybot.bot.util.KeyBoardUtils;
+import ru.veselov.companybot.bot.keyboard.impl.ContactKeyboardHelperImpl;
 import ru.veselov.companybot.bot.util.MessageUtils;
 import ru.veselov.companybot.exception.ContactProcessingException;
 import ru.veselov.companybot.model.ContactModel;
@@ -19,7 +19,7 @@ import java.util.regex.Pattern;
  * Class for setting up passed contact data to {@link ContactModel}
  *
  * @author Veselov Nikolay
- * @see KeyBoardUtils
+ * @see ContactKeyboardHelperImpl
  * @see EmailValidator
  */
 @Service
@@ -27,7 +27,7 @@ import java.util.regex.Pattern;
 @Slf4j
 public class ContactMessageProcessorImpl implements ContactMessageProcessor {
 
-    private final KeyBoardUtils keyBoardUtils;
+    private final ContactKeyboardHelperImpl contactKeyboardHelper;
 
     private final EmailValidator emailValidator;
 
@@ -63,7 +63,7 @@ public class ContactMessageProcessorImpl implements ContactMessageProcessor {
             contact.setSecondName(sb.toString().trim());
         }
         log.info("Name {} added to contact for [user id: {}]", name, userId);
-        return keyBoardUtils.editMessageSavedField(userId, "name");
+        return contactKeyboardHelper.editMessageSavedField(userId, "name");
     }
 
     /**
@@ -81,7 +81,7 @@ public class ContactMessageProcessorImpl implements ContactMessageProcessor {
         if (matcher.matches()) {
             contact.setPhone(phone);
             log.info("Phone number {} was set up for [user id: {}]", contact.getUserId(), phone);
-            return keyBoardUtils.editMessageSavedField(contact.getUserId(), "phone");
+            return contactKeyboardHelper.editMessageSavedField(contact.getUserId(), "phone");
         } else {
             log.warn("Incorrect phone number for [user id: {}]", contact.getUserId());
             throw new ContactProcessingException(MessageUtils.WRONG_PHONE, contact.getUserId().toString());
@@ -102,7 +102,7 @@ public class ContactMessageProcessorImpl implements ContactMessageProcessor {
         if (emailValidator.isValid(email, null)) {
             contact.setEmail(email);
             log.info("Email: {} added for [user id: {}]", email, userId);
-            return keyBoardUtils.editMessageSavedField(userId, "email");
+            return contactKeyboardHelper.editMessageSavedField(userId, "email");
         } else {
             log.warn("Not correct email format for [user id: {}]", userId);
             throw new ContactProcessingException(MessageUtils.WRONG_EMAIL, userId.toString());
@@ -131,7 +131,7 @@ public class ContactMessageProcessorImpl implements ContactMessageProcessor {
             contact.setPhone(shared.getPhoneNumber());
         }
         log.info("Shared contact added for [user id: {}]", contact.getUserId());
-        return keyBoardUtils.editMessageSavedField(contact.getUserId(), "shared");
+        return contactKeyboardHelper.editMessageSavedField(contact.getUserId(), "shared");
     }
 
 }
