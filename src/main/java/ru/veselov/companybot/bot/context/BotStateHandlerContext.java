@@ -18,4 +18,8 @@ public class BotStateHandlerContext {
                 updateHandler.getClass().getSimpleName(), botState);
         botStateUpdateHandlerMap.put(botState, updateHandler);
     }
+
+    public UpdateHandler getHandler(BotState botState) {
+        return botStateUpdateHandlerMap.get(botState);
+    }
 }

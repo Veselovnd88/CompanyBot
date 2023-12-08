@@ -9,6 +9,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import ru.veselov.companybot.bot.keyboard.DivisionKeyboardHelper;
+import ru.veselov.companybot.bot.util.CallBackButtonUtils;
 import ru.veselov.companybot.cache.Cache;
 import ru.veselov.companybot.exception.NoDivisionKeyboardException;
 import ru.veselov.companybot.model.DivisionModel;
@@ -32,7 +33,7 @@ public class DivisionKeyboardHelperImpl implements Cache, DivisionKeyboardHelper
 
     private static final String EMOJI_MARK = ":white_check_mark:";
 
-    private final Map<UUID, DivisionModel> idDivisionMap = new HashMap<>();
+    private final Map<String, DivisionModel> idDivisionMap = new HashMap<>();
 
     private final Map<Long, InlineKeyboardMarkup> divisionKeyboardCache = new ConcurrentHashMap<>();
 
@@ -75,7 +76,7 @@ public class DivisionKeyboardHelperImpl implements Cache, DivisionKeyboardHelper
         for (var keyboard : inlineKeyboardMarkup.getKeyboard()) {
             //finding pressed button, but we don't need to mark save button
             if (keyboard.get(0).getCallbackData().equalsIgnoreCase(field)
-                    && !keyboard.get(0).getCallbackData().equalsIgnoreCase("save")) {
+                    && !keyboard.get(0).getCallbackData().equalsIgnoreCase(CallBackButtonUtils.SAVE)) {
                 if (isMarked(keyboard.get(0).getCallbackData())) {
                     removeMark(keyboard.get(0));
                 } else {
@@ -120,7 +121,7 @@ public class DivisionKeyboardHelperImpl implements Cache, DivisionKeyboardHelper
     }
 
     @Override
-    public Map<UUID, DivisionModel> getCachedDivisions() {
+    public Map<String, DivisionModel> getCachedDivisions() {
         /*We need it for showing possible divisions on keyboard buttons*/
         return Map.copyOf(idDivisionMap); //why copyOf?
     }
@@ -140,7 +141,7 @@ public class DivisionKeyboardHelperImpl implements Cache, DivisionKeyboardHelper
             allDivisions.add(baseDivision);
         }
         for (var d : allDivisions) {
-            idDivisionMap.put(d.getDivisionId(), d);
+            idDivisionMap.put(d.getDivisionId().toString(), d);
         }
         return allDivisions;
     }

@@ -19,7 +19,6 @@ import ru.veselov.companybot.model.DivisionModel;
 
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 @Component
 @RequiredArgsConstructor
@@ -46,9 +45,9 @@ public class DivisionCallbackUpdateHandlerImpl implements DivisionCallbackUpdate
         CallbackQuery callbackQuery = update.getCallbackQuery();
         Long userId = callbackQuery.getFrom().getId();
         String data = callbackQuery.getData();
-        Map<UUID, DivisionModel> cachedDivisions;
+        Map<String, DivisionModel> cachedDivisions;
         cachedDivisions = divisionKeyboardHelper.getCachedDivisions();
-        DivisionModel division = cachedDivisions.get(UUID.fromString(data));
+        DivisionModel division = cachedDivisions.get(data);
         if (division != null) {
             userDataCacheFacade.createInquiry(userId, division);
             userDataCacheFacade.setUserBotState(userId, BotState.AWAIT_MESSAGE);
@@ -63,4 +62,5 @@ public class DivisionCallbackUpdateHandlerImpl implements DivisionCallbackUpdate
     public Set<BotState> getAvailableStates() {
         return Set.of(BotState.AWAIT_DIVISION_FOR_INQUIRY);
     }
+
 }

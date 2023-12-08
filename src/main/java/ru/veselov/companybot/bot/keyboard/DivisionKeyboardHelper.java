@@ -9,7 +9,6 @@ import ru.veselov.companybot.model.DivisionModel;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 
 public interface DivisionKeyboardHelper {
     InlineKeyboardMarkup getCustomerDivisionKeyboard();
@@ -20,5 +19,5 @@ public interface DivisionKeyboardHelper {
 
     HashMap<String, DivisionModel> getMapKeyboardDivisions();
 
-    Map<UUID, DivisionModel> getCachedDivisions();
+    Map<String, DivisionModel> getCachedDivisions();
 }

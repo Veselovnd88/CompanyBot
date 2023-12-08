@@ -6,19 +6,21 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.MessageEntity;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.veselov.companybot.bot.BotState;
 import ru.veselov.companybot.bot.HandlerContext;
+import ru.veselov.companybot.bot.context.BotStateHandlerContext;
 import ru.veselov.companybot.bot.context.CallbackQueryDataHandlerContext;
 import ru.veselov.companybot.bot.context.UpdateHandler;
 import ru.veselov.companybot.bot.handler.impl.ChannelConnectUpdateHandlerImpl;
 import ru.veselov.companybot.bot.handler.impl.CommandUpdateHandlerImpl;
 import ru.veselov.companybot.bot.util.MessageUtils;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
-import ru.veselov.companybot.exception.NoAvailableActionCallbackException;
-import ru.veselov.companybot.exception.NoAvailableActionException;
 import ru.veselov.companybot.exception.NoAvailableActionSendMessageException;
+import ru.veselov.companybot.exception.UnexpectedActionException;
+import ru.veselov.companybot.exception.handler.BotExceptionToMessage;
 
 import java.util.Optional;
 
@@ -40,7 +42,10 @@ public class TelegramFacadeUpdateHandler {
 
     private final CallbackQueryDataHandlerContext callbackQueryDataHandlerContext;
 
-    public BotApiMethod<?> processUpdate(Update update) throws NoAvailableActionException {
+    private final BotStateHandlerContext botStateHandlerContext;
+
+    @BotExceptionToMessage
+    public BotApiMethod<?> processUpdate(Update update) {
         //updates for connecting bot to chat
         if (update.hasMyChatMember()) {
             if (update.getMyChatMember().getFrom().getId().toString().equals(adminId)) {
@@ -66,19 +71,35 @@ public class TelegramFacadeUpdateHandler {
         }
 
         if (update.hasCallbackQuery()) {
-            String callbackData = update.getCallbackQuery().getData();
-            UpdateHandler handler = callbackQueryDataHandlerContext.getHandler(callbackData);
-            if (handler == null) {
-                throw new NoAvailableActionCallbackException(MessageUtils.ANOTHER_ACTION, update.getCallbackQuery()
-                        .getId());
+            //check for handler in data context
+            CallbackQuery callbackQuery = update.getCallbackQuery();
+            String callbackData = callbackQuery.getData();
+            BotState botState = userDataCache.getUserBotState(callbackQuery.getFrom().getId());
+            String chatId = callbackQuery.getId();
+
+            UpdateHandler updateHandler;
+
+            updateHandler = callbackQueryDataHandlerContext.getHandler(callbackData);
+            if (updateHandler != null) {
+                validateUpdateHandlerStates(updateHandler, botState, chatId);
+                return updateHandler.processUpdate(update);
+            } else {
+                updateHandler = botStateHandlerContext.getHandler(botState);
+                if (updateHandler != null) {
+                    validateUpdateHandlerStates(updateHandler, botState, chatId);
+                    return updateHandler.processUpdate(update);
+                } else {
+                    throw new UnexpectedActionException(MessageUtils.ANOTHER_ACTION, chatId);
+                }
             }
-            BotState botState = userDataCache.getUserBotState(update.getCallbackQuery().getFrom().getId());
-            if (!handler.getAvailableStates().contains(botState)) {
-                throw new NoAvailableActionCallbackException(MessageUtils.ANOTHER_ACTION, update.getCallbackQuery().getId());
-            }
-            return handler.processUpdate(update);
         }
         return null;
+    }
+
+    private void validateUpdateHandlerStates(UpdateHandler updateHandler, BotState botState, String chatId) {
+        if (!updateHandler.getAvailableStates().contains(botState)) {
+            throw new UnexpectedActionException(MessageUtils.ANOTHER_ACTION, chatId);
+        }
     }
 
 

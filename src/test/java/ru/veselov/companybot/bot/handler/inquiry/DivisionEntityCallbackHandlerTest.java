@@ -45,7 +45,7 @@ class DivisionEntityCallbackHandlerTest {
     Update update;
     CallbackQuery callbackQuery;
     User user;
-    HashMap<UUID,DivisionModel> divs=new HashMap<>();
+    HashMap<String,DivisionModel> divs=new HashMap<>();
 
 
     @BeforeEach
@@ -57,7 +57,7 @@ class DivisionEntityCallbackHandlerTest {
         user.setId(100L);
         callbackQuery.setFrom(user);
         callbackQuery.setId("100");
-        divs.put(UUID.randomUUID(), DivisionModel.builder().divisionId(UUID.randomUUID()).build());
+        divs.put(UUID.randomUUID().toString(), DivisionModel.builder().divisionId(UUID.randomUUID()).build());
         when(divisionKeyboardHelper.getCachedDivisions()).thenReturn(divs);
     }
 
