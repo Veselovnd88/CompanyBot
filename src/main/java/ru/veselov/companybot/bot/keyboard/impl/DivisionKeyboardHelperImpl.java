@@ -137,7 +137,7 @@ public class DivisionKeyboardHelperImpl implements Cache, DivisionKeyboardHelper
         List<DivisionModel> allDivisions = divisionService.findAll();
         if (allDivisions.isEmpty()) {
             DivisionModel baseDivision = DivisionModel.builder().divisionId(UUID.randomUUID())
-                    .name("Общие вопросы").build();
+                    .name("COMMON").description("Общие вопросы").build();
             allDivisions.add(baseDivision);
         }
         for (var d : allDivisions) {
