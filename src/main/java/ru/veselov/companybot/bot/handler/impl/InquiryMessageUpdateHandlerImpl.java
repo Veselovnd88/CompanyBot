@@ -1,5 +1,6 @@
 package ru.veselov.companybot.bot.handler.impl;
 
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,7 +15,8 @@ import org.telegram.telegrambots.meta.api.objects.Video;
 import org.telegram.telegrambots.meta.api.objects.games.Animation;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import ru.veselov.companybot.bot.BotState;
-import ru.veselov.companybot.bot.handler.InquiryMessageUpdateHandler;
+import ru.veselov.companybot.bot.context.BotStateHandlerContext;
+import ru.veselov.companybot.bot.handler.message.InquiryMessageUpdateHandler;
 import ru.veselov.companybot.bot.util.InlineKeyBoardUtils;
 import ru.veselov.companybot.bot.util.MessageUtils;
 import ru.veselov.companybot.bot.util.UserMessageChecker;
@@ -38,6 +40,14 @@ public class InquiryMessageUpdateHandlerImpl implements InquiryMessageUpdateHand
     private final UserDataCacheFacade userDataCacheFacade;
 
     private final UserMessageChecker userMessageChecker;
+
+    private final BotStateHandlerContext context;
+
+    @Override
+    @PostConstruct
+    public void registerInContext() {
+        context.add(BotState.AWAIT_MESSAGE, this);
+    }
 
     @Override
     public SendMessage processUpdate(Update update) {
@@ -104,13 +114,9 @@ public class InquiryMessageUpdateHandlerImpl implements InquiryMessageUpdateHand
 
     @Override
     public Set<BotState> getAvailableStates() {
-        return null;
+        return Set.of(BotState.AWAIT_MESSAGE);
     }
 
-    @Override
-    public void registerInContext() {
-
-    }
 
     private SendMessage askAddContactData(Long userId) {
         InlineKeyboardMarkup inlineKeyboardMarkup = InlineKeyBoardUtils

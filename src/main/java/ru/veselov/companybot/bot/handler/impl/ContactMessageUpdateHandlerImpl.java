@@ -1,12 +1,14 @@
 package ru.veselov.companybot.bot.handler.impl;
 
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.veselov.companybot.bot.BotState;
-import ru.veselov.companybot.bot.handler.ContactMessageUpdateHandler;
+import ru.veselov.companybot.bot.context.BotStateHandlerContext;
+import ru.veselov.companybot.bot.handler.message.ContactMessageUpdateHandler;
 import ru.veselov.companybot.bot.util.ContactMessageProcessor;
 import ru.veselov.companybot.bot.util.MessageUtils;
 import ru.veselov.companybot.cache.ContactCache;
@@ -37,6 +39,16 @@ public class ContactMessageUpdateHandlerImpl implements ContactMessageUpdateHand
     private final ContactCache contactCache;
 
     private final ContactMessageProcessor contactMessageProcessor;
+
+    private final BotStateHandlerContext context;
+
+    @Override
+    @PostConstruct
+    public void registerInContext() {
+        for (var state : getAvailableStates()) {
+            context.add(state, this);
+        }
+    }
 
     /**
      * Processing update from Telegram, processing is only available for {@link BotState}:
@@ -96,13 +108,11 @@ public class ContactMessageUpdateHandlerImpl implements ContactMessageUpdateHand
 
     @Override
     public Set<BotState> getAvailableStates() {
-        return null;
+        return Set.of(
+                BotState.AWAIT_CONTACT, BotState.AWAIT_PHONE, BotState.AWAIT_NAME,
+                BotState.AWAIT_EMAIL,
+                BotState.AWAIT_SHARED
+        );
     }
-
-    @Override
-    public void registerInContext() {
-
-    }
-
 
 }

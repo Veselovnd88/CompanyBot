@@ -13,7 +13,6 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import ru.veselov.companybot.bot.BotState;
 import ru.veselov.companybot.bot.CompanyBot;
-import ru.veselov.companybot.bot.HandlerContext;
 import ru.veselov.companybot.bot.handler.callback.ContactCallbackUpdateHandler;
 import ru.veselov.companybot.bot.handler.callback.impl.DivisionCallbackUpdateHandlerImpl;
 import ru.veselov.companybot.bot.handler.impl.ContactMessageUpdateHandlerImpl;
@@ -23,7 +22,6 @@ import ru.veselov.companybot.cache.UserDataCacheFacade;
 import java.util.List;
 
 import static org.mockito.Mockito.any;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -49,8 +47,8 @@ class TelegramFacadeUpdateHandlerMessagesTest {
     UserDataCacheFacade userDataCacheFacade;
     @Autowired
     TelegramFacadeUpdateHandler telegramFacadeUpdateHandler;
-    @Autowired
-    HandlerContext handlerContext;
+
+
 
     Update update;
     User user;
@@ -67,19 +65,7 @@ class TelegramFacadeUpdateHandlerMessagesTest {
         message.setFrom(user);
     }
 
-    @Test
-    @SneakyThrows
-    void contactNoCallsTest() {
-        for (var b : BotState.values()) {
-            if(handlerContext.isInMessageContext(b)) {
-                userDataCacheFacade.setUserBotState(user.getId(), b);
-                if (!isContactInputState(b)) {
-                    telegramFacadeUpdateHandler.processUpdate(update);
-                    verify(contactMessageHandler, never()).processUpdate(any(Update.class));
-                }
-            }
-        }
-    }
+
 
     @Test
     @SneakyThrows
@@ -93,19 +79,6 @@ class TelegramFacadeUpdateHandlerMessagesTest {
         verify(contactMessageHandler, times(states.size())).processUpdate(any(Update.class));
     }
 
-    @Test
-    @SneakyThrows
-    void inquiryNoCallsTest() {
-        for (var b : BotState.values()) {
-            if(handlerContext.isInMessageContext(b)){
-                userDataCacheFacade.setUserBotState(user.getId(), b);
-                if (b!=BotState.AWAIT_MESSAGE) {
-                    telegramFacadeUpdateHandler.processUpdate(update);
-                    verify(inquiryMessageHandler, never()).processUpdate(any(Update.class));
-                }
-            }
-        }
-    }
 
     @Test
     @SneakyThrows

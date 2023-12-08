@@ -10,7 +10,6 @@ import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.MessageEntity;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.veselov.companybot.bot.BotState;
-import ru.veselov.companybot.bot.HandlerContext;
 import ru.veselov.companybot.bot.context.BotStateHandlerContext;
 import ru.veselov.companybot.bot.context.CallbackQueryDataHandlerContext;
 import ru.veselov.companybot.bot.context.UpdateHandler;
@@ -18,7 +17,6 @@ import ru.veselov.companybot.bot.handler.impl.ChannelConnectUpdateHandlerImpl;
 import ru.veselov.companybot.bot.handler.impl.CommandUpdateHandlerImpl;
 import ru.veselov.companybot.bot.util.MessageUtils;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
-import ru.veselov.companybot.exception.NoAvailableActionSendMessageException;
 import ru.veselov.companybot.exception.UnexpectedActionException;
 import ru.veselov.companybot.exception.handler.BotExceptionToMessage;
 
@@ -35,8 +33,6 @@ public class TelegramFacadeUpdateHandler {
     private final CommandUpdateHandlerImpl commandHandler;
 
     private final ChannelConnectUpdateHandlerImpl channelConnectUpdateHandlerImpl;
-
-    private final HandlerContext handlerContext;
 
     private final UserDataCacheFacade userDataCache;
 
@@ -62,12 +58,14 @@ public class TelegramFacadeUpdateHandler {
         }
 
         if (update.hasMessage()) {
+            String chatId = update.getMessage().getFrom().getId().toString();
             BotState botState = userDataCache.getUserBotState(update.getMessage().getFrom().getId());
-            if (handlerContext.isInMessageContext(botState)) {
-                return handlerContext.getMessageHandler(botState).processUpdate(update);
+            UpdateHandler handler = botStateHandlerContext.getHandler(botState);
+            if (handler != null) {
+                validateUpdateHandlerStates(handler, botState, chatId);
+                return handler.processUpdate(update);
             }
-            throw new NoAvailableActionSendMessageException(MessageUtils.ANOTHER_ACTION,
-                    update.getMessage().getFrom().getId().toString());
+            throw new UnexpectedActionException(MessageUtils.ANOTHER_ACTION, chatId);
         }
 
         if (update.hasCallbackQuery()) {

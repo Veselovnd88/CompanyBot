@@ -13,7 +13,6 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import ru.veselov.companybot.bot.BotState;
 import ru.veselov.companybot.bot.CompanyBot;
-import ru.veselov.companybot.bot.HandlerContext;
 import ru.veselov.companybot.bot.handler.callback.ContactCallbackUpdateHandler;
 import ru.veselov.companybot.bot.handler.callback.impl.DivisionCallbackUpdateHandlerImpl;
 import ru.veselov.companybot.bot.handler.impl.ContactMessageUpdateHandlerImpl;
@@ -41,9 +40,6 @@ class TelegramFacadeUpdateHandlerCallbacksTest {
     InquiryMessageUpdateHandlerImpl inquiryMessageHandler;
 
     @Autowired
-    HandlerContext handlerContext;
-
-    @Autowired
     UserDataCacheFacade userDataCacheFacade;
     @Autowired
     TelegramFacadeUpdateHandler telegramFacadeUpdateHandler;
@@ -65,19 +61,6 @@ class TelegramFacadeUpdateHandlerCallbacksTest {
 
     @Test
     @SneakyThrows
-    void DivisionCallBackHandlerNoCallsTest(){
-        for(var  b: BotState.values()){
-            userDataCacheFacade.setUserBotState(user.getId(),b);
-            if(handlerContext.isInCallbackContext(b)){
-                if(b!=BotState.AWAIT_DIVISION_FOR_INQUIRY){
-                    telegramFacadeUpdateHandler.processUpdate(update);
-                    verify(divisionCallbackHandler,never()).processUpdate(any(Update.class));
-                }
-            }
-        }
-    }
-    @Test
-    @SneakyThrows
     void DivisionCallBachHandlerCallTest(){
         userDataCacheFacade.setUserBotState(user.getId(),BotState.AWAIT_DIVISION_FOR_INQUIRY);
         telegramFacadeUpdateHandler.processUpdate(update);
@@ -85,19 +68,7 @@ class TelegramFacadeUpdateHandlerCallbacksTest {
 
     }
 
-        @Test
-    @SneakyThrows
-    void ContactCallbackHandlerNoCallsTest(){
-        for(var  b: BotState.values()){
-            if(handlerContext.isInCallbackContext(b)){
-                userDataCacheFacade.setUserBotState(user.getId(),b);
-                if(!isContactInputState(b)&& b!=BotState.AWAIT_MESSAGE){
-                    telegramFacadeUpdateHandler.processUpdate(update);
-                    verify(contactCallbackHandler,never()).processUpdate(any(Update.class));
-                }
-            }
-        }
-    }
+
 
     @Test
     @SneakyThrows

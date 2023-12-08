@@ -9,7 +9,6 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import ru.veselov.companybot.bot.CompanyBot;
-import ru.veselov.companybot.bot.HandlerContext;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
 
 import static org.mockito.Mockito.*;
@@ -24,8 +23,7 @@ class TelegramUpdateHandlerTest {
     CallbackQuery callbackQuery;
     Message message;
     User user;
-    @Autowired
-    HandlerContext handlerContext;
+
 
     @Autowired
     TelegramFacadeUpdateHandler telegramFacadeUpdateHandler;
