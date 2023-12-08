@@ -10,9 +10,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import ru.veselov.companybot.bot.keyboard.DivisionKeyboardHelper;
 import ru.veselov.companybot.cache.Cache;
-import ru.veselov.companybot.exception.EmptyDivisionsException;
 import ru.veselov.companybot.exception.NoDivisionKeyboardException;
-import ru.veselov.companybot.exception.NoDivisionsException;
 import ru.veselov.companybot.model.DivisionModel;
 import ru.veselov.companybot.service.impl.DivisionServiceImpl;
 
@@ -34,16 +32,19 @@ public class DivisionKeyboardHelperImpl implements Cache, DivisionKeyboardHelper
 
     private static final String EMOJI_MARK = ":white_check_mark:";
 
-    private final Map<UUID, DivisionModel> idToDivision = new HashMap<>();
+    private final Map<UUID, DivisionModel> idDivisionMap = new HashMap<>();
 
     private final Map<Long, InlineKeyboardMarkup> divisionKeyboardCache = new ConcurrentHashMap<>();
 
     private final DivisionServiceImpl divisionService;
 
-
+    /**
+     * Create keyboard with buttons based on divisions in db,
+     * by default only one division for common questions
+     */
     @Override
     public InlineKeyboardMarkup getCustomerDivisionKeyboard() {
-        List<DivisionModel> allDivisions = refreshDivisions();
+        List<DivisionModel> allDivisions = refreshDivisions();//get all from DB
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
         InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
         for (var d : allDivisions) {
@@ -107,11 +108,11 @@ public class DivisionKeyboardHelperImpl implements Cache, DivisionKeyboardHelper
 
     @Override
     public HashMap<String, DivisionModel> getMapKeyboardDivisions() {
-        if (idToDivision.isEmpty()) {
+        if (idDivisionMap.isEmpty()) {
             refreshDivisions();
         }
         HashMap<String, DivisionModel> withMarked = new HashMap<>();
-        idToDivision.forEach((x, y) -> {
+        idDivisionMap.forEach((x, y) -> {
             withMarked.put(String.valueOf(x), y);
             withMarked.put(x + MARKED, y);
         });
@@ -119,35 +120,33 @@ public class DivisionKeyboardHelperImpl implements Cache, DivisionKeyboardHelper
     }
 
     @Override
-    public Map<UUID, DivisionModel> getCachedDivisions() throws NoDivisionsException {
-        if (idToDivision.isEmpty()) {
-            throw new NoDivisionsException();
-        }
+    public Map<UUID, DivisionModel> getCachedDivisions() {
         /*We need it for showing possible divisions on keyboard buttons*/
-        return Map.copyOf(idToDivision);
+        return Map.copyOf(idDivisionMap); //why copyOf?
     }
 
     @Override
     public void clear(Long userId) {
         divisionKeyboardCache.remove(userId);
-        idToDivision.clear();
+        idDivisionMap.clear();
     }
 
     private List<DivisionModel> refreshDivisions() {
         //After creation of keyboard all divisions placed in cache
         List<DivisionModel> allDivisions = divisionService.findAll();
         if (allDivisions.isEmpty()) {
-            log.warn("Empty divisions list, error occurred");
-            throw new EmptyDivisionsException("There is no divisions at the moment, please try later");
+            DivisionModel baseDivision = DivisionModel.builder().divisionId(UUID.randomUUID())
+                    .name("Общие вопросы").build();
+            allDivisions.add(baseDivision);
         }
         for (var d : allDivisions) {
-            idToDivision.put(d.getDivisionId(), d);
+            idDivisionMap.put(d.getDivisionId(), d);
         }
         return allDivisions;
     }
 
     private DivisionModel getDivisionByName(String name) {
-        return idToDivision.get(name);
+        return idDivisionMap.get(name);
     }
 
     private void removeMark(InlineKeyboardButton button) {

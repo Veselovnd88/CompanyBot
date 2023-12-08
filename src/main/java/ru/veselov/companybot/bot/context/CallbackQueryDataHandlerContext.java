@@ -8,7 +8,7 @@ import java.util.Map;
 
 @Component
 @Slf4j
-public class CallbackQueryHandlerContext {
+public class CallbackQueryDataHandlerContext {
 
     private final Map<String, UpdateHandler> callbackHandlerContext = new HashMap<>();
 

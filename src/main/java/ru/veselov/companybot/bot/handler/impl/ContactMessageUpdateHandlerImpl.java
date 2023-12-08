@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.veselov.companybot.bot.BotState;
+import ru.veselov.companybot.bot.handler.ContactMessageUpdateHandler;
 import ru.veselov.companybot.bot.util.ContactMessageProcessor;
 import ru.veselov.companybot.bot.util.MessageUtils;
 import ru.veselov.companybot.cache.ContactCache;
@@ -96,6 +97,11 @@ public class ContactMessageUpdateHandlerImpl implements ContactMessageUpdateHand
     @Override
     public Set<BotState> getAvailableStates() {
         return null;
+    }
+
+    @Override
+    public void registerInContext() {
+
     }
 
 

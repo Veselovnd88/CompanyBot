@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.veselov.companybot.bot.BotState;
-import ru.veselov.companybot.bot.context.CallbackQueryHandlerContext;
+import ru.veselov.companybot.bot.context.CallbackQueryDataHandlerContext;
 import ru.veselov.companybot.bot.handler.callback.InputContactCallBackUpdateHandler;
 import ru.veselov.companybot.bot.util.CallBackButtonUtils;
 import ru.veselov.companybot.bot.util.KeyBoardUtils;
@@ -27,9 +27,10 @@ public class InputContactCallBackUpdateHandlerImpl implements InputContactCallBa
 
     private final KeyBoardUtils keyBoardUtils;
 
-    private final CallbackQueryHandlerContext context;
+    private final CallbackQueryDataHandlerContext context;
 
     @PostConstruct
+    @Override
     public void registerInContext() {
         context.add(CallBackButtonUtils.EMAIL, this);
         context.add(CallBackButtonUtils.PHONE, this);

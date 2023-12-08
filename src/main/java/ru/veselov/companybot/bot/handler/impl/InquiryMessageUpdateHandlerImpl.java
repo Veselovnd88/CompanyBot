@@ -107,6 +107,11 @@ public class InquiryMessageUpdateHandlerImpl implements InquiryMessageUpdateHand
         return null;
     }
 
+    @Override
+    public void registerInContext() {
+
+    }
+
     private SendMessage askAddContactData(Long userId) {
         InlineKeyboardMarkup inlineKeyboardMarkup = InlineKeyBoardUtils
                 .setUpContactInlineKeyboard("Приступить к вводу данных для обратной связи");

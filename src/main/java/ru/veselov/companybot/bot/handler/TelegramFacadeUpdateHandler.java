@@ -10,7 +10,7 @@ import org.telegram.telegrambots.meta.api.objects.MessageEntity;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.veselov.companybot.bot.BotState;
 import ru.veselov.companybot.bot.HandlerContext;
-import ru.veselov.companybot.bot.context.CallbackQueryHandlerContext;
+import ru.veselov.companybot.bot.context.CallbackQueryDataHandlerContext;
 import ru.veselov.companybot.bot.context.UpdateHandler;
 import ru.veselov.companybot.bot.handler.impl.ChannelConnectUpdateHandlerImpl;
 import ru.veselov.companybot.bot.handler.impl.CommandUpdateHandlerImpl;
@@ -38,7 +38,7 @@ public class TelegramFacadeUpdateHandler {
 
     private final UserDataCacheFacade userDataCache;
 
-    private final CallbackQueryHandlerContext callbackQueryHandlerContext;
+    private final CallbackQueryDataHandlerContext callbackQueryDataHandlerContext;
 
     public BotApiMethod<?> processUpdate(Update update) throws NoAvailableActionException {
         //updates for connecting bot to chat
@@ -67,7 +67,7 @@ public class TelegramFacadeUpdateHandler {
 
         if (update.hasCallbackQuery()) {
             String callbackData = update.getCallbackQuery().getData();
-            UpdateHandler handler = callbackQueryHandlerContext.getHandler(callbackData);
+            UpdateHandler handler = callbackQueryDataHandlerContext.getHandler(callbackData);
             if (handler == null) {
                 throw new NoAvailableActionCallbackException(MessageUtils.ANOTHER_ACTION, update.getCallbackQuery()
                         .getId());

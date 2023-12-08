@@ -9,7 +9,7 @@ import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageRe
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.veselov.companybot.bot.BotState;
-import ru.veselov.companybot.bot.context.CallbackQueryHandlerContext;
+import ru.veselov.companybot.bot.context.CallbackQueryDataHandlerContext;
 import ru.veselov.companybot.bot.handler.callback.ContactCallbackUpdateHandler;
 import ru.veselov.companybot.bot.util.CallBackButtonUtils;
 import ru.veselov.companybot.bot.util.KeyBoardUtils;
@@ -32,9 +32,10 @@ public class ContactCallbackUpdateHandlerImpl implements ContactCallbackUpdateHa
 
     private final KeyBoardUtils keyBoardUtils;
 
-    private final CallbackQueryHandlerContext context;
+    private final CallbackQueryDataHandlerContext context;
 
     @PostConstruct
+    @Override
     public void registerInContext() {
         context.add(CallBackButtonUtils.CONTACT, this);
         context.add(CallBackButtonUtils.REPEAT, this);

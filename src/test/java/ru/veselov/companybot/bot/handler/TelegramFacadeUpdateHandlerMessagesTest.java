@@ -15,8 +15,8 @@ import ru.veselov.companybot.bot.BotState;
 import ru.veselov.companybot.bot.CompanyBot;
 import ru.veselov.companybot.bot.HandlerContext;
 import ru.veselov.companybot.bot.handler.callback.ContactCallbackUpdateHandler;
+import ru.veselov.companybot.bot.handler.callback.impl.DivisionCallbackUpdateHandlerImpl;
 import ru.veselov.companybot.bot.handler.impl.ContactMessageUpdateHandlerImpl;
-import ru.veselov.companybot.bot.handler.inquiry.DivisionCallbackHandler;
 import ru.veselov.companybot.bot.handler.impl.InquiryMessageUpdateHandlerImpl;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
 
@@ -36,7 +36,7 @@ class TelegramFacadeUpdateHandlerMessagesTest {
     @Value("${bot.adminId}")
     private String adminId;
     @MockBean
-    DivisionCallbackHandler divisionCallbackHandler;
+    DivisionCallbackUpdateHandlerImpl divisionCallbackHandler;
     @MockBean
     ContactCallbackUpdateHandler contactCallbackHandler;
     @MockBean

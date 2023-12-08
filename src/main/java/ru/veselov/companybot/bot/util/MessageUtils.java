@@ -8,6 +8,8 @@ public class MessageUtils {
 
     public static final String NOT_SUPPORTED_ACTION = "Это действие не поддерживается, или бот ожидает другой команды," +
             " нажмите /info для информации";
+    public static final String NO_DIVISIONS = "В базе данных нет отделов, обратитесь к администратору";
+
     @Getter
     @Setter
     private static Message about;
@@ -54,6 +56,8 @@ public class MessageUtils {
     public static final String NOT_ENOUGH_CONTACT = "Недостаточно данных для обратной связи (отсутствует e-mail, номер телефона, ФИО)";
 
     public static final String ANOTHER_ACTION = "Ожидаю другое действие, нажмите /start для сброса";
+
+    public static final String INVITATION_TO_INPUT_INQUIRY = "Введите ваш вопрос или перешлите мне сообщение";
 
     private MessageUtils() {
     }

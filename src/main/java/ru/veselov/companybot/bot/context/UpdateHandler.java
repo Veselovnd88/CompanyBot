@@ -11,4 +11,6 @@ public interface UpdateHandler {
 
     Set<BotState> getAvailableStates();
 
+    void registerInContext();
+
 }

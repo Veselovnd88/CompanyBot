@@ -15,6 +15,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import ru.veselov.companybot.bot.BotState;
 import ru.veselov.companybot.bot.CompanyBot;
+import ru.veselov.companybot.bot.handler.callback.impl.DivisionCallbackUpdateHandlerImpl;
 import ru.veselov.companybot.bot.keyboard.DivisionKeyboardHelper;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
 import ru.veselov.companybot.exception.NoAvailableActionCallbackException;
@@ -38,7 +39,7 @@ class DivisionEntityCallbackHandlerTest {
     @Autowired
     UserDataCacheFacade userDataCacheFacade;
     @Autowired
-    DivisionCallbackHandler divisionCallbackHandler;
+    DivisionCallbackUpdateHandlerImpl divisionCallbackHandler;
     @MockBean
     DivisionKeyboardHelper divisionKeyboardHelper;
     Update update;

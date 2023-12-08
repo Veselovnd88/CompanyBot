@@ -14,7 +14,7 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import ru.veselov.companybot.bot.BotState;
-import ru.veselov.companybot.bot.context.CallbackQueryHandlerContext;
+import ru.veselov.companybot.bot.context.CallbackQueryDataHandlerContext;
 import ru.veselov.companybot.bot.handler.callback.impl.SaveContactCallbackUpdateHandlerImpl;
 import ru.veselov.companybot.bot.util.CallBackButtonUtils;
 import ru.veselov.companybot.bot.util.KeyBoardUtils;
@@ -49,7 +49,7 @@ class SaveContactCallbackUpdateHandlerImplTest {
     KeyBoardUtils keyBoardUtils;
 
     @Mock
-    CallbackQueryHandlerContext context;
+    CallbackQueryDataHandlerContext context;
 
     @InjectMocks
     SaveContactCallbackUpdateHandlerImpl saveContactCallbackUpdateHandler;

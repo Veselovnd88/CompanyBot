@@ -6,7 +6,7 @@ import ru.veselov.companybot.bot.context.UpdateHandler;
 import ru.veselov.companybot.bot.handler.callback.ContactCallbackUpdateHandler;
 import ru.veselov.companybot.bot.handler.impl.ContactMessageUpdateHandlerImpl;
 import ru.veselov.companybot.bot.handler.impl.InquiryMessageUpdateHandlerImpl;
-import ru.veselov.companybot.bot.handler.inquiry.DivisionCallbackHandler;
+import ru.veselov.companybot.bot.handler.callback.impl.DivisionCallbackUpdateHandlerImpl;
 
 import java.util.EnumMap;
 import java.util.Map;
@@ -19,7 +19,7 @@ public class HandlerContext {
     private final Map<BotState, UpdateHandler> callbackHandlerContext = new EnumMap<>(BotState.class);
 
     public HandlerContext(
-            DivisionCallbackHandler divisionCallbackHandler,
+            DivisionCallbackUpdateHandlerImpl divisionCallbackHandler,
             ContactCallbackUpdateHandler contactCallbackHandler,
             ContactMessageUpdateHandlerImpl contactMessageHandler,
             InquiryMessageUpdateHandlerImpl inquiryMessageHandler) {
