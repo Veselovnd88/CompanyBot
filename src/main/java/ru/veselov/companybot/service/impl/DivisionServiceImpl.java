@@ -2,6 +2,8 @@ package ru.veselov.companybot.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import ru.veselov.companybot.entity.DivisionEntity;
 import ru.veselov.companybot.exception.DivisionNotFoundException;
@@ -23,10 +25,12 @@ public class DivisionServiceImpl implements DivisionService {
     private final DivisionMapper divisionMapper;
 
     @Override
+    @Cacheable(value = "division")
     public List<DivisionModel> findAll() {
         return divisionMapper.toListModel(divisionRepository.findAll());
     }
 
+    @CacheEvict(value = "division", key = "#division.divisionId")
     @Override
     public void save(DivisionModel division) {
         DivisionEntity saved = divisionRepository.save(divisionMapper.toEntity(division));

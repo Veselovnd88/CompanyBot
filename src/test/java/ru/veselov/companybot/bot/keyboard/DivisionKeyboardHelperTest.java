@@ -15,6 +15,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import ru.veselov.companybot.bot.keyboard.impl.DivisionKeyboardHelperImpl;
+import ru.veselov.companybot.bot.util.MessageUtils;
 import ru.veselov.companybot.model.DivisionModel;
 import ru.veselov.companybot.service.impl.DivisionServiceImpl;
 
@@ -60,7 +61,7 @@ class DivisionKeyboardHelperTest {
     }
 
     @Test
-    void shouldGetKeyboard() {
+    void shouldGetKeyboardWithDivisionsFromDB() {
         DivisionModel div1 = DivisionModel.builder()
                 .divisionId(UUID.randomUUID()).name("Test").description("desc1").build();
         DivisionModel div2 = DivisionModel.builder()
@@ -78,6 +79,18 @@ class DivisionKeyboardHelperTest {
                         .getCallbackData()).isEqualTo(div2.getDivisionId().toString()),
                 () -> Assertions.assertThat(customerDivisionKeyboard.getKeyboard().get(1).get(0)
                         .getText()).isEqualTo(div2.getDescription())
+        );
+    }
+
+    @Test
+    void shouldGetKeyboardWithOnePreInstalledDivision() {
+        InlineKeyboardMarkup customerDivisionKeyboard = divisionKeyboardHelper.getCustomerDivisionKeyboard();
+        org.junit.jupiter.api.Assertions.assertAll(
+                () -> Assertions.assertThat(customerDivisionKeyboard.getKeyboard()).hasSize(1),
+                () -> Assertions.assertThat(customerDivisionKeyboard.getKeyboard().get(0).get(0)
+                        .getCallbackData()).isNotBlank(),
+                () -> Assertions.assertThat(customerDivisionKeyboard.getKeyboard().get(0).get(0)
+                        .getText()).isEqualTo(MessageUtils.COMMON_DIV)
         );
     }
 

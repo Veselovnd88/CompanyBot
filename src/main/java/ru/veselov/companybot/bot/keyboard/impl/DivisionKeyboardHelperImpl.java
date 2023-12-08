@@ -6,6 +6,7 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import ru.veselov.companybot.bot.keyboard.DivisionKeyboardHelper;
+import ru.veselov.companybot.bot.util.MessageUtils;
 import ru.veselov.companybot.cache.Cache;
 import ru.veselov.companybot.model.DivisionModel;
 import ru.veselov.companybot.service.impl.DivisionServiceImpl;
@@ -15,13 +16,15 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class DivisionKeyboardHelperImpl implements Cache, DivisionKeyboardHelper {
 
-    private final Map<String, DivisionModel> idDivisionMap = new ConcurrentHashMap<>();
+    private Map<String, DivisionModel> idDivisionMapCache = new ConcurrentHashMap<>();
 
     private final DivisionServiceImpl divisionService;
 
@@ -35,7 +38,7 @@ public class DivisionKeyboardHelperImpl implements Cache, DivisionKeyboardHelper
      */
     @Override
     public InlineKeyboardMarkup getCustomerDivisionKeyboard() {
-        List<DivisionModel> allDivisions = refreshDivisions();//get all from DB
+        List<DivisionModel> allDivisions = getDivisions();//get all from DB
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
         InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
         for (var d : allDivisions) {
@@ -53,31 +56,36 @@ public class DivisionKeyboardHelperImpl implements Cache, DivisionKeyboardHelper
         return markup;
     }
 
-    /*
-     * With this map we can get Division by from cache by it's id
-     * */
+    /**
+     * With this map we can get Division by from cache by its id
+     *
+     * @return {@link Map<String,DivisionModel>} copy of cache map with divisions
+     */
     @Override
     public Map<String, DivisionModel> getCachedDivisions() {
-        return Map.copyOf(idDivisionMap); //why copyOf?
+        return Map.copyOf(idDivisionMapCache);
     }
 
     @Override
     public void clear(Long userId) {
-        idDivisionMap.clear();
+        idDivisionMapCache.clear();
     }
 
-    private List<DivisionModel> refreshDivisions() {
-        //After creation of keyboard all divisions placed in cache
+    /**
+     * Get division from DB and fill
+     *
+     * @return {@link List<DivisionModel>} list of divisions from cache or from DB
+     */
+    private List<DivisionModel> getDivisions() {
         List<DivisionModel> allDivisions = divisionService.findAll();
         if (allDivisions.isEmpty()) {
             DivisionModel baseDivision = DivisionModel.builder().divisionId(UUID.randomUUID())
-                    .name("COMMON").description("Общие вопросы").build();
+                    .name("COMMON").description(MessageUtils.COMMON_DIV).build();
             allDivisions.add(baseDivision);
         }
-        for (var d : allDivisions) {
-            idDivisionMap.put(d.getDivisionId().toString(), d);
-        }
-        log.debug("Division retrieved from DB and placed to cache");
+
+        idDivisionMapCache = allDivisions.stream().collect(Collectors.toMap(d -> d.getDivisionId().toString(), Function.identity()));
+        log.debug("Divisions retrieved from DB and placed to cache");
         return allDivisions;
     }
 
