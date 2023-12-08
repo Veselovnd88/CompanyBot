@@ -49,12 +49,15 @@ public class DivisionKeyboardHelperImpl implements Cache, DivisionKeyboardHelper
             keyboard.add(row);
         }
         markup.setKeyboard(keyboard);
+        log.debug("Keyboard for divisions created");
         return markup;
     }
 
+    /*
+     * With this map we can get Division by from cache by it's id
+     * */
     @Override
     public Map<String, DivisionModel> getCachedDivisions() {
-        /*We need it for showing possible divisions on keyboard buttons*/
         return Map.copyOf(idDivisionMap); //why copyOf?
     }
 
@@ -74,6 +77,7 @@ public class DivisionKeyboardHelperImpl implements Cache, DivisionKeyboardHelper
         for (var d : allDivisions) {
             idDivisionMap.put(d.getDivisionId().toString(), d);
         }
+        log.debug("Division retrieved from DB and placed to cache");
         return allDivisions;
     }
 
