@@ -6,7 +6,7 @@ import ru.veselov.companybot.bot.BotState;
 
 import java.util.Set;
 
-public interface UpdateHandler {
+public interface UpdateHandlerFromContext {
     BotApiMethod<?> processUpdate(Update update);
 
     Set<BotState> getAvailableStates();

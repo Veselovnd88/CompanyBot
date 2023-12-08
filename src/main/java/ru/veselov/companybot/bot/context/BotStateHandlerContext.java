@@ -11,15 +11,15 @@ import java.util.Map;
 @Slf4j
 public class BotStateHandlerContext {
 
-    private final Map<BotState, UpdateHandler> botStateUpdateHandlerMap = new EnumMap<>(BotState.class);
+    private final Map<BotState, UpdateHandlerFromContext> botStateUpdateHandlerMap = new EnumMap<>(BotState.class);
 
-    public void add(BotState botState, UpdateHandler updateHandler) {
+    public void add(BotState botState, UpdateHandlerFromContext updateHandler) {
         log.info("[Handler: {}] added to context for [bot state: {}]",
                 updateHandler.getClass().getSimpleName(), botState);
         botStateUpdateHandlerMap.put(botState, updateHandler);
     }
 
-    public UpdateHandler getHandler(BotState botState) {
+    public UpdateHandlerFromContext getHandler(BotState botState) {
         return botStateUpdateHandlerMap.get(botState);
     }
 }

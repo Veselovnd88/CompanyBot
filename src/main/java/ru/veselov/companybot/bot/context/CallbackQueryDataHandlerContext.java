@@ -10,14 +10,14 @@ import java.util.Map;
 @Slf4j
 public class CallbackQueryDataHandlerContext {
 
-    private final Map<String, UpdateHandler> callbackHandlerContext = new HashMap<>();
+    private final Map<String, UpdateHandlerFromContext> callbackHandlerContext = new HashMap<>();
 
-    public void add(String data, UpdateHandler updateHandler) {
+    public void add(String data, UpdateHandlerFromContext updateHandler) {
         log.info("[Handler: {}] added to context for [callback data: {}]", updateHandler.getClass().getSimpleName(), data);
         callbackHandlerContext.put(data, updateHandler);
     }
 
-    public UpdateHandler getHandler(String data) {
+    public UpdateHandlerFromContext getHandler(String data) {
         return callbackHandlerContext.get(data);
     }
 
