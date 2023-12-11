@@ -17,7 +17,7 @@ import ru.veselov.companybot.bot.BotState;
 import ru.veselov.companybot.bot.context.CallbackQueryDataHandlerContext;
 import ru.veselov.companybot.bot.handler.callback.impl.ContactCallbackUpdateHandlerImpl;
 import ru.veselov.companybot.bot.util.CallBackButtonUtils;
-import ru.veselov.companybot.bot.util.KeyBoardUtils;
+import ru.veselov.companybot.bot.keyboard.impl.ContactKeyboardHelperImpl;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
 import ru.veselov.companybot.util.TestUtils;
 
@@ -30,7 +30,7 @@ class ContactCallbackUpdateHandlerImplTest {
     UserDataCacheFacade userDataCache;
 
     @Mock
-    KeyBoardUtils keyBoardUtils;
+    ContactKeyboardHelperImpl contactKeyboardHelper;
 
     @Mock
     CallbackQueryDataHandlerContext context;
@@ -68,7 +68,7 @@ class ContactCallbackUpdateHandlerImplTest {
         org.junit.jupiter.api.Assertions.assertAll(
                 () -> Mockito.verify(userDataCache).setUserBotState(userId, BotState.AWAIT_CONTACT),
                 () -> Mockito.verify(userDataCache).createContact(userId),
-                () -> Mockito.verify(keyBoardUtils).contactKeyBoard()
+                () -> Mockito.verify(contactKeyboardHelper).getContactKeyboard()
         );
     }
 

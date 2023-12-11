@@ -5,7 +5,7 @@ import ru.veselov.companybot.model.ContactModel;
 import ru.veselov.companybot.model.DivisionModel;
 import ru.veselov.companybot.model.InquiryModel;
 
-public interface UserDataCacheFacade extends Cache {
+public interface UserDataCacheFacade extends Clearable {
 
     BotState getUserBotState(Long id);
 

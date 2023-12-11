@@ -10,7 +10,7 @@ import ru.veselov.companybot.bot.BotState;
 import ru.veselov.companybot.bot.context.CallbackQueryDataHandlerContext;
 import ru.veselov.companybot.bot.handler.callback.SaveContactCallbackUpdateHandler;
 import ru.veselov.companybot.bot.util.CallBackButtonUtils;
-import ru.veselov.companybot.bot.util.KeyBoardUtils;
+import ru.veselov.companybot.bot.keyboard.impl.ContactKeyboardHelperImpl;
 import ru.veselov.companybot.bot.util.MessageUtils;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
 import ru.veselov.companybot.event.SendCustomerDataEventPublisher;
@@ -36,7 +36,7 @@ public class SaveContactCallbackUpdateHandlerImpl implements SaveContactCallback
 
     private final InquiryService inquiryService;
 
-    private final KeyBoardUtils keyBoardUtils;
+    private final ContactKeyboardHelperImpl contactKeyboardHelper;
 
     private final CallbackQueryDataHandlerContext context;
 
@@ -58,7 +58,7 @@ public class SaveContactCallbackUpdateHandlerImpl implements SaveContactCallback
             if (inquiry != null) {
                 inquiryService.save(inquiry);
             }
-            keyBoardUtils.clear(userId);
+            contactKeyboardHelper.clear(userId);
             userDataCache.clear(userId);
             return AnswerCallbackQuery.builder().callbackQueryId(update.getCallbackQuery().getId())
                     .text(MessageUtils.SAVED).showAlert(true)

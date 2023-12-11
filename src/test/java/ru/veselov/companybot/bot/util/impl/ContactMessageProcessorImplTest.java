@@ -13,7 +13,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.telegram.telegrambots.meta.api.objects.Contact;
-import ru.veselov.companybot.bot.util.KeyBoardUtils;
+import ru.veselov.companybot.bot.keyboard.impl.ContactKeyboardHelperImpl;
 import ru.veselov.companybot.exception.ContactProcessingException;
 import ru.veselov.companybot.model.ContactModel;
 import ru.veselov.companybot.util.TestUtils;
@@ -34,7 +34,7 @@ class ContactMessageProcessorImplTest {
     ContactModel contact = ContactModel.builder().userId(TestUtils.USER_ID).build();
 
     @Mock
-    KeyBoardUtils keyBoardUtils;
+    ContactKeyboardHelperImpl contactKeyboardHelper;
 
     @Mock
     EmailValidator emailValidator;
@@ -51,7 +51,7 @@ class ContactMessageProcessorImplTest {
                 () -> Assertions.assertThat(contact.getLastName()).isEqualTo(LAST_NAME),
                 () -> Assertions.assertThat(contact.getFirstName()).isEqualTo(FIRST_NAME),
                 () -> Assertions.assertThat(contact.getSecondName()).isEqualTo(SECOND_NAME),
-                () -> Mockito.verify(keyBoardUtils).editMessageSavedField(Mockito.any(), Mockito.any())
+                () -> Mockito.verify(contactKeyboardHelper).getEditMessageReplyAfterSendingContactData(Mockito.any(), Mockito.any())
         );
     }
 
@@ -63,7 +63,7 @@ class ContactMessageProcessorImplTest {
                 () -> Assertions.assertThat(contact.getLastName()).isEqualTo(LAST_NAME),
                 () -> Assertions.assertThat(contact.getFirstName()).isNull(),
                 () -> Assertions.assertThat(contact.getSecondName()).isNull(),
-                () -> Mockito.verify(keyBoardUtils).editMessageSavedField(Mockito.any(), Mockito.any())
+                () -> Mockito.verify(contactKeyboardHelper).getEditMessageReplyAfterSendingContactData(Mockito.any(), Mockito.any())
         );
     }
 
@@ -77,7 +77,7 @@ class ContactMessageProcessorImplTest {
                 () -> Assertions.assertThat(contact.getLastName()).isEqualTo(LAST_NAME),
                 () -> Assertions.assertThat(contact.getFirstName()).isEqualTo(FIRST_NAME),
                 () -> Assertions.assertThat(contact.getSecondName()).isNull(),
-                () -> Mockito.verify(keyBoardUtils).editMessageSavedField(Mockito.any(), Mockito.any())
+                () -> Mockito.verify(contactKeyboardHelper).getEditMessageReplyAfterSendingContactData(Mockito.any(), Mockito.any())
         );
     }
 
@@ -91,7 +91,7 @@ class ContactMessageProcessorImplTest {
                 () -> Assertions.assertThat(contact.getLastName()).isEqualTo(LAST_NAME),
                 () -> Assertions.assertThat(contact.getFirstName()).isEqualTo(FIRST_NAME),
                 () -> Assertions.assertThat(contact.getSecondName()).isEqualTo(SECOND_NAME + " " + FIRST_NAME),
-                () -> Mockito.verify(keyBoardUtils).editMessageSavedField(Mockito.any(), Mockito.any())
+                () -> Mockito.verify(contactKeyboardHelper).getEditMessageReplyAfterSendingContactData(Mockito.any(), Mockito.any())
         );
     }
 
@@ -101,7 +101,7 @@ class ContactMessageProcessorImplTest {
         Assertions.assertThatThrownBy(() -> contactMessageProcessor.processName(contact, name))
                 .isInstanceOf(ContactProcessingException.class);
 
-        Mockito.verifyNoInteractions(keyBoardUtils);
+        Mockito.verifyNoInteractions(contactKeyboardHelper);
         Mockito.verifyNoInteractions(emailValidator);
     }
 
@@ -112,7 +112,7 @@ class ContactMessageProcessorImplTest {
 
         org.junit.jupiter.api.Assertions.assertAll(
                 () -> Assertions.assertThat(contact.getPhone()).isEqualTo(phone),
-                () -> Mockito.verify(keyBoardUtils).editMessageSavedField(Mockito.any(), Mockito.any())
+                () -> Mockito.verify(contactKeyboardHelper).getEditMessageReplyAfterSendingContactData(Mockito.any(), Mockito.any())
         );
     }
 
@@ -121,7 +121,7 @@ class ContactMessageProcessorImplTest {
     void shouldThrowExceptionForWrongPhoneFormat(String phone) {
         Assertions.assertThatThrownBy(() -> contactMessageProcessor.processPhone(contact, phone))
                 .isInstanceOf(ContactProcessingException.class);
-        Mockito.verifyNoInteractions(keyBoardUtils);
+        Mockito.verifyNoInteractions(contactKeyboardHelper);
         Mockito.verifyNoInteractions(emailValidator);
     }
 
@@ -133,7 +133,7 @@ class ContactMessageProcessorImplTest {
 
         org.junit.jupiter.api.Assertions.assertAll(
                 () -> Assertions.assertThat(contact.getEmail()).isEqualTo("123@123.com"),
-                () -> Mockito.verify(keyBoardUtils).editMessageSavedField(Mockito.any(), Mockito.any())
+                () -> Mockito.verify(contactKeyboardHelper).getEditMessageReplyAfterSendingContactData(Mockito.any(), Mockito.any())
         );
     }
 
@@ -144,7 +144,7 @@ class ContactMessageProcessorImplTest {
         Assertions.assertThatThrownBy(() -> contactMessageProcessor.processEmail(contact, "123"))
                 .isInstanceOf(ContactProcessingException.class);
 
-        Mockito.verifyNoInteractions(keyBoardUtils);
+        Mockito.verifyNoInteractions(contactKeyboardHelper);
         Mockito.verify(emailValidator).isValid(Mockito.any(), Mockito.any());
     }
 

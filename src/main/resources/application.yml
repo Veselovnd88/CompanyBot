@@ -15,10 +15,6 @@ spring:
     url: jdbc:postgresql://localhost:5433/cbotDB
     username: admin
     password: admin
-
-  autoconfigure:
-    exclude: org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration
-
   jpa:
     properties:
       hibernate:
@@ -32,6 +28,8 @@ spring:
     enabled: true
     default-schema: public
     drop-first: false
+  cache:
+    cache-names: division
 
 logging:
   level:
