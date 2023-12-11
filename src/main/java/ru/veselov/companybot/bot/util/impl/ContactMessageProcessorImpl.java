@@ -63,7 +63,7 @@ public class ContactMessageProcessorImpl implements ContactMessageProcessor {
             contact.setSecondName(sb.toString().trim());
         }
         log.info("Name {} added to contact for [user id: {}]", name, userId);
-        return contactKeyboardHelper.editMessageSavedField(userId, "name");
+        return contactKeyboardHelper.getEditMessageReplyAfterSendingContactData(userId, "name");
     }
 
     /**
@@ -81,7 +81,7 @@ public class ContactMessageProcessorImpl implements ContactMessageProcessor {
         if (matcher.matches()) {
             contact.setPhone(phone);
             log.info("Phone number {} was set up for [user id: {}]", contact.getUserId(), phone);
-            return contactKeyboardHelper.editMessageSavedField(contact.getUserId(), "phone");
+            return contactKeyboardHelper.getEditMessageReplyAfterSendingContactData(contact.getUserId(), "phone");
         } else {
             log.warn("Incorrect phone number for [user id: {}]", contact.getUserId());
             throw new ContactProcessingException(MessageUtils.WRONG_PHONE, contact.getUserId().toString());
@@ -102,7 +102,7 @@ public class ContactMessageProcessorImpl implements ContactMessageProcessor {
         if (emailValidator.isValid(email, null)) {
             contact.setEmail(email);
             log.info("Email: {} added for [user id: {}]", email, userId);
-            return contactKeyboardHelper.editMessageSavedField(userId, "email");
+            return contactKeyboardHelper.getEditMessageReplyAfterSendingContactData(userId, "email");
         } else {
             log.warn("Not correct email format for [user id: {}]", userId);
             throw new ContactProcessingException(MessageUtils.WRONG_EMAIL, userId.toString());
@@ -131,7 +131,7 @@ public class ContactMessageProcessorImpl implements ContactMessageProcessor {
             contact.setPhone(shared.getPhoneNumber());
         }
         log.info("Shared contact added for [user id: {}]", contact.getUserId());
-        return contactKeyboardHelper.editMessageSavedField(contact.getUserId(), "shared");
+        return contactKeyboardHelper.getEditMessageReplyAfterSendingContactData(contact.getUserId(), "shared");
     }
 
 }

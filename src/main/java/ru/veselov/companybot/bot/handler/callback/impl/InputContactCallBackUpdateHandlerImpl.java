@@ -47,19 +47,19 @@ public class InputContactCallBackUpdateHandlerImpl implements InputContactCallBa
         return switch (data) {
             case CallBackButtonUtils.EMAIL -> {
                 userDataCache.setUserBotState(userId, BotState.AWAIT_EMAIL);
-                yield contactKeyboardHelper.editMessageChooseField(update, CallBackButtonUtils.EMAIL);
+                yield contactKeyboardHelper.getEditMessageReplyForChosenCallbackButton(update, CallBackButtonUtils.EMAIL);
             }
             case CallBackButtonUtils.PHONE -> {
                 userDataCache.setUserBotState(userId, BotState.AWAIT_PHONE);
-                yield contactKeyboardHelper.editMessageChooseField(update, CallBackButtonUtils.PHONE);
+                yield contactKeyboardHelper.getEditMessageReplyForChosenCallbackButton(update, CallBackButtonUtils.PHONE);
             }
             case CallBackButtonUtils.SHARED -> {
                 userDataCache.setUserBotState(userId, BotState.AWAIT_SHARED);
-                yield contactKeyboardHelper.editMessageChooseField(update, CallBackButtonUtils.SHARED);
+                yield contactKeyboardHelper.getEditMessageReplyForChosenCallbackButton(update, CallBackButtonUtils.SHARED);
             }
             case CallBackButtonUtils.NAME -> {
                 userDataCache.setUserBotState(userId, BotState.AWAIT_NAME);
-                yield contactKeyboardHelper.editMessageChooseField(update, CallBackButtonUtils.NAME);
+                yield contactKeyboardHelper.getEditMessageReplyForChosenCallbackButton(update, CallBackButtonUtils.NAME);
             }
             default ->
                     throw new UnexpectedActionException(MessageUtils.ANOTHER_ACTION, update.getCallbackQuery().getId());

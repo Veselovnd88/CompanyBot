@@ -51,7 +51,7 @@ class ContactMessageProcessorImplTest {
                 () -> Assertions.assertThat(contact.getLastName()).isEqualTo(LAST_NAME),
                 () -> Assertions.assertThat(contact.getFirstName()).isEqualTo(FIRST_NAME),
                 () -> Assertions.assertThat(contact.getSecondName()).isEqualTo(SECOND_NAME),
-                () -> Mockito.verify(contactKeyboardHelper).editMessageSavedField(Mockito.any(), Mockito.any())
+                () -> Mockito.verify(contactKeyboardHelper).getEditMessageReplyAfterSendingContactData(Mockito.any(), Mockito.any())
         );
     }
 
@@ -63,7 +63,7 @@ class ContactMessageProcessorImplTest {
                 () -> Assertions.assertThat(contact.getLastName()).isEqualTo(LAST_NAME),
                 () -> Assertions.assertThat(contact.getFirstName()).isNull(),
                 () -> Assertions.assertThat(contact.getSecondName()).isNull(),
-                () -> Mockito.verify(contactKeyboardHelper).editMessageSavedField(Mockito.any(), Mockito.any())
+                () -> Mockito.verify(contactKeyboardHelper).getEditMessageReplyAfterSendingContactData(Mockito.any(), Mockito.any())
         );
     }
 
@@ -77,7 +77,7 @@ class ContactMessageProcessorImplTest {
                 () -> Assertions.assertThat(contact.getLastName()).isEqualTo(LAST_NAME),
                 () -> Assertions.assertThat(contact.getFirstName()).isEqualTo(FIRST_NAME),
                 () -> Assertions.assertThat(contact.getSecondName()).isNull(),
-                () -> Mockito.verify(contactKeyboardHelper).editMessageSavedField(Mockito.any(), Mockito.any())
+                () -> Mockito.verify(contactKeyboardHelper).getEditMessageReplyAfterSendingContactData(Mockito.any(), Mockito.any())
         );
     }
 
@@ -91,7 +91,7 @@ class ContactMessageProcessorImplTest {
                 () -> Assertions.assertThat(contact.getLastName()).isEqualTo(LAST_NAME),
                 () -> Assertions.assertThat(contact.getFirstName()).isEqualTo(FIRST_NAME),
                 () -> Assertions.assertThat(contact.getSecondName()).isEqualTo(SECOND_NAME + " " + FIRST_NAME),
-                () -> Mockito.verify(contactKeyboardHelper).editMessageSavedField(Mockito.any(), Mockito.any())
+                () -> Mockito.verify(contactKeyboardHelper).getEditMessageReplyAfterSendingContactData(Mockito.any(), Mockito.any())
         );
     }
 
@@ -112,7 +112,7 @@ class ContactMessageProcessorImplTest {
 
         org.junit.jupiter.api.Assertions.assertAll(
                 () -> Assertions.assertThat(contact.getPhone()).isEqualTo(phone),
-                () -> Mockito.verify(contactKeyboardHelper).editMessageSavedField(Mockito.any(), Mockito.any())
+                () -> Mockito.verify(contactKeyboardHelper).getEditMessageReplyAfterSendingContactData(Mockito.any(), Mockito.any())
         );
     }
 
@@ -133,7 +133,7 @@ class ContactMessageProcessorImplTest {
 
         org.junit.jupiter.api.Assertions.assertAll(
                 () -> Assertions.assertThat(contact.getEmail()).isEqualTo("123@123.com"),
-                () -> Mockito.verify(contactKeyboardHelper).editMessageSavedField(Mockito.any(), Mockito.any())
+                () -> Mockito.verify(contactKeyboardHelper).getEditMessageReplyAfterSendingContactData(Mockito.any(), Mockito.any())
         );
     }
 

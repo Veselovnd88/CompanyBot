@@ -7,10 +7,10 @@ import ru.veselov.companybot.cache.Clearable;
 
 public interface ContactKeyboardHelper extends Clearable {
 
-    InlineKeyboardMarkup contactKeyBoard();
+    InlineKeyboardMarkup getContactKeyboard();
 
-    EditMessageReplyMarkup editMessageChooseField(Update update, String field);
+    EditMessageReplyMarkup getEditMessageReplyForChosenCallbackButton(Update update, String field);
 
-    EditMessageReplyMarkup editMessageSavedField(Long userId, String field);
+    EditMessageReplyMarkup getEditMessageReplyAfterSendingContactData(Long userId, String field);
 
 }

@@ -64,7 +64,7 @@ class InputContactCallBackUpdateHandlerImplTest {
 
         inputContactCallBackUpdateHandler.processUpdate(update);
 
-        Mockito.verify(contactKeyboardHelper).editMessageChooseField(update, field);
+        Mockito.verify(contactKeyboardHelper).getEditMessageReplyForChosenCallbackButton(update, field);
         Mockito.verify(userDataCache).setUserBotState(user.getId(), botState);
     }
 

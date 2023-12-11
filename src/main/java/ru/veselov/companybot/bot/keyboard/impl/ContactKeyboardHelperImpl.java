@@ -18,12 +18,17 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+/**
+ * Class for creating and working with keyboard responsible to input contact data by user
+ */
 @Component
 @Slf4j
 public class ContactKeyboardHelperImpl implements ContactKeyboardHelper {
 
     private static final String LEFT_MARK = "<<";
+
     private static final String RIGHT_MARK = ">>";
+
     private static final String WHITE_CHECK_MARK = ":white_check_mark:";
 
     //storing keyboard as edit message markup  for every user
@@ -42,8 +47,13 @@ public class ContactKeyboardHelperImpl implements ContactKeyboardHelper {
         rowIndexesByFieldName.put(CallBackButtonUtils.SHARED, 3);
     }
 
+    /**
+     * Creates keyboard with buttons for invitation user to input contact data
+     *
+     * @return {@link InlineKeyboardMarkup} keyboard with input field names
+     */
     @Override
-    public InlineKeyboardMarkup contactKeyBoard() {
+    public InlineKeyboardMarkup getContactKeyboard() {
         var markup = new InlineKeyboardMarkup();
         var inputName = new InlineKeyboardButton();
         inputName.setText(MessageUtils.INPUT_FIO);
@@ -83,21 +93,22 @@ public class ContactKeyboardHelperImpl implements ContactKeyboardHelper {
     }
 
     /**
-     * Takes contact keyboard {@link InlineKeyboardMarkup} from cache or create a new one if not exists, mark chosen
-     * field with << FIELD >>, or remove this mark if this button was pressed second time
+     * Get contact keyboard {@link InlineKeyboardMarkup} from cache or create a new one if not exists,
+     * <p>mark chosen field with << FIELD >>, or remove this mark after pressing another button
+     * </p>
      *
-     * @param update update from Telegram {@link Update}
-     * @param field  data from {@link CallbackQuery}
-     * @return {@link EditMessageReplyMarkup} edited telegram message with keyboard
+     * @param update {@link Update} from Telegram
+     * @param field  {@link String} field name data from {@link CallbackQuery}
+     * @return {@link EditMessageReplyMarkup} keyboard with marked button
      */
     @Override
-    public EditMessageReplyMarkup editMessageChooseField(Update update, String field) {
+    public EditMessageReplyMarkup getEditMessageReplyForChosenCallbackButton(Update update, String field) {
         Long userId = update.getCallbackQuery().getFrom().getId();
         InlineKeyboardMarkup inlineKeyboardMarkup;
         if (keyboardMessageCache.containsKey(userId)) {
             inlineKeyboardMarkup = keyboardMessageCache.get(userId).getReplyMarkup();
         } else {
-            inlineKeyboardMarkup = contactKeyBoard();
+            inlineKeyboardMarkup = getContactKeyboard();
         }
         for (var keyboard : inlineKeyboardMarkup.getKeyboard()) {
             if (keyboard.get(0).getText().startsWith(LEFT_MARK)) {
@@ -105,7 +116,7 @@ public class ContactKeyboardHelperImpl implements ContactKeyboardHelper {
                 log.debug("Button unmarked");
             }
         }
-        List<InlineKeyboardButton> buttons = inlineKeyboardMarkup.getKeyboard().get(rowIndexByFieldName(field));
+        List<InlineKeyboardButton> buttons = inlineKeyboardMarkup.getKeyboard().get(getRowIndexByFieldName(field));
         InlineKeyboardButton inlineKeyboardButton = buttons.get(0);
         inlineKeyboardButton.setText(LEFT_MARK + inlineKeyboardButton.getText() + RIGHT_MARK);
         log.debug("Mark chosen field for [callback: {}] input", field);
@@ -119,10 +130,18 @@ public class ContactKeyboardHelperImpl implements ContactKeyboardHelper {
         return editedKeyboard;
     }
 
+    /**
+     * Get {@link EditMessageReplyMarkup} after input contact data by user, change current message with
+     * keyboard after receiving text message with contact data
+     *
+     * @param userId {@link Long} id of user who send message
+     * @param field  {@link String} field name data from {@link CallbackQuery}
+     * @return {@link EditMessageReplyMarkup} keyboard with marked button
+     */
     @Override
-    public EditMessageReplyMarkup editMessageSavedField(Long userId, String field) {
+    public EditMessageReplyMarkup getEditMessageReplyAfterSendingContactData(Long userId, String field) {
         InlineKeyboardMarkup inlineKeyboardMarkup = keyboardMessageCache.get(userId).getReplyMarkup();
-        List<InlineKeyboardButton> buttons = inlineKeyboardMarkup.getKeyboard().get(rowIndexByFieldName(field));
+        List<InlineKeyboardButton> buttons = inlineKeyboardMarkup.getKeyboard().get(getRowIndexByFieldName(field));
         InlineKeyboardButton inlineKeyboardButton = buttons.get(0);
         String buttonText = inlineKeyboardButton.getText();
         String newText = removeBracers(buttonText);
@@ -132,19 +151,36 @@ public class ContactKeyboardHelperImpl implements ContactKeyboardHelper {
         return keyboardMessageCache.get(userId);
     }
 
-    private int rowIndexByFieldName(String field) {
-        return rowIndexesByFieldName.get(field);
-    }
-
-    private String removeBracers(String string) {
-        String replaceOne = string.replace("<", "").replace("<", "");
-        return replaceOne.replace(">", "").replace(">", "");
-    }
-
+    /**
+     * Clear keyboard cache after
+     *
+     * @param userId {@link Long} id of user
+     */
     @Override
     public void clear(Long userId) {
         log.debug("Contact keyboard removed for [user id: {}]", userId);
         keyboardMessageCache.remove(userId);
+    }
+
+    /**
+     * Get row index (number) by field name, for more convenient access
+     *
+     * @param field {@link String} field name from {@link CallbackQuery}
+     * @return {@link Integer} number of passed button name
+     */
+    private Integer getRowIndexByFieldName(String field) {
+        return rowIndexesByFieldName.get(field);
+    }
+
+    /**
+     * Remove bracers << or >> from marked button
+     *
+     * @param text {@link String} text from button
+     * @return {@link String} cleared text of button
+     */
+    private String removeBracers(String text) {
+        String replaceOne = text.replace("<", "").replace("<", "");
+        return replaceOne.replace(">", "").replace(">", "");
     }
 
 }

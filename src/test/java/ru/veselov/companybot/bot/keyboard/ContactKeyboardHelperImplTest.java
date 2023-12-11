@@ -1,13 +1,16 @@
-package ru.veselov.companybot.bot.keyboard.impl;
+package ru.veselov.companybot.bot.keyboard;
 
+import com.vdurmont.emoji.EmojiParser;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Chat;
@@ -16,13 +19,16 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+import ru.veselov.companybot.bot.keyboard.impl.ContactKeyboardHelperImpl;
 import ru.veselov.companybot.bot.util.CallBackButtonUtils;
 import ru.veselov.companybot.bot.util.MessageUtils;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Stream;
 
 @ExtendWith(MockitoExtension.class)
+@SuppressWarnings("unchecked")
 class ContactKeyboardHelperImplTest {
 
     Update update;
@@ -54,7 +60,7 @@ class ContactKeyboardHelperImplTest {
     @ParameterizedTest
     @MethodSource("getRowsAndNamesWithMessages")
     void shouldCreateContactKeyboard(String callbackName, Integer buttonRow, String expectedMessage) {
-        InlineKeyboardMarkup inlineKeyboardMarkup = contactKeyboardHelper.contactKeyBoard();
+        InlineKeyboardMarkup inlineKeyboardMarkup = contactKeyboardHelper.getContactKeyboard();
         List<List<InlineKeyboardButton>> keyboard = inlineKeyboardMarkup.getKeyboard();
         String callbackData = keyboard.get(buttonRow).get(0).getCallbackData();
         String message = keyboard.get(buttonRow).get(0).getText();
@@ -64,9 +70,9 @@ class ContactKeyboardHelperImplTest {
 
     @ParameterizedTest
     @MethodSource("getRowsAndNamesWhichCanMeMarked")
-    void shouldMarkField(String callbackName, Integer buttonRow) {
+    void shouldMarkAndUnmarkField(String callbackName, Integer buttonRow) {
         EditMessageReplyMarkup editMessageReplyMarkup = contactKeyboardHelper
-                .editMessageChooseField(update, callbackName);
+                .getEditMessageReplyForChosenCallbackButton(update, callbackName);
         //first time we check if field successfully marked
         List<List<InlineKeyboardButton>> keyboard = editMessageReplyMarkup.getReplyMarkup().getKeyboard();
         String buttonText = keyboard.get(buttonRow).get(0).getText();
@@ -76,16 +82,47 @@ class ContactKeyboardHelperImplTest {
                 Assertions.assertThat(keyboard.get(i).get(0).getText()).doesNotStartWith("<<");
             }
         }
-        //next time we will check if field would be successfully unmarked
-        EditMessageReplyMarkup editMessageReplyMarkupSecondPress = contactKeyboardHelper
-                .editMessageChooseField(update, callbackName);
-        List<List<InlineKeyboardButton>> keyboardAfterSecondPress = editMessageReplyMarkupSecondPress
-                .getReplyMarkup().getKeyboard();
-        String buttonTextSecondPress = keyboardAfterSecondPress.get(buttonRow).get(0).getText();
-        Assertions.assertThat(buttonTextSecondPress).doesNotStartWith("<<");
-        for (int i = 0; i < 4; i++) {
-            Assertions.assertThat(keyboard.get(i).get(0).getText()).doesNotStartWith("<<");
+        //We will call func for other fields and check if main field clear from bracers
+        List<String> markableButtons = getMarkableButtons();
+        for (String anotherButton : markableButtons) {
+            if (!anotherButton.equals(callbackName)) {
+                EditMessageReplyMarkup editMessageReplyMarkupSecondPress = contactKeyboardHelper
+                        .getEditMessageReplyForChosenCallbackButton(update, anotherButton);
+                List<List<InlineKeyboardButton>> keyboardAfterSecondPress = editMessageReplyMarkupSecondPress
+                        .getReplyMarkup().getKeyboard();
+                String buttonTextSecondPress = keyboardAfterSecondPress.get(buttonRow).get(0).getText();
+                Assertions.assertThat(buttonTextSecondPress).doesNotStartWith("<<");
+            }
         }
+    }
+
+    @ParameterizedTest
+    @MethodSource("getRowsAndNamesWhichCanMeMarked")
+    void shouldMarkButtonAfterInputData(String callbackName, Integer buttonRow) {
+        //create keyboard and mark button
+        contactKeyboardHelper.getEditMessageReplyForChosenCallbackButton(update, callbackName);
+        EditMessageReplyMarkup editMessageReplyAfterSendingContactData = contactKeyboardHelper
+                .getEditMessageReplyAfterSendingContactData(user.getId(), callbackName);
+
+        InlineKeyboardButton button = editMessageReplyAfterSendingContactData.getReplyMarkup()
+                .getKeyboard().get(buttonRow).get(0);
+
+        Assertions.assertThat(EmojiParser.parseToAliases(button.getText())).startsWith(":white_check_mark:")
+                .doesNotStartWith(":white_check_mark:<<")
+                .doesNotEndWith(">>");
+    }
+
+    @Test
+    void shouldClearKeyboardCache() {
+        Object keyboardMessageCache = ReflectionTestUtils.getField(contactKeyboardHelper, "keyboardMessageCache");
+        Map<Long, EditMessageReplyMarkup> cacheMap = (Map<Long, EditMessageReplyMarkup>) keyboardMessageCache;
+
+        Assertions.assertThat(cacheMap).isEmpty();
+        contactKeyboardHelper
+                .getEditMessageReplyForChosenCallbackButton(update, CallBackButtonUtils.PHONE);
+        Assertions.assertThat(cacheMap).hasSize(1);
+        contactKeyboardHelper.clear(user.getId());
+        Assertions.assertThat(cacheMap).isEmpty();
     }
 
     private static Stream<Arguments> getRowsAndNamesWithMessages() {
@@ -107,4 +144,8 @@ class ContactKeyboardHelperImplTest {
         );
     }
 
+    private static List<String> getMarkableButtons() {
+        return List.of(CallBackButtonUtils.NAME, CallBackButtonUtils.EMAIL, CallBackButtonUtils.SHARED,
+                CallBackButtonUtils.PHONE);
+    }
 }

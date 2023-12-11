@@ -44,7 +44,7 @@ public class BotExceptionHandler {
         log.debug(EXCEPTION_HANDLED, ex.getMessage());
         try {
             companyBot.execute(SendMessage.builder().chatId(ex.getChatId())
-                    .text(ex.getMessage()).replyMarkup(contactKeyboardHelper.contactKeyBoard())
+                    .text(ex.getMessage()).replyMarkup(contactKeyboardHelper.getContactKeyboard())
                     .build());
         } catch (TelegramApiException e) {
             log.error(SMTH_WENT_WRONG, ex.getChatId(), e.getMessage());
