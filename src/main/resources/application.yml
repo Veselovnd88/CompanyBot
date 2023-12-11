@@ -2,8 +2,8 @@ server:
   port: 9100
 
 bot:
-  name: ${PL_BOT_NAME}
-  token: ${PL_BOT_TOKEN}
+  name: ${C_BOT_NAME}
+  token: ${C_BOT_TOKEN}
   adminId: 101516610
   chat-interval: 60000
   max-messages: 14
