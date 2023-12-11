@@ -38,7 +38,43 @@ public class DivisionKeyboardHelperImpl implements Clearable, DivisionKeyboardHe
      */
     @Override
     public InlineKeyboardMarkup getCustomerDivisionKeyboard() {
-        List<DivisionModel> allDivisions = getDivisions();//get all from DB
+        List<DivisionModel> allDivisions = divisionService.findAll();
+        if (allDivisions.isEmpty()) {
+            DivisionModel baseDivision = DivisionModel.builder().divisionId(UUID.randomUUID())
+                    .name("COMMON").description(MessageUtils.COMMON_DIV).build();
+            allDivisions.add(baseDivision);
+        }
+        idDivisionMapCache = allDivisions.stream()
+                .collect(Collectors.toMap(d -> d.getDivisionId().toString(), Function.identity()));
+        log.debug("Divisions retrieved from DB and placed to id: Division cache");
+        InlineKeyboardMarkup markup = getInlineKeyboardMarkup(allDivisions);
+        log.debug("Keyboard for divisions created");
+        return markup;
+    }
+
+
+    /**
+     * With this map we can get Division by from cache by its id
+     *
+     * @return Map<String, DivisionModel> copy of cache map with divisions
+     */
+    @Override
+    public Map<String, DivisionModel> getCachedDivisions() {
+        return Map.copyOf(idDivisionMapCache);
+    }
+
+    @Override
+    public void clear(Long userId) {
+        idDivisionMapCache.clear();
+    }
+
+    /**
+     * Create keyboard with divisions from list
+     *
+     * @param allDivisions {@link List<DivisionModel>} list of division to set up as buttons
+     * @return {@link InlineKeyboardMarkup} keyboard with divisions
+     */
+    private InlineKeyboardMarkup getInlineKeyboardMarkup(List<DivisionModel> allDivisions) {
         List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
         InlineKeyboardMarkup markup = new InlineKeyboardMarkup();
         for (var d : allDivisions) {
@@ -52,40 +88,7 @@ public class DivisionKeyboardHelperImpl implements Clearable, DivisionKeyboardHe
             keyboard.add(row);
         }
         markup.setKeyboard(keyboard);
-        log.debug("Keyboard for divisions created");
         return markup;
-    }
-
-    /**
-     * With this map we can get Division by from cache by its id
-     *
-     * @return {@link Map<String,DivisionModel>} copy of cache map with divisions
-     */
-    @Override
-    public Map<String, DivisionModel> getCachedDivisions() {
-        return Map.copyOf(idDivisionMapCache);
-    }
-
-    @Override
-    public void clear(Long userId) {
-        idDivisionMapCache.clear();
-    }
-
-    /**
-     * Get division from DB and fill
-     *
-     * @return {@link List<DivisionModel>} list of divisions from cache or from DB
-     */
-    private List<DivisionModel> getDivisions() {
-        List<DivisionModel> allDivisions = divisionService.findAll();
-        if (allDivisions.isEmpty()) {
-            DivisionModel baseDivision = DivisionModel.builder().divisionId(UUID.randomUUID())
-                    .name("COMMON").description(MessageUtils.COMMON_DIV).build();
-            allDivisions.add(baseDivision);
-        }
-        idDivisionMapCache = allDivisions.stream().collect(Collectors.toMap(d -> d.getDivisionId().toString(), Function.identity()));
-        log.debug("Divisions retrieved from DB and placed to cache");
-        return allDivisions;
     }
 
 }

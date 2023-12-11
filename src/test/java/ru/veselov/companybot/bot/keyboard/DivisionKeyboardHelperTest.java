@@ -20,6 +20,7 @@ import ru.veselov.companybot.model.DivisionModel;
 import ru.veselov.companybot.service.impl.DivisionServiceImpl;
 
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @ExtendWith(MockitoExtension.class)
@@ -74,12 +75,15 @@ class DivisionKeyboardHelperTest {
                         .getCallbackData()).isEqualTo(div1.getDivisionId().toString()),
                 () -> Assertions.assertThat(customerDivisionKeyboard.getKeyboard().get(0).get(0)
                         .getText()).isEqualTo(div1.getDescription()),
-
                 () -> Assertions.assertThat(customerDivisionKeyboard.getKeyboard().get(1).get(0)
                         .getCallbackData()).isEqualTo(div2.getDivisionId().toString()),
                 () -> Assertions.assertThat(customerDivisionKeyboard.getKeyboard().get(1).get(0)
                         .getText()).isEqualTo(div2.getDescription()),
-                () -> Mockito.verify(divisionService).findAll()
+                () -> Mockito.verify(divisionService).findAll(),
+                () -> {
+                    Map<String, DivisionModel> cachedDivisions = divisionKeyboardHelper.getCachedDivisions();
+                    Assertions.assertThat(cachedDivisions.values()).hasSize(2).contains(div1, div2);
+                }
         );
     }
 

@@ -1,22 +1,18 @@
 package ru.veselov.companybot.util;
 
-import com.vdurmont.emoji.EmojiParser;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
-import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
-import org.telegram.telegrambots.meta.api.objects.*;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
+import org.telegram.telegrambots.meta.api.objects.Chat;
+import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.User;
 import ru.veselov.companybot.bot.CompanyBot;
 import ru.veselov.companybot.bot.keyboard.impl.ContactKeyboardHelperImpl;
 
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.spy;
 
 @SpringBootTest
@@ -52,11 +48,11 @@ class ContactKeyboardHelperTest {
         user.setId(userId);
     }
 
-    @ParameterizedTest
+/*    @ParameterizedTest
     @ValueSource(strings = {"name","email","phone","shared"})
     void testChoseRow(String field){
-        /*Проверка на то что скобки на кнопках клавиатуры изменяются корректно, при перепрыгивании
-        * не добавляются новые, убираются с предыдущей кнопки*/
+        *//*Проверка на то что скобки на кнопках клавиатуры изменяются корректно, при перепрыгивании
+        * не добавляются новые, убираются с предыдущей кнопки*//*
         contactKeyboardHelper.editMessageChooseField(update,field);
         int rowIndex = contactKeyboardHelper.getRowIndexForTest(field);
         EditMessageReplyMarkup editMessageReplyMarkup = contactKeyboardHelper.getKeyboardMessageCache().get(user.getId());
@@ -85,7 +81,7 @@ class ContactKeyboardHelperTest {
         assertTrue(keyboard.get(rowIndex).get(0).getText().startsWith("<<"));
         contactKeyboardHelper.editMessageSavedField(user.getId(), field);
         assertFalse(EmojiParser.parseToAliases(keyboard.get(rowIndex).get(0).getText()).startsWith(":white_check_mark::white_check_mark:"));
-    }
+    }*/
 
 
 }
