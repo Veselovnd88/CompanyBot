@@ -26,19 +26,20 @@ public class ContactKeyboardHelperImpl implements ContactKeyboardHelper {
     private static final String RIGHT_MARK = ">>";
     private static final String WHITE_CHECK_MARK = ":white_check_mark:";
 
+    //storing keyboard as edit message markup  for every user
     private final Map<Long, EditMessageReplyMarkup> keyboardMessageCache = new ConcurrentHashMap<>();
 
     //contains buttons by raw, need for mark/unmark button
-    private final Map<String, Integer> rowsIndexes = new ConcurrentHashMap<>();
+    private final Map<String, Integer> rowIndexesByFieldName = new ConcurrentHashMap<>();
 
     /**
      * Filling internal map with indexes of rows/buttons indexes
      */
     public ContactKeyboardHelperImpl() {
-        rowsIndexes.put(CallBackButtonUtils.NAME, 0);
-        rowsIndexes.put(CallBackButtonUtils.EMAIL, 1);
-        rowsIndexes.put(CallBackButtonUtils.PHONE, 2);
-        rowsIndexes.put(CallBackButtonUtils.SHARED, 3);
+        rowIndexesByFieldName.put(CallBackButtonUtils.NAME, 0);
+        rowIndexesByFieldName.put(CallBackButtonUtils.EMAIL, 1);
+        rowIndexesByFieldName.put(CallBackButtonUtils.PHONE, 2);
+        rowIndexesByFieldName.put(CallBackButtonUtils.SHARED, 3);
     }
 
     @Override
@@ -104,7 +105,7 @@ public class ContactKeyboardHelperImpl implements ContactKeyboardHelper {
                 log.debug("Button unmarked");
             }
         }
-        List<InlineKeyboardButton> buttons = inlineKeyboardMarkup.getKeyboard().get(rowIndex(field));
+        List<InlineKeyboardButton> buttons = inlineKeyboardMarkup.getKeyboard().get(rowIndexByFieldName(field));
         InlineKeyboardButton inlineKeyboardButton = buttons.get(0);
         inlineKeyboardButton.setText(LEFT_MARK + inlineKeyboardButton.getText() + RIGHT_MARK);
         log.debug("Mark chosen field for [callback: {}] input", field);
@@ -121,7 +122,7 @@ public class ContactKeyboardHelperImpl implements ContactKeyboardHelper {
     @Override
     public EditMessageReplyMarkup editMessageSavedField(Long userId, String field) {
         InlineKeyboardMarkup inlineKeyboardMarkup = keyboardMessageCache.get(userId).getReplyMarkup();
-        List<InlineKeyboardButton> buttons = inlineKeyboardMarkup.getKeyboard().get(rowIndex(field));
+        List<InlineKeyboardButton> buttons = inlineKeyboardMarkup.getKeyboard().get(rowIndexByFieldName(field));
         InlineKeyboardButton inlineKeyboardButton = buttons.get(0);
         String buttonText = inlineKeyboardButton.getText();
         String newText = removeBracers(buttonText);
@@ -131,15 +132,14 @@ public class ContactKeyboardHelperImpl implements ContactKeyboardHelper {
         return keyboardMessageCache.get(userId);
     }
 
-    private int rowIndex(String field) {
-        return rowsIndexes.get(field);
+    private int rowIndexByFieldName(String field) {
+        return rowIndexesByFieldName.get(field);
     }
 
     private String removeBracers(String string) {
         String replaceOne = string.replace("<", "").replace("<", "");
         return replaceOne.replace(">", "").replace(">", "");
     }
-
 
     @Override
     public void clear(Long userId) {

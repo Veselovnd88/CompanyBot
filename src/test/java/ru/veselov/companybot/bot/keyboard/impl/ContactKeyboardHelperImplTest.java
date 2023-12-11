@@ -1,0 +1,110 @@
+package ru.veselov.companybot.bot.keyboard.impl;
+
+import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.Mockito;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
+import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
+import org.telegram.telegrambots.meta.api.objects.Chat;
+import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.User;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+import ru.veselov.companybot.bot.util.CallBackButtonUtils;
+import ru.veselov.companybot.bot.util.MessageUtils;
+
+import java.util.List;
+import java.util.stream.Stream;
+
+@ExtendWith(MockitoExtension.class)
+class ContactKeyboardHelperImplTest {
+
+    Update update;
+    CallbackQuery callbackQuery;
+    User user;
+    Message message;
+    Chat chat;
+
+    ContactKeyboardHelperImpl contactKeyboardHelper;
+
+    @BeforeEach
+    void init() {
+        Long userId = 100L;
+        update = Mockito.spy(Update.class);
+        callbackQuery = Mockito.spy(CallbackQuery.class);
+        user = Mockito.spy(User.class);
+        message = Mockito.spy(Message.class);
+        chat = Mockito.spy(Chat.class);
+        chat.setId(userId);
+        callbackQuery.setMessage(message);
+        message.setChat(chat);
+        message.setMessageId(1000);
+        update.setCallbackQuery(callbackQuery);
+        callbackQuery.setFrom(user);
+        user.setId(userId);
+        contactKeyboardHelper = new ContactKeyboardHelperImpl();
+    }
+
+    @ParameterizedTest
+    @MethodSource("getRowsAndNamesWithMessages")
+    void shouldCreateContactKeyboard(String callbackName, Integer buttonRow, String expectedMessage) {
+        InlineKeyboardMarkup inlineKeyboardMarkup = contactKeyboardHelper.contactKeyBoard();
+        List<List<InlineKeyboardButton>> keyboard = inlineKeyboardMarkup.getKeyboard();
+        String callbackData = keyboard.get(buttonRow).get(0).getCallbackData();
+        String message = keyboard.get(buttonRow).get(0).getText();
+        Assertions.assertThat(callbackData).isEqualTo(callbackName);
+        Assertions.assertThat(message).isEqualTo(expectedMessage);
+    }
+
+    @ParameterizedTest
+    @MethodSource("getRowsAndNamesWhichCanMeMarked")
+    void shouldMarkField(String callbackName, Integer buttonRow) {
+        EditMessageReplyMarkup editMessageReplyMarkup = contactKeyboardHelper
+                .editMessageChooseField(update, callbackName);
+        //first time we check if field successfully marked
+        List<List<InlineKeyboardButton>> keyboard = editMessageReplyMarkup.getReplyMarkup().getKeyboard();
+        String buttonText = keyboard.get(buttonRow).get(0).getText();
+        Assertions.assertThat(buttonText).startsWith("<<").doesNotStartWith("<<<");
+        for (int i = 0; i < 4; i++) {
+            if (i != buttonRow) {
+                Assertions.assertThat(keyboard.get(i).get(0).getText()).doesNotStartWith("<<");
+            }
+        }
+        //next time we will check if field would be successfully unmarked
+        EditMessageReplyMarkup editMessageReplyMarkupSecondPress = contactKeyboardHelper
+                .editMessageChooseField(update, callbackName);
+        List<List<InlineKeyboardButton>> keyboardAfterSecondPress = editMessageReplyMarkupSecondPress
+                .getReplyMarkup().getKeyboard();
+        String buttonTextSecondPress = keyboardAfterSecondPress.get(buttonRow).get(0).getText();
+        Assertions.assertThat(buttonTextSecondPress).doesNotStartWith("<<");
+        for (int i = 0; i < 4; i++) {
+            Assertions.assertThat(keyboard.get(i).get(0).getText()).doesNotStartWith("<<");
+        }
+    }
+
+    private static Stream<Arguments> getRowsAndNamesWithMessages() {
+        return Stream.of(
+                Arguments.of(CallBackButtonUtils.NAME, 0, MessageUtils.INPUT_FIO),
+                Arguments.of(CallBackButtonUtils.EMAIL, 1, MessageUtils.INPUT_EMAIL),
+                Arguments.of(CallBackButtonUtils.PHONE, 2, MessageUtils.INPUT_PHONE),
+                Arguments.of(CallBackButtonUtils.SHARED, 3, MessageUtils.ATTACH_CONTACT),
+                Arguments.of(CallBackButtonUtils.SAVE, 4, MessageUtils.SAVE_AND_SEND)
+        );
+    }
+
+    private static Stream<Arguments> getRowsAndNamesWhichCanMeMarked() {
+        return Stream.of(
+                Arguments.of(CallBackButtonUtils.NAME, 0),
+                Arguments.of(CallBackButtonUtils.EMAIL, 1),
+                Arguments.of(CallBackButtonUtils.PHONE, 2),
+                Arguments.of(CallBackButtonUtils.SHARED, 3)
+        );
+    }
+
+}
