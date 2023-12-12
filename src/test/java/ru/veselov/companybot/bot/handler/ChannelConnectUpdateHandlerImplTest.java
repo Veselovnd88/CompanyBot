@@ -12,14 +12,12 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Chat;
-import org.telegram.telegrambots.meta.api.objects.ChatMemberUpdated;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
-import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMember;
-import ru.veselov.companybot.bot.BotConstant;
 import ru.veselov.companybot.bot.BotProperties;
 import ru.veselov.companybot.bot.handler.impl.ChannelConnectUpdateHandlerImpl;
 import ru.veselov.companybot.service.ChatService;
+import ru.veselov.companybot.util.TestUpdates;
 import ru.veselov.companybot.util.TestUtils;
 
 @ExtendWith(MockitoExtension.class)
@@ -31,17 +29,9 @@ class ChannelConnectUpdateHandlerImplTest {
     @InjectMocks
     ChannelConnectUpdateHandlerImpl channelConnectUpdateHandler;
 
-    Update update;
-
     User user;
 
     User botUser;
-
-    ChatMemberUpdated chatMemberUpdated;
-
-    ChatMember chatMember;
-
-    Chat chat;
 
     @BeforeEach
     void init() {
@@ -49,52 +39,40 @@ class ChannelConnectUpdateHandlerImplTest {
         botProperties.setBotId(TestUtils.BOT_ID);
         ReflectionTestUtils.setField(channelConnectUpdateHandler, "botProperties",
                 botProperties, BotProperties.class);
-        update = Mockito.spy(Update.class);
-        user = Mockito.spy(User.class);
-        user.setId(100L);
-        botUser = Mockito.spy(User.class);
-        chatMemberUpdated = Mockito.spy(ChatMemberUpdated.class);
-        chatMember = Mockito.spy(ChatMember.class);
-        chat = Mockito.spy(Chat.class);
-        chat.setId(-100L);
-        update.setMyChatMember(chatMemberUpdated);
-        chatMemberUpdated.setFrom(user);
-        chatMemberUpdated.setNewChatMember(chatMember);
-        Mockito.when(chatMemberUpdated.getNewChatMember()).thenReturn(chatMember);
-        Mockito.when(chatMember.getUser()).thenReturn(botUser);
-        chatMemberUpdated.setChat(chat);
+        user = TestUpdates.getSimpleUser();
+        botUser = TestUpdates.getBotUser();
+
     }
 
     @Test
     void shouldSaveChatWhenBotIsConnectedToChannel() {
         botUser.setId(TestUtils.BOT_ID);
-        Mockito.when(chatMember.getStatus()).thenReturn(BotConstant.ADMINISTRATOR);
+        Update update = TestUpdates.getUpdateWithConnectionBotWithAdministratorStatusToChannelByAdmin();
+        Chat chat = update.getMyChatMember().getChat();
         SendMessage sendMessage = channelConnectUpdateHandler.processUpdate(update);
-        Assertions.assertThat(sendMessage.getChatId()).isEqualTo(user.getId().toString());
+        Assertions.assertThat(sendMessage.getChatId()).isEqualTo(chat.getId().toString());
         Mockito.verify(chatService).save(chat);
     }
 
     @Test
     void shouldRemoveChatWhenBotIsRemovedFromChannel() {
-        botUser.setId(TestUtils.BOT_ID);
-        Mockito.when(chatMember.getStatus()).thenReturn(BotConstant.LEFT);
+        Update update = TestUpdates.getUpdateWithConnectionBotWithLeftStatusToChannelByAdmin();
+        Chat chat = update.getMyChatMember().getChat();
         channelConnectUpdateHandler.processUpdate(update);
         Mockito.verify(chatService).remove(chat.getId());
     }
 
     @Test
     void shouldRemoveChatIfBotWasKickedFromChat() {
-        botUser.setId(TestUtils.BOT_ID);
-        Mockito.when(chatMember.getStatus()).thenReturn(BotConstant.KICKED);
+        Update update = TestUpdates.getUpdateWithConnectionBotWithKickedStatusToChannelByAdmin();
+        Chat chat = update.getMyChatMember().getChat();
         channelConnectUpdateHandler.processUpdate(update);
         Mockito.verify(chatService).remove(chat.getId());
     }
 
     @Test
-    void shouldReturnNullIfUnavailableCommandOccurred() {
-        botUser.setId(TestUtils.BOT_ID);
-        Mockito.when(chatMember.getStatus()).thenReturn("unknown");
-
+    void shouldReturnNullIfUnsupportedCommandOccurred() {
+        Update update = TestUpdates.getUpdateWithConnectionBotWithUnsupportedStatusToChannelByAdmin();
         SendMessage sendMessage = channelConnectUpdateHandler.processUpdate(update);
 
         Assertions.assertThat(sendMessage).isNull();
@@ -102,8 +80,7 @@ class ChannelConnectUpdateHandlerImplTest {
 
     @Test
     void shouldThrowExceptionIfNotBotIdWasHandled() {
-        botUser.setId(9L);
-
+        Update update = TestUpdates.getUpdateWithConnectionNoBotWithUnsupportedStatusToChannelByAdmin();
         SendMessage sendMessage = channelConnectUpdateHandler.processUpdate(update);
 
         Assertions.assertThat(sendMessage).isNull();

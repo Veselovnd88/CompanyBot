@@ -38,6 +38,12 @@ public class TelegramFacadeUpdateHandler {
 
     private final BotStateHandlerContext botStateHandlerContext;
 
+    /**
+     * Method checking content of update and define handler
+     *
+     * @param update {@link Update} from Telegram
+     * @return {@link BotApiMethod} message for further executing
+     */
     @BotExceptionToMessage
     public BotApiMethod<?> processUpdate(Update update) {
         //updates for connecting bot to chat

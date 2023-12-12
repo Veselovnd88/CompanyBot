@@ -57,7 +57,7 @@ class TelegramFacadeUpdateHandlerTest {
     void shouldCallChannelConnectUpdateHandler() {
         ReflectionTestUtils
                 .setField(telegramFacadeUpdateHandler, "adminId", TestUtils.ADMIN_ID.toString(), String.class);
-        Update updateWithConnectionBotToChannelByAdmin = TestUpdates.getUpdateWithConnectionBotToChannelByAdmin();
+        Update updateWithConnectionBotToChannelByAdmin = TestUpdates.getUpdateWithConnectionToChannelByAdmin();
 
         telegramFacadeUpdateHandler.processUpdate(updateWithConnectionBotToChannelByAdmin);
 

@@ -8,7 +8,9 @@ import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMember;
-import ru.veselov.companybot.bot.BotConstant;
+import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMemberAdministrator;
+import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMemberBanned;
+import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMemberLeft;
 import ru.veselov.companybot.bot.BotProperties;
 import ru.veselov.companybot.bot.handler.ChannelConnectUpdateHandler;
 import ru.veselov.companybot.service.ChatService;
@@ -44,20 +46,20 @@ public class ChannelConnectUpdateHandlerImpl implements ChannelConnectUpdateHand
         Long addedUserId = addedUser.getId();
         if (addedUserId.equals(botProperties.getBotId())) {
             Chat chat = update.getMyChatMember().getChat();
-            String chatMemberStatus = newChatMember.getStatus();
-            if (chatMemberStatus.equalsIgnoreCase(BotConstant.ADMINISTRATOR)) {
+            newChatMember.getStatus();
+            if (newChatMember instanceof ChatMemberAdministrator) {
                 chatService.save(chat);
                 log.info("Bot added to [channel: {} by user: {}]", chat.getTitle(), userId);
                 return SendMessage.builder().chatId(userId)
                         .text("Вы добавили меня к каналу " + chat.getTitle()).build();
             }
-            if (chatMemberStatus.equalsIgnoreCase(BotConstant.LEFT)) {
+            if (newChatMember instanceof ChatMemberLeft) {
                 chatService.remove(chat.getId());
                 log.info("Bot was removed from [channel: {} by user: {}]", chat.getTitle(), userId);
                 return SendMessage.builder().chatId(userId)
                         .text("Вы удалили меня из канала " + chat.getTitle()).build();
             }
-            if (chatMemberStatus.equalsIgnoreCase(BotConstant.KICKED)) {
+            if (newChatMember instanceof ChatMemberBanned) {
                 chatService.remove(chat.getId());
                 log.info("Bot was kicked from [channel: {} by user: {}]", chat.getTitle(), userId);
                 return SendMessage.builder().chatId(userId)

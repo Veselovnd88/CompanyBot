@@ -1,20 +1,66 @@
 package ru.veselov.companybot.util;
 
+import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.ChatMemberUpdated;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.MessageEntity;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
+import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMemberAdministrator;
+import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMemberBanned;
+import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMemberLeft;
+import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMemberRestricted;
 
 import java.util.List;
 
 public class TestUpdates {
 
-    public static Update getUpdateWithConnectionBotToChannelByAdmin() {
+    public static Update getUpdateWithConnectionToChannelByAdmin() {
         Update update = new Update();
         ChatMemberUpdated chatMemberUpdated = new ChatMemberUpdated();
+        chatMemberUpdated.setChat(getChat(TestUtils.ADMIN_ID));
         chatMemberUpdated.setFrom(getAdminUser());
         update.setMyChatMember(chatMemberUpdated);
+        return update;
+    }
+
+    public static Update getUpdateWithConnectionBotWithAdministratorStatusToChannelByAdmin() {
+        Update update = getUpdateWithConnectionToChannelByAdmin();
+        ChatMemberAdministrator chatMemberAdministrator = new ChatMemberAdministrator();
+        chatMemberAdministrator.setUser(getBotUser());
+        update.getMyChatMember().setNewChatMember(chatMemberAdministrator);
+        return update;
+    }
+
+    public static Update getUpdateWithConnectionBotWithLeftStatusToChannelByAdmin() {
+        Update update = getUpdateWithConnectionToChannelByAdmin();
+        ChatMemberLeft chatMemberLeft = new ChatMemberLeft();
+        chatMemberLeft.setUser(getBotUser());
+        update.getMyChatMember().setNewChatMember(chatMemberLeft);
+        return update;
+    }
+
+    public static Update getUpdateWithConnectionBotWithKickedStatusToChannelByAdmin() {
+        Update update = getUpdateWithConnectionToChannelByAdmin();
+        ChatMemberBanned chatMemberBanned = new ChatMemberBanned();
+        chatMemberBanned.setUser(getBotUser());
+        update.getMyChatMember().setNewChatMember(chatMemberBanned);
+        return update;
+    }
+
+    public static Update getUpdateWithConnectionBotWithUnsupportedStatusToChannelByAdmin() {
+        Update update = getUpdateWithConnectionToChannelByAdmin();
+        ChatMemberRestricted unsupportedChatMember = new ChatMemberRestricted();
+        unsupportedChatMember.setUser(getBotUser());
+        update.getMyChatMember().setNewChatMember(unsupportedChatMember);
+        return update;
+    }
+
+    public static Update getUpdateWithConnectionNoBotWithUnsupportedStatusToChannelByAdmin() {
+        Update update = getUpdateWithConnectionToChannelByAdmin();
+        ChatMemberAdministrator chatMemberAdministrator = new ChatMemberAdministrator();
+        chatMemberAdministrator.setUser(getSimpleUser());
+        update.getMyChatMember().setNewChatMember(chatMemberAdministrator);
         return update;
     }
 
@@ -57,6 +103,19 @@ public class TestUpdates {
         user.setFirstName(TestUtils.USER_FIRST_NAME);
         user.setLastName(TestUtils.USER_LAST_NAME);
         return user;
+    }
+
+    public static User getBotUser() {
+        User user = new User();
+        user.setId(TestUtils.BOT_ID);
+        user.setIsBot(true);
+        return user;
+    }
+
+    public static Chat getChat(Long chatId) {
+        Chat chat = new Chat();
+        chat.setId(chatId);
+        return chat;
     }
 
 }
