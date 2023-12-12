@@ -26,6 +26,7 @@ import ru.veselov.companybot.cache.UserDataCacheFacade;
 import ru.veselov.companybot.exception.WrongBotStateException;
 import ru.veselov.companybot.service.CustomerService;
 import ru.veselov.companybot.util.TestUpdates;
+import ru.veselov.companybot.util.TestUtils;
 
 import java.util.List;
 
@@ -50,7 +51,7 @@ class CommandUpdateHandlerTest {
 
     @BeforeEach
     void init() {
-        user = TestUpdates.getSimpleUser();
+        user = TestUtils.getSimpleUser();
         userId = user.getId();
     }
 

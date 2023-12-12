@@ -1,11 +1,10 @@
 package ru.veselov.companybot.util;
 
-import org.telegram.telegrambots.meta.api.objects.Chat;
+import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.ChatMemberUpdated;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.MessageEntity;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMemberAdministrator;
 import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMemberBanned;
 import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMemberLeft;
@@ -18,8 +17,8 @@ public class TestUpdates {
     public static Update getUpdateWithConnectionToChannelByAdmin() {
         Update update = new Update();
         ChatMemberUpdated chatMemberUpdated = new ChatMemberUpdated();
-        chatMemberUpdated.setChat(getChat(TestUtils.CHAT_ID, TestUtils.CHAT_TITLE));
-        chatMemberUpdated.setFrom(getAdminUser());
+        chatMemberUpdated.setChat(TestUtils.getChat(TestUtils.CHAT_ID, TestUtils.CHAT_TITLE));
+        chatMemberUpdated.setFrom(TestUtils.getAdminUser());
         update.setMyChatMember(chatMemberUpdated);
         return update;
     }
@@ -27,7 +26,7 @@ public class TestUpdates {
     public static Update getUpdateWithConnectionBotWithAdministratorStatusToChannelByAdmin() {
         Update update = getUpdateWithConnectionToChannelByAdmin();
         ChatMemberAdministrator chatMemberAdministrator = new ChatMemberAdministrator();
-        chatMemberAdministrator.setUser(getBotUser());
+        chatMemberAdministrator.setUser(TestUtils.getBotUser());
         update.getMyChatMember().setNewChatMember(chatMemberAdministrator);
         return update;
     }
@@ -35,7 +34,7 @@ public class TestUpdates {
     public static Update getUpdateWithConnectionBotWithLeftStatusToChannelByAdmin() {
         Update update = getUpdateWithConnectionToChannelByAdmin();
         ChatMemberLeft chatMemberLeft = new ChatMemberLeft();
-        chatMemberLeft.setUser(getBotUser());
+        chatMemberLeft.setUser(TestUtils.getBotUser());
         update.getMyChatMember().setNewChatMember(chatMemberLeft);
         return update;
     }
@@ -43,7 +42,7 @@ public class TestUpdates {
     public static Update getUpdateWithConnectionBotWithKickedStatusToChannelByAdmin() {
         Update update = getUpdateWithConnectionToChannelByAdmin();
         ChatMemberBanned chatMemberBanned = new ChatMemberBanned();
-        chatMemberBanned.setUser(getBotUser());
+        chatMemberBanned.setUser(TestUtils.getBotUser());
         update.getMyChatMember().setNewChatMember(chatMemberBanned);
         return update;
     }
@@ -51,7 +50,7 @@ public class TestUpdates {
     public static Update getUpdateWithConnectionBotWithUnsupportedStatusToChannelByAdmin() {
         Update update = getUpdateWithConnectionToChannelByAdmin();
         ChatMemberRestricted unsupportedChatMember = new ChatMemberRestricted();
-        unsupportedChatMember.setUser(getBotUser());
+        unsupportedChatMember.setUser(TestUtils.getBotUser());
         update.getMyChatMember().setNewChatMember(unsupportedChatMember);
         return update;
     }
@@ -59,7 +58,7 @@ public class TestUpdates {
     public static Update getUpdateWithConnectionNoBotWithUnsupportedStatusToChannelByAdmin() {
         Update update = getUpdateWithConnectionToChannelByAdmin();
         ChatMemberAdministrator chatMemberAdministrator = new ChatMemberAdministrator();
-        chatMemberAdministrator.setUser(getSimpleUser());
+        chatMemberAdministrator.setUser(TestUtils.getSimpleUser());
         update.getMyChatMember().setNewChatMember(chatMemberAdministrator);
         return update;
     }
@@ -67,7 +66,7 @@ public class TestUpdates {
     public static Update getUpdateWithConnectionBotToChannelByUser() {
         Update update = new Update();
         ChatMemberUpdated chatMemberUpdated = new ChatMemberUpdated();
-        chatMemberUpdated.setFrom(getSimpleUser());
+        chatMemberUpdated.setFrom(TestUtils.getSimpleUser());
         update.setMyChatMember(chatMemberUpdated);
         return update;
     }
@@ -82,41 +81,19 @@ public class TestUpdates {
         message.setEntities(List.of(botCommandEntity));
         message.setText(command);
         update.setMessage(message);
-        message.setFrom(getSimpleUser());
+        message.setFrom(TestUtils.getSimpleUser());
         return update;
     }
 
-
-    public static User getAdminUser() {
-        User user = new User();
-        user.setId(TestUtils.ADMIN_ID);
-        user.setUserName(TestUtils.ADMIN_NAME);
-        user.setFirstName(TestUtils.ADMIN_FIRST_NAME);
-        user.setLastName(TestUtils.ADMIN_LAST_NAME);
-        return user;
-    }
-
-    public static User getSimpleUser() {
-        User user = new User();
-        user.setId(TestUtils.USER_ID);
-        user.setUserName(TestUtils.USER_NAME);
-        user.setFirstName(TestUtils.USER_FIRST_NAME);
-        user.setLastName(TestUtils.USER_LAST_NAME);
-        return user;
-    }
-
-    public static User getBotUser() {
-        User user = new User();
-        user.setId(TestUtils.BOT_ID);
-        user.setIsBot(true);
-        return user;
-    }
-
-    public static Chat getChat(Long chatId, String chatTitle) {
-        Chat chat = new Chat();
-        chat.setId(chatId);
-        chat.setTitle(chatTitle);
-        return chat;
+    public static Update getUpdateWithMessageWithCallbackQueryByUser(String callbackData) {
+        Update update = new Update();
+        CallbackQuery callbackQuery = new CallbackQuery();
+        callbackQuery.setFrom(TestUtils.getSimpleUser());
+        callbackQuery.setData(callbackData);
+        callbackQuery.setId(TestUtils.CALLBACK_ID);
+        callbackQuery.setMessage(TestUtils.getUserMessageForCallback());
+        update.setCallbackQuery(callbackQuery);
+        return update;
     }
 
 }

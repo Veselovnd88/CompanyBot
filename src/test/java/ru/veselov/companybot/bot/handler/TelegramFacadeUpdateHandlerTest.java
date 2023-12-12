@@ -74,7 +74,7 @@ class TelegramFacadeUpdateHandlerTest {
                 .processUpdate(updateWithConnectionBotToChannelByUser);
 
         Assertions.assertThat(sendMessage.getText()).startsWith("Я работаю только");
-        Assertions.assertThat(sendMessage.getChatId()).isEqualTo(TestUpdates.getSimpleUser().getId().toString());
+        Assertions.assertThat(sendMessage.getChatId()).isEqualTo(TestUtils.getSimpleUser().getId().toString());
         Mockito.verifyNoInteractions(channelConnectUpdateHandler);
     }
 

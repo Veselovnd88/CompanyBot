@@ -39,8 +39,8 @@ class ChannelConnectUpdateHandlerImplTest {
         botProperties.setBotId(TestUtils.BOT_ID);
         ReflectionTestUtils.setField(channelConnectUpdateHandler, "botProperties",
                 botProperties, BotProperties.class);
-        user = TestUpdates.getSimpleUser();
-        botUser = TestUpdates.getBotUser();
+        user = TestUtils.getSimpleUser();
+        botUser = TestUtils.getBotUser();
 
     }
 

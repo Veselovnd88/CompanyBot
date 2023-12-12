@@ -8,17 +8,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
-import org.telegram.telegrambots.meta.api.objects.Chat;
-import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.User;
 import ru.veselov.companybot.bot.BotState;
 import ru.veselov.companybot.bot.context.CallbackQueryDataHandlerContext;
 import ru.veselov.companybot.bot.handler.callback.impl.ContactCallbackUpdateHandlerImpl;
-import ru.veselov.companybot.bot.util.CallBackButtonUtils;
 import ru.veselov.companybot.bot.keyboard.impl.ContactKeyboardHelperImpl;
+import ru.veselov.companybot.bot.util.CallBackButtonUtils;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
+import ru.veselov.companybot.util.TestUpdates;
 import ru.veselov.companybot.util.TestUtils;
 
 import java.util.Set;
@@ -38,33 +35,18 @@ class ContactCallbackUpdateHandlerImplTest {
     @InjectMocks
     ContactCallbackUpdateHandlerImpl contactCallbackUpdateHandler;
 
-    Update update;
-    CallbackQuery callbackQuery;
-    User user;
+    Long userId;
 
     @BeforeEach
     void init() {
-        update = Mockito.spy(Update.class);
-        callbackQuery = Mockito.spy(CallbackQuery.class);
-        update.setCallbackQuery(callbackQuery);
-        user = Mockito.spy(User.class);
-        user.setId(TestUtils.USER_ID);
-        Message message = new Message();
-        message.setMessageId(100);
-        message.setFrom(user);
-        Chat chat = new Chat();
-        chat.setId(100L);
-        message.setChat(chat);
-        callbackQuery.setFrom(user);
-        callbackQuery.setMessage(message);
-        callbackQuery.setId("100");
+        userId = TestUtils.getSimpleUser().getId();
     }
 
     @Test
     void shouldCallbackDataSetUpStateCreateContactAndReturnKeyboardForInputData() {
+        Update update = TestUpdates.getUpdateWithMessageWithCallbackQueryByUser("smth");
         contactCallbackUpdateHandler.processUpdate(update);
 
-        Long userId = user.getId();
         org.junit.jupiter.api.Assertions.assertAll(
                 () -> Mockito.verify(userDataCache).setUserBotState(userId, BotState.AWAIT_CONTACT),
                 () -> Mockito.verify(userDataCache).createContact(userId),
