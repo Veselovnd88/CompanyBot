@@ -1,0 +1,64 @@
+package ru.veselov.companybot.bot.handler.message.impl;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
+import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.MessageEntity;
+import org.telegram.telegrambots.meta.api.objects.Update;
+import ru.veselov.companybot.bot.BotState;
+import ru.veselov.companybot.bot.context.BotStateHandlerContext;
+import ru.veselov.companybot.bot.context.UpdateHandlerFromContext;
+import ru.veselov.companybot.bot.handler.CommandUpdateHandler;
+import ru.veselov.companybot.bot.handler.message.MessageUpdateHandler;
+import ru.veselov.companybot.bot.util.BotStateUtils;
+import ru.veselov.companybot.bot.util.MessageUtils;
+import ru.veselov.companybot.cache.UserDataCacheFacade;
+import ru.veselov.companybot.exception.UnexpectedActionException;
+
+import java.util.Optional;
+
+@Component
+@RequiredArgsConstructor
+@Slf4j
+public class MessageUpdateHandlerImpl implements MessageUpdateHandler {
+
+    private final UserDataCacheFacade userDataCache;
+
+    private final CommandUpdateHandler commandUpdateHandler;
+
+    private final BotStateHandlerContext botStateHandlerContext;
+
+    @Override
+    public BotApiMethod<?> processUpdate(Update update) {
+        Message message = update.getMessage();
+        if (isCommand(message)) {
+            log.debug("Update forwarded to commandUpdateHandler");
+            return commandUpdateHandler.processUpdate(update);
+        }
+        String chatId = update.getMessage().getFrom().getId().toString();
+        BotState botState = userDataCache.getUserBotState(update.getMessage().getFrom().getId());
+        UpdateHandlerFromContext handler = botStateHandlerContext.getHandler(botState);
+        if (handler != null) {
+            BotStateUtils.validateUpdateHandlerStates(handler, botState, chatId);
+            log.debug("Update forwarded to {}", handler.getClass().getSimpleName());
+            return handler.processUpdate(update);
+        }
+        log.warn("Unexpected action, no handler for message");
+        throw new UnexpectedActionException(MessageUtils.ANOTHER_ACTION, chatId);
+    }
+
+    private boolean isCommand(Message message) {
+        log.debug("Checking if message contains command entity");
+        if (message.hasEntities() && message.getForwardFrom() == null) {
+            Optional<MessageEntity> commandEntity = message.getEntities()
+                    .stream().filter(me -> "bot_command".equals(me.getType())).findFirst();
+            log.debug("Message contains bot_command entity");
+            return commandEntity.isPresent();
+        }
+        log.debug("Message doesn't contains bot_command entity");
+        return false;
+    }
+
+}

@@ -85,6 +85,10 @@ public class TestUpdates {
         return update;
     }
 
+    public static Update getUpdateWithMessageWithContent() {
+        return new Update();
+    }
+
     public static Update getUpdateWithMessageWithCallbackQueryByUser(String callbackData) {
         Update update = new Update();
         CallbackQuery callbackQuery = new CallbackQuery();

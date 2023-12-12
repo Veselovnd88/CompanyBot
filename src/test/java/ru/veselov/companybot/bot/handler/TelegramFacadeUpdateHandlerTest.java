@@ -1,7 +1,6 @@
 package ru.veselov.companybot.bot.handler;
 
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -9,15 +8,11 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.test.util.ReflectionTestUtils;
+import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
-import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import org.telegram.telegrambots.meta.api.objects.User;
 import ru.veselov.companybot.bot.BotCommands;
-import ru.veselov.companybot.bot.context.BotStateHandlerContext;
-import ru.veselov.companybot.bot.context.CallbackQueryDataHandlerContext;
-import ru.veselov.companybot.cache.UserDataCacheFacade;
+import ru.veselov.companybot.bot.handler.message.MessageUpdateHandler;
 import ru.veselov.companybot.util.TestUpdates;
 import ru.veselov.companybot.util.TestUtils;
 
@@ -31,27 +26,13 @@ class TelegramFacadeUpdateHandlerTest {
     ChannelConnectUpdateHandler channelConnectUpdateHandler;
 
     @Mock
-    UserDataCacheFacade userDataCache;
+    CallbackQueryUpdateHandler callbackQueryUpdateHandler;
 
     @Mock
-    CallbackQueryDataHandlerContext callbackQueryDataHandlerContext;
-
-    @Mock
-    BotStateHandlerContext botStateHandlerContext;
+    MessageUpdateHandler messageUpdateHandler;
 
     @InjectMocks
     TelegramFacadeUpdateHandler telegramFacadeUpdateHandler;
-
-    Update update;
-    CallbackQuery callbackQuery;
-    Message message;
-    User user;
-
-    @BeforeEach
-    void init() {
-        update = Mockito.spy(Update.class);
-        user = Mockito.spy(User.class);
-    }
 
     @Test
     void shouldCallChannelConnectUpdateHandler() {
@@ -79,13 +60,41 @@ class TelegramFacadeUpdateHandlerTest {
     }
 
     @Test
+    void shouldCallMessageUpdateHandlerIfUpdateContainsMessage() {
+        Update updateWithMessageWithCommandByUser = TestUpdates.getUpdateWithMessageWithCommandByUser(BotCommands.CALL);
+
+        telegramFacadeUpdateHandler.processUpdate(updateWithMessageWithCommandByUser);
+
+        Mockito.verify(messageUpdateHandler).processUpdate(updateWithMessageWithCommandByUser);
+    }
+
+    @Test
+    void shouldCallCallbackUpdateHandlerIfUpdateContainsCallback() {
+        Update update = TestUpdates.getUpdateWithMessageWithCallbackQueryByUser("anyCallback");
+
+        telegramFacadeUpdateHandler.processUpdate(update);
+
+        Mockito.verify(callbackQueryUpdateHandler).processUpdate(update);
+    }
+
+    @Test
+    void shouldReturnNullIfNotSupportedUpdateReceived() {
+        Update update = new Update();
+
+        BotApiMethod<?> botApiMethod = telegramFacadeUpdateHandler.processUpdate(update);
+
+        Assertions.assertThat(botApiMethod).isNull();
+        Mockito.verifyNoInteractions(callbackQueryUpdateHandler, messageUpdateHandler, channelConnectUpdateHandler);
+    }
+
+
+/*    @Test
     void shouldCallCommandUpdateHandlerIfMessageHasCommandEntity() {
         Update updateWithMessageWithCommandByUser = TestUpdates.getUpdateWithMessageWithCommandByUser(BotCommands.CALL);
 
         telegramFacadeUpdateHandler.processUpdate(updateWithMessageWithCommandByUser);
 
         Mockito.verify(commandUpdateHandler).processUpdate(updateWithMessageWithCommandByUser);
-    }
-
+    }*/
 
 }
