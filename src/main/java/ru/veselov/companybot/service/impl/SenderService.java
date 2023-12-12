@@ -9,13 +9,14 @@ import org.telegram.telegrambots.meta.api.objects.Chat;
 import ru.veselov.companybot.bot.CompanyBot;
 import ru.veselov.companybot.model.ContactModel;
 import ru.veselov.companybot.model.InquiryModel;
+import ru.veselov.companybot.service.ContactMessageCreator;
 import ru.veselov.companybot.service.SendTask;
-import ru.veselov.companybot.service.sender.ContactSender;
 import ru.veselov.companybot.service.sender.InquirySender;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -35,7 +36,7 @@ public class SenderService {
     private final CompanyBot bot;
     private final ChatServiceImpl chatServiceImpl;
     private final InquirySender inquirySender;
-    private final ContactSender contactSender;
+    private final ContactMessageCreator contactMessageCreator;
 
     private final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(10);
 
@@ -50,18 +51,19 @@ public class SenderService {
     }
 
     public void send(InquiryModel inquiry, ContactModel contact) {
-        Long userId = contact.getUserId();
         removeOldChats();
         List<Chat> allChats = chatServiceImpl.findAll();
         List<Chat> chatsToSend = new ArrayList<>(allChats);
         chatsToSend.add(adminChat);
         for (Chat chat : chatsToSend) {
             if (chatTimers.containsKey(chat.getId())) {
-                LocalDateTime availableTimeForNextMessage = chatTimers.get(chat.getId()).plus(chatInterval, ChronoUnit.MILLIS);
+                LocalDateTime availableTimeForNextMessage = chatTimers.get(chat.getId())
+                        .plus(chatInterval, ChronoUnit.MILLIS);
+                SendTask sendTask = new SendTask(bot, chat, Collections.emptyList());
                 if (availableTimeForNextMessage.isAfter(LocalDateTime.now())) {
-                    executorService.schedule(new SendTask(), chatInterval, TimeUnit.MILLISECONDS);
+                    executorService.schedule(sendTask, chatInterval, TimeUnit.MILLISECONDS);
                 } else {
-                    executorService.execute(new SendTask());
+                    executorService.execute(sendTask);
                 }
                 if (chat.isChannelChat() || chat.isGroupChat()) {
                     chatTimers.put(chat.getId(), LocalDateTime.now());

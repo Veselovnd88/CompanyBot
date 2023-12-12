@@ -6,9 +6,9 @@ import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendContact;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Chat;
+import ru.veselov.companybot.bot.util.MessageUtils;
 import ru.veselov.companybot.model.ContactModel;
 import ru.veselov.companybot.service.ContactMessageCreator;
-import ru.veselov.companybot.util.BotMessageStringUtils;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -23,7 +23,7 @@ public class ContactMessageCreatorImpl implements ContactMessageCreator {
         log.debug("Creating message with Contact to send");
         List<BotApiMethod<?>> messagesToSend = new LinkedList<>();
         SendMessage contactMessage = SendMessage.builder().chatId(chat.getId()).text(
-                BotMessageStringUtils.createContactMessage(contact, hasInquiry).trim()).build();
+                MessageUtils.createContactMessage(contact, hasInquiry).trim()).build();
         messagesToSend.add(contactMessage);
         log.debug("Send message with contact data added to list");
         if (contact.getContact() != null) {

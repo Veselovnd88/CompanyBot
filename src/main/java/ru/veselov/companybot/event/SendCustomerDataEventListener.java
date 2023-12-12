@@ -32,8 +32,6 @@ public class SendCustomerDataEventListener {
         ContactModel contact = event.getContact();
         try {
             senderService.send(inquiry, contact);
-        } catch (TelegramApiException e) {
-            throw new RuntimeException(e);
         } catch (NoSuchDivisionException e) {
             throw new RuntimeException(e);
         }
