@@ -6,13 +6,12 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.MessageEntity;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.veselov.companybot.bot.BotState;
 import ru.veselov.companybot.bot.context.BotStateHandlerContext;
 import ru.veselov.companybot.bot.context.UpdateHandlerFromContext;
-import ru.veselov.companybot.bot.handler.impl.ChannelConnectUpdateHandlerImpl;
-import ru.veselov.companybot.bot.handler.impl.CommandUpdateHandlerImpl;
 import ru.veselov.companybot.bot.util.BotStateUtils;
 import ru.veselov.companybot.bot.util.MessageUtils;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
@@ -29,9 +28,9 @@ public class TelegramFacadeUpdateHandler {
     @Value("${bot.adminId}")
     private String adminId;
 
-    private final CommandUpdateHandlerImpl commandHandler;
+    private final CommandUpdateHandler commandUpdateHandler;
 
-    private final ChannelConnectUpdateHandlerImpl channelConnectUpdateHandlerImpl;
+    private final ChannelConnectUpdateHandler channelConnectUpdateHandler;
 
     private final UserDataCacheFacade userDataCache;
 
@@ -44,15 +43,21 @@ public class TelegramFacadeUpdateHandler {
         //updates for connecting bot to chat
         if (update.hasMyChatMember()) {
             if (update.getMyChatMember().getFrom().getId().toString().equals(adminId)) {
-                return channelConnectUpdateHandlerImpl.processUpdate(update);
+                log.debug("Update forwarded to channelConnectUpdateHandler");
+                return channelConnectUpdateHandler.processUpdate(update);
             } else {
+                log.debug("Not admin tried to connect bot to his channel");
                 return SendMessage.builder().chatId(update.getMyChatMember().getFrom().getId())
                         .text("Я работаю только в тех каналах, куда меня добавил администратор")
                         .build();
             }
         }
-        if (update.hasMessage() && isCommand(update)) {
-            return commandHandler.processUpdate(update);
+        if (update.hasMessage()) {
+            Message message = update.getMessage();
+            if (isCommand(message)) {
+                log.debug("Update forwarded to commandUpdateHandler");
+                return commandUpdateHandler.processUpdate(update);
+            }
         }
         if (update.hasMessage()) {
             String chatId = update.getMessage().getFrom().getId().toString();
@@ -70,13 +75,15 @@ public class TelegramFacadeUpdateHandler {
         return null;
     }
 
-    private boolean isCommand(Update update) {
-        /*additional checking if message is not forwarded*/
-        if (update.hasMessage() && update.getMessage().hasEntities() && update.getMessage().getForwardFrom() == null) {
-            Optional<MessageEntity> commandEntity = update.getMessage().getEntities()
-                    .stream().filter(x -> "bot_command".equals(x.getType())).findFirst();
+    private boolean isCommand(Message message) {
+        log.debug("Checking if message contains command entity");
+        if (message.hasEntities() && message.getForwardFrom() == null) {
+            Optional<MessageEntity> commandEntity = message.getEntities()
+                    .stream().filter(me -> "bot_command".equals(me.getType())).findFirst();
+            log.debug("Message contains bot_command entity");
             return commandEntity.isPresent();
         }
+        log.debug("Message doesn't contains bot_command entity");
         return false;
     }
 
