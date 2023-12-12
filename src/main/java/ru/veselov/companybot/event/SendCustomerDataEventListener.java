@@ -3,6 +3,7 @@ package ru.veselov.companybot.event;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.veselov.companybot.exception.NoSuchDivisionException;
@@ -23,16 +24,12 @@ public class SendCustomerDataEventListener {
 
     private final InquiryService inquiryService;
 
+    @Async
     @EventListener
     public void handleSendCustomerDataEvent(SendCustomerDataEvent event) {
         log.debug("Handled event for sending data to admin/chat from customer");
         InquiryModel inquiry = event.getInquiry();
         ContactModel contact = event.getContact();
-
-        customerService.saveContact(contact);
-        if (inquiry != null) {
-            inquiryService.save(inquiry);
-        }
         try {
             senderService.send(inquiry, contact);
         } catch (TelegramApiException e) {

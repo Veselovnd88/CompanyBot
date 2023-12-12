@@ -1,23 +1,31 @@
 package ru.veselov.companybot.service.impl;
 
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Profile;
 import org.springframework.stereotype.Service;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Chat;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.veselov.companybot.bot.CompanyBot;
-import ru.veselov.companybot.exception.NoSuchDivisionException;
 import ru.veselov.companybot.model.ContactModel;
 import ru.veselov.companybot.model.InquiryModel;
+import ru.veselov.companybot.service.SendTask;
 import ru.veselov.companybot.service.sender.ContactSender;
 import ru.veselov.companybot.service.sender.InquirySender;
 
-import java.util.*;
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 @Service
+@RequiredArgsConstructor
 @Slf4j
 public class SenderService {
     @Value("${bot.adminId}")
@@ -28,76 +36,58 @@ public class SenderService {
     private final ChatServiceImpl chatServiceImpl;
     private final InquirySender inquirySender;
     private final ContactSender contactSender;
-    private final Map<Long, Date> chatTimers = new HashMap<>();
-    private Chat adminChat;
-    @Autowired
-    public SenderService(CompanyBot bot, ChatServiceImpl chatServiceImpl, InquirySender inquirySender, ContactSender contactSender) {
-        this.bot = bot;
-        this.chatServiceImpl = chatServiceImpl;
-        this.inquirySender = inquirySender;
-        this.contactSender = contactSender;
-    }
 
-    public synchronized void send(InquiryModel inquiry, ContactModel contact) throws TelegramApiException, NoSuchDivisionException {
-        adminChat=new Chat();
+    private final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(10);
+
+    private final Map<Long, LocalDateTime> chatTimers = new ConcurrentHashMap<>();
+    private Chat adminChat;
+
+    @PostConstruct
+    void configure() {
+        adminChat = new Chat();
         adminChat.setId(Long.valueOf(adminId));
         adminChat.setTitle("Администратору");
+    }
+
+    public void send(InquiryModel inquiry, ContactModel contact) {
         Long userId = contact.getUserId();
         removeOldChats();
         List<Chat> allChats = chatServiceImpl.findAll();
-        List<Chat> sending = new ArrayList<>(allChats);
-        sending.add(adminChat);
-        for(Chat chat: sending) {
+        List<Chat> chatsToSend = new ArrayList<>(allChats);
+        chatsToSend.add(adminChat);
+        for (Chat chat : chatsToSend) {
             if (chatTimers.containsKey(chat.getId())) {
-                //Если в кеше с таймерами есть наш чат, то проверяем время отправки, если время + 60 секунд
-                //позже текущей даты(отправка была меньше минуту назад), то запускаем эту отправку в новом треде
-                //с задержкой +- 60 сек, и обновляем время отправки данного чата
-                Date chatDate = new Date(chatTimers.get(chat.getId()).getTime() + chatInterval);
-                if ((chatDate).after(new Date())) {
-                    Thread delayedStart = new Thread(() -> {
-                        try {
-                            log.info("{}: отправлю запрос пользователя через {} мс", userId,
-                                    chatInterval);
-                            Thread.sleep(chatInterval);
-                            send(inquiry,contact);
-                            chatTimers.put(chat.getId(), chatDate);
-                        } catch (TelegramApiException | NoSuchDivisionException e) {
-                            log.error("Не удалось отправить сообщение {}", e.getMessage());
-                            bot.sendMessageWithDelay(SendMessage.builder().chatId(adminId)
-                                        .text("Не удалось отправить сообщение пользователя").build());
-                        } catch (InterruptedException e) {
-                            log.error(e.getMessage());
-                        }
-                    });
-                    delayedStart.start();
-                    return;
+                LocalDateTime availableTimeForNextMessage = chatTimers.get(chat.getId()).plus(chatInterval, ChronoUnit.MILLIS);
+                if (availableTimeForNextMessage.isAfter(LocalDateTime.now())) {
+                    executorService.schedule(new SendTask(), chatInterval, TimeUnit.MILLISECONDS);
+                } else {
+                    executorService.execute(new SendTask());
+                }
+                if (chat.isChannelChat() || chat.isGroupChat()) {
+                    chatTimers.put(chat.getId(), LocalDateTime.now());
                 }
             }
-            if (inquiry != null){
+            if (inquiry != null) {
                 inquirySender.setInquiry(inquiry);
-                inquirySender.send(bot,chat);
+                inquirySender.send(bot, chat);
             }
             //Контакт есть ВСЕГДА, ФИО есть всегда
-            contactSender.setUpContactSender(contact,inquiry!=null);
-            contactSender.send(bot,chat);
-            if(chat.isChannelChat()||chat.isGroupChat()){
-                chatTimers.put(chat.getId(), new Date());}
+            contactSender.setUpContactSender(contact, inquiry != null);
+            contactSender.send(bot, chat);
+            if (chat.isChannelChat() || chat.isGroupChat()) {
+                chatTimers.put(chat.getId(), new Date());
+            }
         }
     }
 
     /*Метод проходит по мапе с чатами и их временем отправки, и удаляет оттуда те, в которых отправка была ранее чем
      * минуту назад*/
-    private void removeOldChats(){
+    private void removeOldChats() {
         List<Long> ids = chatTimers.entrySet().stream().filter(x -> (new Date(x.getValue().getTime() + chatInterval)).before(new Date()))
                 .map(Map.Entry::getKey).toList();
-        for(long l: ids){
+        for (long l : ids) {
             chatTimers.remove(l);
         }
-    }
-
-    @Profile("test")
-    public Map<Long, Date> getChatTimers(){
-        return chatTimers;
     }
 
 }

@@ -70,7 +70,7 @@ public class CustomerServiceImpl implements CustomerService {
     @Transactional
     public void saveContact(ContactModel contact) {
         Long customerId = contact.getUserId();
-        CustomerEntity customerEntity = customerRepository.findCustomerWithContacts(customerId)
+        CustomerEntity customerEntity = customerRepository.findById(customerId)
                 .orElseThrow(
                         () -> {
                             log.error("Customer with [id: {}] not found", customerId);
