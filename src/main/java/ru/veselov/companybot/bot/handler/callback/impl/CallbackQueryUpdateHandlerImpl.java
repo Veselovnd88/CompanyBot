@@ -1,4 +1,4 @@
-package ru.veselov.companybot.bot.handler.impl;
+package ru.veselov.companybot.bot.handler.callback.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,7 +10,7 @@ import ru.veselov.companybot.bot.BotState;
 import ru.veselov.companybot.bot.context.BotStateHandlerContext;
 import ru.veselov.companybot.bot.context.CallbackQueryDataHandlerContext;
 import ru.veselov.companybot.bot.context.UpdateHandlerFromContext;
-import ru.veselov.companybot.bot.handler.CallbackQueryUpdateHandler;
+import ru.veselov.companybot.bot.handler.callback.CallbackQueryUpdateHandler;
 import ru.veselov.companybot.bot.util.BotStateUtils;
 import ru.veselov.companybot.bot.util.MessageUtils;
 import ru.veselov.companybot.cache.UserDataCacheFacade;

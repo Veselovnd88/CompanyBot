@@ -14,7 +14,7 @@ import ru.veselov.companybot.bot.BotState;
 import ru.veselov.companybot.bot.context.BotStateHandlerContext;
 import ru.veselov.companybot.bot.context.CallbackQueryDataHandlerContext;
 import ru.veselov.companybot.bot.context.UpdateHandlerFromContext;
-import ru.veselov.companybot.bot.handler.impl.CallbackQueryUpdateHandlerImpl;
+import ru.veselov.companybot.bot.handler.callback.impl.CallbackQueryUpdateHandlerImpl;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
 import ru.veselov.companybot.exception.UnexpectedActionException;
 import ru.veselov.companybot.util.TestUpdates;

@@ -19,7 +19,7 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import ru.veselov.companybot.bot.BotCommands;
 import ru.veselov.companybot.bot.BotState;
-import ru.veselov.companybot.bot.handler.impl.CommandUpdateHandlerImpl;
+import ru.veselov.companybot.bot.handler.message.impl.CommandUpdateHandlerImpl;
 import ru.veselov.companybot.bot.keyboard.DivisionKeyboardHelper;
 import ru.veselov.companybot.bot.util.MessageUtils;
 import ru.veselov.companybot.cache.UserDataCacheFacade;

@@ -12,15 +12,13 @@ import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.veselov.companybot.bot.BotCommands;
+import ru.veselov.companybot.bot.handler.callback.CallbackQueryUpdateHandler;
 import ru.veselov.companybot.bot.handler.message.MessageUpdateHandler;
 import ru.veselov.companybot.util.TestUpdates;
 import ru.veselov.companybot.util.TestUtils;
 
 @ExtendWith(MockitoExtension.class)
 class TelegramFacadeUpdateHandlerTest {
-
-    @Mock
-    CommandUpdateHandler commandUpdateHandler;
 
     @Mock
     ChannelConnectUpdateHandler channelConnectUpdateHandler;
@@ -86,15 +84,5 @@ class TelegramFacadeUpdateHandlerTest {
         Assertions.assertThat(botApiMethod).isNull();
         Mockito.verifyNoInteractions(callbackQueryUpdateHandler, messageUpdateHandler, channelConnectUpdateHandler);
     }
-
-
-/*    @Test
-    void shouldCallCommandUpdateHandlerIfMessageHasCommandEntity() {
-        Update updateWithMessageWithCommandByUser = TestUpdates.getUpdateWithMessageWithCommandByUser(BotCommands.CALL);
-
-        telegramFacadeUpdateHandler.processUpdate(updateWithMessageWithCommandByUser);
-
-        Mockito.verify(commandUpdateHandler).processUpdate(updateWithMessageWithCommandByUser);
-    }*/
 
 }

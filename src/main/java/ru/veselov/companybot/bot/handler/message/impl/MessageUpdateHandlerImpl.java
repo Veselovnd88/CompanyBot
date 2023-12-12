@@ -10,7 +10,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.veselov.companybot.bot.BotState;
 import ru.veselov.companybot.bot.context.BotStateHandlerContext;
 import ru.veselov.companybot.bot.context.UpdateHandlerFromContext;
-import ru.veselov.companybot.bot.handler.CommandUpdateHandler;
+import ru.veselov.companybot.bot.handler.message.CommandUpdateHandler;
 import ru.veselov.companybot.bot.handler.message.MessageUpdateHandler;
 import ru.veselov.companybot.bot.util.BotStateUtils;
 import ru.veselov.companybot.bot.util.MessageUtils;
@@ -24,17 +24,25 @@ import java.util.Optional;
 @Slf4j
 public class MessageUpdateHandlerImpl implements MessageUpdateHandler {
 
+    private static final String LOG_MSG = "Update forwarded to: [{}]";
+
     private final UserDataCacheFacade userDataCache;
 
     private final CommandUpdateHandler commandUpdateHandler;
 
     private final BotStateHandlerContext botStateHandlerContext;
 
+    /**
+     * Handler for processing updates contained Message
+     *
+     * @param update {@link Update} from Telegram
+     * @return {@link BotApiMethod} answered message
+     */
     @Override
     public BotApiMethod<?> processUpdate(Update update) {
         Message message = update.getMessage();
         if (isCommand(message)) {
-            log.debug("Update forwarded to commandUpdateHandler");
+            log.debug(LOG_MSG, commandUpdateHandler.getClass().getSimpleName());
             return commandUpdateHandler.processUpdate(update);
         }
         String chatId = update.getMessage().getFrom().getId().toString();
@@ -42,7 +50,7 @@ public class MessageUpdateHandlerImpl implements MessageUpdateHandler {
         UpdateHandlerFromContext handler = botStateHandlerContext.getHandler(botState);
         if (handler != null) {
             BotStateUtils.validateUpdateHandlerStates(handler, botState, chatId);
-            log.debug("Update forwarded to {}", handler.getClass().getSimpleName());
+            log.debug(LOG_MSG, handler.getClass().getSimpleName());
             return handler.processUpdate(update);
         }
         log.warn("Unexpected action, no handler for message");

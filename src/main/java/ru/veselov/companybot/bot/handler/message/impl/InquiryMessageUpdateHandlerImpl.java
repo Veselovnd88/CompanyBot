@@ -1,4 +1,4 @@
-package ru.veselov.companybot.bot.handler.impl;
+package ru.veselov.companybot.bot.handler.message.impl;
 
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
