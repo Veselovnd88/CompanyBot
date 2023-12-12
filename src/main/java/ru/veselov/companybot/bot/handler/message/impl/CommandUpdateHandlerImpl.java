@@ -1,4 +1,4 @@
-package ru.veselov.companybot.bot.handler.impl;
+package ru.veselov.companybot.bot.handler.message.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -9,7 +9,7 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import ru.veselov.companybot.bot.BotCommands;
 import ru.veselov.companybot.bot.BotState;
-import ru.veselov.companybot.bot.handler.CommandUpdateHandler;
+import ru.veselov.companybot.bot.handler.message.CommandUpdateHandler;
 import ru.veselov.companybot.bot.keyboard.DivisionKeyboardHelper;
 import ru.veselov.companybot.bot.util.InlineKeyBoardUtils;
 import ru.veselov.companybot.bot.util.MessageUtils;

@@ -15,8 +15,8 @@ import ru.veselov.companybot.bot.BotState;
 import ru.veselov.companybot.bot.CompanyBot;
 import ru.veselov.companybot.bot.handler.callback.ContactCallbackUpdateHandler;
 import ru.veselov.companybot.bot.handler.callback.impl.DivisionCallbackUpdateHandlerImpl;
-import ru.veselov.companybot.bot.handler.impl.ContactMessageUpdateHandlerImpl;
-import ru.veselov.companybot.bot.handler.impl.InquiryMessageUpdateHandlerImpl;
+import ru.veselov.companybot.bot.handler.message.impl.ContactMessageUpdateHandlerImpl;
+import ru.veselov.companybot.bot.handler.message.impl.InquiryMessageUpdateHandlerImpl;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
 
 import java.util.List;

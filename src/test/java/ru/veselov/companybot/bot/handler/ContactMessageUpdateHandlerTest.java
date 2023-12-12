@@ -14,7 +14,7 @@ import org.telegram.telegrambots.meta.api.objects.MessageEntity;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import ru.veselov.companybot.bot.BotState;
-import ru.veselov.companybot.bot.handler.impl.ContactMessageUpdateHandlerImpl;
+import ru.veselov.companybot.bot.handler.message.impl.ContactMessageUpdateHandlerImpl;
 import ru.veselov.companybot.bot.util.ContactMessageProcessor;
 import ru.veselov.companybot.cache.ContactCache;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
