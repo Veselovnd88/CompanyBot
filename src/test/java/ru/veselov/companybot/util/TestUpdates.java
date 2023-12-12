@@ -18,7 +18,7 @@ public class TestUpdates {
     public static Update getUpdateWithConnectionToChannelByAdmin() {
         Update update = new Update();
         ChatMemberUpdated chatMemberUpdated = new ChatMemberUpdated();
-        chatMemberUpdated.setChat(getChat(TestUtils.ADMIN_ID));
+        chatMemberUpdated.setChat(getChat(TestUtils.CHAT_ID, TestUtils.CHAT_TITLE));
         chatMemberUpdated.setFrom(getAdminUser());
         update.setMyChatMember(chatMemberUpdated);
         return update;
@@ -112,9 +112,10 @@ public class TestUpdates {
         return user;
     }
 
-    public static Chat getChat(Long chatId) {
+    public static Chat getChat(Long chatId, String chatTitle) {
         Chat chat = new Chat();
         chat.setId(chatId);
+        chat.setTitle(chatTitle);
         return chat;
     }
 

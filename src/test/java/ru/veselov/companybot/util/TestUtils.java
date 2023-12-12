@@ -15,6 +15,10 @@ public class TestUtils {
 
     public static final Long ADMIN_ID = 3L;
 
+    public static final Long CHAT_ID = 4L;
+
+    public static final String CHAT_TITLE = faker.elderScrolls().region();
+
     public static final String ADMIN_NAME = faker.elderScrolls().dragon();
 
     public static final String ADMIN_FIRST_NAME = faker.elderScrolls().firstName();

@@ -50,7 +50,7 @@ class ChannelConnectUpdateHandlerImplTest {
         Update update = TestUpdates.getUpdateWithConnectionBotWithAdministratorStatusToChannelByAdmin();
         Chat chat = update.getMyChatMember().getChat();
         SendMessage sendMessage = channelConnectUpdateHandler.processUpdate(update);
-        Assertions.assertThat(sendMessage.getChatId()).isEqualTo(chat.getId().toString());
+        Assertions.assertThat(sendMessage.getChatId()).isEqualTo(TestUtils.ADMIN_ID.toString());
         Mockito.verify(chatService).save(chat);
     }
 
