@@ -6,6 +6,10 @@ import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.veselov.companybot.exception.NoSuchDivisionException;
+import ru.veselov.companybot.model.ContactModel;
+import ru.veselov.companybot.model.InquiryModel;
+import ru.veselov.companybot.service.CustomerService;
+import ru.veselov.companybot.service.InquiryService;
 import ru.veselov.companybot.service.impl.SenderService;
 
 @Component
@@ -15,11 +19,22 @@ public class SendCustomerDataEventListener {
 
     private final SenderService senderService;
 
+    private final CustomerService customerService;
+
+    private final InquiryService inquiryService;
+
     @EventListener
-    public void handleSensCustomerDataEvent(SendCustomerDataEvent event) {
+    public void handleSendCustomerDataEvent(SendCustomerDataEvent event) {
         log.debug("Handled event for sending data to admin/chat from customer");
+        InquiryModel inquiry = event.getInquiry();
+        ContactModel contact = event.getContact();
+
+        customerService.saveContact(contact);
+        if (inquiry != null) {
+            inquiryService.save(inquiry);
+        }
         try {
-            senderService.send(event.getInquiry(), event.getContact());
+            senderService.send(inquiry, contact);
         } catch (TelegramApiException e) {
             throw new RuntimeException(e);
         } catch (NoSuchDivisionException e) {
