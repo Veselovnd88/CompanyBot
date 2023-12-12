@@ -45,7 +45,7 @@ public class MessageUpdateHandlerImpl implements MessageUpdateHandler {
             log.debug(LOG_MSG, commandUpdateHandler.getClass().getSimpleName());
             return commandUpdateHandler.processUpdate(update);
         }
-        String chatId = update.getMessage().getFrom().getId().toString();
+        String chatId = message.getFrom().getId().toString();
         BotState botState = userDataCache.getUserBotState(update.getMessage().getFrom().getId());
         UpdateHandlerFromContext handler = botStateHandlerContext.getHandler(botState);
         if (handler != null) {

@@ -1,4 +1,4 @@
-package ru.veselov.companybot.bot.handler;
+package ru.veselov.companybot.bot.handler.callback;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
