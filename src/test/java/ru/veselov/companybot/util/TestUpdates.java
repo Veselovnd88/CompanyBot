@@ -85,8 +85,13 @@ public class TestUpdates {
         return update;
     }
 
-    public static Update getUpdateWithMessageWithContent() {
-        return new Update();
+    public static Update getUpdateWithMessageNoCommandNoEntitiesWithContentByUser() {
+        Update update = new Update();
+        Message message = new Message();
+        message.setText("my text");
+        update.setMessage(message);
+        message.setFrom(TestUtils.getSimpleUser());
+        return update;
     }
 
     public static Update getUpdateWithMessageWithCallbackQueryByUser(String callbackData) {

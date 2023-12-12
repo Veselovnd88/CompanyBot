@@ -1,4 +1,4 @@
-package ru.veselov.companybot.bot.handler;
+package ru.veselov.companybot.bot.handler.message;
 
 import lombok.SneakyThrows;
 import org.assertj.core.api.Assertions;
