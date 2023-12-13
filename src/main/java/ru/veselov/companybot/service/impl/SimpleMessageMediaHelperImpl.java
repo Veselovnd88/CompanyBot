@@ -22,7 +22,8 @@ import java.util.Map;
 @Slf4j
 public class SimpleMessageMediaHelperImpl implements SimpleMessageMediaHelper {
 
-    public static final String MESSAGE_ADDED = "[{}] message, [pos: {}] added to list for sending";
+    private static final String MESSAGE_ADDED = "[{}] message, [pos: {}] added to list for sending";
+
     private final SendMediaMapper sendMediaMapper;
 
     @Override
@@ -67,5 +68,6 @@ public class SimpleMessageMediaHelperImpl implements SimpleMessageMediaHelper {
         log.debug("List contains {} simple messages with content", messagesToSend.size());
         return messagesToSend;
     }
+
 }
 

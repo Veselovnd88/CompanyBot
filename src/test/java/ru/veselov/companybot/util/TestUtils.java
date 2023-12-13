@@ -119,10 +119,26 @@ public class TestUtils {
 
     public static Message getMessageWithGroupAndPhoto(String mediaGroupId) {
         Message message = new Message();
-        message.setFrom(TestUtils.getSimpleUser());
+        message.setFrom(getSimpleUser());
         PhotoSize photoSize = new PhotoSize();
         photoSize.setFileId("11234");
         message.setMediaGroupId(mediaGroupId);
+        message.setPhoto(List.of(photoSize));
+        return message;
+    }
+
+    public static Message getTextMessage(String text) {
+        Message message = new Message();
+        message.setFrom(getSimpleUser());
+        message.setText(text);
+        return message;
+    }
+
+    public static Message getPhotoMessage() {
+        Message message = new Message();
+        message.setFrom(getSimpleUser());
+        PhotoSize photoSize = new PhotoSize();
+        photoSize.setFileId("11234");
         message.setPhoto(List.of(photoSize));
         return message;
     }
