@@ -2,8 +2,10 @@ package ru.veselov.companybot.util;
 
 import net.datafaker.Faker;
 import org.telegram.telegrambots.meta.api.objects.Chat;
+import org.telegram.telegrambots.meta.api.objects.Contact;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.User;
+import ru.veselov.companybot.model.ContactModel;
 import ru.veselov.companybot.model.DivisionModel;
 
 import java.util.UUID;
@@ -35,6 +37,8 @@ public class TestUtils {
     public static final String USER_FIRST_NAME = faker.elderScrolls().firstName();
 
     public static final String USER_LAST_NAME = faker.elderScrolls().lastName();
+
+    public static final String USER_PHONE = faker.phoneNumber().phoneNumberNational();
 
     public static final String CALLBACK_ID = "1000";
 
@@ -86,5 +90,26 @@ public class TestUtils {
         message.setFrom(getSimpleUser());
         message.setChat(getChat(USER_ID, USER_NAME));
         return message;
+    }
+
+    public static ContactModel getUserContactModel() {
+        return new ContactModel(
+                USER_LAST_NAME,
+                USER_FIRST_NAME,
+                null,
+                USER_PHONE,
+                "123@123.com",
+                null,
+                USER_ID
+        );
+    }
+
+    public static Contact getUserContact() {
+        Contact contact = new Contact();
+        contact.setFirstName(USER_FIRST_NAME);
+        contact.setUserId(USER_ID);
+        contact.setLastName(USER_LAST_NAME);
+        contact.setPhoneNumber(USER_PHONE);
+        return contact;
     }
 }

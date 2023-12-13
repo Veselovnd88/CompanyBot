@@ -18,7 +18,7 @@ import ru.veselov.companybot.bot.BotState;
 import ru.veselov.companybot.bot.context.BotStateHandlerContext;
 import ru.veselov.companybot.bot.handler.message.InquiryMessageUpdateHandler;
 import ru.veselov.companybot.bot.util.InlineKeyBoardUtils;
-import ru.veselov.companybot.bot.util.MessageUtils;
+import ru.veselov.companybot.util.MessageUtils;
 import ru.veselov.companybot.bot.util.UserMessageChecker;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
 import ru.veselov.companybot.model.InquiryModel;

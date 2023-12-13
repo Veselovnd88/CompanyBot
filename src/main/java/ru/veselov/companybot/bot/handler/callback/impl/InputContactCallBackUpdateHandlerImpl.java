@@ -11,7 +11,7 @@ import ru.veselov.companybot.bot.context.CallbackQueryDataHandlerContext;
 import ru.veselov.companybot.bot.handler.callback.InputContactCallBackUpdateHandler;
 import ru.veselov.companybot.bot.util.CallBackButtonUtils;
 import ru.veselov.companybot.bot.keyboard.impl.ContactKeyboardHelperImpl;
-import ru.veselov.companybot.bot.util.MessageUtils;
+import ru.veselov.companybot.util.MessageUtils;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
 import ru.veselov.companybot.exception.UnexpectedActionException;
 import ru.veselov.companybot.exception.handler.BotExceptionToMessage;

@@ -1,4 +1,4 @@
-package ru.veselov.companybot.bot.util;
+package ru.veselov.companybot.util;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -65,36 +65,22 @@ public class MessageUtils {
 
     public static final String INVITATION_TO_INPUT_INQUIRY = "Введите ваш вопрос или перешлите мне сообщение";
 
-    private MessageUtils() {
-    }
-
     public static String createContactMessage(ContactModel contact, boolean hasInquiry) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(contact.getLastName() == null ? "" : (contact.getLastName() + " "));
-        /*if (contact.getLastName() != null) {
-            sb.append(contact.getLastName()).append(" ");
-        }*/
-        if (contact.getFirstName() != null) {
-            sb.append(contact.getFirstName()).append(" ");
-        }
-        sb.append(contact.getFirstName() == null ? "" : (contact.getFirstName() + " "));
-        /*if (contact.getSecondName() != null) {
-            sb.append(contact.getSecondName()).append(" ");
-        }*/
-        sb.append(contact.getLastName() == null ? "" : ("\nТелефон: " + contact.getLastName()));
-        /*if (contact.getPhone() != null) {
-            sb.append("\nТелефон: ").append(contact.getPhone());
-        }*/
-        sb.append(contact.getEmail() == null ? "" : ("\nЭл. почта: " + contact.getEmail()));
-        /*if (contact.getEmail() != null) {
-            sb.append("\nЭл. почта: ").append(contact.getEmail());
-        }*/
+        String message = (contact.getLastName() == null ? "" : (contact.getLastName() + " ")) +
+                (contact.getFirstName() == null ? "" : (contact.getFirstName() + " ")) +
+                (contact.getSecondName() == null ? "" : (contact.getSecondName() + " ")) +
+                (contact.getPhone() == null ? "" : ("\nТелефон: " + contact.getPhone())) +
+                (contact.getEmail() == null ? "" : ("\nЭл. почта: " + contact.getEmail()));
         String prefix;
         if (hasInquiry) {
-            prefix = "Контактное лицо для связи: ";
+            prefix = "Контактное лицо для связи:\n";
         } else {
             prefix = "Направлена заявка на обратный звонок\nКонтактное лицо для связи: ";
         }
-        return prefix + sb.toString().trim();
+        return prefix + message.trim();
     }
+
+    private MessageUtils() {
+    }
+
 }

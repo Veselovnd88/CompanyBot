@@ -12,8 +12,8 @@ import ru.veselov.companybot.bot.context.BotStateHandlerContext;
 import ru.veselov.companybot.bot.context.UpdateHandlerFromContext;
 import ru.veselov.companybot.bot.handler.message.CommandUpdateHandler;
 import ru.veselov.companybot.bot.handler.message.MessageUpdateHandler;
-import ru.veselov.companybot.bot.util.BotStateUtils;
-import ru.veselov.companybot.bot.util.MessageUtils;
+import ru.veselov.companybot.bot.util.BotUtils;
+import ru.veselov.companybot.util.MessageUtils;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
 import ru.veselov.companybot.exception.UnexpectedActionException;
 
@@ -49,7 +49,7 @@ public class MessageUpdateHandlerImpl implements MessageUpdateHandler {
         BotState botState = userDataCache.getUserBotState(update.getMessage().getFrom().getId());
         UpdateHandlerFromContext handler = botStateHandlerContext.getHandler(botState);
         if (handler != null) {
-            BotStateUtils.validateUpdateHandlerStates(handler, botState, chatId);
+            BotUtils.validateUpdateHandlerStates(handler, botState, chatId);
             log.debug(LOG_MSG, handler.getClass().getSimpleName());
             return handler.processUpdate(update);
         }

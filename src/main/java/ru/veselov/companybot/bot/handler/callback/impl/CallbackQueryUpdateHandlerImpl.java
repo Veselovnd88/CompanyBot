@@ -11,8 +11,8 @@ import ru.veselov.companybot.bot.context.BotStateHandlerContext;
 import ru.veselov.companybot.bot.context.CallbackQueryDataHandlerContext;
 import ru.veselov.companybot.bot.context.UpdateHandlerFromContext;
 import ru.veselov.companybot.bot.handler.callback.CallbackQueryUpdateHandler;
-import ru.veselov.companybot.bot.util.BotStateUtils;
-import ru.veselov.companybot.bot.util.MessageUtils;
+import ru.veselov.companybot.bot.util.BotUtils;
+import ru.veselov.companybot.util.MessageUtils;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
 import ru.veselov.companybot.exception.UnexpectedActionException;
 
@@ -49,13 +49,13 @@ public class CallbackQueryUpdateHandlerImpl implements CallbackQueryUpdateHandle
 
         updateHandler = callbackQueryDataHandlerContext.getHandler(callbackData);
         if (updateHandler != null) {
-            BotStateUtils.validateUpdateHandlerStates(updateHandler, botState, chatId);
+            BotUtils.validateUpdateHandlerStates(updateHandler, botState, chatId);
             log.debug("[{}] retrieved from call back data context", updateHandler.getClass().getSimpleName());
             return updateHandler.processUpdate(update);
         } else {
             updateHandler = botStateHandlerContext.getHandler(botState);
             if (updateHandler != null) {
-                BotStateUtils.validateUpdateHandlerStates(updateHandler, botState, chatId);
+                BotUtils.validateUpdateHandlerStates(updateHandler, botState, chatId);
                 log.debug("[{}] retrieved from botstate data context", updateHandler.getClass().getSimpleName());
                 return updateHandler.processUpdate(update);
             } else {
