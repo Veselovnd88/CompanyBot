@@ -7,21 +7,16 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Chat;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.veselov.companybot.bot.CompanyBot;
-import ru.veselov.companybot.exception.NoSuchDivisionException;
 import ru.veselov.companybot.model.ContactModel;
 import ru.veselov.companybot.model.InquiryModel;
-import ru.veselov.companybot.service.ContactMessageCreator;
 import ru.veselov.companybot.service.SendTask;
-import ru.veselov.companybot.service.sender.InquirySender;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -37,7 +32,6 @@ public class SenderService {
     private final CompanyBot bot;
     private final ChatServiceImpl chatServiceImpl;
     private final InquirySender inquirySender;
-    private final ContactMessageCreator contactMessageCreator;
 
     private final ThreadPoolTaskScheduler threadPoolSenderTaskScheduler;
 
