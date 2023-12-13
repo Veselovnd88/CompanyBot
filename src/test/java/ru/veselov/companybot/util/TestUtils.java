@@ -4,10 +4,12 @@ import net.datafaker.Faker;
 import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.Contact;
 import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.PhotoSize;
 import org.telegram.telegrambots.meta.api.objects.User;
 import ru.veselov.companybot.model.ContactModel;
 import ru.veselov.companybot.model.DivisionModel;
 
+import java.util.List;
 import java.util.UUID;
 
 public class TestUtils {
@@ -41,6 +43,8 @@ public class TestUtils {
     public static final String USER_PHONE = faker.phoneNumber().phoneNumberNational();
 
     public static final String CALLBACK_ID = "1000";
+
+    public static final String MEDIA_GROUP_ID = "100000";
 
 
     public static final String DIVISION_NAME = "NAME";
@@ -111,5 +115,15 @@ public class TestUtils {
         contact.setLastName(USER_LAST_NAME);
         contact.setPhoneNumber(USER_PHONE);
         return contact;
+    }
+
+    public static Message getMessageWithGroupAndPhoto(String mediaGroupId) {
+        Message message = new Message();
+        message.setFrom(TestUtils.getSimpleUser());
+        PhotoSize photoSize = new PhotoSize();
+        photoSize.setFileId("11234");
+        message.setMediaGroupId(mediaGroupId);
+        message.setPhoto(List.of(photoSize));
+        return message;
     }
 }

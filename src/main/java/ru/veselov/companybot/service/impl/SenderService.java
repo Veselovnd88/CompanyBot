@@ -31,7 +31,6 @@ public class SenderService {
     private long chatInterval;
     private final CompanyBot bot;
     private final ChatServiceImpl chatServiceImpl;
-    private final InquirySender inquirySender;
 
     private final ThreadPoolTaskScheduler threadPoolSenderTaskScheduler;
 
@@ -65,10 +64,10 @@ public class SenderService {
                     chatTimers.put(chat.getId(), LocalDateTime.now());
                 }
             }
-            if (inquiry != null) {
+/*            if (inquiry != null) {
                 inquirySender.setInquiry(inquiry);
                 inquirySender.send(bot, chat);
-            }
+            }*/
             //Контакт есть ВСЕГДА, ФИО есть всегда
             if (chat.isChannelChat() || chat.isGroupChat()) {
                 chatTimers.put(chat.getId(), LocalDateTime.now());
