@@ -10,7 +10,7 @@ import org.telegram.telegrambots.meta.api.objects.media.InputMediaAudio;
 import org.telegram.telegrambots.meta.api.objects.media.InputMediaDocument;
 import org.telegram.telegrambots.meta.api.objects.media.InputMediaPhoto;
 import org.telegram.telegrambots.meta.api.objects.media.InputMediaVideo;
-import ru.veselov.companybot.service.MediaGroupHelper;
+import ru.veselov.companybot.service.MediaGroupMessageHelper;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -20,7 +20,10 @@ import java.util.Map;
 
 @Component
 @Slf4j
-public class MediaGroupHelperImpl implements MediaGroupHelper {
+public class MediaGroupMessageHelperImpl implements MediaGroupMessageHelper {
+
+    public static final String MEDIA_ADDED = "[{}] added to group with [id: {}]";
+
     /**
      * Convert passed messages that should be in media groups with order;
      * <p>
@@ -36,17 +39,17 @@ public class MediaGroupHelperImpl implements MediaGroupHelper {
     @Override
     public Map<Integer, SendMediaGroup> convertMediaGroupMessages(Map<Integer, Message> mediaGroupMessages,
                                                                   String chatId) {
+        log.debug("Start to convert messages to SendMediaGroups");
         Map<String, SendMediaGroup> mediaIdByGroupMap = new LinkedHashMap<>();
         Map<Integer, SendMediaGroup> messagesToSend = new HashMap<>();
         Map<String, List<Integer>> tempListForOrderOfGroups = new HashMap<>();
         for (var entry : mediaGroupMessages.entrySet()) {
             Message message = entry.getValue();
             String mediaGroupId = message.getMediaGroupId();
-            tempListForOrderOfGroups.computeIfAbsent(mediaGroupId, k -> {
-                LinkedList<Integer> positions = new LinkedList<>();
-                positions.add(entry.getKey());
-                return positions;
-            });
+            tempListForOrderOfGroups.computeIfAbsent(mediaGroupId, k -> new LinkedList<>());
+            tempListForOrderOfGroups.get(mediaGroupId).add(entry.getKey());
+            log.debug("Media group [id: {}] position: [{}] added to temp map", mediaGroupId, entry.getKey());
+            log.debug("Checking content of message");
             if (message.hasPhoto()) {
                 InputMediaPhoto inputMediaPhoto = new InputMediaPhoto(message.getPhoto().get(0).getFileId());
                 setUpInputMedia(inputMediaPhoto, message);
@@ -73,16 +76,21 @@ public class MediaGroupHelperImpl implements MediaGroupHelper {
                 addMessageToMediaGroup(inputMediaVideo, mediaGroupId, chatId, mediaIdByGroupMap);
             }
         }
+        log.debug("Checking duplicates of SendMediaGroups and create list with only one group");
         for (var entry : tempListForOrderOfGroups.entrySet()) {
             Integer position = entry.getValue().get(0);
             String mediaGroupId = entry.getKey();
             messagesToSend.put(position, mediaIdByGroupMap.get(mediaGroupId));
         }
+        log.debug("Final list contains [{}] groups", messagesToSend.size());
         return messagesToSend;
     }
 
     /**
      * Set up common fields for all {@link InputMedia}
+     *
+     * @param inputMedia {@link InputMedia} media for filling fields from message
+     * @param message    {@link Message} message containing media
      */
     private static void setUpInputMedia(InputMedia inputMedia, Message message) {
         inputMedia.setCaption(message.getCaption());
@@ -91,25 +99,29 @@ public class MediaGroupHelperImpl implements MediaGroupHelper {
 
     /**
      * Add SendMediaGroupMessage to temporary map, and add input media to it
+     *
+     * @param inputMedia        {@link InputMedia} media to add to group
+     * @param chatId            chat id for group
+     * @param mediaGroupId      id of mediaGroup
+     * @param mediaIdByGroupMap temporary cache with mediaGroupId : SendMediaGroup
      */
     private void addMessageToMediaGroup(InputMedia inputMedia, String mediaGroupId, String chatId, Map<String,
             SendMediaGroup> mediaIdByGroupMap) {
-        if (mediaIdByGroupMap.containsKey(mediaGroupId)) {
-            mediaIdByGroupMap.get(mediaGroupId).getMedias().add(inputMedia);
-        } else {
-            SendMediaGroup sendMediaGroup = createSendMediaGroup(chatId, inputMedia);
-            mediaIdByGroupMap.put(mediaGroupId, sendMediaGroup);
-        }
+        mediaIdByGroupMap.computeIfAbsent(mediaGroupId, x -> createSendMediaGroup(chatId));
+        mediaIdByGroupMap.get(mediaGroupId).getMedias().add(inputMedia);
+        log.debug(MEDIA_ADDED, inputMedia.getClass().getSimpleName(), mediaGroupId);
     }
 
     /**
      * Just create SendMediaGroup with 1st input media
+     *
+     * @param chatId for media group
+     * @return {@link SendMediaGroup} empty SendMediaGroup
      */
-    private SendMediaGroup createSendMediaGroup(String chatId, InputMedia inputMedia) {
+    private SendMediaGroup createSendMediaGroup(String chatId) {
         SendMediaGroup sendMediaGroup = new SendMediaGroup();
         sendMediaGroup.setChatId(chatId);
         List<InputMedia> list = new LinkedList<>();
-        list.add(inputMedia);
         sendMediaGroup.setMedias(list);
         return sendMediaGroup;
     }

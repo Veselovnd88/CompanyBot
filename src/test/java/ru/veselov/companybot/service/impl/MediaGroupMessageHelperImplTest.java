@@ -9,7 +9,7 @@ import ru.veselov.companybot.util.TestUtils;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-class MediaGroupHelperImplTest {
+class MediaGroupMessageHelperImplTest {
 
     @Test
     void shouldProcessMessagesAndReturnGroupsOneGroupInEachMessage() {
@@ -18,15 +18,14 @@ class MediaGroupHelperImplTest {
             Message messageWithGroupAndPhoto = TestUtils.getMessageWithGroupAndPhoto(String.valueOf(1000 + i));
             mediaGroupMessages.put(i, messageWithGroupAndPhoto);
         }
+        MediaGroupMessageHelperImpl mediaGroupHelper = new MediaGroupMessageHelperImpl();
 
-        MediaGroupHelperImpl mediaGroupHelper = new MediaGroupHelperImpl();
         Map<Integer, SendMediaGroup> sendMediaGroups = mediaGroupHelper
                 .convertMediaGroupMessages(mediaGroupMessages, TestUtils.CHAT_ID.toString());
 
-        System.out.println(sendMediaGroups);
-
         Assertions.assertThat(sendMediaGroups).hasSize(10);
         Assertions.assertThat(sendMediaGroups.get(4).getMedias()).hasSize(1);
+        Assertions.assertThat(sendMediaGroups.get(4).getMedias().get(0).getType()).isEqualTo("photo");
     }
 
     @Test
@@ -42,15 +41,14 @@ class MediaGroupHelperImplTest {
             Message messageWithGroupAndPhoto = TestUtils.getMessageWithGroupAndPhoto(mediaGroupId);
             mediaGroupMessages.put(i, messageWithGroupAndPhoto);
         }
+        MediaGroupMessageHelperImpl mediaGroupHelper = new MediaGroupMessageHelperImpl();
 
-        MediaGroupHelperImpl mediaGroupHelper = new MediaGroupHelperImpl();
         Map<Integer, SendMediaGroup> sendMediaGroups = mediaGroupHelper
                 .convertMediaGroupMessages(mediaGroupMessages, TestUtils.CHAT_ID.toString());
 
-        System.out.println(sendMediaGroups);
-
         Assertions.assertThat(sendMediaGroups).hasSize(2);
         Assertions.assertThat(sendMediaGroups.get(0).getMedias()).hasSize(5);
+        Assertions.assertThat(sendMediaGroups.get(0).getMedias().get(0).getType()).isEqualTo("photo");
     }
 
 }
