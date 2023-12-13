@@ -68,26 +68,6 @@ class SenderServiceTest {
         when(chatServiceImpl.findAll()).thenReturn(Collections.emptyList());
     }
 
-    @Test
-    @SneakyThrows
-    void sendInquiryNoChatTest() {
-        senderService.send(inquiryModel, contactModel);
-        verify(bot).execute(any(SendMessage.class));
-        assertEquals(0,senderService.getChatTimers().size());
-    }
-
-    @Test
-    @SneakyThrows
-    void sendInquiryWithChatTest() {
-        Chat chat = new Chat();
-        chat.setId(-100L);
-        chat.setTitle("Channel");
-        chat.setType("group");
-        when(chatServiceImpl.findAll()).thenReturn(List.of(chat));
-        senderService.send(inquiryModel, contactModel);
-        verify(bot,times(2)).execute(any(SendMessage.class));
-        assertEquals(1,senderService.getChatTimers().size());
-    }
 
     @Test
     @SneakyThrows

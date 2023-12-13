@@ -4,15 +4,19 @@ import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.objects.Chat;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.veselov.companybot.bot.CompanyBot;
+import ru.veselov.companybot.exception.NoSuchDivisionException;
 import ru.veselov.companybot.model.ContactModel;
 import ru.veselov.companybot.model.InquiryModel;
 import ru.veselov.companybot.service.ContactMessageCreator;
 import ru.veselov.companybot.service.SendTask;
 import ru.veselov.companybot.service.sender.InquirySender;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -21,9 +25,6 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 @Service
 @RequiredArgsConstructor
@@ -38,7 +39,7 @@ public class SenderService {
     private final InquirySender inquirySender;
     private final ContactMessageCreator contactMessageCreator;
 
-    private final ScheduledExecutorService executorService = Executors.newScheduledThreadPool(10);
+    private final ThreadPoolTaskScheduler threadPoolSenderTaskScheduler;
 
     private final Map<Long, LocalDateTime> chatTimers = new ConcurrentHashMap<>();
     private Chat adminChat;
@@ -51,7 +52,7 @@ public class SenderService {
     }
 
     public void send(InquiryModel inquiry, ContactModel contact) {
-        removeOldChats();
+        //removeOldChats();
         List<Chat> allChats = chatServiceImpl.findAll();
         List<Chat> chatsToSend = new ArrayList<>(allChats);
         chatsToSend.add(adminChat);
@@ -61,9 +62,10 @@ public class SenderService {
                         .plus(chatInterval, ChronoUnit.MILLIS);
                 SendTask sendTask = new SendTask(bot, chat, Collections.emptyList());
                 if (availableTimeForNextMessage.isAfter(LocalDateTime.now())) {
-                    executorService.schedule(sendTask, chatInterval, TimeUnit.MILLISECONDS);
+                    threadPoolSenderTaskScheduler
+                            .schedule(sendTask, Instant.now().plus(chatInterval, ChronoUnit.MILLIS));
                 } else {
-                    executorService.execute(sendTask);
+                    threadPoolSenderTaskScheduler.execute(sendTask);
                 }
                 if (chat.isChannelChat() || chat.isGroupChat()) {
                     chatTimers.put(chat.getId(), LocalDateTime.now());
@@ -74,22 +76,20 @@ public class SenderService {
                 inquirySender.send(bot, chat);
             }
             //Контакт есть ВСЕГДА, ФИО есть всегда
-            contactSender.setUpContactSender(contact, inquiry != null);
-            contactSender.send(bot, chat);
             if (chat.isChannelChat() || chat.isGroupChat()) {
-                chatTimers.put(chat.getId(), new Date());
+                chatTimers.put(chat.getId(), LocalDateTime.now());
             }
         }
     }
 
-    /*Метод проходит по мапе с чатами и их временем отправки, и удаляет оттуда те, в которых отправка была ранее чем
-     * минуту назад*/
+/*    *//*Метод проходит по мапе с чатами и их временем отправки, и удаляет оттуда те, в которых отправка была ранее чем
+     * минуту назад*//*
     private void removeOldChats() {
         List<Long> ids = chatTimers.entrySet().stream().filter(x -> (new Date(x.getValue().getTime() + chatInterval)).before(new Date()))
                 .map(Map.Entry::getKey).toList();
         for (long l : ids) {
             chatTimers.remove(l);
         }
-    }
+    }*/
 
 }

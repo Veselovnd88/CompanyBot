@@ -27,12 +27,14 @@ public class SendTask implements Runnable {
         for (var msg : messagesToSend) {
             try {
                 bot.execute(msg);
-                log.debug("Message: [{}] successfully sent to chat: [{}]", msg.getClass().getSimpleName(), chatId);
-            } catch (TelegramApiException ex) {
-                throw new CriticalBotException(ex.getMessage(), ex);
+                Thread.sleep(5);
+            } catch (TelegramApiException | InterruptedException e) {
+                log.error("Problem occurred during sending message");
+                Thread.currentThread().interrupt();
+                throw new CriticalBotException(e.getMessage(), e.getCause());
             }
+            log.debug("Message: [{}] successfully sent to chat: [{}]", msg.getClass().getSimpleName(), chatId);
         }
-        //TODO make sent marking in DB
         log.info("Task for sending {} messages to chat: {} performed", messagesToSend.size(), chatId);
     }
 

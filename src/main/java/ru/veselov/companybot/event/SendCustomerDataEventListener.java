@@ -30,11 +30,7 @@ public class SendCustomerDataEventListener {
         log.debug("Handled event for sending data to admin/chat from customer");
         InquiryModel inquiry = event.getInquiry();
         ContactModel contact = event.getContact();
-        try {
-            senderService.send(inquiry, contact);
-        } catch (NoSuchDivisionException e) {
-            throw new RuntimeException(e);
-        }
+        senderService.send(inquiry, contact);
     }
 
 }
