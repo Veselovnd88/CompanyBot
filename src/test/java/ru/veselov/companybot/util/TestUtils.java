@@ -8,6 +8,7 @@ import org.telegram.telegrambots.meta.api.objects.PhotoSize;
 import org.telegram.telegrambots.meta.api.objects.User;
 import ru.veselov.companybot.model.ContactModel;
 import ru.veselov.companybot.model.DivisionModel;
+import ru.veselov.companybot.model.InquiryModel;
 
 import java.util.List;
 import java.util.UUID;
@@ -106,6 +107,14 @@ public class TestUtils {
                 null,
                 USER_ID
         );
+    }
+
+    public static InquiryModel getInquiryModel() {
+        InquiryModel inquiryModel = new InquiryModel();
+        inquiryModel.setUserId(USER_ID);
+        inquiryModel.setDivision(getDivision());
+        inquiryModel.setMessages(List.of(getTextMessage("test")));
+        return inquiryModel;
     }
 
     public static Contact getUserContact() {

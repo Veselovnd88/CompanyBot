@@ -10,6 +10,7 @@ import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.methods.send.SendVideo;
+import org.telegram.telegrambots.meta.api.methods.send.SendVoice;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import ru.veselov.companybot.mapper.SendMediaMapper;
 import ru.veselov.companybot.service.SimpleMessageMediaHelper;
@@ -63,6 +64,11 @@ public class SimpleMessageMediaHelperImpl implements SimpleMessageMediaHelper {
                 SendAnimation sendAnimation = sendMediaMapper.toSendAnimation(message, chatId);
                 messagesToSend.put(position, sendAnimation);
                 log.debug(MESSAGE_ADDED, sendAnimation.getClass().getSimpleName(), position);
+            }
+            if (message.hasVoice()) {
+                SendVoice sendVoice = sendMediaMapper.toSendVoice(message, chatId);
+                messagesToSend.put(position, sendVoice);
+                log.debug(MESSAGE_ADDED, sendVoice.getClass().getSimpleName(), position);
             }
         }
         log.debug("List contains {} simple messages with content", messagesToSend.size());

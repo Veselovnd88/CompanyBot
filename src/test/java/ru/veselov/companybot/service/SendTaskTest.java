@@ -5,7 +5,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
-import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
+import org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
@@ -27,7 +27,7 @@ class SendTaskTest {
         botMock = Mockito.mock(CompanyBot.class);
         Chat chat = new Chat();
         chat.setId(-100L);
-        List<BotApiMethod<?>> messagesToSend = new LinkedList<>();
+        List<PartialBotApiMethod<?>> messagesToSend = new LinkedList<>();
         for (int i = 0; i < 100; i++) {
             messagesToSend.add(SendMessage.builder().chatId(chat.getId()).text("I am message number %s".formatted(i))
                     .build());

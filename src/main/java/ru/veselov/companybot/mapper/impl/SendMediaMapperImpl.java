@@ -7,6 +7,7 @@ import org.telegram.telegrambots.meta.api.methods.send.SendAudio;
 import org.telegram.telegrambots.meta.api.methods.send.SendDocument;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.methods.send.SendVideo;
+import org.telegram.telegrambots.meta.api.methods.send.SendVoice;
 import org.telegram.telegrambots.meta.api.objects.InputFile;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import ru.veselov.companybot.mapper.SendMediaMapper;
@@ -63,5 +64,15 @@ public class SendMediaMapperImpl implements SendMediaMapper {
         sendAnimation.setCaptionEntities(message.getCaptionEntities());
         sendAnimation.setAnimation(new InputFile(message.getAnimation().getFileId()));
         return sendAnimation;
+    }
+
+    @Override
+    public SendVoice toSendVoice(Message message, String chatId) {
+        SendVoice sendVoice = new SendVoice();
+        sendVoice.setChatId(chatId);
+        sendVoice.setCaption(message.getCaption());
+        sendVoice.setCaptionEntities(message.getCaptionEntities());
+        sendVoice.setVoice(new InputFile(message.getVoice().getFileId()));
+        return sendVoice;
     }
 }
