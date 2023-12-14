@@ -5,10 +5,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.telegram.telegrambots.meta.api.objects.Message;
-import ru.veselov.companybot.util.MessageUtils;
 import ru.veselov.companybot.entity.CompanyInfoEntity;
 import ru.veselov.companybot.repository.CompanyInfoRepository;
 import ru.veselov.companybot.service.CompanyInfoService;
+import ru.veselov.companybot.util.MessageUtils;
 
 import java.util.List;
 
@@ -24,6 +24,7 @@ public class CompanyInfoServiceImpl implements CompanyInfoService {
     @Transactional
     public void save(Message message) {
         companyInfoRepository.save(toEntity(message));
+        log.info("Company info saved to db");
     }
 
     @Override
@@ -37,6 +38,7 @@ public class CompanyInfoServiceImpl implements CompanyInfoService {
             message = toMessage(last.get(0));
         }
         MessageUtils.setAbout(message);
+        log.debug("Retrieved last record for company info");
         return message;
     }
 

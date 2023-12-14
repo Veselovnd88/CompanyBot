@@ -1,4 +1,4 @@
-package ru.veselov.companybot.service.impl;
+package ru.veselov.companybot.service.sender.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -7,9 +7,9 @@ import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod;
 import ru.veselov.companybot.model.ContactModel;
 import ru.veselov.companybot.model.InquiryModel;
-import ru.veselov.companybot.service.ContactMessageCreator;
-import ru.veselov.companybot.service.InquiryMessageCreator;
-import ru.veselov.companybot.service.MessagesToSendCreator;
+import ru.veselov.companybot.service.sender.ContactMessageCreator;
+import ru.veselov.companybot.service.sender.InquiryMessageCreator;
+import ru.veselov.companybot.service.sender.MessagesToSendCreator;
 
 import java.util.LinkedList;
 import java.util.List;

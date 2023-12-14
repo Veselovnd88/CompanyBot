@@ -1,4 +1,4 @@
-package ru.veselov.companybot.service;
+package ru.veselov.companybot.service.sender;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

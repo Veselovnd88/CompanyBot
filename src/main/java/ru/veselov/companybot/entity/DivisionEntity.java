@@ -35,8 +35,11 @@ public class DivisionEntity {
     @Column(columnDefinition = "varchar(950)")
     private String name;
 
+    @Column(name = "description")
+    String description;
+
     @OneToMany(mappedBy = "division",
-            cascade = {CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.MERGE})
+            cascade = {CascadeType.PERSIST, CascadeType.REFRESH, CascadeType.MERGE})//merge?
     private final Set<InquiryEntity> inquiries = new HashSet<>();
 
     @Override

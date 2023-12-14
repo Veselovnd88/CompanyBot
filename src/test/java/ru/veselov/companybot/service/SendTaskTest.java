@@ -11,6 +11,7 @@ import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.veselov.companybot.bot.CompanyBot;
 import ru.veselov.companybot.exception.CriticalBotException;
+import ru.veselov.companybot.service.sender.SendTask;
 
 import java.time.Instant;
 import java.util.LinkedList;

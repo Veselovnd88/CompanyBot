@@ -53,7 +53,7 @@ public class ContactEntity {
 
     @ManyToOne
     @JoinColumn(name = "customer_id", referencedColumnName = "id")
-    private CustomerEntity customerEntity;
+    private CustomerEntity customer;
 
     @Override
     public boolean equals(Object o) {

@@ -1,4 +1,4 @@
-package ru.veselov.companybot.service.impl;
+package ru.veselov.companybot.service.sender.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,7 +13,7 @@ import org.telegram.telegrambots.meta.api.methods.send.SendVideo;
 import org.telegram.telegrambots.meta.api.methods.send.SendVoice;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import ru.veselov.companybot.mapper.SendMediaMapper;
-import ru.veselov.companybot.service.SimpleMessageMediaHelper;
+import ru.veselov.companybot.service.sender.SimpleMessageMediaHelper;
 
 import java.util.LinkedHashMap;
 import java.util.Map;

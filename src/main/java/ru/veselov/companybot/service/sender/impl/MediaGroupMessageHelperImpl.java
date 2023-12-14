@@ -1,4 +1,4 @@
-package ru.veselov.companybot.service.impl;
+package ru.veselov.companybot.service.sender.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -10,7 +10,7 @@ import org.telegram.telegrambots.meta.api.objects.media.InputMediaAudio;
 import org.telegram.telegrambots.meta.api.objects.media.InputMediaDocument;
 import org.telegram.telegrambots.meta.api.objects.media.InputMediaPhoto;
 import org.telegram.telegrambots.meta.api.objects.media.InputMediaVideo;
-import ru.veselov.companybot.service.MediaGroupMessageHelper;
+import ru.veselov.companybot.service.sender.MediaGroupMessageHelper;
 
 import java.util.HashMap;
 import java.util.LinkedHashMap;

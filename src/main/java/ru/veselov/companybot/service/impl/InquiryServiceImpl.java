@@ -73,6 +73,7 @@ public class InquiryServiceImpl implements InquiryService {
         for (Message message : inquiryModel.getMessages()) {
             CustomerMessageEntity cme = new CustomerMessageEntity();
             cme.setMessage(message);
+            cme.setMessageId(message.getMessageId());
             inquiryEntity.addMessage(cme);
         }
         return inquiryEntity;

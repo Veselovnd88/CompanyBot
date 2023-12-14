@@ -1,4 +1,4 @@
-package ru.veselov.companybot.service;
+package ru.veselov.companybot.service.sender;
 
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import ru.veselov.companybot.model.ContactModel;

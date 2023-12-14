@@ -43,6 +43,8 @@ public class TestUtils {
 
     public static final String USER_PHONE = faker.phoneNumber().phoneNumberNational();
 
+    public static final String USER_EMAIL = "evil@hate.com";
+
     public static final String CALLBACK_ID = "1000";
 
     public static final String MEDIA_GROUP_ID = "100000";

@@ -1,4 +1,4 @@
-package ru.veselov.companybot.service.impl;
+package ru.veselov.companybot.service.sender.impl;
 
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -6,7 +6,7 @@ import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendContact;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import ru.veselov.companybot.model.ContactModel;
-import ru.veselov.companybot.service.ContactMessageCreator;
+import ru.veselov.companybot.service.sender.ContactMessageCreator;
 import ru.veselov.companybot.util.MessageUtils;
 
 import java.util.LinkedList;

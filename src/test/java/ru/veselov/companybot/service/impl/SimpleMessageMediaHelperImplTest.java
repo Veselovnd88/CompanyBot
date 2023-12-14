@@ -8,6 +8,7 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.send.SendPhoto;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import ru.veselov.companybot.mapper.impl.SendMediaMapperImpl;
+import ru.veselov.companybot.service.sender.impl.SimpleMessageMediaHelperImpl;
 import ru.veselov.companybot.util.TestUtils;
 
 import java.util.LinkedHashMap;

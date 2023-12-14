@@ -27,20 +27,6 @@ public class Config {
         return new EmailValidator();
     }
 
-    @Bean
-    @Profile("test")
-    public CommandLineRunner dataLoader(DivisionServiceImpl divisionService) {
-        return args -> {
-            divisionService.save(
-                    DivisionModel.builder().divisionId(UUID.randomUUID()).name("Ультразвуковые, оптические датчики LEUZE").build());
-            divisionService.save(
-                    DivisionModel.builder().divisionId(UUID.randomUUID()).name("Датчики давления, расхода, температуры").build());
-            divisionService.save(
-                    DivisionModel.builder().divisionId(UUID.randomUUID()).name("Общие вопросы").build());
-
-        };
-    }
-
     @EventListener({ContextRefreshedEvent.class})
     public void fillFieldsInformation() {
         companyInfoService.getLast();
