@@ -117,11 +117,11 @@ public class TestUtils {
         return contact;
     }
 
-    public static Message getMessageWithGroupAndPhoto(String mediaGroupId) {
+    public static Message getMessageWithGroupAndPhoto(String mediaGroupId, String fileId) {
         Message message = new Message();
         message.setFrom(getSimpleUser());
         PhotoSize photoSize = new PhotoSize();
-        photoSize.setFileId("11234");
+        photoSize.setFileId(fileId);
         message.setMediaGroupId(mediaGroupId);
         message.setPhoto(List.of(photoSize));
         return message;

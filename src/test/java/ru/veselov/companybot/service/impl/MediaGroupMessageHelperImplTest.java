@@ -15,7 +15,8 @@ class MediaGroupMessageHelperImplTest {
     void shouldProcessMessagesAndReturnGroupsOneGroupInEachMessage() {
         Map<Integer, Message> mediaGroupMessages = new LinkedHashMap<>();
         for (int i = 0; i < 10; i++) {
-            Message messageWithGroupAndPhoto = TestUtils.getMessageWithGroupAndPhoto(String.valueOf(1000 + i));
+            Message messageWithGroupAndPhoto = TestUtils
+                    .getMessageWithGroupAndPhoto(String.valueOf(1000 + i), String.valueOf(i));
             mediaGroupMessages.put(i, messageWithGroupAndPhoto);
         }
         MediaGroupMessageHelperImpl mediaGroupHelper = new MediaGroupMessageHelperImpl();
@@ -38,7 +39,8 @@ class MediaGroupMessageHelperImplTest {
             } else {
                 mediaGroupId = "1001";
             }
-            Message messageWithGroupAndPhoto = TestUtils.getMessageWithGroupAndPhoto(mediaGroupId);
+            Message messageWithGroupAndPhoto = TestUtils
+                    .getMessageWithGroupAndPhoto(String.valueOf(1000 + i), String.valueOf(i));
             mediaGroupMessages.put(i, messageWithGroupAndPhoto);
         }
         MediaGroupMessageHelperImpl mediaGroupHelper = new MediaGroupMessageHelperImpl();

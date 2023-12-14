@@ -57,7 +57,8 @@ public class InquiryMessageCreatorImpl implements InquiryMessageCreator {
         Map<Integer, PartialBotApiMethod<?>> sendMediaMessages = simpleMessageMediaHelper
                 .convertSendMediaMessage(simpleMessages, chatId);
         log.debug("Combining simple and media groups messages");
-        List<? extends PartialBotApiMethod<?>> readyMessages = Stream.of(sendMediaMessages, sendMediaGroupMessages).flatMap(m -> m.entrySet().stream())
+        List<? extends PartialBotApiMethod<?>> readyMessages = Stream.of(sendMediaMessages, sendMediaGroupMessages)
+                .flatMap(m -> m.entrySet().stream())
                 .sorted(Map.Entry.comparingByKey()).map(Map.Entry::getValue)
                 .toList();
         messagesToSend.addAll(readyMessages);
