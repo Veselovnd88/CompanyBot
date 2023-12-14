@@ -157,7 +157,7 @@ public class TestUpdates {
         return update;
     }
 
-    public static Update getUpdateWithMessageNoCommandNoEntitiesWithContactDataByUser(String contactData) {
+    public static Update getUpdateWithMessageWithContactDataByUser(String contactData) {
         Update update = new Update();
         Message message = new Message();
         message.setText(contactData);
@@ -166,11 +166,10 @@ public class TestUpdates {
         return update;
     }
 
-    public static Update getUpdateWithMessageNoCommandNoEntitiesWithSharedContactByUser() {
+    public static Update getUpdateWithMessageWithSharedContactByUser(Contact contact) {
         Update update = new Update();
         Message message = new Message();
-        Contact shared = new Contact();
-        message.setContact(shared);
+        message.setContact(contact);
         message.setEntities(null);
         update.setMessage(message);
         message.setFrom(TestUtils.getSimpleUser());

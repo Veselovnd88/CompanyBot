@@ -5,13 +5,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.event.EventListener;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Component;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
-import ru.veselov.companybot.exception.NoSuchDivisionException;
 import ru.veselov.companybot.model.ContactModel;
 import ru.veselov.companybot.model.InquiryModel;
 import ru.veselov.companybot.service.CustomerService;
 import ru.veselov.companybot.service.InquiryService;
-import ru.veselov.companybot.service.impl.SenderService;
+import ru.veselov.companybot.service.sender.impl.SenderService;
 
 @Component
 @RequiredArgsConstructor

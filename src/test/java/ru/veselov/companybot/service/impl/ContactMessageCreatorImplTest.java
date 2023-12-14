@@ -4,6 +4,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import ru.veselov.companybot.model.ContactModel;
+import ru.veselov.companybot.service.sender.impl.ContactMessageCreatorImpl;
 import ru.veselov.companybot.util.TestUtils;
 
 import java.util.List;

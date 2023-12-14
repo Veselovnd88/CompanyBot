@@ -16,13 +16,13 @@ import ru.veselov.companybot.bot.context.CallbackQueryDataHandlerContext;
 import ru.veselov.companybot.bot.handler.callback.impl.SaveContactCallbackUpdateHandlerImpl;
 import ru.veselov.companybot.bot.keyboard.impl.ContactKeyboardHelperImpl;
 import ru.veselov.companybot.bot.util.CallBackButtonUtils;
+import ru.veselov.companybot.service.ContactService;
 import ru.veselov.companybot.util.MessageUtils;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
 import ru.veselov.companybot.event.SendCustomerDataEventPublisher;
 import ru.veselov.companybot.exception.ContactProcessingException;
 import ru.veselov.companybot.model.ContactModel;
 import ru.veselov.companybot.model.InquiryModel;
-import ru.veselov.companybot.service.CustomerService;
 import ru.veselov.companybot.service.InquiryService;
 import ru.veselov.companybot.util.TestUpdates;
 import ru.veselov.companybot.util.TestUtils;
@@ -39,7 +39,7 @@ class SaveContactCallbackUpdateHandlerImplTest {
     SendCustomerDataEventPublisher customerDataEventPublisher;
 
     @Mock
-    CustomerService customerService;
+    ContactService contactService;
 
     @Mock
     InquiryService inquiryService;
@@ -71,7 +71,7 @@ class SaveContactCallbackUpdateHandlerImplTest {
 
         org.junit.jupiter.api.Assertions.assertAll(
                 () -> Mockito.verify(userDataCache).getInquiry(userId),
-                () -> Mockito.verify(customerService).saveContact(contactModel),
+                () -> Mockito.verify(contactService).saveContact(contactModel),
                 () -> Mockito.verify(customerDataEventPublisher).publishEvent(null, contactModel),
                 () -> Mockito.verify(contactKeyboardHelper).clear(userId),
                 () -> Mockito.verify(userDataCache).clear(userId),
@@ -92,7 +92,7 @@ class SaveContactCallbackUpdateHandlerImplTest {
 
         org.junit.jupiter.api.Assertions.assertAll(
                 () -> Mockito.verify(userDataCache).getInquiry(userId),
-                () -> Mockito.verify(customerService).saveContact(contactModel),
+                () -> Mockito.verify(contactService).saveContact(contactModel),
                 () -> Mockito.verify(customerDataEventPublisher).publishEvent(inquiryModel, contactModel),
                 () -> Mockito.verify(contactKeyboardHelper).clear(userId),
                 () -> Mockito.verify(userDataCache).clear(userId),

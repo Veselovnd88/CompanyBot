@@ -9,17 +9,17 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.veselov.companybot.bot.BotState;
 import ru.veselov.companybot.bot.context.CallbackQueryDataHandlerContext;
 import ru.veselov.companybot.bot.handler.callback.SaveContactCallbackUpdateHandler;
-import ru.veselov.companybot.bot.util.CallBackButtonUtils;
 import ru.veselov.companybot.bot.keyboard.impl.ContactKeyboardHelperImpl;
-import ru.veselov.companybot.util.MessageUtils;
+import ru.veselov.companybot.bot.util.CallBackButtonUtils;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
 import ru.veselov.companybot.event.SendCustomerDataEventPublisher;
 import ru.veselov.companybot.exception.ContactProcessingException;
 import ru.veselov.companybot.exception.handler.BotExceptionToMessage;
 import ru.veselov.companybot.model.ContactModel;
 import ru.veselov.companybot.model.InquiryModel;
-import ru.veselov.companybot.service.CustomerService;
+import ru.veselov.companybot.service.ContactService;
 import ru.veselov.companybot.service.InquiryService;
+import ru.veselov.companybot.util.MessageUtils;
 
 import java.util.Set;
 
@@ -32,7 +32,7 @@ public class SaveContactCallbackUpdateHandlerImpl implements SaveContactCallback
 
     private final SendCustomerDataEventPublisher customerDataEventPublisher;
 
-    private final CustomerService customerService;
+    private final ContactService contactService;
 
     private final InquiryService inquiryService;
 
@@ -54,7 +54,7 @@ public class SaveContactCallbackUpdateHandlerImpl implements SaveContactCallback
         if (checkIsContactOK(contact)) {
             InquiryModel inquiry = userDataCache.getInquiry(userId);
             customerDataEventPublisher.publishEvent(inquiry, contact);
-            customerService.saveContact(contact);
+            contactService.saveContact(contact);
             if (inquiry != null) {
                 inquiryService.save(inquiry);
             }

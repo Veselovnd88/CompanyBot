@@ -37,7 +37,7 @@ public class ChatServiceImpl implements ChatService {
     @Override
     public List<Chat> findAll() {
         List<Chat> list = chatMapper.toListModels(chatRepository.findAll());
-        log.info("Channels retrieved from repository");
+        log.debug("Channels retrieved from repository");
         return list;
     }
 

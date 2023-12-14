@@ -39,7 +39,7 @@ public class CustomerEntity {
     @Column(name = "username")
     private String userName;
 
-    @OneToMany(mappedBy = "customerEntity", orphanRemoval = true, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "customer", orphanRemoval = true, cascade = CascadeType.ALL)
     @Column(name = "contact")
     private Set<ContactEntity> contacts = new HashSet<>();
 

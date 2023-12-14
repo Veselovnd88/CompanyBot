@@ -19,7 +19,8 @@ import org.telegram.telegrambots.meta.api.objects.Chat;
 import ru.veselov.companybot.bot.CompanyBot;
 import ru.veselov.companybot.model.ContactModel;
 import ru.veselov.companybot.model.InquiryModel;
-import ru.veselov.companybot.service.MessagesToSendCreator;
+import ru.veselov.companybot.service.sender.MessagesToSendCreator;
+import ru.veselov.companybot.service.sender.impl.SenderService;
 import ru.veselov.companybot.util.TestUtils;
 
 import java.time.Instant;

@@ -24,7 +24,7 @@ public class CustomerMessageEntity {
 
     @Id
     @Column(name = "message_id")
-    private Long messageId;
+    private Integer messageId;
 
     //More convenient for save all message with all markups
     @JdbcTypeCode(SqlTypes.JSON)

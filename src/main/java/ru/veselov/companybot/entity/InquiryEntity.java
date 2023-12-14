@@ -57,7 +57,8 @@ public class InquiryEntity {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         InquiryEntity inquiryEntity = (InquiryEntity) o;
-        return date.equals(inquiryEntity.date) && division == inquiryEntity.division && messages.equals(inquiryEntity.messages) && customerEntity.equals(inquiryEntity.customerEntity);
+        return date.equals(inquiryEntity.date) && division == inquiryEntity.division
+                && messages.equals(inquiryEntity.messages) && customerEntity.equals(inquiryEntity.customerEntity);
     }
 
     @Override

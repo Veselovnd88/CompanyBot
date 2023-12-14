@@ -48,7 +48,7 @@ class ContactMessageUpdateHandlerTest {
     @Test
     void shouldHandleContactUpdateWithTextNamePhoneEmailShared() {
         Mockito.when(userDataCacheFacade.getUserBotState(userId)).thenReturn(BotState.AWAIT_NAME);
-        Update update = TestUpdates.getUpdateWithMessageNoCommandNoEntitiesWithContactDataByUser("name name name");
+        Update update = TestUpdates.getUpdateWithMessageWithContactDataByUser("name name name");
         contactMessageHandler.processUpdate(update);
 
         Mockito.verify(userDataCacheFacade).setUserBotState(TestUtils.USER_ID, BotState.AWAIT_CONTACT);
@@ -58,7 +58,7 @@ class ContactMessageUpdateHandlerTest {
     @Test
     void shouldHandleContactUpdateWithTextPhone() {
         Mockito.when(userDataCacheFacade.getUserBotState(userId)).thenReturn(BotState.AWAIT_PHONE);
-        Update update = TestUpdates.getUpdateWithMessageNoCommandNoEntitiesWithContactDataByUser("+7 916 555 55 55");
+        Update update = TestUpdates.getUpdateWithMessageWithContactDataByUser("+7 916 555 55 55");
         contactMessageHandler.processUpdate(update);
 
         Mockito.verify(userDataCacheFacade).setUserBotState(TestUtils.USER_ID, BotState.AWAIT_CONTACT);
@@ -67,7 +67,7 @@ class ContactMessageUpdateHandlerTest {
 
     @Test
     void shouldHandleContactUpdateWithTextEmail() {
-        Update update = TestUpdates.getUpdateWithMessageNoCommandNoEntitiesWithContactDataByUser("123@123.com");
+        Update update = TestUpdates.getUpdateWithMessageWithContactDataByUser("123@123.com");
         Mockito.when(userDataCacheFacade.getUserBotState(userId)).thenReturn(BotState.AWAIT_EMAIL);
         contactMessageHandler.processUpdate(update);
 
@@ -77,7 +77,7 @@ class ContactMessageUpdateHandlerTest {
 
     @Test
     void shouldThrowExceptionIfNotSuitableBotState() {
-        Update update = TestUpdates.getUpdateWithMessageNoCommandNoEntitiesWithContactDataByUser("+7 916 555 55 55");
+        Update update = TestUpdates.getUpdateWithMessageWithContactDataByUser("+7 916 555 55 55");
         Mockito.when(userDataCacheFacade.getUserBotState(TestUtils.USER_ID))
                 .thenReturn(BotState.READY);
         Assertions.assertThatThrownBy(() -> contactMessageHandler.processUpdate(update))
@@ -87,7 +87,7 @@ class ContactMessageUpdateHandlerTest {
     @Test
     void shouldHandleContactUpdateWithSharedContact() {
         Mockito.when(userDataCacheFacade.getUserBotState(userId)).thenReturn(BotState.AWAIT_SHARED);
-        Update update = TestUpdates.getUpdateWithMessageNoCommandNoEntitiesWithSharedContactByUser();
+        Update update = TestUpdates.getUpdateWithMessageWithSharedContactByUser(TestUtils.getUserContact());
 
         contactMessageHandler.processUpdate(update);
 
@@ -97,7 +97,7 @@ class ContactMessageUpdateHandlerTest {
 
     @Test
     void shouldThrowExceptionIfMessageHasNotTextOrSharedContact() {
-        Update update = TestUpdates.getUpdateWithMessageNoCommandNoEntitiesWithSharedContactByUser();
+        Update update = TestUpdates.getUpdateWithMessageWithSharedContactByUser(TestUtils.getUserContact());
         update.getMessage().setText(null);
         update.getMessage().setContact(null);
 
@@ -109,7 +109,7 @@ class ContactMessageUpdateHandlerTest {
     void shouldThrowExceptionIfWrongBotStateForSharedContactProcessing() {
         Mockito.when(userDataCacheFacade.getUserBotState(TestUtils.USER_ID))
                 .thenReturn(BotState.READY);
-        Update update = TestUpdates.getUpdateWithMessageNoCommandNoEntitiesWithSharedContactByUser();
+        Update update = TestUpdates.getUpdateWithMessageWithSharedContactByUser(TestUtils.getUserContact());
 
         Assertions.assertThatThrownBy(() -> contactMessageHandler.processUpdate(update))
                 .isInstanceOf(WrongBotStateException.class);

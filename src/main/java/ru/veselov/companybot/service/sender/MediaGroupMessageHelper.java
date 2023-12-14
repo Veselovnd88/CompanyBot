@@ -1,4 +1,4 @@
-package ru.veselov.companybot.service;
+package ru.veselov.companybot.service.sender;
 
 import org.telegram.telegrambots.meta.api.methods.send.SendMediaGroup;
 import org.telegram.telegrambots.meta.api.objects.Message;

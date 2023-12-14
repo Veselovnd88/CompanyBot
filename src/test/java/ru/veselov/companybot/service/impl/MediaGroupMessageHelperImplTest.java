@@ -4,6 +4,7 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.telegram.telegrambots.meta.api.methods.send.SendMediaGroup;
 import org.telegram.telegrambots.meta.api.objects.Message;
+import ru.veselov.companybot.service.sender.impl.MediaGroupMessageHelperImpl;
 import ru.veselov.companybot.util.TestUtils;
 
 import java.util.LinkedHashMap;

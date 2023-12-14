@@ -1,4 +1,4 @@
-package ru.veselov.companybot.service.impl;
+package ru.veselov.companybot.service.sender.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -8,9 +8,9 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMediaGroup;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import ru.veselov.companybot.model.InquiryModel;
-import ru.veselov.companybot.service.InquiryMessageCreator;
-import ru.veselov.companybot.service.MediaGroupMessageHelper;
-import ru.veselov.companybot.service.SimpleMessageMediaHelper;
+import ru.veselov.companybot.service.sender.InquiryMessageCreator;
+import ru.veselov.companybot.service.sender.MediaGroupMessageHelper;
+import ru.veselov.companybot.service.sender.SimpleMessageMediaHelper;
 
 import java.util.HashMap;
 import java.util.LinkedList;
