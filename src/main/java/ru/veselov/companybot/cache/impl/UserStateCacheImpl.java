@@ -42,4 +42,8 @@ public class UserStateCacheImpl implements UserStateCache {
         log.info("For [user id: {}] was set [bot state: {}]", id, botState);
     }
 
+    @Override
+    public void reset() {
+        currentUserBotState.clear();
+    }
 }

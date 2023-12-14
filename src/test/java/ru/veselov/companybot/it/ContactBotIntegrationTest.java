@@ -15,11 +15,10 @@ import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.objects.Update;
-import ru.veselov.companybot.bot.BotState;
 import ru.veselov.companybot.bot.CompanyBot;
 import ru.veselov.companybot.bot.handler.TelegramFacadeUpdateHandler;
 import ru.veselov.companybot.bot.util.CallBackButtonUtils;
-import ru.veselov.companybot.cache.UserDataCacheFacade;
+import ru.veselov.companybot.cache.UserStateCache;
 import ru.veselov.companybot.config.BotConfig;
 import ru.veselov.companybot.config.PostgresTestContainersConfiguration;
 import ru.veselov.companybot.entity.ContactEntity;
@@ -52,13 +51,13 @@ class ContactBotIntegrationTest extends PostgresTestContainersConfiguration {
     ContactRepository contactRepository;
 
     @Autowired
-    UserDataCacheFacade userDataCache;
+    UserStateCache userStateCache;
 
     @AfterEach
     void clear() {
         customerRepository.deleteAll();
         contactRepository.deleteAll();
-        userDataCache.setUserBotState(TestUtils.USER_ID, BotState.BEGIN);
+        userStateCache.reset();
     }
 
     @Test

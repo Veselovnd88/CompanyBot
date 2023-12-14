@@ -26,4 +26,5 @@ public class UserActionsUtils {
     public static Update userAttachedSharedContact(Contact contact) {
         return TestUpdates.getUpdateWithMessageWithSharedContactByUser(contact);
     }
+
 }
