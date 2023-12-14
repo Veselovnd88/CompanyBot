@@ -2,10 +2,15 @@ package ru.veselov.companybot.util;
 
 import net.datafaker.Faker;
 import org.telegram.telegrambots.meta.api.objects.Chat;
+import org.telegram.telegrambots.meta.api.objects.Contact;
 import org.telegram.telegrambots.meta.api.objects.Message;
+import org.telegram.telegrambots.meta.api.objects.PhotoSize;
 import org.telegram.telegrambots.meta.api.objects.User;
+import ru.veselov.companybot.model.ContactModel;
 import ru.veselov.companybot.model.DivisionModel;
+import ru.veselov.companybot.model.InquiryModel;
 
+import java.util.List;
 import java.util.UUID;
 
 public class TestUtils {
@@ -36,7 +41,11 @@ public class TestUtils {
 
     public static final String USER_LAST_NAME = faker.elderScrolls().lastName();
 
+    public static final String USER_PHONE = faker.phoneNumber().phoneNumberNational();
+
     public static final String CALLBACK_ID = "1000";
+
+    public static final String MEDIA_GROUP_ID = "100000";
 
 
     public static final String DIVISION_NAME = "NAME";
@@ -85,6 +94,61 @@ public class TestUtils {
         message.setMessageId(MESSAGE_ID);
         message.setFrom(getSimpleUser());
         message.setChat(getChat(USER_ID, USER_NAME));
+        return message;
+    }
+
+    public static ContactModel getUserContactModel() {
+        return new ContactModel(
+                USER_LAST_NAME,
+                USER_FIRST_NAME,
+                null,
+                USER_PHONE,
+                "123@123.com",
+                null,
+                USER_ID
+        );
+    }
+
+    public static InquiryModel getInquiryModel() {
+        InquiryModel inquiryModel = new InquiryModel();
+        inquiryModel.setUserId(USER_ID);
+        inquiryModel.setDivision(getDivision());
+        inquiryModel.setMessages(List.of(getTextMessage("test")));
+        return inquiryModel;
+    }
+
+    public static Contact getUserContact() {
+        Contact contact = new Contact();
+        contact.setFirstName(USER_FIRST_NAME);
+        contact.setUserId(USER_ID);
+        contact.setLastName(USER_LAST_NAME);
+        contact.setPhoneNumber(USER_PHONE);
+        return contact;
+    }
+
+    public static Message getMessageWithGroupAndPhoto(String mediaGroupId, String fileId) {
+        Message message = new Message();
+        message.setFrom(getSimpleUser());
+        PhotoSize photoSize = new PhotoSize();
+        photoSize.setFileId(fileId);
+        message.setMediaGroupId(mediaGroupId);
+        message.setPhoto(List.of(photoSize));
+        return message;
+    }
+
+    public static Message getTextMessage(String text) {
+        Message message = new Message();
+        message.setFrom(getSimpleUser());
+        message.setText(text);
+        return message;
+    }
+
+    public static Message getPhotoMessage() {
+        Message message = new Message();
+        message.setFrom(getSimpleUser());
+        PhotoSize photoSize = new PhotoSize();
+        photoSize.setFileId("11234");
+        message.setPhoto(List.of(photoSize));
         return message;
     }
 }

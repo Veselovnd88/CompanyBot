@@ -9,7 +9,7 @@ import org.springframework.test.util.ReflectionTestUtils;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.MessageEntity;
 import org.telegram.telegrambots.meta.api.objects.User;
-import ru.veselov.companybot.bot.BotConstant;
+import ru.veselov.companybot.bot.util.BotUtils;
 import ru.veselov.companybot.exception.NoAvailableActionSendMessageException;
 import ru.veselov.companybot.util.TestUtils;
 
@@ -61,7 +61,7 @@ class UserMessageCheckerImplTest {
     @Test
     void shouldThrowExceptionIfCustomEmojiDetected() {
         MessageEntity messageEntity = new MessageEntity();
-        messageEntity.setType(BotConstant.CUSTOM_EMOJI);
+        messageEntity.setType(BotUtils.CUSTOM_EMOJI);
         message.setEntities(List.of(messageEntity));
 
         Assertions.assertThatThrownBy(() -> userMessageChecker.checkForCustomEmojis(message)

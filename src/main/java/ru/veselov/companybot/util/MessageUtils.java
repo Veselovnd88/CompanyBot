@@ -1,8 +1,9 @@
-package ru.veselov.companybot.bot.util;
+package ru.veselov.companybot.util;
 
 import lombok.Getter;
 import lombok.Setter;
 import org.telegram.telegrambots.meta.api.objects.Message;
+import ru.veselov.companybot.model.ContactModel;
 
 public class MessageUtils {
 
@@ -63,6 +64,21 @@ public class MessageUtils {
     public static final String ANOTHER_ACTION = "Ожидаю другое действие, нажмите /start для сброса";
 
     public static final String INVITATION_TO_INPUT_INQUIRY = "Введите ваш вопрос или перешлите мне сообщение";
+
+    public static String createContactMessage(ContactModel contact, boolean hasInquiry) {
+        String message = (contact.getLastName() == null ? "" : (contact.getLastName() + " ")) +
+                (contact.getFirstName() == null ? "" : (contact.getFirstName() + " ")) +
+                (contact.getSecondName() == null ? "" : (contact.getSecondName() + " ")) +
+                (contact.getPhone() == null ? "" : ("\nТелефон: " + contact.getPhone())) +
+                (contact.getEmail() == null ? "" : ("\nЭл. почта: " + contact.getEmail()));
+        String prefix;
+        if (hasInquiry) {
+            prefix = "Контактное лицо для связи:\n";
+        } else {
+            prefix = "Направлена заявка на обратный звонок\nКонтактное лицо для связи: ";
+        }
+        return prefix + message.trim();
+    }
 
     private MessageUtils() {
     }

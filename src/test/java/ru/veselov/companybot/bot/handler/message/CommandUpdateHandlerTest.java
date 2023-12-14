@@ -21,7 +21,7 @@ import ru.veselov.companybot.bot.BotCommands;
 import ru.veselov.companybot.bot.BotState;
 import ru.veselov.companybot.bot.handler.message.impl.CommandUpdateHandlerImpl;
 import ru.veselov.companybot.bot.keyboard.DivisionKeyboardHelper;
-import ru.veselov.companybot.bot.util.MessageUtils;
+import ru.veselov.companybot.util.MessageUtils;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
 import ru.veselov.companybot.exception.WrongBotStateException;
 import ru.veselov.companybot.service.CustomerService;

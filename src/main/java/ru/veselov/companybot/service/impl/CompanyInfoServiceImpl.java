@@ -5,7 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.telegram.telegrambots.meta.api.objects.Message;
-import ru.veselov.companybot.bot.util.MessageUtils;
+import ru.veselov.companybot.util.MessageUtils;
 import ru.veselov.companybot.entity.CompanyInfoEntity;
 import ru.veselov.companybot.repository.CompanyInfoRepository;
 import ru.veselov.companybot.service.CompanyInfoService;

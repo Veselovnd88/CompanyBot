@@ -11,7 +11,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import ru.veselov.companybot.bot.keyboard.ContactKeyboardHelper;
 import ru.veselov.companybot.bot.util.CallBackButtonUtils;
-import ru.veselov.companybot.bot.util.MessageUtils;
+import ru.veselov.companybot.util.MessageUtils;
 
 import java.util.ArrayList;
 import java.util.List;

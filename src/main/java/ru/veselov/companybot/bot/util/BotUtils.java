@@ -4,9 +4,12 @@ import lombok.extern.slf4j.Slf4j;
 import ru.veselov.companybot.bot.BotState;
 import ru.veselov.companybot.bot.context.UpdateHandlerFromContext;
 import ru.veselov.companybot.exception.UnexpectedActionException;
+import ru.veselov.companybot.util.MessageUtils;
 
 @Slf4j
-public class BotStateUtils {
+public class BotUtils {
+
+    public static final String CUSTOM_EMOJI = "custom_emoji";
 
     /**
      * Check if current bot state is available for calling handler from context
@@ -23,6 +26,6 @@ public class BotStateUtils {
         }
     }
 
-    private BotStateUtils() {
+    private BotUtils() {
     }
 }

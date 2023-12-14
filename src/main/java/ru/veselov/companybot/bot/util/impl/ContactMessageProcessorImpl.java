@@ -8,7 +8,7 @@ import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageRe
 import org.telegram.telegrambots.meta.api.objects.Contact;
 import ru.veselov.companybot.bot.util.ContactMessageProcessor;
 import ru.veselov.companybot.bot.keyboard.impl.ContactKeyboardHelperImpl;
-import ru.veselov.companybot.bot.util.MessageUtils;
+import ru.veselov.companybot.util.MessageUtils;
 import ru.veselov.companybot.exception.ContactProcessingException;
 import ru.veselov.companybot.model.ContactModel;
 

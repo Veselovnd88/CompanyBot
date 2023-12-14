@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import ru.veselov.companybot.bot.keyboard.DivisionKeyboardHelper;
-import ru.veselov.companybot.bot.util.MessageUtils;
+import ru.veselov.companybot.util.MessageUtils;
 import ru.veselov.companybot.cache.Clearable;
 import ru.veselov.companybot.model.DivisionModel;
 import ru.veselov.companybot.service.impl.DivisionServiceImpl;

@@ -1,103 +1,100 @@
 package ru.veselov.companybot.service.impl;
 
+import jakarta.annotation.PostConstruct;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Profile;
+import org.springframework.scheduling.concurrent.ThreadPoolTaskScheduler;
 import org.springframework.stereotype.Service;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.Chat;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.veselov.companybot.bot.CompanyBot;
-import ru.veselov.companybot.exception.NoSuchDivisionException;
 import ru.veselov.companybot.model.ContactModel;
 import ru.veselov.companybot.model.InquiryModel;
-import ru.veselov.companybot.service.sender.ContactSender;
-import ru.veselov.companybot.service.sender.InquirySender;
+import ru.veselov.companybot.service.MessagesToSendCreator;
+import ru.veselov.companybot.service.SendTask;
 
-import java.util.*;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Service
+@RequiredArgsConstructor
 @Slf4j
 public class SenderService {
+
     @Value("${bot.adminId}")
     private String adminId;
-    @Value("${bot.chat-interval}")
-    private long chatInterval;
-    private final CompanyBot bot;
-    private final ChatServiceImpl chatServiceImpl;
-    private final InquirySender inquirySender;
-    private final ContactSender contactSender;
-    private final Map<Long, Date> chatTimers = new HashMap<>();
-    private Chat adminChat;
-    @Autowired
-    public SenderService(CompanyBot bot, ChatServiceImpl chatServiceImpl, InquirySender inquirySender, ContactSender contactSender) {
-        this.bot = bot;
-        this.chatServiceImpl = chatServiceImpl;
-        this.inquirySender = inquirySender;
-        this.contactSender = contactSender;
-    }
 
-    public synchronized void send(InquiryModel inquiry, ContactModel contact) throws TelegramApiException, NoSuchDivisionException {
-        adminChat=new Chat();
+    @Value("${bot.chat-interval}")
+    private Long chatInterval;
+
+    private final CompanyBot bot;
+
+    private final ChatServiceImpl chatServiceImpl;
+
+    private final ThreadPoolTaskScheduler threadPoolSenderTaskScheduler;
+
+    private final MessagesToSendCreator messagesToSendCreator;
+    private final Map<Long, Instant> chatTimers = new ConcurrentHashMap<>();
+
+    private Chat adminChat;
+
+    @PostConstruct
+    public void configure() {
+        adminChat = new Chat();
         adminChat.setId(Long.valueOf(adminId));
         adminChat.setTitle("Администратору");
-        Long userId = contact.getUserId();
+    }
+
+    public void send(InquiryModel inquiry, ContactModel contact) {
         removeOldChats();
         List<Chat> allChats = chatServiceImpl.findAll();
-        List<Chat> sending = new ArrayList<>(allChats);
-        sending.add(adminChat);
-        for(Chat chat: sending) {
-            if (chatTimers.containsKey(chat.getId())) {
-                //Если в кеше с таймерами есть наш чат, то проверяем время отправки, если время + 60 секунд
-                //позже текущей даты(отправка была меньше минуту назад), то запускаем эту отправку в новом треде
-                //с задержкой +- 60 сек, и обновляем время отправки данного чата
-                Date chatDate = new Date(chatTimers.get(chat.getId()).getTime() + chatInterval);
-                if ((chatDate).after(new Date())) {
-                    Thread delayedStart = new Thread(() -> {
-                        try {
-                            log.info("{}: отправлю запрос пользователя через {} мс", userId,
-                                    chatInterval);
-                            Thread.sleep(chatInterval);
-                            send(inquiry,contact);
-                            chatTimers.put(chat.getId(), chatDate);
-                        } catch (TelegramApiException | NoSuchDivisionException e) {
-                            log.error("Не удалось отправить сообщение {}", e.getMessage());
-                            bot.sendMessageWithDelay(SendMessage.builder().chatId(adminId)
-                                        .text("Не удалось отправить сообщение пользователя").build());
-                        } catch (InterruptedException e) {
-                            log.error(e.getMessage());
-                        }
-                    });
-                    delayedStart.start();
-                    return;
+        List<Chat> chatsToSend = new ArrayList<>(allChats);
+        chatsToSend.add(adminChat);
+        for (Chat chat : chatsToSend) {
+            Long chatId = chat.getId();
+            log.debug("Creating and scheduling task for sending to [chat: {}]", chatId);
+            List<PartialBotApiMethod<?>> messagesToSend = messagesToSendCreator
+                    .createMessagesToSend(inquiry, contact, chatId.toString());
+            SendTask sendTask = new SendTask(bot, chat, messagesToSend);
+            if (chatTimers.containsKey(chatId)) {
+                log.debug("Check if current time is after last sending + {} milliseconds", chatInterval);
+                //check if last send to chat was not earlier than interval
+                Instant availableTimeForNextMessage = chatTimers.get(chatId)
+                        .plus(chatInterval, ChronoUnit.MILLIS);
+                if (availableTimeForNextMessage.isAfter(Instant.now())) {
+                    threadPoolSenderTaskScheduler
+                            .schedule(sendTask, chatTimers.get(chatId).plus(chatInterval, ChronoUnit.MILLIS));
+                    log.debug("Task with delay planned");
                 }
+            } else {
+                threadPoolSenderTaskScheduler.execute(sendTask);
+                log.debug("Task will be executed right now");
             }
-            if (inquiry != null){
-                inquirySender.setInquiry(inquiry);
-                inquirySender.send(bot,chat);
+            if (chat.isChannelChat() || chat.isGroupChat()) {
+                chatTimers.compute(chatId, (key, value) ->
+                        value != null ? value.plus(chatInterval, ChronoUnit.MILLIS)
+                                : Instant.now().plus(chatInterval, ChronoUnit.MILLIS));
+                log.debug("Put delay for [chat: {}]", chatId);
             }
-            //Контакт есть ВСЕГДА, ФИО есть всегда
-            contactSender.setUpContactSender(contact,inquiry!=null);
-            contactSender.send(bot,chat);
-            if(chat.isChannelChat()||chat.isGroupChat()){
-                chatTimers.put(chat.getId(), new Date());}
         }
     }
 
-    /*Метод проходит по мапе с чатами и их временем отправки, и удаляет оттуда те, в которых отправка была ранее чем
-     * минуту назад*/
-    private void removeOldChats(){
-        List<Long> ids = chatTimers.entrySet().stream().filter(x -> (new Date(x.getValue().getTime() + chatInterval)).before(new Date()))
+    /**
+     * Remove old chats from times cache
+     */
+    private void removeOldChats() {
+        List<Long> chatIds = chatTimers.entrySet().stream().filter(x ->
+                        x.getValue().plus(chatInterval, ChronoUnit.MILLIS).isBefore(Instant.now()))
                 .map(Map.Entry::getKey).toList();
-        for(long l: ids){
+        for (long l : chatIds) {
             chatTimers.remove(l);
         }
-    }
-
-    @Profile("test")
-    public Map<Long, Date> getChatTimers(){
-        return chatTimers;
+        log.debug("Chat timers cleared");
     }
 
 }

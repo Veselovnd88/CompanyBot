@@ -5,8 +5,8 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.MessageEntity;
-import ru.veselov.companybot.bot.BotConstant;
-import ru.veselov.companybot.bot.util.MessageUtils;
+import ru.veselov.companybot.bot.util.BotUtils;
+import ru.veselov.companybot.util.MessageUtils;
 import ru.veselov.companybot.bot.util.UserMessageChecker;
 import ru.veselov.companybot.exception.NoAvailableActionSendMessageException;
 
@@ -34,7 +34,7 @@ public class UserMessageCheckerImpl implements UserMessageChecker {
         Long userId = message.getFrom().getId();
         if (message.getEntities() != null) {
             List<MessageEntity> entities = message.getEntities();
-            if (entities.stream().anyMatch(x -> x.getType().equals(BotConstant.CUSTOM_EMOJI))) {
+            if (entities.stream().anyMatch(x -> x.getType().equals(BotUtils.CUSTOM_EMOJI))) {
                 log.info("Try to send custom emojis by [user with id: {}], not supported", userId);
                 throw new NoAvailableActionSendMessageException(MessageUtils.NO_CUSTOM_EMOJI,
                         userId.toString());

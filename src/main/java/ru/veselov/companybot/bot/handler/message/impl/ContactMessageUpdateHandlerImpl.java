@@ -10,7 +10,7 @@ import ru.veselov.companybot.bot.BotState;
 import ru.veselov.companybot.bot.context.BotStateHandlerContext;
 import ru.veselov.companybot.bot.handler.message.ContactMessageUpdateHandler;
 import ru.veselov.companybot.bot.util.ContactMessageProcessor;
-import ru.veselov.companybot.bot.util.MessageUtils;
+import ru.veselov.companybot.util.MessageUtils;
 import ru.veselov.companybot.cache.ContactCache;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
 import ru.veselov.companybot.exception.ContactProcessingException;
