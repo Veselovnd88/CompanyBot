@@ -11,6 +11,7 @@ import ru.veselov.companybot.model.DivisionModel;
 import ru.veselov.companybot.model.InquiryModel;
 
 import java.util.List;
+import java.util.Random;
 import java.util.UUID;
 
 public class TestUtils {
@@ -19,7 +20,7 @@ public class TestUtils {
 
     public static Long BOT_ID = 1L;
 
-    public static final Long USER_ID = 2L;
+    public static final Long USER_ID = new Random().nextLong();
 
     public static final Long ADMIN_ID = 3L;
 
@@ -31,15 +32,15 @@ public class TestUtils {
 
     public static final String ADMIN_NAME = faker.elderScrolls().dragon();
 
-    public static final String ADMIN_FIRST_NAME = faker.elderScrolls().firstName();
+    public static final String ADMIN_FIRST_NAME = faker.elderScrolls().firstName().replace(" ", "");
 
-    public static final String ADMIN_LAST_NAME = faker.elderScrolls().lastName();
+    public static final String ADMIN_LAST_NAME = faker.elderScrolls().lastName().replace(" ", "");
 
-    public static final String USER_NAME = faker.elderScrolls().creature();
+    public static final String USER_NAME = faker.elderScrolls().creature().replace(" ", "");
 
-    public static final String USER_FIRST_NAME = faker.elderScrolls().firstName();
+    public static final String USER_FIRST_NAME = faker.elderScrolls().firstName().replace(" ", "");
 
-    public static final String USER_LAST_NAME = faker.elderScrolls().lastName();
+    public static final String USER_LAST_NAME = faker.elderScrolls().lastName().replace(" ", "");
 
     public static final String USER_PHONE = faker.phoneNumber().phoneNumberNational();
 
