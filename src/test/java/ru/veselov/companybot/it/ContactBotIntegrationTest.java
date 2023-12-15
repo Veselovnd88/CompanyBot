@@ -30,10 +30,11 @@ import ru.veselov.companybot.util.UserActionsUtils;
 
 import java.util.List;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT,
+        classes = PostgresTestContainersConfiguration.class)
 @ActiveProfiles("test")
 @DirtiesContext
-class ContactBotIntegrationTest extends PostgresTestContainersConfiguration {
+class ContactBotIntegrationTest {
 
     @MockBean
     CompanyBot bot;
