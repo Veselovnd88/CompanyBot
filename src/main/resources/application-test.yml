@@ -28,7 +28,7 @@ spring:
     properties:
       hibernate:
         hbm2ddl:
-          auto: none
+          auto: validate
         show_sql: true
 
 logging:
