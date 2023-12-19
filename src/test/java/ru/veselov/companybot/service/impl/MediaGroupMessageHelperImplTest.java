@@ -41,7 +41,7 @@ class MediaGroupMessageHelperImplTest {
                 mediaGroupId = "1001";
             }
             Message messageWithGroupAndPhoto = TestUtils
-                    .getMessageWithGroupAndPhoto(String.valueOf(1000 + i), String.valueOf(i));
+                    .getMessageWithGroupAndPhoto(mediaGroupId, String.valueOf(i));
             mediaGroupMessages.put(i, messageWithGroupAndPhoto);
         }
         MediaGroupMessageHelperImpl mediaGroupHelper = new MediaGroupMessageHelperImpl();
