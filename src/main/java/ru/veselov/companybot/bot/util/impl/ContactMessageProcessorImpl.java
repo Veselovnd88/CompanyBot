@@ -6,11 +6,11 @@ import org.hibernate.validator.internal.constraintvalidators.bv.EmailValidator;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.objects.Contact;
-import ru.veselov.companybot.bot.util.ContactMessageProcessor;
 import ru.veselov.companybot.bot.keyboard.impl.ContactKeyboardHelperImpl;
-import ru.veselov.companybot.util.MessageUtils;
+import ru.veselov.companybot.bot.util.ContactMessageProcessor;
 import ru.veselov.companybot.exception.ContactProcessingException;
 import ru.veselov.companybot.model.ContactModel;
+import ru.veselov.companybot.util.MessageUtils;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -43,14 +43,10 @@ public class ContactMessageProcessorImpl implements ContactMessageProcessor {
         log.debug("Processing name of contact");
         Long userId = contact.getUserId();
         if (name.length() > 250) {
-            log.info("Try to enter name more >250 symbols: [user id {}]", userId);
+            log.warn("Try to enter name more >250 symbols: [user id {}]", userId);
             throw new ContactProcessingException(MessageUtils.NAME_TOO_LONG, userId.toString());
         }
-        String[] s = name.split(" ");
-        if (s.length == 0 || name.isEmpty()) {
-            log.info("Entered empty string by [user id {}]", userId);
-            throw new ContactProcessingException(MessageUtils.WRONG_CONTACT_FORMAT, userId.toString());
-        }
+        String[] s = name.split(" ");//if message has text array length cannot be zero length or empty
         contact.setLastName(s[0].trim());
         if (s.length > 1) {
             contact.setFirstName(s[1].trim());

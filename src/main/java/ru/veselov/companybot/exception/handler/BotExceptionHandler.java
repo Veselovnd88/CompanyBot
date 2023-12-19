@@ -2,7 +2,9 @@ package ru.veselov.companybot.exception.handler;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.AfterThrowing;
+import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.stereotype.Component;
@@ -11,6 +13,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.veselov.companybot.bot.CompanyBot;
 import ru.veselov.companybot.bot.keyboard.impl.ContactKeyboardHelperImpl;
 import ru.veselov.companybot.exception.ContactProcessingException;
+import ru.veselov.companybot.exception.CriticalBotException;
 import ru.veselov.companybot.exception.ProcessUpdateException;
 import ru.veselov.companybot.exception.UnexpectedActionException;
 import ru.veselov.companybot.exception.WrongBotStateException;
@@ -39,15 +42,18 @@ public class BotExceptionHandler {
         convertAndSendMessage(ex);
     }
 
-    @AfterThrowing(pointcut = "handledMethods()", throwing = "ex")
-    public void handleContactProcessingExceptionAndConvertToSendMessage(ContactProcessingException ex) {
-        log.debug(EXCEPTION_HANDLED, ex.getMessage());
+    @Around(value = "handledMethods()")
+    public Object handleContactProcessingExceptionAndConvertToSendMessage(ProceedingJoinPoint joinPoint) {
         try {
-            companyBot.execute(SendMessage.builder().chatId(ex.getChatId())
+            return joinPoint.proceed();
+        } catch (ContactProcessingException ex) {
+            log.warn("Handled {} exception with message {}", ex.getClass().getSimpleName(), ex.getMessage());
+            return SendMessage.builder().chatId(ex.getChatId())
                     .text(ex.getMessage()).replyMarkup(contactKeyboardHelper.getContactKeyboard())
-                    .build());
-        } catch (TelegramApiException e) {
-            log.error(SMTH_WENT_WRONG, ex.getChatId(), e.getMessage());
+                    .build();
+        } catch (Throwable ex) {
+            log.error(ex.getMessage());
+            throw new CriticalBotException(SMTH_WENT_WRONG, ex);
         }
     }
 

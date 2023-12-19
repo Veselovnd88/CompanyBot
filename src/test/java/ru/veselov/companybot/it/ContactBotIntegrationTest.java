@@ -4,6 +4,9 @@ import lombok.SneakyThrows;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -20,16 +23,17 @@ import ru.veselov.companybot.bot.handler.TelegramFacadeUpdateHandler;
 import ru.veselov.companybot.bot.util.CallBackButtonUtils;
 import ru.veselov.companybot.cache.UserStateCache;
 import ru.veselov.companybot.config.BotConfig;
-import ru.veselov.companybot.config.LocalDevPostgresTestContainersConfiguration;
 import ru.veselov.companybot.config.PostgresTestContainersConfiguration;
 import ru.veselov.companybot.entity.ContactEntity;
 import ru.veselov.companybot.entity.CustomerEntity;
 import ru.veselov.companybot.repository.ContactRepository;
 import ru.veselov.companybot.repository.CustomerRepository;
+import ru.veselov.companybot.util.MessageUtils;
 import ru.veselov.companybot.util.TestUtils;
 import ru.veselov.companybot.util.UserActionsUtils;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
@@ -124,9 +128,24 @@ class ContactBotIntegrationTest extends PostgresTestContainersConfiguration {
         Assertions.assertThat(contactEntity.getFirstName()).isEqualTo(TestUtils.USER_FIRST_NAME);
     }
 
-    @Test
-    void shouldSendMessageForWrongInputWrongContact() {
+    @ParameterizedTest
+    @MethodSource("getIncorrectContacts")
+    @SneakyThrows
+    void shouldSendMessageForWrongInputWrongContact(String callbackData, String wrongValue) {
+        pressStartCallContact();
+        Update contactInputPressed = UserActionsUtils.userPressCallbackButton(callbackData);
+        telegramFacadeUpdateHandler.processUpdate(contactInputPressed);
 
+        Update inputValue = UserActionsUtils.userSendMessageWithContact(wrongValue);
+        BotApiMethod<?> errorAnswer = telegramFacadeUpdateHandler.processUpdate(inputValue);
+        Assertions.assertThat(errorAnswer).isInstanceOf(SendMessage.class);
+        SendMessage sendMessage = (SendMessage) errorAnswer;
+        Assertions.assertThat(sendMessage.getText()).containsAnyOf(
+                MessageUtils.WRONG_EMAIL,
+                MessageUtils.WRONG_PHONE,
+                MessageUtils.NAME_TOO_LONG,
+                MessageUtils.WRONG_CONTACT_FORMAT
+        );
     }
 
     private void pressStartCallContact() {
@@ -143,5 +162,14 @@ class ContactBotIntegrationTest extends PostgresTestContainersConfiguration {
         Assertions.assertThat(contactAnswer).isInstanceOf(EditMessageReplyMarkup.class);
     }
 
+    private static Stream<Arguments> getIncorrectContacts() {
+        return Stream.of(
+                Arguments.of(CallBackButtonUtils.EMAIL, TestUtils.faker.animal().name()),
+                Arguments.of(CallBackButtonUtils.PHONE, TestUtils.faker.ancient().god()),
+                Arguments.of(CallBackButtonUtils.NAME, "p".repeat(251)),
+                Arguments.of(CallBackButtonUtils.NAME, ""),
+                Arguments.of(CallBackButtonUtils.EMAIL, "            ")
+        );
+    }
 
 }
