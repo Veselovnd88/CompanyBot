@@ -14,8 +14,8 @@ import ru.veselov.companybot.bot.handler.message.impl.ContactMessageUpdateHandle
 import ru.veselov.companybot.bot.util.ContactMessageProcessor;
 import ru.veselov.companybot.cache.ContactCache;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
+import ru.veselov.companybot.exception.ContactProcessingException;
 import ru.veselov.companybot.exception.WrongBotStateException;
-import ru.veselov.companybot.exception.WrongContactException;
 import ru.veselov.companybot.model.ContactModel;
 import ru.veselov.companybot.util.TestUpdates;
 import ru.veselov.companybot.util.TestUtils;
@@ -102,7 +102,7 @@ class ContactMessageUpdateHandlerTest {
         update.getMessage().setContact(null);
 
         Assertions.assertThatThrownBy(() -> contactMessageHandler.processUpdate(update))
-                .isInstanceOf(WrongContactException.class);
+                .isInstanceOf(ContactProcessingException.class);
     }
 
     @Test
