@@ -28,6 +28,7 @@ spring:
     enabled: true
     default-schema: public
     drop-first: false
+
   cache:
     cache-names: division
 

@@ -1,6 +1,6 @@
 import org.springframework.boot.SpringApplication;
 import ru.veselov.companybot.CompanyBotApplication;
-import ru.veselov.companybot.config.PostgresTestContainersConfiguration;
+import ru.veselov.companybot.config.LocalDevPostgresTestContainersConfiguration;
 
 public class CompanyBotLocalDevApplication {
     /**
@@ -8,7 +8,7 @@ public class CompanyBotLocalDevApplication {
      */
     public static void main(String[] args) {
         SpringApplication.from(CompanyBotApplication::main)
-                .with(PostgresTestContainersConfiguration.class)
+                .with(LocalDevPostgresTestContainersConfiguration.class)
                 .run(args);
     }
 
