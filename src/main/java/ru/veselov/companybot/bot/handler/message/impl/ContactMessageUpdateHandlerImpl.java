@@ -10,15 +10,14 @@ import ru.veselov.companybot.bot.BotState;
 import ru.veselov.companybot.bot.context.BotStateHandlerContext;
 import ru.veselov.companybot.bot.handler.message.ContactMessageUpdateHandler;
 import ru.veselov.companybot.bot.util.ContactMessageProcessor;
-import ru.veselov.companybot.util.MessageUtils;
 import ru.veselov.companybot.cache.ContactCache;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
 import ru.veselov.companybot.exception.ContactProcessingException;
 import ru.veselov.companybot.exception.WrongBotStateException;
 import ru.veselov.companybot.exception.WrongContactException;
-import ru.veselov.companybot.exception.handler.BotExceptionToMessage;
 import ru.veselov.companybot.exception.util.ExceptionMessageUtils;
 import ru.veselov.companybot.model.ContactModel;
+import ru.veselov.companybot.util.MessageUtils;
 
 import java.util.Set;
 
@@ -63,7 +62,6 @@ public class ContactMessageUpdateHandlerImpl implements ContactMessageUpdateHand
      * @throws ContactProcessingException if error occurred during processing contact data
      * @throws WrongContactException      if update's message doesn't contain text or shared contact
      */
-    @BotExceptionToMessage
     @Override
     public EditMessageReplyMarkup processUpdate(Update update) {
         Long userId = update.getMessage().getFrom().getId();

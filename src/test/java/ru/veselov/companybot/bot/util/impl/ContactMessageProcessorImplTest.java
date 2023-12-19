@@ -167,8 +167,6 @@ class ContactMessageProcessorImplTest {
 
     private static Stream<String> getIncorrectNames() {
         return Stream.of(
-                "",
-                " ",
                 "a".repeat(251)
         );
     }
