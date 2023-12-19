@@ -101,7 +101,7 @@ public class ContactMessageUpdateHandlerImpl implements ContactMessageUpdateHand
             return editMessageReplyMarkup;
         }
         log.warn("Wrong contact format for [user id: {}]", userId);
-        throw new WrongContactException(MessageUtils.WRONG_CONTACT_FORMAT, userId.toString());
+        throw new ContactProcessingException(MessageUtils.WRONG_CONTACT_FORMAT, userId.toString());
     }
 
     @Override

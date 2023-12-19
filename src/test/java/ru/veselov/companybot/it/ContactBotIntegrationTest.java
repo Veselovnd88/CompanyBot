@@ -136,14 +136,15 @@ class ContactBotIntegrationTest extends PostgresTestContainersConfiguration {
         Update contactInputPressed = UserActionsUtils.userPressCallbackButton(callbackData);
         telegramFacadeUpdateHandler.processUpdate(contactInputPressed);
 
-        Update inputEmail = UserActionsUtils.userSendMessageWithContact(wrongValue);
-        BotApiMethod<?> errorAnswer = telegramFacadeUpdateHandler.processUpdate(inputEmail);
+        Update inputValue = UserActionsUtils.userSendMessageWithContact(wrongValue);
+        BotApiMethod<?> errorAnswer = telegramFacadeUpdateHandler.processUpdate(inputValue);
         Assertions.assertThat(errorAnswer).isInstanceOf(SendMessage.class);
         SendMessage sendMessage = (SendMessage) errorAnswer;
         Assertions.assertThat(sendMessage.getText()).containsAnyOf(
                 MessageUtils.WRONG_EMAIL,
                 MessageUtils.WRONG_PHONE,
-                MessageUtils.NAME_TOO_LONG
+                MessageUtils.NAME_TOO_LONG,
+                MessageUtils.WRONG_CONTACT_FORMAT
         );
     }
 
@@ -165,7 +166,9 @@ class ContactBotIntegrationTest extends PostgresTestContainersConfiguration {
         return Stream.of(
                 Arguments.of(CallBackButtonUtils.EMAIL, TestUtils.faker.animal().name()),
                 Arguments.of(CallBackButtonUtils.PHONE, TestUtils.faker.ancient().god()),
-                Arguments.of(CallBackButtonUtils.NAME, "p".repeat(251))
+                Arguments.of(CallBackButtonUtils.NAME, "p".repeat(251)),
+                Arguments.of(CallBackButtonUtils.NAME, ""),
+                Arguments.of(CallBackButtonUtils.EMAIL, "            ")
         );
     }
 
