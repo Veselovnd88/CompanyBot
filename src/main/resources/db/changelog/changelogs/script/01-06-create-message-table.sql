@@ -5,7 +5,7 @@ GO
 
 CREATE TABLE message
 (
-    message_id INTEGER PRIMARY KEY,
+    message_id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     message    jsonb,
     inquiry_id uuid REFERENCES public.inquiry (inquiry_id)
 )

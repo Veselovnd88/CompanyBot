@@ -121,7 +121,7 @@ public class InquiryBotIntegrationTest extends PostgresTestContainersConfigurati
                 .userPressCallbackButton(CallBackButtonUtils.SAVE));
         Assertions.assertThat(saveAnswer).isInstanceOf(AnswerCallbackQuery.class);
 
-        Mockito.verify(bot, Mockito.times(2)).execute(Mockito.any(SendMessage.class));
+        Mockito.verify(bot, Mockito.times(3)).execute(Mockito.any(SendMessage.class));
 
         List<CustomerEntity> customers = customerRepository.findAll();
         Assertions.assertThat(customers).hasSize(1);
@@ -130,7 +130,7 @@ public class InquiryBotIntegrationTest extends PostgresTestContainersConfigurati
         List<ContactEntity> contacts = contactRepository.findAll();
         Assertions.assertThat(contacts).hasSize(1);
         ContactEntity contactEntity = contacts.get(0);
-        Assertions.assertThat(contactEntity.getPhone()).isEqualTo(TestUtils.USER_PHONE);
+        Assertions.assertThat(contactEntity.getEmail()).isEqualTo(TestUtils.USER_EMAIL);
         Assertions.assertThat(contactEntity.getLastName()).isEqualTo(TestUtils.USER_LAST_NAME);
     }
 
