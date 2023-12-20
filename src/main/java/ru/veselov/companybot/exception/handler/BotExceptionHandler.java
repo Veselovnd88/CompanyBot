@@ -27,6 +27,7 @@ public class BotExceptionHandler {
 
     public static final String EXCEPTION_HANDLED = "Exception handled: {}";
     public static final String SMTH_WENT_WRONG = "Something went wrong during send message to {}, msg: {}";
+    public static final String HANDLED_EXCEPTION_WITH_MESSAGE = "Handled {} exception with message {}";
 
     private final CompanyBot companyBot;
 
@@ -37,20 +38,18 @@ public class BotExceptionHandler {
     public void handledMethods() {
     }
 
-    @AfterThrowing(pointcut = "handledMethods()", throwing = "ex")
-    public void handleWrongBotStateExceptionAndConvertToSendMessage(WrongBotStateException ex) {
-        convertAndSendMessage(ex);
-    }
-
     @Around(value = "handledMethods()")
     public Object handleContactProcessingExceptionAndConvertToSendMessage(ProceedingJoinPoint joinPoint) {
         try {
             return joinPoint.proceed();
         } catch (ContactProcessingException ex) {
-            log.warn("Handled {} exception with message {}", ex.getClass().getSimpleName(), ex.getMessage());
+            log.warn(HANDLED_EXCEPTION_WITH_MESSAGE, ex.getClass().getSimpleName(), ex.getMessage());
             return SendMessage.builder().chatId(ex.getChatId())
                     .text(ex.getMessage()).replyMarkup(contactKeyboardHelper.getContactKeyboard())
                     .build();
+        } catch (WrongBotStateException ex) {
+            log.warn(HANDLED_EXCEPTION_WITH_MESSAGE, ex.getClass().getSimpleName(), ex.getMessage());
+            return SendMessage.builder().chatId(ex.getChatId()).text(ex.getMessage()).build();
         } catch (Throwable ex) {
             log.error(ex.getMessage());
             throw new CriticalBotException(SMTH_WENT_WRONG, ex);

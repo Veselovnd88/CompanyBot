@@ -14,7 +14,6 @@ import ru.veselov.companybot.bot.util.CallBackButtonUtils;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
 import ru.veselov.companybot.event.SendCustomerDataEventPublisher;
 import ru.veselov.companybot.exception.ContactProcessingException;
-import ru.veselov.companybot.exception.handler.BotExceptionToMessage;
 import ru.veselov.companybot.model.ContactModel;
 import ru.veselov.companybot.model.InquiryModel;
 import ru.veselov.companybot.service.ContactService;
@@ -23,6 +22,15 @@ import ru.veselov.companybot.util.MessageUtils;
 
 import java.util.Set;
 
+/**
+ * Handle save action
+ *
+ * @see UserDataCacheFacade
+ * @see SendCustomerDataEventPublisher
+ * @see ContactService
+ * @see InquiryService
+ * @see CallbackQueryDataHandlerContext
+ */
 @Component
 @RequiredArgsConstructor
 @Slf4j
@@ -46,7 +54,16 @@ public class SaveContactCallbackUpdateHandlerImpl implements SaveContactCallback
         context.add(CallBackButtonUtils.SAVE, this);
     }
 
-    @BotExceptionToMessage
+    /**
+     * Process SAVE callback button, check if contact data is enough for saving,
+     * publish event to send data to admin;
+     * Save inquiry and contact data to db;
+     * Clears all caches;
+     *
+     * @param update {@link Update} from Telegram
+     * @return {@link AnswerCallbackQuery} with message that all is ok
+     * @throws ContactProcessingException if not enough data for saving
+     */
     @Override
     public AnswerCallbackQuery processUpdate(Update update) {
         Long userId = update.getCallbackQuery().getFrom().getId();

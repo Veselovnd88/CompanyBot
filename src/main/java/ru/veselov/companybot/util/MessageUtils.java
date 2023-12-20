@@ -63,6 +63,12 @@ public class MessageUtils {
 
     public static final String ANOTHER_ACTION = "Ожидаю другое действие, нажмите /start для сброса";
 
+    public static final String WRONG_ACTION_AWAIT_INPUT_TEXT = "Произошла ошибка во время ожидания ввода текста контакта," +
+            " нажмите /start для сброса";
+
+    public static final String WRONG_ACTION_AWAIT_SHARED = "Произошла ошибка во время ожидания прикрепленного контакта," +
+            " нажмите /start для сброса";
+
     public static final String INVITATION_TO_INPUT_INQUIRY = "Введите ваш вопрос или перешлите мне сообщение";
 
     public static String createContactMessage(ContactModel contact, boolean hasInquiry) {

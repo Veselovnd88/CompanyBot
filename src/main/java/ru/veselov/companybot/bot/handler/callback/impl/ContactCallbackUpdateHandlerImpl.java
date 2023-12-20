@@ -3,7 +3,6 @@ package ru.veselov.companybot.bot.handler.callback.impl;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -11,8 +10,8 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.veselov.companybot.bot.BotState;
 import ru.veselov.companybot.bot.context.CallbackQueryDataHandlerContext;
 import ru.veselov.companybot.bot.handler.callback.ContactCallbackUpdateHandler;
-import ru.veselov.companybot.bot.util.CallBackButtonUtils;
 import ru.veselov.companybot.bot.keyboard.impl.ContactKeyboardHelperImpl;
+import ru.veselov.companybot.bot.util.CallBackButtonUtils;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
 
 import java.util.Set;
@@ -40,9 +39,6 @@ public class ContactCallbackUpdateHandlerImpl implements ContactCallbackUpdateHa
         context.add(CallBackButtonUtils.CONTACT, this);
         context.add(CallBackButtonUtils.REPEAT, this);
     }
-
-    @Value("${bot.adminId}")
-    private String adminId;
 
     /**
      * Handle CallbackQuery with {@link CallBackButtonUtils#REPEAT} and {@link  CallBackButtonUtils#CONTACT} data
