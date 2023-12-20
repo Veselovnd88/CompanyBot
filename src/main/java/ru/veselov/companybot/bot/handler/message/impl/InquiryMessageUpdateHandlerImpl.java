@@ -51,6 +51,13 @@ public class InquiryMessageUpdateHandlerImpl implements InquiryMessageUpdateHand
         context.add(BotState.AWAIT_MESSAGE, this);
     }
 
+    /**
+     * Process message passed for inquiry, checks restrictions, check content,
+     * create new lightweight message for saving with inquiry
+     *
+     * @param update {@link Update} update from Telegram
+     * @return {@link SendMessage} with keyboard with invite to input message
+     */
     @Override
     public SendMessage processUpdate(Update update) {
         Message receivedMessage = update.getMessage();

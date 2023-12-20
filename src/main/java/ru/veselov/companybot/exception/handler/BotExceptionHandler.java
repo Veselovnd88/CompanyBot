@@ -18,16 +18,13 @@ import ru.veselov.companybot.exception.ProcessUpdateException;
 import ru.veselov.companybot.exception.UnexpectedActionException;
 import ru.veselov.companybot.exception.WrongBotStateException;
 import ru.veselov.companybot.exception.WrongContactException;
+import ru.veselov.companybot.exception.util.ExceptionMessageUtils;
 
 @Aspect
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class BotExceptionHandler {
-
-    public static final String EXCEPTION_HANDLED = "Exception handled: {}";
-    public static final String SMTH_WENT_WRONG = "Something went wrong during send message to {}, msg: {}";
-    public static final String HANDLED_EXCEPTION_WITH_MESSAGE = "Handled {} exception with message {}";
 
     private final CompanyBot companyBot;
 
@@ -43,16 +40,18 @@ public class BotExceptionHandler {
         try {
             return joinPoint.proceed();
         } catch (ContactProcessingException ex) {
-            log.warn(HANDLED_EXCEPTION_WITH_MESSAGE, ex.getClass().getSimpleName(), ex.getMessage());
+            log.warn(ExceptionMessageUtils.HANDLED_EXCEPTION_WITH_MESSAGE,
+                    ex.getClass().getSimpleName(), ex.getMessage());
             return SendMessage.builder().chatId(ex.getChatId())
                     .text(ex.getMessage()).replyMarkup(contactKeyboardHelper.getContactKeyboard())
                     .build();
         } catch (WrongBotStateException ex) {
-            log.warn(HANDLED_EXCEPTION_WITH_MESSAGE, ex.getClass().getSimpleName(), ex.getMessage());
+            log.warn(ExceptionMessageUtils.HANDLED_EXCEPTION_WITH_MESSAGE,
+                    ex.getClass().getSimpleName(), ex.getMessage());
             return SendMessage.builder().chatId(ex.getChatId()).text(ex.getMessage()).build();
         } catch (Throwable ex) {
             log.error(ex.getMessage());
-            throw new CriticalBotException(SMTH_WENT_WRONG, ex);
+            throw new CriticalBotException(ExceptionMessageUtils.SMTH_WENT_WRONG, ex);
         }
     }
 
@@ -67,11 +66,11 @@ public class BotExceptionHandler {
     }
 
     private void convertAndSendMessage(ProcessUpdateException ex) {
-        log.debug(EXCEPTION_HANDLED, ex.getMessage());
+        log.debug(ExceptionMessageUtils.EXCEPTION_HANDLED, ex.getMessage());
         try {
             companyBot.execute(SendMessage.builder().chatId(ex.getChatId()).text(ex.getMessage()).build());
         } catch (TelegramApiException e) {
-            log.error(SMTH_WENT_WRONG, ex.getChatId(), e.getMessage());
+            log.error(ExceptionMessageUtils.SMTH_WENT_WRONG, ex.getChatId(), e.getMessage());
         }
     }
 
