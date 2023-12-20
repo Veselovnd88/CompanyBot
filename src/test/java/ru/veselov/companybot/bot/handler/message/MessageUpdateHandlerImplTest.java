@@ -51,7 +51,7 @@ class MessageUpdateHandlerImplTest {
         UpdateHandlerFromContext handlerMock = Mockito.mock(UpdateHandlerFromContext.class);
         Mockito.when(handlerMock.getAvailableStates()).thenReturn(Set.of(botState));
         Mockito.when(botStateHandlerContext.getHandler(Mockito.any())).thenReturn(handlerMock);
-        Update update = TestUpdates.getUpdateWithMessageNoCommandNoEntitiesWithContentByUser();
+        Update update = TestUpdates.getUpdateWithMessageWithTextContentByUser();
 
         messageUpdateHandler.processUpdate(update);
 
@@ -66,7 +66,7 @@ class MessageUpdateHandlerImplTest {
         UpdateHandlerFromContext handlerMock = Mockito.mock(UpdateHandlerFromContext.class);
         Mockito.when(handlerMock.getAvailableStates()).thenReturn(Collections.emptySet());
         Mockito.when(botStateHandlerContext.getHandler(Mockito.any())).thenReturn(handlerMock);
-        Update update = TestUpdates.getUpdateWithMessageNoCommandNoEntitiesWithContentByUser();
+        Update update = TestUpdates.getUpdateWithMessageWithTextContentByUser();
 
         Assertions.assertThatThrownBy(() -> messageUpdateHandler.processUpdate(update))
                 .isInstanceOf(UnexpectedActionException.class);
@@ -79,7 +79,7 @@ class MessageUpdateHandlerImplTest {
         BotState botState = BotState.AWAIT_MESSAGE;
         Mockito.when(userDataCache.getUserBotState(userId)).thenReturn(botState);
         Mockito.when(botStateHandlerContext.getHandler(Mockito.any())).thenReturn(null);
-        Update update = TestUpdates.getUpdateWithMessageNoCommandNoEntitiesWithContentByUser();
+        Update update = TestUpdates.getUpdateWithMessageWithTextContentByUser();
 
         Assertions.assertThatThrownBy(() -> messageUpdateHandler.processUpdate(update))
                 .isInstanceOf(UnexpectedActionException.class);

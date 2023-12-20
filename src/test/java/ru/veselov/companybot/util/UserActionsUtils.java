@@ -3,9 +3,9 @@ package ru.veselov.companybot.util;
 import org.telegram.telegrambots.meta.api.objects.Contact;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.veselov.companybot.bot.BotCommands;
+import ru.veselov.companybot.bot.util.CallBackButtonUtils;
 
 public class UserActionsUtils {
-
 
     public static Update userPressStart() {
         return TestUpdates.getUpdateWithMessageWithCommandByUser(BotCommands.START);
@@ -25,6 +25,18 @@ public class UserActionsUtils {
 
     public static Update userAttachedSharedContact(Contact contact) {
         return TestUpdates.getUpdateWithMessageWithSharedContactByUser(contact);
+    }
+
+    public static Update userPressInquiryButton() {
+        return TestUpdates.getUpdateWithMessageWithCommandByUser(BotCommands.INQUIRY);
+    }
+
+    public static Update userSendTextMessage() {
+        return TestUpdates.getUpdateWithMessageWithTextContentByUser();
+    }
+
+    public static Update userPressInputContactButton() {
+        return TestUpdates.getUpdateWithMessageWithCallbackQueryByUser(CallBackButtonUtils.CONTACT);
     }
 
 }

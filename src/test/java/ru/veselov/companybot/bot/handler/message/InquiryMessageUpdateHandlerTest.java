@@ -67,7 +67,7 @@ class InquiryMessageUpdateHandlerTest {
         List mockList = Mockito.mock(List.class);
         Mockito.when(mockList.size()).thenReturn(MAX_MSG + 1);//too many messages in inquiry
         Mockito.when(inquiryModel.getMessages()).thenReturn(mockList);
-        Update update = TestUpdates.getUpdateWithMessageNoCommandNoEntitiesWithContentByUser();
+        Update update = TestUpdates.getUpdateWithMessageWithTextContentByUser();
 
         SendMessage sendMessage = inquiryMessageHandler.processUpdate(update);
 
@@ -113,7 +113,7 @@ class InquiryMessageUpdateHandlerTest {
 
     private static Stream<Arguments> getUpdatesWithDifferentContentWithText() {
         return Stream.of(
-                Arguments.of(TestUpdates.getUpdateWithMessageNoCommandNoEntitiesWithContentByUser(), 1),
+                Arguments.of(TestUpdates.getUpdateWithMessageWithTextContentByUser(), 1),
                 Arguments.of(TestUpdates.getUpdateWithMessageNoCommandNoEntitiesWithPhotoByUser(), 2),
                 Arguments.of(TestUpdates.getUpdateWithMessageNoCommandNoEntitiesWithAudioByUser(), 2),
                 Arguments.of(TestUpdates.getUpdateWithMessageNoCommandNoEntitiesWithAudioByUser(), 2),

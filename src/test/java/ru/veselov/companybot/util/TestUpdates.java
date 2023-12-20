@@ -16,6 +16,7 @@ import org.telegram.telegrambots.meta.api.objects.chatmember.ChatMemberRestricte
 import org.telegram.telegrambots.meta.api.objects.games.Animation;
 
 import java.util.List;
+import java.util.Random;
 
 public class TestUpdates {
 
@@ -92,9 +93,10 @@ public class TestUpdates {
         return update;
     }
 
-    public static Update getUpdateWithMessageNoCommandNoEntitiesWithContentByUser() {
+    public static Update getUpdateWithMessageWithTextContentByUser() {
         Update update = new Update();
         Message message = new Message();
+        message.setMessageId(new Random().nextInt());
         message.setText(STUB_TEXT);
         update.setMessage(message);
         message.setFrom(TestUtils.getSimpleUser());

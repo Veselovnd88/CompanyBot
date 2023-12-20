@@ -141,6 +141,7 @@ public class TestUtils {
 
     public static Message getTextMessage(String text) {
         Message message = new Message();
+        message.setMessageId(MESSAGE_ID);
         message.setFrom(getSimpleUser());
         message.setText(text);
         return message;

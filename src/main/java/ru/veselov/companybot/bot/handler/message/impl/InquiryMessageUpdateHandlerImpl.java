@@ -17,11 +17,11 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import ru.veselov.companybot.bot.BotState;
 import ru.veselov.companybot.bot.context.BotStateHandlerContext;
 import ru.veselov.companybot.bot.handler.message.InquiryMessageUpdateHandler;
-import ru.veselov.companybot.bot.util.InlineKeyBoardUtils;
-import ru.veselov.companybot.util.MessageUtils;
+import ru.veselov.companybot.bot.keyboard.ContactKeyboardHelper;
 import ru.veselov.companybot.bot.util.UserMessageChecker;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
 import ru.veselov.companybot.model.InquiryModel;
+import ru.veselov.companybot.util.MessageUtils;
 
 import java.util.Comparator;
 import java.util.List;
@@ -42,6 +42,8 @@ public class InquiryMessageUpdateHandlerImpl implements InquiryMessageUpdateHand
     private final UserMessageChecker userMessageChecker;
 
     private final BotStateHandlerContext context;
+
+    private final ContactKeyboardHelper contactKeyboardHelper;
 
     @Override
     @PostConstruct
@@ -119,8 +121,8 @@ public class InquiryMessageUpdateHandlerImpl implements InquiryMessageUpdateHand
 
 
     private SendMessage askAddContactData(Long userId) {
-        InlineKeyboardMarkup inlineKeyboardMarkup = InlineKeyBoardUtils
-                .setUpContactInlineKeyboard("Приступить к вводу данных для обратной связи");
+        InlineKeyboardMarkup inlineKeyboardMarkup = contactKeyboardHelper
+                .getInviteInputContactKeyboard("Приступить к вводу данных для обратной связи");
         return SendMessage.builder().chatId(userId).text(MessageUtils.AWAIT_CONTENT_MESSAGE)
                 .replyMarkup(inlineKeyboardMarkup)
                 .build();
