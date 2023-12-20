@@ -148,6 +148,22 @@ class ContactBotIntegrationTest extends PostgresTestContainersConfiguration {
         );
     }
 
+    @Test
+    void shouldSendMessageNotEnoughDataForSaving() {
+        pressStartCallContact();
+        Update namePressed = UserActionsUtils.userPressCallbackButton(CallBackButtonUtils.NAME);
+        telegramFacadeUpdateHandler.processUpdate(namePressed);
+        Update inputName = UserActionsUtils.userSendMessageWithContact(TestUtils.USER_LAST_NAME);
+        telegramFacadeUpdateHandler.processUpdate(inputName);
+
+        Update savePressed = UserActionsUtils.userPressCallbackButton(CallBackButtonUtils.SAVE);
+        BotApiMethod<?> errorAnswer = telegramFacadeUpdateHandler.processUpdate(savePressed);
+        Assertions.assertThat(errorAnswer).isInstanceOf(SendMessage.class);
+        SendMessage sendMessage = (SendMessage) errorAnswer;
+        Assertions.assertThat(sendMessage.getText())
+                .isEqualTo(MessageUtils.NOT_ENOUGH_CONTACT);
+    }
+
     private void pressStartCallContact() {
         Update startPressed = UserActionsUtils.userPressStart();
         BotApiMethod<?> startAnswer = telegramFacadeUpdateHandler.processUpdate(startPressed);
