@@ -118,7 +118,7 @@ class InquiryMessageUpdateHandlerTest {
     private static Stream<Arguments> getUpdatesWithDifferentContentWithText() {
         return Stream.of(
                 Arguments.of(TestUpdates.getUpdateWithMessageWithTextContentByUser(), 1),
-                Arguments.of(TestUpdates.getUpdateWithMessageNoCommandNoEntitiesWithPhotoByUser(), 2),
+                Arguments.of(TestUpdates.getUpdateWithMessageWithPhotoByUser(), 2),
                 Arguments.of(TestUpdates.getUpdateWithMessageNoCommandNoEntitiesWithAudioByUser(), 2),
                 Arguments.of(TestUpdates.getUpdateWithMessageNoCommandNoEntitiesWithAudioByUser(), 2),
                 Arguments.of(TestUpdates.getUpdateWithMessageNoCommandNoEntitiesWithDocumentByUser(), 2),

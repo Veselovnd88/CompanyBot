@@ -101,7 +101,7 @@ public class TestUpdates {
         return update;
     }
 
-    public static Update getUpdateWithMessageNoCommandNoEntitiesWithPhotoByUser() {
+    public static Update getUpdateWithMessageWithPhotoByUser() {
         Update update = new Update();
         Message message = new Message();
         message.setText(STUB_TEXT);

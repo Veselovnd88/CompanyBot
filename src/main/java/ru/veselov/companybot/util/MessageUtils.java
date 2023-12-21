@@ -51,8 +51,6 @@ public class MessageUtils {
 
     public static final String WRONG_CONTACT_FORMAT = "Не могу принять контакт в таком формате";
 
-    public static final String WRONG_NAME_FORMAT = "Не правильный формат имени, введите ФИО разделенные пробелом";
-
     public static final String NAME_TOO_LONG = "ФИО слишком длинное, не должно превышать 250 знаков";
 
     public static final String WRONG_PHONE = "Неправильный формат номер телефона";

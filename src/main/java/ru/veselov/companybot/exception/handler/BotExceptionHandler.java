@@ -14,6 +14,7 @@ import ru.veselov.companybot.bot.CompanyBot;
 import ru.veselov.companybot.bot.keyboard.impl.ContactKeyboardHelperImpl;
 import ru.veselov.companybot.exception.ContactProcessingException;
 import ru.veselov.companybot.exception.CriticalBotException;
+import ru.veselov.companybot.exception.MessageProcessingException;
 import ru.veselov.companybot.exception.ProcessUpdateException;
 import ru.veselov.companybot.exception.UnexpectedActionException;
 import ru.veselov.companybot.exception.WrongBotStateException;
@@ -35,6 +36,13 @@ public class BotExceptionHandler {
     public void handledMethods() {
     }
 
+    /**
+     * Around aspect for handling exceptions
+     *
+     * @param joinPoint method that we will try to proceed
+     * @return Object as result of performing method
+     * @throws CriticalBotException if something went wrong
+     */
     @Around(value = "handledMethods()")
     public Object handleContactProcessingExceptionAndConvertToSendMessage(ProceedingJoinPoint joinPoint) {
         try {
@@ -49,6 +57,11 @@ public class BotExceptionHandler {
             log.warn(ExceptionMessageUtils.HANDLED_EXCEPTION_WITH_MESSAGE,
                     ex.getClass().getSimpleName(), ex.getMessage());
             return SendMessage.builder().chatId(ex.getChatId()).text(ex.getMessage()).build();
+        } catch (MessageProcessingException ex) {
+            log.warn(ExceptionMessageUtils.HANDLED_EXCEPTION_WITH_MESSAGE,
+                    ex.getClass().getSimpleName(), ex.getMessage());
+            return SendMessage.builder().chatId(ex.getChatId()).text(ex.getMessage()).build();
+            //return AnswerCallbackQuery.builder().callbackQueryId(ex.getChatId()).text(ex.getMessage()).build();
         } catch (Throwable ex) {
             log.error(ex.getMessage());
             throw new CriticalBotException(ExceptionMessageUtils.SMTH_WENT_WRONG, ex);

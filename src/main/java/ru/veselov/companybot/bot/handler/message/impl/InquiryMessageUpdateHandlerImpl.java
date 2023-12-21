@@ -20,6 +20,7 @@ import ru.veselov.companybot.bot.handler.message.InquiryMessageUpdateHandler;
 import ru.veselov.companybot.bot.keyboard.ContactKeyboardHelper;
 import ru.veselov.companybot.bot.util.UserMessageChecker;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
+import ru.veselov.companybot.exception.MessageProcessingException;
 import ru.veselov.companybot.model.InquiryModel;
 import ru.veselov.companybot.util.MessageUtils;
 
@@ -57,6 +58,7 @@ public class InquiryMessageUpdateHandlerImpl implements InquiryMessageUpdateHand
      *
      * @param update {@link Update} update from Telegram
      * @return {@link SendMessage} with keyboard with invite to input message
+     * @throws MessageProcessingException if message violate constraints
      */
     @Override
     public SendMessage processUpdate(Update update) {

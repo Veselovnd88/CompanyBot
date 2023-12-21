@@ -5,6 +5,9 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -14,10 +17,12 @@ import org.springframework.test.context.ActiveProfiles;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.MessageEntity;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.veselov.companybot.bot.CompanyBot;
 import ru.veselov.companybot.bot.handler.TelegramFacadeUpdateHandler;
 import ru.veselov.companybot.bot.keyboard.DivisionKeyboardHelper;
+import ru.veselov.companybot.bot.util.BotUtils;
 import ru.veselov.companybot.bot.util.CallBackButtonUtils;
 import ru.veselov.companybot.cache.UserStateCache;
 import ru.veselov.companybot.config.BotConfig;
@@ -29,16 +34,18 @@ import ru.veselov.companybot.repository.ContactRepository;
 import ru.veselov.companybot.repository.CustomerRepository;
 import ru.veselov.companybot.repository.InquiryRepository;
 import ru.veselov.companybot.util.MessageUtils;
+import ru.veselov.companybot.util.TestUpdates;
 import ru.veselov.companybot.util.TestUtils;
 import ru.veselov.companybot.util.UserActionsUtils;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Stream;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 @DirtiesContext
-public class InquiryBotIntegrationTest extends PostgresTestContainersConfiguration {
+class InquiryBotIntegrationTest extends PostgresTestContainersConfiguration {
 
     @MockBean
     CompanyBot bot;
@@ -103,11 +110,7 @@ public class InquiryBotIntegrationTest extends PostgresTestContainersConfigurati
     @SneakyThrows
     void shouldGetMessagesForInquiryGetContactSaveAllAndSendMessagesByBot() {
         pressStartAndInquiry();
-        Map<String, DivisionModel> cachedDivisions = divisionKeyboardHelper.getCachedDivisions();
-        Assertions.assertThat(cachedDivisions).isNotEmpty();
-        Update userChooseDiv = UserActionsUtils
-                .userPressCallbackButton(cachedDivisions.keySet().stream().toList().get(0));
-        telegramFacadeUpdateHandler.processUpdate(userChooseDiv);
+        chooseDivision();
         Update userSendTextMessage = UserActionsUtils.userSendTextMessage();
         telegramFacadeUpdateHandler.processUpdate(userSendTextMessage);
         Update inputContactButton = UserActionsUtils.userPressInputContactButton();
@@ -134,9 +137,44 @@ public class InquiryBotIntegrationTest extends PostgresTestContainersConfigurati
         Assertions.assertThat(contactEntity.getLastName()).isEqualTo(TestUtils.USER_LAST_NAME);
     }
 
+    @ParameterizedTest
+    @MethodSource("getNotSupportedMessages")
+    void shouldReturnSendMessageIfMessageProcessingErrorOccurred(Update update, String message) {
+        pressStartAndInquiry();
+        chooseDivision();
+        BotApiMethod<?> errorAnswer = telegramFacadeUpdateHandler.processUpdate(update);
+
+        Assertions.assertThat(errorAnswer).isInstanceOf(SendMessage.class);
+        SendMessage errorAnswerSendMessage = (SendMessage) errorAnswer;
+        Assertions.assertThat(errorAnswerSendMessage.getText()).isEqualTo(message);
+    }
+
     private void pressStartAndInquiry() {
         telegramFacadeUpdateHandler.processUpdate(UserActionsUtils.userPressStart());
         telegramFacadeUpdateHandler.processUpdate(UserActionsUtils.userPressInquiryButton());
+    }
+
+    private void chooseDivision() {
+        Map<String, DivisionModel> cachedDivisions = divisionKeyboardHelper.getCachedDivisions();
+        Assertions.assertThat(cachedDivisions).isNotEmpty();
+        Update userChooseDiv = UserActionsUtils
+                .userPressCallbackButton(cachedDivisions.keySet().stream().toList().get(0));
+        telegramFacadeUpdateHandler.processUpdate(userChooseDiv);
+    }
+
+    private static Stream<Arguments> getNotSupportedMessages() {
+        Update messageWithLongCaption = TestUpdates.getUpdateWithMessageWithPhotoByUser();
+        messageWithLongCaption.getMessage().setCaption("i".repeat(1025));
+        Update messageWithCustomEmoji = TestUpdates.getUpdateWithMessageWithTextContentByUser();
+        MessageEntity messageEntity = new MessageEntity();
+        messageEntity.setType(BotUtils.CUSTOM_EMOJI);
+        messageEntity.setOffset(0);
+        messageEntity.setLength(0);
+        messageWithCustomEmoji.getMessage().setEntities(List.of(messageEntity));
+        return Stream.of(
+                Arguments.of(messageWithLongCaption, MessageUtils.CAPTION_TOO_LONG),
+                Arguments.of(messageWithCustomEmoji, MessageUtils.NO_CUSTOM_EMOJI)
+        );
     }
 
 
