@@ -66,10 +66,10 @@ public class InquiryMessageUpdateHandlerImpl implements InquiryMessageUpdateHand
         Long userId = receivedMessage.getFrom().getId();
         InquiryModel userCachedInquiry = userDataCacheFacade.getInquiry(userId);
         if (userCachedInquiry.getMessages().size() > maxMessages) {
-            SendMessage addContentMessage = askAddContactData(userId);
-            addContentMessage.setText("Превышено максимальное количество сообщений (%s)".formatted(maxMessages + 1));
+            SendMessage inputContactsMessage = askAddContactData(userId);
+            inputContactsMessage.setText(MessageUtils.MAX_MESSAGES_QNT.formatted(maxMessages + 1));
             log.warn("Max qnt of messages exceed for [user id: {}]", userId);
-            return addContentMessage;
+            return inputContactsMessage;
         }
         userMessageChecker.checkForLongCaption(receivedMessage);
         userMessageChecker.checkForCustomEmojis(receivedMessage);

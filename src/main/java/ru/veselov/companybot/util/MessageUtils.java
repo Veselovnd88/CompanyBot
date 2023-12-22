@@ -15,6 +15,7 @@ public class MessageUtils {
     public static final String INPUT_PHONE = "Ввести номер телефона";
     public static final String ATTACH_CONTACT = "Прикрепить контакт";
     public static final String SAVE_AND_SEND = "Сохранить и отправить контактные данные";
+    public static final String MAX_MESSAGES_QNT = "Превышено максимальное количество сообщений (%s)";
 
     @Getter
     @Setter

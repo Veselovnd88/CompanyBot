@@ -10,6 +10,7 @@ import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.DirtiesContext;
@@ -46,6 +47,9 @@ import java.util.stream.Stream;
 @ActiveProfiles("test")
 @DirtiesContext
 class InquiryBotIntegrationTest extends PostgresTestContainersConfiguration {
+
+    @Value("${bot.max-messages}")
+    private Integer maxMessages;
 
     @MockBean
     CompanyBot bot;
@@ -148,6 +152,25 @@ class InquiryBotIntegrationTest extends PostgresTestContainersConfiguration {
         SendMessage errorAnswerSendMessage = (SendMessage) errorAnswer;
         Assertions.assertThat(errorAnswerSendMessage.getText()).isEqualTo(message);
     }
+
+    @Test
+    void shouldReturnSendMessageWithInvitationToInputContactsIfQntOfMessagesMoreThanWeWant() {
+        pressStartAndInquiry();
+        chooseDivision();
+        for (int i = 0; i < maxMessages + 1; i++) {
+            Update userSendTextMessage = UserActionsUtils.userSendTextMessage();
+            telegramFacadeUpdateHandler.processUpdate(userSendTextMessage);
+        }
+        //user will receive such message until he doesn't press contact button
+        for (int i = 0; i < 1; i++) {
+            Update userSendTextMessage = UserActionsUtils.userSendTextMessage();
+            BotApiMethod<?> lastAnswer = telegramFacadeUpdateHandler.processUpdate(userSendTextMessage);
+            Assertions.assertThat(lastAnswer).isInstanceOf(SendMessage.class);
+            SendMessage sendMessageAnswer = (SendMessage) lastAnswer;
+            Assertions.assertThat(sendMessageAnswer.getText()).isEqualTo(MessageUtils.MAX_MESSAGES_QNT.formatted(15));
+        }
+    }
+
 
     private void pressStartAndInquiry() {
         telegramFacadeUpdateHandler.processUpdate(UserActionsUtils.userPressStart());
