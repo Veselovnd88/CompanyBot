@@ -30,6 +30,7 @@ import ru.veselov.companybot.config.BotConfig;
 import ru.veselov.companybot.config.PostgresTestContainersConfiguration;
 import ru.veselov.companybot.entity.ContactEntity;
 import ru.veselov.companybot.entity.CustomerEntity;
+import ru.veselov.companybot.entity.InquiryEntity;
 import ru.veselov.companybot.model.DivisionModel;
 import ru.veselov.companybot.repository.ContactRepository;
 import ru.veselov.companybot.repository.CustomerRepository;
@@ -41,6 +42,7 @@ import ru.veselov.companybot.util.UserActionsUtils;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Stream;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -117,15 +119,7 @@ class InquiryBotIntegrationTest extends PostgresTestContainersConfiguration {
         chooseDivision();
         Update userSendTextMessage = UserActionsUtils.userSendTextMessage();
         telegramFacadeUpdateHandler.processUpdate(userSendTextMessage);
-        Update inputContactButton = UserActionsUtils.userPressInputContactButton();
-        telegramFacadeUpdateHandler.processUpdate(inputContactButton);
-        telegramFacadeUpdateHandler.processUpdate(UserActionsUtils.userPressCallbackButton(CallBackButtonUtils.EMAIL));
-        telegramFacadeUpdateHandler.processUpdate(UserActionsUtils.userSendMessageWithContact(TestUtils.USER_EMAIL));
-        telegramFacadeUpdateHandler.processUpdate(UserActionsUtils.userPressCallbackButton(CallBackButtonUtils.NAME));
-        telegramFacadeUpdateHandler.processUpdate(UserActionsUtils
-                .userSendMessageWithContact(TestUtils.USER_LAST_NAME));
-        BotApiMethod<?> saveAnswer = telegramFacadeUpdateHandler.processUpdate(UserActionsUtils
-                .userPressCallbackButton(CallBackButtonUtils.SAVE));
+        BotApiMethod<?> saveAnswer = pressContactInputContactAndPressSave();
         Assertions.assertThat(saveAnswer).isInstanceOf(AnswerCallbackQuery.class);
 
         Mockito.verify(bot, Mockito.times(3)).execute(Mockito.any(SendMessage.class));
@@ -169,6 +163,14 @@ class InquiryBotIntegrationTest extends PostgresTestContainersConfiguration {
             SendMessage sendMessageAnswer = (SendMessage) lastAnswer;
             Assertions.assertThat(sendMessageAnswer.getText()).isEqualTo(MessageUtils.MAX_MESSAGES_QNT.formatted(15));
         }
+        pressContactInputContactAndPressSave();
+
+        List<InquiryEntity> allInquiries = inquiryRepository.findAll();
+        Assertions.assertThat(allInquiries).hasSize(1);
+        InquiryEntity inquiryEntity = allInquiries.get(0);
+        Optional<InquiryEntity> inquiryWithMsg = inquiryRepository.findByIdWithMessages(inquiryEntity.getInquiryId());
+        Assertions.assertThat(inquiryWithMsg).isPresent();
+        Assertions.assertThat(inquiryWithMsg.get().getMessages()).hasSize(15);
     }
 
 
@@ -200,5 +202,16 @@ class InquiryBotIntegrationTest extends PostgresTestContainersConfiguration {
         );
     }
 
+    private BotApiMethod<?> pressContactInputContactAndPressSave() {
+        Update inputContactButton = UserActionsUtils.userPressInputContactButton();
+        telegramFacadeUpdateHandler.processUpdate(inputContactButton);
+        telegramFacadeUpdateHandler.processUpdate(UserActionsUtils.userPressCallbackButton(CallBackButtonUtils.EMAIL));
+        telegramFacadeUpdateHandler.processUpdate(UserActionsUtils.userSendMessageWithContact(TestUtils.USER_EMAIL));
+        telegramFacadeUpdateHandler.processUpdate(UserActionsUtils.userPressCallbackButton(CallBackButtonUtils.NAME));
+        telegramFacadeUpdateHandler.processUpdate(UserActionsUtils
+                .userSendMessageWithContact(TestUtils.USER_LAST_NAME));
+        return telegramFacadeUpdateHandler.processUpdate(UserActionsUtils
+                .userPressCallbackButton(CallBackButtonUtils.SAVE));
+    }
 
 }

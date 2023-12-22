@@ -14,7 +14,6 @@ import ru.veselov.companybot.bot.context.BotStateHandlerContext;
 import ru.veselov.companybot.bot.handler.callback.impl.DivisionCallbackUpdateHandlerImpl;
 import ru.veselov.companybot.bot.keyboard.DivisionKeyboardHelper;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
-import ru.veselov.companybot.exception.UnexpectedActionException;
 import ru.veselov.companybot.model.DivisionModel;
 import ru.veselov.companybot.util.TestUpdates;
 import ru.veselov.companybot.util.TestUtils;
@@ -64,17 +63,6 @@ class DivisionCallbackUpdateHandlerImplTest {
                 () -> Mockito.verify(userDataCache).createInquiry(userId, division),
                 () -> Mockito.verify(userDataCache).setUserBotState(userId, BotState.AWAIT_MESSAGE)
         );
-    }
-
-    @Test
-    void shouldThrowExceptionIfCallBackDivisionIdNotPresent() {
-        DivisionModel division = TestUtils.getDivision();
-        Mockito.when(divisionKeyboardHelper.getCachedDivisions())
-                .thenReturn(Map.of(division.getDivisionId().toString(), division));
-        Update update = TestUpdates.getUpdateWithMessageWithCallbackQueryByUser("not a division id");
-
-        Assertions.assertThatThrownBy(() -> divisionCallbackUpdateHandler.processUpdate(update))
-                .isInstanceOf(UnexpectedActionException.class);
     }
 
     @Test

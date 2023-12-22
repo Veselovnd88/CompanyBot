@@ -128,7 +128,6 @@ public class InquiryMessageUpdateHandlerImpl implements InquiryMessageUpdateHand
         return Set.of(BotState.AWAIT_MESSAGE);
     }
 
-
     private SendMessage askAddContactData(Long userId) {
         InlineKeyboardMarkup inlineKeyboardMarkup = contactKeyboardHelper
                 .getInviteInputContactKeyboard("Приступить к вводу данных для обратной связи");
