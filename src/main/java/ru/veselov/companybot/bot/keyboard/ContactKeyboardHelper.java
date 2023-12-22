@@ -13,4 +13,5 @@ public interface ContactKeyboardHelper extends Clearable {
 
     EditMessageReplyMarkup getEditMessageReplyAfterSendingContactData(Long userId, String field);
 
+    InlineKeyboardMarkup getInviteInputContactKeyboard(String message);
 }

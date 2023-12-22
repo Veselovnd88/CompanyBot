@@ -6,17 +6,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
-import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
-import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.veselov.companybot.bot.handler.TelegramFacadeUpdateHandler;
-import ru.veselov.companybot.exception.NoAvailableActionCallbackException;
-import ru.veselov.companybot.exception.NoAvailableActionException;
-import ru.veselov.companybot.exception.NoAvailableActionSendMessageException;
+import ru.veselov.companybot.exception.CriticalBotException;
 
 import java.util.List;
 
@@ -56,17 +52,6 @@ public class CompanyBot extends TelegramLongPollingBot {
         }
     }
 
-    public void sendMessageWithDelay(SendMessage sendMessage) {
-        try {
-            this.execute(sendMessage);
-            Thread.sleep(30);
-        } catch (TelegramApiException e) {
-            log.error("Cannot send [message: {}]", e.getMessage());
-        } catch (InterruptedException e) {
-            log.error("Something went [wrong: {}]", e.getMessage());
-        }
-    }
-
     private List<BotCommand> setUpCommands() {
         BotCommand startCommand = new BotCommand(BotCommands.START, "Приветствие, начало работы с ботом");
         BotCommand inquiryCommand = new BotCommand(BotCommands.INQUIRY, "Отправить заявку боту");
@@ -83,37 +68,16 @@ public class CompanyBot extends TelegramLongPollingBot {
             try {
                 Thread.sleep(50);
             } catch (InterruptedException e) {
-                throw new RuntimeException(e);
+                Thread.currentThread().interrupt();
+                throw new CriticalBotException(e.getMessage(), e.getCause());
             }
             try {
                 execute(telegramFacadeUpdateHandler.processUpdate(update));
-            } catch (NoAvailableActionException e) {
-
-                if (e instanceof NoAvailableActionSendMessageException) {
-                    try {
-                        log.warn("Sending message after error");
-                        //execute(SendMessage.builder().chatId(e.getChatId())
-                        //      .text(e.getMessage()).build());
-                    } catch (Exception ex) {
-                        log.error(ex.getMessage());
-                    }
-                } else if (e instanceof NoAvailableActionCallbackException) {
-                    try {
-                        execute(AnswerCallbackQuery.builder()
-                                .callbackQueryId(e.getChatId())
-                                .text(e.getMessage()).build());
-                    } catch (TelegramApiException ex) {
-                        log.error(ex.getMessage());
-                    }
-                }
             } catch (TelegramApiException e) {
-                log.error(e.getMessage());
+                throw new CriticalBotException(e.getMessage(), e.getCause());
             }
+
         }
     }
 
-    @Override
-    public void onUpdatesReceived(List<Update> updates) {
-        super.onUpdatesReceived(updates);
-    }
 }

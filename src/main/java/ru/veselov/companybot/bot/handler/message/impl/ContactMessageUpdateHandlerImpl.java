@@ -14,7 +14,6 @@ import ru.veselov.companybot.cache.ContactCache;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
 import ru.veselov.companybot.exception.ContactProcessingException;
 import ru.veselov.companybot.exception.WrongBotStateException;
-import ru.veselov.companybot.exception.WrongContactException;
 import ru.veselov.companybot.exception.util.ExceptionMessageUtils;
 import ru.veselov.companybot.model.ContactModel;
 import ru.veselov.companybot.util.MessageUtils;
@@ -27,6 +26,7 @@ import java.util.Set;
  * @see UserDataCacheFacade
  * @see ContactCache
  * @see ContactMessageProcessor
+ * @see BotStateHandlerContext
  */
 @Component
 @RequiredArgsConstructor
@@ -60,7 +60,7 @@ public class ContactMessageUpdateHandlerImpl implements ContactMessageUpdateHand
      * @return {@link EditMessageReplyMarkup} TG object for changing current message
      * @throws WrongBotStateException     if entering with wrong BotState
      * @throws ContactProcessingException if error occurred during processing contact data
-     * @throws WrongContactException      if update's message doesn't contain text or shared contact
+     *                                    or update's message doesn't contain text or shared contact
      */
     @Override
     public EditMessageReplyMarkup processUpdate(Update update) {
@@ -85,15 +85,15 @@ public class ContactMessageUpdateHandlerImpl implements ContactMessageUpdateHand
                     userDataCacheFacade.setUserBotState(contact.getUserId(), BotState.AWAIT_CONTACT);
                     return addedEmailMarkUp;
                 default:
-                    log.warn(ExceptionMessageUtils.WRONG_STATE_FOR_THIS_ACTION);
-                    throw new WrongBotStateException(MessageUtils.ANOTHER_ACTION, userId.toString());
+                    log.warn(ExceptionMessageUtils.WRONG_STATE_FOR_THIS_ACTION, botState);
+                    throw new WrongBotStateException(MessageUtils.WRONG_ACTION_AWAIT_INPUT_TEXT, userId.toString());
             }
         }
         log.debug("Checking Contact Object for contact data");
         if (update.getMessage().hasContact()) {
             if (botState != BotState.AWAIT_SHARED) {
-                log.warn(ExceptionMessageUtils.WRONG_STATE_FOR_THIS_ACTION);
-                throw new WrongBotStateException(MessageUtils.ANOTHER_ACTION, userId.toString());
+                log.warn(ExceptionMessageUtils.WRONG_STATE_FOR_THIS_ACTION, botState);
+                throw new WrongBotStateException(MessageUtils.WRONG_ACTION_AWAIT_SHARED, userId.toString());
             }
             EditMessageReplyMarkup editMessageReplyMarkup = contactMessageProcessor
                     .processSharedContact(contact, update.getMessage().getContact());

@@ -152,6 +152,26 @@ public class ContactKeyboardHelperImpl implements ContactKeyboardHelper {
     }
 
     /**
+     * Create keyboard with invitation to input contact for user
+     *
+     * @param message message for keyboard
+     * @return @{@link InlineKeyboardMarkup} keyboard with callback button
+     */
+    @Override
+    public InlineKeyboardMarkup getInviteInputContactKeyboard(String message) {
+        InlineKeyboardButton finishMessages = new InlineKeyboardButton();
+        finishMessages.setText(message);
+        finishMessages.setCallbackData(CallBackButtonUtils.CONTACT);
+        List<InlineKeyboardButton> row1 = new ArrayList<>();
+        row1.add(finishMessages);
+        List<List<InlineKeyboardButton>> keyboard = new ArrayList<>();
+        keyboard.add(row1);
+        InlineKeyboardMarkup inlineKeyboardMarkup = new InlineKeyboardMarkup();
+        inlineKeyboardMarkup.setKeyboard(keyboard);
+        return inlineKeyboardMarkup;
+    }
+
+    /**
      * Clear keyboard cache after
      *
      * @param userId {@link Long} id of user

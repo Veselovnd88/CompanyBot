@@ -10,7 +10,7 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.MessageEntity;
 import org.telegram.telegrambots.meta.api.objects.User;
 import ru.veselov.companybot.bot.util.BotUtils;
-import ru.veselov.companybot.exception.NoAvailableActionSendMessageException;
+import ru.veselov.companybot.exception.MessageProcessingException;
 import ru.veselov.companybot.util.TestUtils;
 
 import java.util.Collections;
@@ -47,7 +47,7 @@ class UserMessageCheckerImplTest {
     void shouldThrowExceptionForTooLongCaptionMessage() {
         message.setCaption("i".repeat(CAPTION_LENGTH + 1));//create too long string
         Assertions.assertThatThrownBy(() -> userMessageChecker.checkForLongCaption(message)
-        ).isInstanceOf(NoAvailableActionSendMessageException.class);
+        ).isInstanceOf(MessageProcessingException.class);
     }
 
     @Test
@@ -65,7 +65,7 @@ class UserMessageCheckerImplTest {
         message.setEntities(List.of(messageEntity));
 
         Assertions.assertThatThrownBy(() -> userMessageChecker.checkForCustomEmojis(message)
-        ).isInstanceOf(NoAvailableActionSendMessageException.class);
+        ).isInstanceOf(MessageProcessingException.class);
     }
 
     @Test

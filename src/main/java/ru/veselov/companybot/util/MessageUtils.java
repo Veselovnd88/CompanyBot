@@ -15,6 +15,7 @@ public class MessageUtils {
     public static final String INPUT_PHONE = "Ввести номер телефона";
     public static final String ATTACH_CONTACT = "Прикрепить контакт";
     public static final String SAVE_AND_SEND = "Сохранить и отправить контактные данные";
+    public static final String MAX_MESSAGES_QNT = "Превышено максимальное количество сообщений (%s)";
 
     @Getter
     @Setter
@@ -51,8 +52,6 @@ public class MessageUtils {
 
     public static final String WRONG_CONTACT_FORMAT = "Не могу принять контакт в таком формате";
 
-    public static final String WRONG_NAME_FORMAT = "Не правильный формат имени, введите ФИО разделенные пробелом";
-
     public static final String NAME_TOO_LONG = "ФИО слишком длинное, не должно превышать 250 знаков";
 
     public static final String WRONG_PHONE = "Неправильный формат номер телефона";
@@ -62,6 +61,12 @@ public class MessageUtils {
     public static final String NOT_ENOUGH_CONTACT = "Недостаточно данных для обратной связи (отсутствует e-mail, номер телефона, ФИО)";
 
     public static final String ANOTHER_ACTION = "Ожидаю другое действие, нажмите /start для сброса";
+
+    public static final String WRONG_ACTION_AWAIT_INPUT_TEXT = "Произошла ошибка во время ожидания ввода текста контакта," +
+            " нажмите /start для сброса";
+
+    public static final String WRONG_ACTION_AWAIT_SHARED = "Произошла ошибка во время ожидания прикрепленного контакта," +
+            " нажмите /start для сброса";
 
     public static final String INVITATION_TO_INPUT_INQUIRY = "Введите ваш вопрос или перешлите мне сообщение";
 

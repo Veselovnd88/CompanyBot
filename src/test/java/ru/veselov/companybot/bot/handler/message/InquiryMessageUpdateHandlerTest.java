@@ -18,11 +18,12 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.veselov.companybot.bot.BotState;
 import ru.veselov.companybot.bot.context.BotStateHandlerContext;
 import ru.veselov.companybot.bot.handler.message.impl.InquiryMessageUpdateHandlerImpl;
-import ru.veselov.companybot.util.MessageUtils;
+import ru.veselov.companybot.bot.keyboard.ContactKeyboardHelper;
 import ru.veselov.companybot.bot.util.UserMessageChecker;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
 import ru.veselov.companybot.model.DivisionModel;
 import ru.veselov.companybot.model.InquiryModel;
+import ru.veselov.companybot.util.MessageUtils;
 import ru.veselov.companybot.util.TestUpdates;
 import ru.veselov.companybot.util.TestUtils;
 
@@ -46,6 +47,9 @@ class InquiryMessageUpdateHandlerTest {
     @Mock
     BotStateHandlerContext context;
 
+    @Mock
+    ContactKeyboardHelper contactKeyboardHelper;
+
     @InjectMocks
     InquiryMessageUpdateHandlerImpl inquiryMessageHandler;
 
@@ -67,7 +71,7 @@ class InquiryMessageUpdateHandlerTest {
         List mockList = Mockito.mock(List.class);
         Mockito.when(mockList.size()).thenReturn(MAX_MSG + 1);//too many messages in inquiry
         Mockito.when(inquiryModel.getMessages()).thenReturn(mockList);
-        Update update = TestUpdates.getUpdateWithMessageNoCommandNoEntitiesWithContentByUser();
+        Update update = TestUpdates.getUpdateWithMessageWithTextContentByUser();
 
         SendMessage sendMessage = inquiryMessageHandler.processUpdate(update);
 
@@ -113,8 +117,8 @@ class InquiryMessageUpdateHandlerTest {
 
     private static Stream<Arguments> getUpdatesWithDifferentContentWithText() {
         return Stream.of(
-                Arguments.of(TestUpdates.getUpdateWithMessageNoCommandNoEntitiesWithContentByUser(), 1),
-                Arguments.of(TestUpdates.getUpdateWithMessageNoCommandNoEntitiesWithPhotoByUser(), 2),
+                Arguments.of(TestUpdates.getUpdateWithMessageWithTextContentByUser(), 1),
+                Arguments.of(TestUpdates.getUpdateWithMessageWithPhotoByUser(), 2),
                 Arguments.of(TestUpdates.getUpdateWithMessageNoCommandNoEntitiesWithAudioByUser(), 2),
                 Arguments.of(TestUpdates.getUpdateWithMessageNoCommandNoEntitiesWithAudioByUser(), 2),
                 Arguments.of(TestUpdates.getUpdateWithMessageNoCommandNoEntitiesWithDocumentByUser(), 2),

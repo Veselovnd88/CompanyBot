@@ -18,6 +18,7 @@ import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import ru.veselov.companybot.bot.BotState;
 import ru.veselov.companybot.bot.CompanyBot;
 import ru.veselov.companybot.bot.handler.TelegramFacadeUpdateHandler;
 import ru.veselov.companybot.bot.util.CallBackButtonUtils;
@@ -146,6 +147,48 @@ class ContactBotIntegrationTest extends PostgresTestContainersConfiguration {
                 MessageUtils.NAME_TOO_LONG,
                 MessageUtils.WRONG_CONTACT_FORMAT
         );
+    }
+
+    @Test
+    void shouldSendMessageNotEnoughDataForSaving() {
+        pressStartCallContact();
+        Update namePressed = UserActionsUtils.userPressCallbackButton(CallBackButtonUtils.NAME);
+        telegramFacadeUpdateHandler.processUpdate(namePressed);
+        Update inputName = UserActionsUtils.userSendMessageWithContact(TestUtils.USER_LAST_NAME);
+        telegramFacadeUpdateHandler.processUpdate(inputName);
+
+        Update savePressed = UserActionsUtils.userPressCallbackButton(CallBackButtonUtils.SAVE);
+        BotApiMethod<?> errorAnswer = telegramFacadeUpdateHandler.processUpdate(savePressed);
+        Assertions.assertThat(errorAnswer).isInstanceOf(SendMessage.class);
+        SendMessage sendMessage = (SendMessage) errorAnswer;
+        Assertions.assertThat(sendMessage.getText())
+                .isEqualTo(MessageUtils.NOT_ENOUGH_CONTACT);
+    }
+
+    @Test
+    void shouldReturnSendMessageForWrongBotStateWhenInputContactMessage() {
+        pressStartCallContact();
+        Update namePressed = UserActionsUtils.userPressCallbackButton(CallBackButtonUtils.NAME);
+        telegramFacadeUpdateHandler.processUpdate(namePressed);
+
+        userStateCache.setUserBotState(TestUtils.USER_ID, BotState.AWAIT_SHARED);
+        Update inputName = UserActionsUtils.userSendMessageWithContact(TestUtils.USER_LAST_NAME);
+        BotApiMethod<?> errorAnswer = telegramFacadeUpdateHandler.processUpdate(inputName);
+        SendMessage sendMessage = (SendMessage) errorAnswer;
+        Assertions.assertThat(sendMessage.getText()).isEqualTo(MessageUtils.WRONG_ACTION_AWAIT_INPUT_TEXT);
+    }
+
+    @Test
+    void shouldReturnSendMessageForWrongBotStateWhenInputSharedContact() {
+        pressStartCallContact();
+        Update namePressed = UserActionsUtils.userPressCallbackButton(CallBackButtonUtils.SHARED);
+        telegramFacadeUpdateHandler.processUpdate(namePressed);
+
+        userStateCache.setUserBotState(TestUtils.USER_ID, BotState.AWAIT_EMAIL);
+        Update inputShared = UserActionsUtils.userAttachedSharedContact(TestUtils.getUserContact());
+        BotApiMethod<?> errorAnswer = telegramFacadeUpdateHandler.processUpdate(inputShared);
+        SendMessage sendMessage = (SendMessage) errorAnswer;
+        Assertions.assertThat(sendMessage.getText()).isEqualTo(MessageUtils.WRONG_ACTION_AWAIT_SHARED);
     }
 
     private void pressStartCallContact() {

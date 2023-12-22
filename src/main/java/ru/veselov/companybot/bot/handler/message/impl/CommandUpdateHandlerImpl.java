@@ -10,13 +10,13 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import ru.veselov.companybot.bot.BotCommands;
 import ru.veselov.companybot.bot.BotState;
 import ru.veselov.companybot.bot.handler.message.CommandUpdateHandler;
+import ru.veselov.companybot.bot.keyboard.ContactKeyboardHelper;
 import ru.veselov.companybot.bot.keyboard.DivisionKeyboardHelper;
-import ru.veselov.companybot.bot.util.InlineKeyBoardUtils;
-import ru.veselov.companybot.util.MessageUtils;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
 import ru.veselov.companybot.exception.WrongBotStateException;
 import ru.veselov.companybot.exception.handler.BotExceptionToMessage;
 import ru.veselov.companybot.service.CustomerService;
+import ru.veselov.companybot.util.MessageUtils;
 
 /**
  * Class for handling updates containing commands {@link  BotCommands}:
@@ -39,6 +39,8 @@ public class CommandUpdateHandlerImpl implements CommandUpdateHandler {
     private final CustomerService customerService;
 
     private final DivisionKeyboardHelper divisionKeyboardHelper;
+
+    private final ContactKeyboardHelper contactKeyboardHelper;
 
     /**
      * Processing update from Telegram depends on command from {@link BotCommands},
@@ -73,7 +75,7 @@ public class CommandUpdateHandlerImpl implements CommandUpdateHandler {
                 }
             case BotCommands.CALL:
                 if (botState == BotState.READY) {
-                  //  userDataCacheFacade.setUserBotState(userId, BotState.AWAIT_CONTACT);
+                    //  userDataCacheFacade.setUserBotState(userId, BotState.AWAIT_CONTACT);
                     return contactMessage(userId);
                 } else {
                     throw new WrongBotStateException(MessageUtils.ANOTHER_ACTION, userId.toString());
@@ -99,8 +101,8 @@ public class CommandUpdateHandlerImpl implements CommandUpdateHandler {
     }
 
     private SendMessage contactMessage(Long userId) {
-        InlineKeyboardMarkup inlineKeyboardMarkup = InlineKeyBoardUtils
-                .setUpContactInlineKeyboard("Нажмите для ввода данных для обратной связи");
+        InlineKeyboardMarkup inlineKeyboardMarkup = contactKeyboardHelper
+                .getInviteInputContactKeyboard("Нажмите для ввода данных для обратной связи");
         return SendMessage.builder().chatId(userId).text(MessageUtils.INPUT_CONTACT)
                 .replyMarkup(inlineKeyboardMarkup)
                 .build();

@@ -17,11 +17,12 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import ru.veselov.companybot.bot.BotState;
 import ru.veselov.companybot.bot.context.BotStateHandlerContext;
 import ru.veselov.companybot.bot.handler.message.InquiryMessageUpdateHandler;
-import ru.veselov.companybot.bot.util.InlineKeyBoardUtils;
-import ru.veselov.companybot.util.MessageUtils;
+import ru.veselov.companybot.bot.keyboard.ContactKeyboardHelper;
 import ru.veselov.companybot.bot.util.UserMessageChecker;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
+import ru.veselov.companybot.exception.MessageProcessingException;
 import ru.veselov.companybot.model.InquiryModel;
+import ru.veselov.companybot.util.MessageUtils;
 
 import java.util.Comparator;
 import java.util.List;
@@ -43,22 +44,32 @@ public class InquiryMessageUpdateHandlerImpl implements InquiryMessageUpdateHand
 
     private final BotStateHandlerContext context;
 
+    private final ContactKeyboardHelper contactKeyboardHelper;
+
     @Override
     @PostConstruct
     public void registerInContext() {
         context.add(BotState.AWAIT_MESSAGE, this);
     }
 
+    /**
+     * Process message passed for inquiry, checks restrictions, check content,
+     * create new lightweight message for saving with inquiry
+     *
+     * @param update {@link Update} update from Telegram
+     * @return {@link SendMessage} with keyboard with invite to input message
+     * @throws MessageProcessingException if message violate constraints
+     */
     @Override
     public SendMessage processUpdate(Update update) {
         Message receivedMessage = update.getMessage();
         Long userId = receivedMessage.getFrom().getId();
         InquiryModel userCachedInquiry = userDataCacheFacade.getInquiry(userId);
         if (userCachedInquiry.getMessages().size() > maxMessages) {
-            SendMessage addContentMessage = askAddContactData(userId);
-            addContentMessage.setText("Превышено максимальное количество сообщений (%s)".formatted(maxMessages + 1));
+            SendMessage inputContactsMessage = askAddContactData(userId);
+            inputContactsMessage.setText(MessageUtils.MAX_MESSAGES_QNT.formatted(maxMessages + 1));
             log.warn("Max qnt of messages exceed for [user id: {}]", userId);
-            return addContentMessage;
+            return inputContactsMessage;
         }
         userMessageChecker.checkForLongCaption(receivedMessage);
         userMessageChecker.checkForCustomEmojis(receivedMessage);
@@ -117,10 +128,9 @@ public class InquiryMessageUpdateHandlerImpl implements InquiryMessageUpdateHand
         return Set.of(BotState.AWAIT_MESSAGE);
     }
 
-
     private SendMessage askAddContactData(Long userId) {
-        InlineKeyboardMarkup inlineKeyboardMarkup = InlineKeyBoardUtils
-                .setUpContactInlineKeyboard("Приступить к вводу данных для обратной связи");
+        InlineKeyboardMarkup inlineKeyboardMarkup = contactKeyboardHelper
+                .getInviteInputContactKeyboard("Приступить к вводу данных для обратной связи");
         return SendMessage.builder().chatId(userId).text(MessageUtils.AWAIT_CONTENT_MESSAGE)
                 .replyMarkup(inlineKeyboardMarkup)
                 .build();

@@ -11,11 +11,9 @@ import ru.veselov.companybot.bot.BotState;
 import ru.veselov.companybot.bot.context.BotStateHandlerContext;
 import ru.veselov.companybot.bot.handler.callback.DivisionCallbackUpdateHandler;
 import ru.veselov.companybot.bot.keyboard.DivisionKeyboardHelper;
-import ru.veselov.companybot.util.MessageUtils;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
-import ru.veselov.companybot.exception.UnexpectedActionException;
-import ru.veselov.companybot.exception.handler.BotExceptionToMessage;
 import ru.veselov.companybot.model.DivisionModel;
+import ru.veselov.companybot.util.MessageUtils;
 
 import java.util.Map;
 import java.util.Set;
@@ -39,23 +37,17 @@ public class DivisionCallbackUpdateHandlerImpl implements DivisionCallbackUpdate
         }
     }
 
-    @BotExceptionToMessage
     @Override
     public SendMessage processUpdate(Update update) {
         CallbackQuery callbackQuery = update.getCallbackQuery();
         Long userId = callbackQuery.getFrom().getId();
         String data = callbackQuery.getData();
-        Map<String, DivisionModel> cachedDivisions;
-        cachedDivisions = divisionKeyboardHelper.getCachedDivisions();
-        DivisionModel division = cachedDivisions.get(data);
-        if (division != null) {
-            userDataCacheFacade.createInquiry(userId, division);
-            userDataCacheFacade.setUserBotState(userId, BotState.AWAIT_MESSAGE);
-            return SendMessage.builder().chatId(userId)
-                    .text(MessageUtils.INVITATION_TO_INPUT_INQUIRY).build();
-        }
-        throw new UnexpectedActionException(MessageUtils.ANOTHER_ACTION,
-                callbackQuery.getId());
+        Map<String, DivisionModel> cachedDivisions = divisionKeyboardHelper.getCachedDivisions();
+        DivisionModel division = cachedDivisions.get(data);//div always should be in cache
+        userDataCacheFacade.createInquiry(userId, division);
+        userDataCacheFacade.setUserBotState(userId, BotState.AWAIT_MESSAGE);
+        return SendMessage.builder().chatId(userId)
+                .text(MessageUtils.INVITATION_TO_INPUT_INQUIRY).build();
     }
 
     @Override

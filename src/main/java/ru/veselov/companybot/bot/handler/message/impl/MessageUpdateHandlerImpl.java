@@ -13,9 +13,9 @@ import ru.veselov.companybot.bot.context.UpdateHandlerFromContext;
 import ru.veselov.companybot.bot.handler.message.CommandUpdateHandler;
 import ru.veselov.companybot.bot.handler.message.MessageUpdateHandler;
 import ru.veselov.companybot.bot.util.BotUtils;
-import ru.veselov.companybot.util.MessageUtils;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
 import ru.veselov.companybot.exception.UnexpectedActionException;
+import ru.veselov.companybot.util.MessageUtils;
 
 import java.util.Optional;
 
@@ -62,7 +62,7 @@ public class MessageUpdateHandlerImpl implements MessageUpdateHandler {
         if (message.hasEntities() && message.getForwardFrom() == null) {
             Optional<MessageEntity> commandEntity = message.getEntities()
                     .stream().filter(me -> "bot_command".equals(me.getType())).findFirst();
-            log.debug("Message contains bot_command entity");
+            log.info("Message contains bot_command entity");
             return commandEntity.isPresent();
         }
         log.debug("Message doesn't contains bot_command entity");
