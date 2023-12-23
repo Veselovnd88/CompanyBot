@@ -204,7 +204,7 @@ class InquiryBotIntegrationTest extends PostgresTestContainersConfiguration {
         telegramFacadeUpdateHandler.processUpdate(userSendTextMessage);
         divisionRepository.deleteAll();
         pressContactInputContactAndPressSave();
-        Awaitility.setDefaultPollDelay(50, TimeUnit.MILLISECONDS);
+        Awaitility.setDefaultPollDelay(200, TimeUnit.MILLISECONDS);
         Mockito.verify(bot, Mockito.times(3)).execute(Mockito.any(SendMessage.class));
 
         List<InquiryEntity> allInquiries = inquiryRepository.findAll();
@@ -213,6 +213,15 @@ class InquiryBotIntegrationTest extends PostgresTestContainersConfiguration {
         Assertions.assertThat(inquiryEntity.getDivision().getName()).isEqualTo("COMMON");
     }
 
+    @Test
+    void shouldSaveCustomerWithInquiryIfInWasNotSavedWithFirstEvent() {
+        pressStartAndInquiry();
+        chooseDivision();
+        Update userSendTextMessage = UserActionsUtils.userSendTextMessage();
+        telegramFacadeUpdateHandler.processUpdate(userSendTextMessage);
+        customerRepository.deleteAll();
+        pressContactInputContactAndPressSave();
+    }
 
     private void pressStartAndInquiry() {
         telegramFacadeUpdateHandler.processUpdate(UserActionsUtils.userPressStart());
