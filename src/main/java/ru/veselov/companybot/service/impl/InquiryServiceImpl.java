@@ -5,12 +5,12 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.telegram.telegrambots.meta.api.objects.Message;
+import ru.veselov.companybot.bot.util.BotUtils;
 import ru.veselov.companybot.entity.CustomerEntity;
 import ru.veselov.companybot.entity.CustomerMessageEntity;
 import ru.veselov.companybot.entity.DivisionEntity;
 import ru.veselov.companybot.entity.InquiryEntity;
 import ru.veselov.companybot.exception.CustomerNotFoundException;
-import ru.veselov.companybot.exception.DivisionNotFoundException;
 import ru.veselov.companybot.model.InquiryModel;
 import ru.veselov.companybot.repository.CustomerRepository;
 import ru.veselov.companybot.repository.DivisionRepository;
@@ -45,10 +45,17 @@ public class InquiryServiceImpl implements InquiryService {
                         }
                 );
         UUID divisionId = inquiry.getDivision().getDivisionId();
-        DivisionEntity divisionEntity = divisionRepository.findById(divisionId).orElseThrow(
-                () -> {
-                    log.error("Division with id: {} not found", divisionId);
-                    return new DivisionNotFoundException("Division with id: %s not found".formatted(divisionId));
+        Optional<DivisionEntity> divisionOptional = divisionRepository.findById(divisionId);
+        DivisionEntity divisionEntity;
+        divisionEntity = divisionOptional.orElseGet(() -> {
+                    log.warn("Division with id not found, choose base or will created new");
+                    return divisionRepository.findByName(BotUtils.BASE_DIVISION)
+                            .orElseGet(() -> {
+                                log.warn("Base division is not found, created new");
+                                return DivisionEntity.builder()
+                                        .name(BotUtils.BASE_DIVISION).description("Общ. вопросы")
+                                        .build();
+                            });
                 }
         );
         InquiryEntity inquiryEntity = toInquiryEntity(inquiry);
