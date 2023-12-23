@@ -18,48 +18,54 @@ services:
       - /var/docker-volumes/cbot-pg:/var/lib/postgresql/data/
 
   elasticsearch:
-    image: elasticsearch:7.12.1
+    image: elasticsearch:8.11.3
     container_name: elasticsearch
+    restart: always
     environment:
-      - "cluster.name=elasticsearch"  # Set the cluster name to Elasticsearch
-      - "discovery.type=single-node"  # Start in a single node mode
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"  # Setting up using JVM memory size
+      cluster.name: elasticsearch  # Set the cluster name to Elasticsearch
+      discovery.type: single-node  # Start in a single node mode
+      xpack.security.enabled: false #need for getting answer without certs
+      ES_JAVA_OPTS: "-Xms256m -Xmx256m"  # Setting up using JVM memory size
     volumes:
       - /var/docker-volumes/elk/es/plugins:/usr/share/elasticsearch/Plugins # plugin file mount
       - /var/docker-volumes/elk/es/data:/usr/share/elasticsearch/Data # data file mount
     ports:
-      - 9200:9200
-      - 9300:9300
+      - "9200:9200"
+      - "9300:9300"
+    networks:
+      - elk
+
   kibana:
-    image: kibana:7.12.1
+    image: kibana:8.11.3
     container_name: kibana
-    links:
-      - elasticsearch:ES # can access ElasticSearch services with ES this domain name
+    restart: always
     depends_on:
-      - Elasticsearch #Kibana starts after Elasticsearch
+      - elasticsearch #Kibana starts after Elasticsearch
     environment:
-      - "elasticsearch.hosts=http://es:9200"  # Set the address of the ELasticSearch
+      - ELASTICSEARCH_URL="http://elasticserach:9200"  # Set the address of the ELasticSearch
     ports:
-      - 5601:5601
+      - "5601:5601"
+    networks:
+      - elk
 
   logstash:
-    image: logstash:7.12.1
+    image: logstash:8.11.3
     container_name: logstash
+    restart: always
     volumes:
-      - /var/docker-volumes/elk/logstash/logstash-springboot.conf:/usr/share/logstash/pipeline/logstash.Conf # mount logstash profile
+      - ./logstash/:/logstash/dir
+    command: logstash -f /logstash_dir/logstash.conf
     depends_on:
-      - Elasticsearch #Logstash starts after Elasticsearch
-    links:
-      - elasticsearch:ES # can access ElasticSearch services with ES this domain name
+      - elasticsearch
     ports:
-      - 4560:4560
-      - 4561:4561
-      - 4562:4562
-      - 4563:4563
-
-
+      - "9600:9600"
+    environment:
+      - LS_JAVA_OPTS="-Xmx256m -Xms256m"
+    networks:
+      - elk
 
 networks:
   cbot-pg:
     driver: bridge
+  elk:
 
