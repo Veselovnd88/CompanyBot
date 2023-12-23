@@ -17,6 +17,47 @@ services:
     volumes:
       - /var/docker-volumes/cbot-pg:/var/lib/postgresql/data/
 
+  elasticsearch:
+    image: elasticsearch:7.12.1
+    container_name: elasticsearch
+    environment:
+      - "cluster.name=elasticsearch"  # Set the cluster name to Elasticsearch
+      - "discovery.type=single-node"  # Start in a single node mode
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"  # Setting up using JVM memory size
+    volumes:
+      - /var/docker-volumes/elk/es/plugins:/usr/share/elasticsearch/Plugins # plugin file mount
+      - /var/docker-volumes/elk/es/data:/usr/share/elasticsearch/Data # data file mount
+    ports:
+      - 9200:9200
+      - 9300:9300
+  kibana:
+    image: kibana:7.12.1
+    container_name: kibana
+    links:
+      - elasticsearch:ES # can access ElasticSearch services with ES this domain name
+    depends_on:
+      - Elasticsearch #Kibana starts after Elasticsearch
+    environment:
+      - "elasticsearch.hosts=http://es:9200"  # Set the address of the ELasticSearch
+    ports:
+      - 5601:5601
+
+  logstash:
+    image: logstash:7.12.1
+    container_name: logstash
+    volumes:
+      - /var/docker-volumes/elk/logstash/logstash-springboot.conf:/usr/share/logstash/pipeline/logstash.Conf # mount logstash profile
+    depends_on:
+      - Elasticsearch #Logstash starts after Elasticsearch
+    links:
+      - elasticsearch:ES # can access ElasticSearch services with ES this domain name
+    ports:
+      - 4560:4560
+      - 4561:4561
+      - 4562:4562
+      - 4563:4563
+
+
 
 networks:
   cbot-pg:
