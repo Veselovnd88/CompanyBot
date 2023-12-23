@@ -7,6 +7,7 @@ import org.telegram.telegrambots.meta.api.methods.PartialBotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMediaGroup;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
+import ru.veselov.companybot.bot.util.BotUtils;
 import ru.veselov.companybot.model.InquiryModel;
 import ru.veselov.companybot.service.sender.InquiryMessageCreator;
 import ru.veselov.companybot.service.sender.MediaGroupMessageHelper;
@@ -38,8 +39,9 @@ public class InquiryMessageCreatorImpl implements InquiryMessageCreator {
     public List<PartialBotApiMethod<?>> createBotMessagesToSend(InquiryModel inquiry, String chatId) {
         log.debug("Creating messaged from [customer: {}] inquiry", inquiry.getUserId());
         List<PartialBotApiMethod<?>> messagesToSend = new LinkedList<>();
+        String divName = inquiry.getDivision() == null ? BotUtils.BASE_DIVISION : inquiry.getDivision().getName();
         messagesToSend.add(SendMessage.builder().chatId(chatId)
-                .text("Направлен следующий запрос по тематике " + inquiry.getDivision().getName()).build());
+                .text("Направлен следующий запрос по тематике " + divName).build());
         log.debug("Greet messages added");
         Map<Integer, Message> mediaGroupMessages = new HashMap<>();
         Map<Integer, Message> simpleMessages = new HashMap<>();

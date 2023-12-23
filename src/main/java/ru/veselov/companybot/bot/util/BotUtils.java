@@ -11,6 +11,8 @@ public class BotUtils {
 
     public static final String CUSTOM_EMOJI = "custom_emoji";
 
+    public static final String BASE_DIVISION = "COMMON";
+
     /**
      * Check if current bot state is available for calling handler from context
      *
