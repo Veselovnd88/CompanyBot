@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+    <appender name="consoleAppender" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <pattern>%magenta(%d{yyyy-MM-dd HH:mm:ss}) [%yellow(%thread)] %highlight(%-5level) %green(%logger{36}): %msg%n
+            </pattern>
+        </encoder>
+    </appender>
+
+    <appender name="fileAppender" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>./log/cbot.log</file>
+        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
+            <Pattern>"%magenta(%d{yyyy-MM-dd HH:mm:ss}) [%yellow(%thread)] %highlight(%-5level) %green(%logger{36}): %msg%n"
+            </Pattern>
+        </encoder>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>./log/cbot.%d.%i.log.gz</fileNamePattern>
+            <maxFileSize>10MB</maxFileSize>
+        </rollingPolicy>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="consoleAppender"/>
+        <appender-ref ref="fileAppender"/>
+    </root>
+
+    <logger name="ru.veselov" level="DEBUG">
+
+    </logger>
+
+</configuration>

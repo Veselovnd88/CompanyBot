@@ -37,16 +37,6 @@ logging:
     org.springframework: ERROR
     ru.veselov: DEBUG
     org.hibernate: ERROR
-  pattern:
-    console: "%magenta(%d{yyyy-MM-dd HH:mm:ss}) [%yellow(%thread)] %highlight(%-5level) %green(%logger{36}): %msg%n"
-    file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36}: %msg%n"
-  file:
-    name: ${logging.file.path}company_bot.log
-    path: /opt/log/
-
-  logback:
-    rollingpolicy:
-      file-name-pattern: ${logging.file.path}archived/company_bot.%d{yyyy-MM-dd}.%i.log
-      max-file-size: 10MB
-      max-history: 30
-      total-size-cap: 2GB
+    #pattern:
+    # console: "%magenta(%d{yyyy-MM-dd HH:mm:ss}) [%yellow(%thread)] %highlight(%-5level) %green(%logger{36}): %msg%n"
+    #file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36}: %msg%n"
