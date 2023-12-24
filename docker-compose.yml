@@ -20,15 +20,13 @@ services:
   elasticsearch:
     image: elasticsearch:8.11.3
     container_name: elasticsearch
-    restart: always
+    restart: unless-stopped
     environment:
-      cluster.name: elasticsearch  # Set the cluster name to Elasticsearch
-      discovery.type: single-node  # Start in a single node mode
-      xpack.security.enabled: false #need for getting answer without certs
       ES_JAVA_OPTS: "-Xms256m -Xmx256m"  # Setting up using JVM memory size
     volumes:
       - /var/docker-volumes/elk/es/plugins:/usr/share/elasticsearch/Plugins # plugin file mount
       - /var/docker-volumes/elk/es/data:/usr/share/elasticsearch/Data # data file mount
+      - ./elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml # copy config file
     ports:
       - "9200:9200"
       - "9300:9300"
@@ -42,7 +40,9 @@ services:
     depends_on:
       - elasticsearch #Kibana starts after Elasticsearch
     environment:
-      - ELASTICSEARCH_URL="http://elasticserach:9200"  # Set the address of the ELasticSearch
+      - ELASTICSEARCH_URL="http://elasticsearch:9200"  # Set the address of the ELasticSearch
+    volumes:
+      - ./kibana.yml:/usr/share/kibana/config/kibana.yml # copy config file
     ports:
       - "5601:5601"
     networks:
