@@ -23,10 +23,13 @@ services:
     restart: unless-stopped
     environment:
       ES_JAVA_OPTS: "-Xms256m -Xmx256m"  # Setting up using JVM memory size
+      ELASTIC_USERNAME: "elastic"
+      ELASTIC_PASSWORD: "u8ijPY7hLmAIXJC4MOxD"
+      KIBANA_PASSWORD: "uIcu38g3QWH2yG0nKxAz"
     volumes:
       - /var/docker-volumes/elk/es/plugins:/usr/share/elasticsearch/Plugins # plugin file mount
       - /var/docker-volumes/elk/es/data:/usr/share/elasticsearch/Data # data file mount
-      - ./elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml # copy config file
+      - ./config/elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml # copy config file
     ports:
       - "9200:9200"
       - "9300:9300"
@@ -36,13 +39,13 @@ services:
   kibana:
     image: kibana:8.11.3
     container_name: kibana
-    restart: always
+    restart: unless-stopped
     depends_on:
       - elasticsearch #Kibana starts after Elasticsearch
     environment:
       - ELASTICSEARCH_URL="http://elasticsearch:9200"  # Set the address of the ELasticSearch
     volumes:
-      - ./kibana.yml:/usr/share/kibana/config/kibana.yml # copy config file
+      - ./config/kibana/kibana.yml:/usr/share/kibana/config/kibana.yml # copy config file
     ports:
       - "5601:5601"
     networks:
@@ -53,7 +56,9 @@ services:
     container_name: logstash
     restart: always
     volumes:
-      - ./logstash/:/logstash_dir
+      - ./config/logstash/:/logstash_dir
+      - ./log:/logstash_dir
+      - ./config/logstash/config.yml:/usr/share/logstash/config/logstash.yml:ro
     command: logstash -f /logstash_dir/logstash.conf
     depends_on:
       - elasticsearch
@@ -61,6 +66,7 @@ services:
       - "9600:9600"
     environment:
       LS_JAVA_OPTS: "-Xmx256m -Xms256m"
+
     networks:
       - elk
 
