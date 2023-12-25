@@ -5,6 +5,6 @@ monitoring.ui.container.elasticsearch.enabled: true #metrics
 elasticsearch.hosts: [ "http://elasticsearch:9200" ]
 
 elasticsearch.username: kibana_system
-elasticsearch.password: p7yAir21oelggo86=lCE
+elasticsearch.password: ${KIBANA_PASS}
 
 #uIcu38g3QWH2yG0nKxAz for logstash

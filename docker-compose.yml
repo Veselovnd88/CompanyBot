@@ -29,7 +29,7 @@ services:
     restart: unless-stopped
     environment:
       ES_JAVA_OPTS: "-Xms256m -Xmx256m"  # Setting up using JVM memory size
-      ELASTIC_PASSWORD: "Q7KSAQXtlLfg6pMHDe5I"#we need after reset password
+      ELASTIC_PASSWORD: ${ELASTIC_PASS} #we need after reset password
     volumes:
       - /var/docker-volumes/elk/es/plugins:/usr/share/elasticsearch/Plugins # plugin file mount
       - /var/docker-volumes/elk/es/data:/usr/share/elasticsearch/Data # data file mount
@@ -47,7 +47,7 @@ services:
     depends_on:
       - elasticsearch #Kibana starts after Elasticsearch
     environment:
-      - ELASTICSEARCH_URL="http://elasticsearch:9200"  # Set the address of the ELasticSearch
+      KIBANA_PASS: ${KIBANA_PASS}
     volumes:
       - ./config/kibana/kibana.yml:/usr/share/kibana/config/kibana.yml # copy config file
     ports:
@@ -69,8 +69,8 @@ services:
     ports:
       - "9600:9600"
     environment:
+      ELASTIC_PASS: ${ELASTIC_PASS}
       LS_JAVA_OPTS: "-Xmx256m -Xms256m"
-
     networks:
       - elk
 
