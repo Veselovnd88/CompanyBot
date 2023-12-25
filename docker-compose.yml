@@ -17,15 +17,19 @@ services:
     volumes:
       - /var/docker-volumes/cbot-pg:/var/lib/postgresql/data/
 
+  #start elastic search container, for initial start
+  #change passwords for elastic, kibana_system, logstash_internal
+  # bin/elasticsearch-reset-password --batch --user elastic
+  # bin/elasticsearch-reset-password --batch --user kibana_system
+  # bin/elasticsearch-reset-password --batch --user logstash_system
+  # then add its passwords to configs
   elasticsearch:
     image: elasticsearch:8.11.3
     container_name: elasticsearch
     restart: unless-stopped
     environment:
       ES_JAVA_OPTS: "-Xms256m -Xmx256m"  # Setting up using JVM memory size
-      ELASTIC_USERNAME: "elastic"
-      ELASTIC_PASSWORD: "u8ijPY7hLmAIXJC4MOxD"
-      KIBANA_PASSWORD: "uIcu38g3QWH2yG0nKxAz"
+      ELASTIC_PASSWORD: "Q7KSAQXtlLfg6pMHDe5I"#we need after reset password
     volumes:
       - /var/docker-volumes/elk/es/plugins:/usr/share/elasticsearch/Plugins # plugin file mount
       - /var/docker-volumes/elk/es/data:/usr/share/elasticsearch/Data # data file mount

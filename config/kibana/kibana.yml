@@ -4,7 +4,7 @@ server.publicBaseUrl: "http://localhost:5601"
 monitoring.ui.container.elasticsearch.enabled: true #metrics
 elasticsearch.hosts: [ "http://elasticsearch:9200" ]
 
-elasticsearch.username: kibana-system
-elasticsearch.password: uIcu38g3QWH2yG0nKxAz
+elasticsearch.username: kibana_system
+elasticsearch.password: p7yAir21oelggo86=lCE
 
 #uIcu38g3QWH2yG0nKxAz for logstash
