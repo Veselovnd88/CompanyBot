@@ -39,4 +39,12 @@ public class UserActionsUtils {
         return TestUpdates.getUpdateWithMessageWithCallbackQueryByUser(CallBackButtonUtils.CONTACT);
     }
 
+    public static Update userPressAboutButton() {
+        return TestUpdates.getUpdateWithMessageWithCommandByUser(BotCommands.ABOUT);
+    }
+
+    public static Update userPressInfoButton() {
+        return TestUpdates.getUpdateWithMessageWithCommandByUser(BotCommands.INFO);
+    }
+
 }
