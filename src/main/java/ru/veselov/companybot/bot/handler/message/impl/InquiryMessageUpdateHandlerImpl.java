@@ -15,7 +15,7 @@ import org.telegram.telegrambots.meta.api.objects.Video;
 import org.telegram.telegrambots.meta.api.objects.games.Animation;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import ru.veselov.companybot.bot.BotState;
-import ru.veselov.companybot.bot.context.BotStateHandlerContext;
+import ru.veselov.companybot.bot.context.BotStateMessageHandlerContext;
 import ru.veselov.companybot.bot.handler.message.InquiryMessageUpdateHandler;
 import ru.veselov.companybot.bot.keyboard.ContactKeyboardHelper;
 import ru.veselov.companybot.bot.util.UserMessageChecker;
@@ -42,14 +42,14 @@ public class InquiryMessageUpdateHandlerImpl implements InquiryMessageUpdateHand
 
     private final UserMessageChecker userMessageChecker;
 
-    private final BotStateHandlerContext context;
+    private final BotStateMessageHandlerContext context;
 
     private final ContactKeyboardHelper contactKeyboardHelper;
 
     @Override
     @PostConstruct
     public void registerInContext() {
-        context.add(BotState.AWAIT_MESSAGE, this);
+        context.addToBotStateContext(BotState.AWAIT_MESSAGE, this);
     }
 
     /**

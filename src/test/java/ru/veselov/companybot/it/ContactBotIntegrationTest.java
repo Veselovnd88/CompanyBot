@@ -1,6 +1,7 @@
 package ru.veselov.companybot.it;
 
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -39,6 +40,7 @@ import java.util.stream.Stream;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 @DirtiesContext
+@Slf4j
 class ContactBotIntegrationTest extends PostgresTestContainersConfiguration {
 
     @MockBean
@@ -189,6 +191,38 @@ class ContactBotIntegrationTest extends PostgresTestContainersConfiguration {
         BotApiMethod<?> errorAnswer = telegramFacadeUpdateHandler.processUpdate(inputShared);
         SendMessage sendMessage = (SendMessage) errorAnswer;
         Assertions.assertThat(sendMessage.getText()).isEqualTo(MessageUtils.WRONG_ACTION_AWAIT_SHARED);
+    }
+
+    @Test
+    void shouldReturnAnswerCallbackQueryWithUnexpectedActionMessage() {
+        log.info("User press call command");
+        pressStartCallContact();
+        Update wrongCallback = UserActionsUtils.userPressCallbackButton("Something wrong from callback");
+        BotApiMethod<?> errorAnswer = telegramFacadeUpdateHandler.processUpdate(wrongCallback);
+
+        log.info("Check if we receive good answer");
+        Assertions.assertThat(errorAnswer).isInstanceOf(AnswerCallbackQuery.class);
+        AnswerCallbackQuery callbackQuery = (AnswerCallbackQuery) errorAnswer;
+        Assertions.assertThat(callbackQuery.getText()).isEqualTo(MessageUtils.ANOTHER_ACTION);
+        Assertions.assertThat(callbackQuery.getCallbackQueryId()).isEqualTo(TestUtils.CALLBACK_ID);
+    }
+
+    @Test
+    void shouldReturnSendMessageForUnexpectedAction() {
+        log.info("User press call command");
+        pressStartCallContact();
+        Update namePressed = UserActionsUtils.userPressCallbackButton(CallBackButtonUtils.SHARED);
+        telegramFacadeUpdateHandler.processUpdate(namePressed);
+        log.info("Set wrong bot state for this");
+        userStateCache.setUserBotState(TestUtils.USER_ID, BotState.AWAIT_DIVISION_FOR_INQUIRY);
+
+        Update messageWithName = UserActionsUtils.userSendMessageWithContact(TestUtils.USER_LAST_NAME);
+        BotApiMethod<?> errorAnswer = telegramFacadeUpdateHandler.processUpdate(messageWithName);
+        log.info("Check if answer is ok");
+        Assertions.assertThat(errorAnswer).isInstanceOf(SendMessage.class);
+        SendMessage sendMessage = (SendMessage) errorAnswer;
+        Assertions.assertThat(sendMessage.getText()).isEqualTo(MessageUtils.ANOTHER_ACTION);
+        Assertions.assertThat(sendMessage.getChatId()).isEqualTo(TestUtils.USER_ID.toString());
     }
 
     private void pressStartCallContact() {

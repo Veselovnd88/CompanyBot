@@ -7,35 +7,33 @@ import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.veselov.companybot.bot.BotState;
-import ru.veselov.companybot.bot.context.BotStateHandlerContext;
-import ru.veselov.companybot.bot.context.CallbackQueryDataHandlerContext;
+import ru.veselov.companybot.bot.context.BotStateMessageHandlerContext;
+import ru.veselov.companybot.bot.context.CallbackQueryHandlerContext;
 import ru.veselov.companybot.bot.context.UpdateHandlerFromContext;
 import ru.veselov.companybot.bot.handler.callback.CallbackQueryUpdateHandler;
 import ru.veselov.companybot.bot.util.BotUtils;
-import ru.veselov.companybot.util.MessageUtils;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
-import ru.veselov.companybot.exception.UnexpectedActionException;
+import ru.veselov.companybot.exception.UnexpectedCallbackException;
+import ru.veselov.companybot.util.MessageUtils;
 
 @Component
 @RequiredArgsConstructor
 @Slf4j
 public class CallbackQueryUpdateHandlerImpl implements CallbackQueryUpdateHandler {
 
-    private final BotStateHandlerContext botStateHandlerContext;
-
-    private final CallbackQueryDataHandlerContext callbackQueryDataHandlerContext;
+    private final CallbackQueryHandlerContext callbackQueryHandlerContext;
 
     private final UserDataCacheFacade userDataCache;
 
     /**
      * Receive update and choose suitable handler for processing
-     * @param update {@link Update} update from Telegram
-     * <p>
-     * 1) Check {@link CallbackQueryDataHandlerContext} by callback data
-     * <p>
-     * 2) Check {@link BotStateHandlerContext} by current bot state
      *
-     * @throws UnexpectedActionException if suitable handler not found in both contexts
+     * @param update {@link Update} update from Telegram
+     *               <p>
+     *               1) Check {@link CallbackQueryHandlerContext} by callback data
+     *               <p>
+     *               2) Check {@link BotStateMessageHandlerContext} by current bot state
+     * @throws UnexpectedCallbackException if suitable handler not found in both contexts
      */
     @Override
     public BotApiMethod<?> processUpdate(Update update) {
@@ -47,20 +45,20 @@ public class CallbackQueryUpdateHandlerImpl implements CallbackQueryUpdateHandle
 
         UpdateHandlerFromContext updateHandler;
 
-        updateHandler = callbackQueryDataHandlerContext.getHandler(callbackData);
+        updateHandler = callbackQueryHandlerContext.getFromDataContext(callbackData);
         if (updateHandler != null) {
             BotUtils.validateUpdateHandlerStates(updateHandler, botState, chatId);
             log.debug("[{}] retrieved from call back data context", updateHandler.getClass().getSimpleName());
             return updateHandler.processUpdate(update);
         } else {
-            updateHandler = botStateHandlerContext.getHandler(botState);
+            updateHandler = callbackQueryHandlerContext.getFromBotStateContext(botState);
             if (updateHandler != null) {
                 BotUtils.validateUpdateHandlerStates(updateHandler, botState, chatId);
-                log.debug("[{}] retrieved from botstate data context", updateHandler.getClass().getSimpleName());
+                log.debug("[{}] retrieved from bot state context", updateHandler.getClass().getSimpleName());
                 return updateHandler.processUpdate(update);
             } else {
-                log.warn("No handler for this data or botstate");
-                throw new UnexpectedActionException(MessageUtils.ANOTHER_ACTION, chatId);
+                log.warn("No handler for this data or bot state");
+                throw new UnexpectedCallbackException(MessageUtils.ANOTHER_ACTION, chatId);
             }
         }
     }

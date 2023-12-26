@@ -10,7 +10,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.veselov.companybot.bot.BotState;
-import ru.veselov.companybot.bot.context.CallbackQueryDataHandlerContext;
+import ru.veselov.companybot.bot.context.CallbackQueryHandlerContext;
 import ru.veselov.companybot.bot.handler.callback.impl.ContactCallbackUpdateHandlerImpl;
 import ru.veselov.companybot.bot.keyboard.impl.ContactKeyboardHelperImpl;
 import ru.veselov.companybot.bot.util.CallBackButtonUtils;
@@ -30,7 +30,7 @@ class ContactCallbackUpdateHandlerImplTest {
     ContactKeyboardHelperImpl contactKeyboardHelper;
 
     @Mock
-    CallbackQueryDataHandlerContext context;
+    CallbackQueryHandlerContext context;
 
     @InjectMocks
     ContactCallbackUpdateHandlerImpl contactCallbackUpdateHandler;
@@ -58,8 +58,8 @@ class ContactCallbackUpdateHandlerImplTest {
     void shouldRegisterInContext() {
         contactCallbackUpdateHandler.registerInContext();
 
-        Mockito.verify(context).add(CallBackButtonUtils.CONTACT, contactCallbackUpdateHandler);
-        Mockito.verify(context).add(CallBackButtonUtils.REPEAT, contactCallbackUpdateHandler);
+        Mockito.verify(context).addToDataContext(CallBackButtonUtils.CONTACT, contactCallbackUpdateHandler);
+        Mockito.verify(context).addToDataContext(CallBackButtonUtils.REPEAT, contactCallbackUpdateHandler);
     }
 
     @Test

@@ -11,12 +11,11 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.User;
 import ru.veselov.companybot.bot.BotState;
-import ru.veselov.companybot.bot.context.BotStateHandlerContext;
-import ru.veselov.companybot.bot.context.CallbackQueryDataHandlerContext;
+import ru.veselov.companybot.bot.context.CallbackQueryHandlerContext;
 import ru.veselov.companybot.bot.context.UpdateHandlerFromContext;
 import ru.veselov.companybot.bot.handler.callback.impl.CallbackQueryUpdateHandlerImpl;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
-import ru.veselov.companybot.exception.UnexpectedActionException;
+import ru.veselov.companybot.exception.UnexpectedCallbackException;
 import ru.veselov.companybot.util.TestUpdates;
 import ru.veselov.companybot.util.TestUtils;
 
@@ -26,10 +25,7 @@ import java.util.Set;
 class CallbackQueryUpdateHandlerImplTest {
 
     @Mock
-    BotStateHandlerContext botStateHandlerContext;
-
-    @Mock
-    CallbackQueryDataHandlerContext callbackQueryDataHandlerContext;
+    CallbackQueryHandlerContext callbackQueryHandlerContext;
 
     @Mock
     UserDataCacheFacade userDataCache;
@@ -54,7 +50,7 @@ class CallbackQueryUpdateHandlerImplTest {
         UpdateHandlerFromContext handlerMock = Mockito.mock(UpdateHandlerFromContext.class);
         String testCallbackDate = "boom";
         Update update = TestUpdates.getUpdateWithMessageWithCallbackQueryByUser(testCallbackDate);
-        Mockito.when(callbackQueryDataHandlerContext.getHandler(testCallbackDate)).thenReturn(handlerMock);
+        Mockito.when(callbackQueryHandlerContext.getFromDataContext(testCallbackDate)).thenReturn(handlerMock);
         Mockito.when(handlerMock.getAvailableStates()).thenReturn(Set.of(botState));
 
         callbackQueryUpdateHandler.processUpdate(update);
@@ -68,7 +64,7 @@ class CallbackQueryUpdateHandlerImplTest {
         Mockito.when(userDataCache.getUserBotState(userId)).thenReturn(botState);
         UpdateHandlerFromContext handlerMock = Mockito.mock(UpdateHandlerFromContext.class);
         Update update = TestUpdates.getUpdateWithMessageWithCallbackQueryByUser("boom");
-        Mockito.when(botStateHandlerContext.getHandler(botState)).thenReturn(handlerMock);
+        Mockito.when(callbackQueryHandlerContext.getFromBotStateContext(botState)).thenReturn(handlerMock);
         Mockito.when(handlerMock.getAvailableStates()).thenReturn(Set.of(botState));
 
         callbackQueryUpdateHandler.processUpdate(update);
@@ -82,12 +78,12 @@ class CallbackQueryUpdateHandlerImplTest {
         Mockito.when(userDataCache.getUserBotState(userId)).thenReturn(botState);
         UpdateHandlerFromContext handlerMock = Mockito.mock(UpdateHandlerFromContext.class);
         Update update = TestUpdates.getUpdateWithMessageWithCallbackQueryByUser("boom");
-        Mockito.when(botStateHandlerContext.getHandler(botState)).thenReturn(handlerMock);
+        Mockito.when(callbackQueryHandlerContext.getFromBotStateContext(botState)).thenReturn(handlerMock);
         Mockito.when(handlerMock.getAvailableStates()).thenReturn(Set.of(BotState.AWAIT_NAME));
 
         org.junit.jupiter.api.Assertions.assertAll(
                 () -> Assertions.assertThatThrownBy(() -> callbackQueryUpdateHandler.processUpdate(update))
-                        .isInstanceOf(UnexpectedActionException.class),
+                        .isInstanceOf(UnexpectedCallbackException.class),
                 () -> Mockito.verify(handlerMock, Mockito.never()).processUpdate(update)
         );
     }
@@ -98,11 +94,11 @@ class CallbackQueryUpdateHandlerImplTest {
         Mockito.when(userDataCache.getUserBotState(user.getId())).thenReturn(botState);
         UpdateHandlerFromContext handlerMock = Mockito.mock(UpdateHandlerFromContext.class);
         Update update = TestUpdates.getUpdateWithMessageWithCallbackQueryByUser("boom");
-        Mockito.when(botStateHandlerContext.getHandler(botState)).thenReturn(null);
+        Mockito.when(callbackQueryHandlerContext.getFromBotStateContext(botState)).thenReturn(null);
 
         org.junit.jupiter.api.Assertions.assertAll(
                 () -> Assertions.assertThatThrownBy(() -> callbackQueryUpdateHandler.processUpdate(update))
-                        .isInstanceOf(UnexpectedActionException.class),
+                        .isInstanceOf(UnexpectedCallbackException.class),
                 () -> Mockito.verifyNoInteractions(handlerMock)
         );
     }

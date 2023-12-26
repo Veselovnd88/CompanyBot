@@ -12,7 +12,7 @@ import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.veselov.companybot.bot.BotState;
-import ru.veselov.companybot.bot.context.CallbackQueryDataHandlerContext;
+import ru.veselov.companybot.bot.context.CallbackQueryHandlerContext;
 import ru.veselov.companybot.bot.handler.callback.impl.SaveContactCallbackUpdateHandlerImpl;
 import ru.veselov.companybot.bot.keyboard.impl.ContactKeyboardHelperImpl;
 import ru.veselov.companybot.bot.util.CallBackButtonUtils;
@@ -48,7 +48,7 @@ class SaveContactCallbackUpdateHandlerImplTest {
     ContactKeyboardHelperImpl contactKeyboardHelper;
 
     @Mock
-    CallbackQueryDataHandlerContext context;
+    CallbackQueryHandlerContext context;
 
     @InjectMocks
     SaveContactCallbackUpdateHandlerImpl saveContactCallbackUpdateHandler;
@@ -114,7 +114,7 @@ class SaveContactCallbackUpdateHandlerImplTest {
     void shouldRegisterInContext() {
         saveContactCallbackUpdateHandler.registerInContext();
 
-        Mockito.verify(context).add(CallBackButtonUtils.SAVE, saveContactCallbackUpdateHandler);
+        Mockito.verify(context).addToDataContext(CallBackButtonUtils.SAVE, saveContactCallbackUpdateHandler);
     }
 
     @Test

@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.veselov.companybot.bot.BotState;
-import ru.veselov.companybot.bot.context.BotStateHandlerContext;
+import ru.veselov.companybot.bot.context.BotStateMessageHandlerContext;
 import ru.veselov.companybot.bot.handler.message.ContactMessageUpdateHandler;
 import ru.veselov.companybot.bot.util.ContactMessageProcessor;
 import ru.veselov.companybot.cache.ContactCache;
@@ -26,7 +26,7 @@ import java.util.Set;
  * @see UserDataCacheFacade
  * @see ContactCache
  * @see ContactMessageProcessor
- * @see BotStateHandlerContext
+ * @see BotStateMessageHandlerContext
  */
 @Component
 @RequiredArgsConstructor
@@ -39,13 +39,13 @@ public class ContactMessageUpdateHandlerImpl implements ContactMessageUpdateHand
 
     private final ContactMessageProcessor contactMessageProcessor;
 
-    private final BotStateHandlerContext context;
+    private final BotStateMessageHandlerContext context;
 
     @Override
     @PostConstruct
     public void registerInContext() {
         for (var state : getAvailableStates()) {
-            context.add(state, this);
+            context.addToBotStateContext(state, this);
         }
     }
 

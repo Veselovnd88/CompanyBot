@@ -16,7 +16,7 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.veselov.companybot.bot.BotState;
-import ru.veselov.companybot.bot.context.BotStateHandlerContext;
+import ru.veselov.companybot.bot.context.BotStateMessageHandlerContext;
 import ru.veselov.companybot.bot.handler.message.impl.InquiryMessageUpdateHandlerImpl;
 import ru.veselov.companybot.bot.keyboard.ContactKeyboardHelper;
 import ru.veselov.companybot.bot.util.UserMessageChecker;
@@ -45,7 +45,7 @@ class InquiryMessageUpdateHandlerTest {
     UserMessageChecker userMessageChecker;
 
     @Mock
-    BotStateHandlerContext context;
+    BotStateMessageHandlerContext context;
 
     @Mock
     ContactKeyboardHelper contactKeyboardHelper;
@@ -94,7 +94,7 @@ class InquiryMessageUpdateHandlerTest {
     void shouldRegisterInContext() {
         inquiryMessageHandler.registerInContext();
 
-        Mockito.verify(context).add(BotState.AWAIT_MESSAGE, inquiryMessageHandler);
+        Mockito.verify(context).addToBotStateContext(BotState.AWAIT_MESSAGE, inquiryMessageHandler);
     }
 
     @Test

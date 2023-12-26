@@ -12,7 +12,7 @@ import java.util.Map;
  */
 @Component
 @Slf4j
-public class BotStateHandlerContext {
+public class BotStateMessageHandlerContext {
 
     private final Map<BotState, UpdateHandlerFromContext> botStateUpdateHandlerMap = new EnumMap<>(BotState.class);
 
@@ -22,7 +22,7 @@ public class BotStateHandlerContext {
      * @param botState      {@link BotState} bot state for calling handler
      * @param updateHandler {@link UpdateHandlerFromContext} handler that we want to add
      */
-    public void add(BotState botState, UpdateHandlerFromContext updateHandler) {
+    public void addToBotStateContext(BotState botState, UpdateHandlerFromContext updateHandler) {
         log.info("[Handler: {}] added to context for [bot state: {}]",
                 updateHandler.getClass().getSimpleName(), botState);
         botStateUpdateHandlerMap.put(botState, updateHandler);
@@ -32,7 +32,7 @@ public class BotStateHandlerContext {
      * @param botState {@link BotState} bot state
      * @return {@link UpdateHandlerFromContext} handler responsible botState
      */
-    public UpdateHandlerFromContext getHandler(BotState botState) {
+    public UpdateHandlerFromContext getFromBotStateContext(BotState botState) {
         return botStateUpdateHandlerMap.get(botState);
     }
 }

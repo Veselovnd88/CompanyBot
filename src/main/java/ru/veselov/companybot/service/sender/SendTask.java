@@ -37,25 +37,19 @@ public class SendTask implements Runnable {
             try {
                 if (msg instanceof BotApiMethod<?> botApiMethod) {
                     bot.execute(botApiMethod);
-                }
-                else if (msg instanceof SendPhoto sendPhoto)
+                } else if (msg instanceof SendPhoto sendPhoto)
                     bot.execute(sendPhoto);
                 else if (msg instanceof SendDocument sendDocument) {
                     bot.execute(sendDocument);
-                }
-                else if (msg instanceof SendVideo sendVideo) {
+                } else if (msg instanceof SendVideo sendVideo) {
                     bot.execute(sendVideo);
-                }
-                else if (msg instanceof SendAudio sendAudio) {
+                } else if (msg instanceof SendAudio sendAudio) {
                     bot.execute(sendAudio);
-                }
-                else if (msg instanceof SendAnimation sendAnimation) {
+                } else if (msg instanceof SendAnimation sendAnimation) {
                     bot.execute(sendAnimation);
-                }
-                else if (msg instanceof SendVoice sendVoice) {
+                } else if (msg instanceof SendVoice sendVoice) {
                     bot.execute(sendVoice);
-                }
-                else if (msg instanceof SendMediaGroup sendMediaGroup) {
+                } else if (msg instanceof SendMediaGroup sendMediaGroup) {
                     bot.execute(sendMediaGroup);
                 } else {
                     log.warn("Attempt to send unsupported message type");

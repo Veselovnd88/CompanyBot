@@ -13,12 +13,12 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.veselov.companybot.bot.BotState;
-import ru.veselov.companybot.bot.context.CallbackQueryDataHandlerContext;
+import ru.veselov.companybot.bot.context.CallbackQueryHandlerContext;
 import ru.veselov.companybot.bot.handler.callback.impl.InputContactCallBackUpdateHandlerImpl;
 import ru.veselov.companybot.bot.keyboard.impl.ContactKeyboardHelperImpl;
 import ru.veselov.companybot.bot.util.CallBackButtonUtils;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
-import ru.veselov.companybot.exception.UnexpectedActionException;
+import ru.veselov.companybot.exception.UnexpectedCallbackException;
 import ru.veselov.companybot.util.TestUpdates;
 import ru.veselov.companybot.util.TestUtils;
 
@@ -35,7 +35,7 @@ class InputContactCallBackUpdateHandlerImplTest {
     UserDataCacheFacade userDataCache;
 
     @Mock
-    CallbackQueryDataHandlerContext context;
+    CallbackQueryHandlerContext context;
 
     @InjectMocks
     InputContactCallBackUpdateHandlerImpl inputContactCallBackUpdateHandler;
@@ -63,7 +63,7 @@ class InputContactCallBackUpdateHandlerImplTest {
         Update update = TestUpdates.getUpdateWithMessageWithCallbackQueryByUser("string");
 
         Assertions.assertThatThrownBy(() -> inputContactCallBackUpdateHandler.processUpdate(update))
-                .isInstanceOf(UnexpectedActionException.class);
+                .isInstanceOf(UnexpectedCallbackException.class);
     }
 
     private static Stream<Arguments> getFieldNameAndStatus() {
@@ -78,10 +78,10 @@ class InputContactCallBackUpdateHandlerImplTest {
     void shouldRegisterInContext() {
         inputContactCallBackUpdateHandler.registerInContext();
 
-        Mockito.verify(context).add(CallBackButtonUtils.EMAIL, inputContactCallBackUpdateHandler);
-        Mockito.verify(context).add(CallBackButtonUtils.PHONE, inputContactCallBackUpdateHandler);
-        Mockito.verify(context).add(CallBackButtonUtils.NAME, inputContactCallBackUpdateHandler);
-        Mockito.verify(context).add(CallBackButtonUtils.SHARED, inputContactCallBackUpdateHandler);
+        Mockito.verify(context).addToDataContext(CallBackButtonUtils.EMAIL, inputContactCallBackUpdateHandler);
+        Mockito.verify(context).addToDataContext(CallBackButtonUtils.PHONE, inputContactCallBackUpdateHandler);
+        Mockito.verify(context).addToDataContext(CallBackButtonUtils.NAME, inputContactCallBackUpdateHandler);
+        Mockito.verify(context).addToDataContext(CallBackButtonUtils.SHARED, inputContactCallBackUpdateHandler);
     }
 
     @Test
