@@ -8,7 +8,7 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.MessageEntity;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.veselov.companybot.bot.BotState;
-import ru.veselov.companybot.bot.context.BotStateHandlerContext;
+import ru.veselov.companybot.bot.context.BotStateMessageHandlerContext;
 import ru.veselov.companybot.bot.context.UpdateHandlerFromContext;
 import ru.veselov.companybot.bot.handler.message.CommandUpdateHandler;
 import ru.veselov.companybot.bot.handler.message.MessageUpdateHandler;
@@ -30,7 +30,7 @@ public class MessageUpdateHandlerImpl implements MessageUpdateHandler {
 
     private final CommandUpdateHandler commandUpdateHandler;
 
-    private final BotStateHandlerContext botStateHandlerContext;
+    private final BotStateMessageHandlerContext botStateMessageHandlerContext;
 
     /**
      * Handler for processing updates contained Message
@@ -47,7 +47,7 @@ public class MessageUpdateHandlerImpl implements MessageUpdateHandler {
         }
         String chatId = message.getFrom().getId().toString();
         BotState botState = userDataCache.getUserBotState(update.getMessage().getFrom().getId());
-        UpdateHandlerFromContext handler = botStateHandlerContext.getHandler(botState);
+        UpdateHandlerFromContext handler = botStateMessageHandlerContext.getFromBotStateContext(botState);
         if (handler != null) {
             BotUtils.validateUpdateHandlerStates(handler, botState, chatId);
             log.debug(LOG_MSG, handler.getClass().getSimpleName());

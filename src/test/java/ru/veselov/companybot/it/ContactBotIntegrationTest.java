@@ -1,6 +1,7 @@
 package ru.veselov.companybot.it;
 
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
@@ -39,6 +40,7 @@ import java.util.stream.Stream;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 @DirtiesContext
+@Slf4j
 class ContactBotIntegrationTest extends PostgresTestContainersConfiguration {
 
     @MockBean
@@ -189,6 +191,20 @@ class ContactBotIntegrationTest extends PostgresTestContainersConfiguration {
         BotApiMethod<?> errorAnswer = telegramFacadeUpdateHandler.processUpdate(inputShared);
         SendMessage sendMessage = (SendMessage) errorAnswer;
         Assertions.assertThat(sendMessage.getText()).isEqualTo(MessageUtils.WRONG_ACTION_AWAIT_SHARED);
+    }
+
+    @Test
+    void shouldReturnAnswerCallbackQueryWithUnexpectedActionMessage() {
+        log.info("User press call command");
+        pressStartCallContact();
+        Update wrongCallback = UserActionsUtils.userPressCallbackButton("Something wrong from callback");
+        BotApiMethod<?> errorAnswer = telegramFacadeUpdateHandler.processUpdate(wrongCallback);
+
+        log.info("Check if we receive good answer");
+        Assertions.assertThat(errorAnswer).isInstanceOf(AnswerCallbackQuery.class);
+        AnswerCallbackQuery callbackQuery = (AnswerCallbackQuery) errorAnswer;
+        Assertions.assertThat(callbackQuery.getText()).isEqualTo(MessageUtils.ANOTHER_ACTION);
+        Assertions.assertThat(callbackQuery.getCallbackQueryId()).isEqualTo(TestUtils.CALLBACK_ID);
     }
 
     private void pressStartCallContact() {

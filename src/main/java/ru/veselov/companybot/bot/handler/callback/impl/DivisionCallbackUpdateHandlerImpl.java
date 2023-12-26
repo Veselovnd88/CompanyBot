@@ -8,7 +8,7 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.veselov.companybot.bot.BotState;
-import ru.veselov.companybot.bot.context.BotStateHandlerContext;
+import ru.veselov.companybot.bot.context.CallbackQueryHandlerContext;
 import ru.veselov.companybot.bot.handler.callback.DivisionCallbackUpdateHandler;
 import ru.veselov.companybot.bot.keyboard.DivisionKeyboardHelper;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
@@ -27,13 +27,13 @@ public class DivisionCallbackUpdateHandlerImpl implements DivisionCallbackUpdate
 
     private final DivisionKeyboardHelper divisionKeyboardHelper;
 
-    private final BotStateHandlerContext context;
+    private final CallbackQueryHandlerContext context;
 
     @PostConstruct
     @Override
     public void registerInContext() {
         for (var s : getAvailableStates()) {
-            context.add(s, this);
+            context.addToBotStateContext(s, this);
         }
     }
 

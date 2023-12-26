@@ -10,7 +10,7 @@ import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.veselov.companybot.bot.BotState;
-import ru.veselov.companybot.bot.context.BotStateHandlerContext;
+import ru.veselov.companybot.bot.context.CallbackQueryHandlerContext;
 import ru.veselov.companybot.bot.handler.callback.impl.DivisionCallbackUpdateHandlerImpl;
 import ru.veselov.companybot.bot.keyboard.DivisionKeyboardHelper;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
@@ -31,7 +31,7 @@ class DivisionCallbackUpdateHandlerImplTest {
     DivisionKeyboardHelper divisionKeyboardHelper;
 
     @Mock
-    BotStateHandlerContext context;
+    CallbackQueryHandlerContext context;
 
     @InjectMocks
     DivisionCallbackUpdateHandlerImpl divisionCallbackUpdateHandler;
@@ -47,7 +47,7 @@ class DivisionCallbackUpdateHandlerImplTest {
     void shouldRegisterInContext() {
         divisionCallbackUpdateHandler.registerInContext();
 
-        Mockito.verify(context).add(BotState.AWAIT_DIVISION_FOR_INQUIRY, divisionCallbackUpdateHandler);
+        Mockito.verify(context).addToBotStateContext(BotState.AWAIT_DIVISION_FOR_INQUIRY, divisionCallbackUpdateHandler);
     }
 
     @Test

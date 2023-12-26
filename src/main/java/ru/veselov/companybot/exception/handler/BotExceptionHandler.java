@@ -8,6 +8,7 @@ import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.stereotype.Component;
+import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.veselov.companybot.bot.CompanyBot;
@@ -53,15 +54,14 @@ public class BotExceptionHandler {
             return SendMessage.builder().chatId(ex.getChatId())
                     .text(ex.getMessage()).replyMarkup(contactKeyboardHelper.getContactKeyboard())
                     .build();
-        } catch (WrongBotStateException ex) {
+        } catch (WrongBotStateException | MessageProcessingException ex) {
             log.warn(ExceptionMessageUtils.HANDLED_EXCEPTION_WITH_MESSAGE,
                     ex.getClass().getSimpleName(), ex.getMessage());
             return SendMessage.builder().chatId(ex.getChatId()).text(ex.getMessage()).build();
-        } catch (MessageProcessingException ex) {
+        } catch (UnexpectedActionException ex) {
             log.warn(ExceptionMessageUtils.HANDLED_EXCEPTION_WITH_MESSAGE,
                     ex.getClass().getSimpleName(), ex.getMessage());
-            return SendMessage.builder().chatId(ex.getChatId()).text(ex.getMessage()).build();
-            //return AnswerCallbackQuery.builder().callbackQueryId(ex.getChatId()).text(ex.getMessage()).build();
+            return AnswerCallbackQuery.builder().callbackQueryId(ex.getChatId()).text(ex.getMessage()).build();
         } catch (Throwable ex) {
             log.error(ex.getMessage());
             throw new CriticalBotException(ExceptionMessageUtils.SMTH_WENT_WRONG, ex);
