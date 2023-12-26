@@ -1,8 +1,10 @@
 package ru.veselov.companybot.it;
 
 import lombok.SneakyThrows;
+import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
 import org.awaitility.Awaitility;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -14,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.cache.CacheManager;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ActiveProfiles;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
@@ -31,10 +34,12 @@ import ru.veselov.companybot.config.BotConfig;
 import ru.veselov.companybot.config.PostgresTestContainersConfiguration;
 import ru.veselov.companybot.entity.ContactEntity;
 import ru.veselov.companybot.entity.CustomerEntity;
+import ru.veselov.companybot.entity.DivisionEntity;
 import ru.veselov.companybot.entity.InquiryEntity;
 import ru.veselov.companybot.model.DivisionModel;
 import ru.veselov.companybot.repository.ContactRepository;
 import ru.veselov.companybot.repository.CustomerRepository;
+import ru.veselov.companybot.repository.DivisionRepository;
 import ru.veselov.companybot.repository.InquiryRepository;
 import ru.veselov.companybot.util.MessageUtils;
 import ru.veselov.companybot.util.TestUpdates;
@@ -43,13 +48,16 @@ import ru.veselov.companybot.util.UserActionsUtils;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @ActiveProfiles("test")
 @DirtiesContext
+@Slf4j
 class InquiryBotIntegrationTest extends PostgresTestContainersConfiguration {
 
     @Value("${bot.max-messages}")
@@ -68,10 +76,16 @@ class InquiryBotIntegrationTest extends PostgresTestContainersConfiguration {
     CustomerRepository customerRepository;
 
     @Autowired
+    CacheManager cacheManager;
+
+    @Autowired
     ContactRepository contactRepository;
 
     @Autowired
     InquiryRepository inquiryRepository;
+
+    @Autowired
+    DivisionRepository divisionRepository;
 
     @Autowired
     UserStateCache userStateCache;
@@ -84,7 +98,9 @@ class InquiryBotIntegrationTest extends PostgresTestContainersConfiguration {
         customerRepository.deleteAll();
         contactRepository.deleteAll();
         inquiryRepository.deleteAll();
+        divisionRepository.deleteAll();
         userStateCache.reset();
+        Objects.requireNonNull(cacheManager.getCache("division")).clear();
     }
 
     @Test
@@ -123,7 +139,7 @@ class InquiryBotIntegrationTest extends PostgresTestContainersConfiguration {
         telegramFacadeUpdateHandler.processUpdate(userSendTextMessage);
         BotApiMethod<?> saveAnswer = pressContactInputContactAndPressSave();
         Assertions.assertThat(saveAnswer).isInstanceOf(AnswerCallbackQuery.class);
-        Awaitility.await().atLeast(1, TimeUnit.SECONDS);
+
         Mockito.verify(bot, Mockito.times(3)).execute(Mockito.any(SendMessage.class));
 
         List<CustomerEntity> customers = customerRepository.findAll();
@@ -175,6 +191,38 @@ class InquiryBotIntegrationTest extends PostgresTestContainersConfiguration {
         Assertions.assertThat(inquiryWithMsg.get().getMessages()).hasSize(15);
     }
 
+    @Test
+    @SneakyThrows
+    void shouldSaveWithCommonDivisionIfChosenDivisionAccidentallyWasNotFound() {
+        DivisionEntity savedDiv = divisionRepository.saveAndFlush(DivisionEntity.builder()
+                .divisionId(UUID.randomUUID()).name("TEST").description("Test")
+                .build());
+        log.info("Save test division");
+        pressStartAndInquiry();
+        Update choseDivUpdate = UserActionsUtils.userPressCallbackButton(savedDiv.getDivisionId().toString());
+        telegramFacadeUpdateHandler.processUpdate(choseDivUpdate);
+        Update userSendTextMessage = UserActionsUtils.userSendTextMessage();
+        telegramFacadeUpdateHandler.processUpdate(userSendTextMessage);
+        divisionRepository.deleteAll();
+        pressContactInputContactAndPressSave();
+        Awaitility.setDefaultPollDelay(200, TimeUnit.MILLISECONDS);
+        Mockito.verify(bot, Mockito.times(3)).execute(Mockito.any(SendMessage.class));
+
+        List<InquiryEntity> allInquiries = inquiryRepository.findAll();
+        Assertions.assertThat(allInquiries).isNotEmpty();
+        InquiryEntity inquiryEntity = allInquiries.get(0);
+        Assertions.assertThat(inquiryEntity.getDivision().getName()).isEqualTo("COMMON");
+    }
+
+    @Test
+    void shouldSaveCustomerWithInquiryIfInWasNotSavedWithFirstEvent() {
+        pressStartAndInquiry();
+        chooseDivision();
+        Update userSendTextMessage = UserActionsUtils.userSendTextMessage();
+        telegramFacadeUpdateHandler.processUpdate(userSendTextMessage);
+        customerRepository.deleteAll();
+        pressContactInputContactAndPressSave();
+    }
 
     private void pressStartAndInquiry() {
         telegramFacadeUpdateHandler.processUpdate(UserActionsUtils.userPressStart());

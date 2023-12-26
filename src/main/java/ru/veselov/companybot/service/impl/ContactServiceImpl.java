@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import ru.veselov.companybot.entity.ContactEntity;
 import ru.veselov.companybot.entity.CustomerEntity;
-import ru.veselov.companybot.exception.CustomerNotFoundException;
 import ru.veselov.companybot.mapper.ContactMapper;
 import ru.veselov.companybot.model.ContactModel;
 import ru.veselov.companybot.repository.ContactRepository;
@@ -29,13 +28,13 @@ public class ContactServiceImpl implements ContactService {
     public void saveContact(ContactModel contact) {
         Long customerId = contact.getUserId();
         CustomerEntity customerEntity = customerRepository.findById(customerId)
-                .orElseThrow(
-                        () -> {
-                            log.error("Customer with [id: {}] not found", customerId);
-                            return new CustomerNotFoundException("Customer with [id: %s] not found"
-                                    .formatted(customerId));
-                        }
-                );
+                .orElseGet(() -> {
+                    log.warn("Customer with {} was not in db, i will create new entity", customerId);
+                    CustomerEntity newCustomerEntity = new CustomerEntity();
+                    newCustomerEntity.setId(customerId);
+                    newCustomerEntity.setLastName(contact.getLastName());
+                    return newCustomerEntity;
+                });
         ContactEntity contactEntity = contactMapper.toEntity(contact);
         contactEntity.setCustomer(customerEntity);
         contactRepository.save(contactEntity);
