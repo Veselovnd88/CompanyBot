@@ -9,13 +9,11 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.veselov.companybot.bot.CompanyBot;
 import ru.veselov.companybot.bot.keyboard.impl.ContactKeyboardHelperImpl;
 import ru.veselov.companybot.exception.ContactProcessingException;
 import ru.veselov.companybot.exception.CriticalBotException;
 import ru.veselov.companybot.exception.MessageProcessingException;
-import ru.veselov.companybot.exception.ProcessUpdateException;
 import ru.veselov.companybot.exception.UnexpectedCallbackException;
 import ru.veselov.companybot.exception.UnexpectedMessageException;
 import ru.veselov.companybot.exception.WrongBotStateException;
@@ -64,15 +62,6 @@ public class BotExceptionHandler {
         } catch (Throwable ex) {
             log.error(ex.getMessage());
             throw new CriticalBotException(ExceptionMessageUtils.SMTH_WENT_WRONG, ex);
-        }
-    }
-
-    private void convertAndSendMessage(ProcessUpdateException ex) {
-        log.debug(ExceptionMessageUtils.EXCEPTION_HANDLED, ex.getMessage());
-        try {
-            companyBot.execute(SendMessage.builder().chatId(ex.getChatId()).text(ex.getMessage()).build());
-        } catch (TelegramApiException e) {
-            log.error(ExceptionMessageUtils.SMTH_WENT_WRONG, ex.getChatId(), e.getMessage());
         }
     }
 
