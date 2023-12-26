@@ -2,6 +2,7 @@ package ru.veselov.companybot.it;
 
 import lombok.SneakyThrows;
 import org.assertj.core.api.Assertions;
+import org.awaitility.Awaitility;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -43,6 +44,7 @@ import ru.veselov.companybot.util.UserActionsUtils;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -121,7 +123,7 @@ class InquiryBotIntegrationTest extends PostgresTestContainersConfiguration {
         telegramFacadeUpdateHandler.processUpdate(userSendTextMessage);
         BotApiMethod<?> saveAnswer = pressContactInputContactAndPressSave();
         Assertions.assertThat(saveAnswer).isInstanceOf(AnswerCallbackQuery.class);
-
+        Awaitility.await().atLeast(1, TimeUnit.SECONDS);
         Mockito.verify(bot, Mockito.times(3)).execute(Mockito.any(SendMessage.class));
 
         List<CustomerEntity> customers = customerRepository.findAll();
