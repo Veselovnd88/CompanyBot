@@ -10,7 +10,6 @@ import ru.veselov.companybot.entity.CustomerEntity;
 import ru.veselov.companybot.entity.CustomerMessageEntity;
 import ru.veselov.companybot.entity.DivisionEntity;
 import ru.veselov.companybot.entity.InquiryEntity;
-import ru.veselov.companybot.exception.CustomerNotFoundException;
 import ru.veselov.companybot.model.InquiryModel;
 import ru.veselov.companybot.repository.CustomerRepository;
 import ru.veselov.companybot.repository.DivisionRepository;
@@ -37,13 +36,14 @@ public class InquiryServiceImpl implements InquiryService {
     @Transactional
     public InquiryEntity save(InquiryModel inquiry) {
         Long userId = inquiry.getUserId();
-        CustomerEntity customerEntity = customerRepository.findById(userId)
-                .orElseThrow(
-                        () -> {
-                            log.error("Customer with id: {} not found", userId);
-                            return new CustomerNotFoundException("Customer with id: %s not found".formatted(userId));
-                        }
-                );
+        CustomerEntity customerEntity = customerRepository.findById(userId).orElseGet(
+                () -> {
+                    log.warn("Customer with {} was not in db, i will create new entity", userId);
+                    CustomerEntity newCustomerEntity = new CustomerEntity();
+                    newCustomerEntity.setId(userId);
+                    newCustomerEntity.setLastName(userId.toString());
+                    return newCustomerEntity;
+                });
         UUID divisionId = inquiry.getDivision().getDivisionId();
         Optional<DivisionEntity> divisionOptional = divisionRepository.findById(divisionId);
         DivisionEntity divisionEntity;

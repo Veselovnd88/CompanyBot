@@ -3,7 +3,6 @@ package ru.veselov.companybot.exception.handler;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
-import org.aspectj.lang.annotation.AfterThrowing;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
@@ -20,7 +19,6 @@ import ru.veselov.companybot.exception.ProcessUpdateException;
 import ru.veselov.companybot.exception.UnexpectedCallbackException;
 import ru.veselov.companybot.exception.UnexpectedMessageException;
 import ru.veselov.companybot.exception.WrongBotStateException;
-import ru.veselov.companybot.exception.WrongContactException;
 import ru.veselov.companybot.exception.util.ExceptionMessageUtils;
 
 @Aspect
@@ -67,16 +65,6 @@ public class BotExceptionHandler {
             log.error(ex.getMessage());
             throw new CriticalBotException(ExceptionMessageUtils.SMTH_WENT_WRONG, ex);
         }
-    }
-
-    @AfterThrowing(pointcut = "handledMethods()", throwing = "ex")
-    public void handleWrongContactExceptionAndConvertToSendMessage(WrongContactException ex) {
-        convertAndSendMessage(ex);
-    }
-
-    @AfterThrowing(pointcut = "handledMethods()", throwing = "ex")
-    public void handleUnexpectedActionExceptionAndConvertToSendMessage(UnexpectedCallbackException ex) {
-        convertAndSendMessage(ex);
     }
 
     private void convertAndSendMessage(ProcessUpdateException ex) {
