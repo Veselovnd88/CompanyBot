@@ -14,7 +14,7 @@ import ru.veselov.companybot.bot.handler.message.CommandUpdateHandler;
 import ru.veselov.companybot.bot.handler.message.MessageUpdateHandler;
 import ru.veselov.companybot.bot.util.BotUtils;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
-import ru.veselov.companybot.exception.UnexpectedActionException;
+import ru.veselov.companybot.exception.UnexpectedMessageException;
 import ru.veselov.companybot.util.MessageUtils;
 
 import java.util.Optional;
@@ -37,6 +37,7 @@ public class MessageUpdateHandlerImpl implements MessageUpdateHandler {
      *
      * @param update {@link Update} from Telegram
      * @return {@link BotApiMethod} answered message
+     * @throws UnexpectedMessageException if action not available for bot state
      */
     @Override
     public BotApiMethod<?> processUpdate(Update update) {
@@ -54,7 +55,7 @@ public class MessageUpdateHandlerImpl implements MessageUpdateHandler {
             return handler.processUpdate(update);
         }
         log.warn("Unexpected action, no handler for message");
-        throw new UnexpectedActionException(MessageUtils.ANOTHER_ACTION, chatId);
+        throw new UnexpectedMessageException(MessageUtils.ANOTHER_ACTION, chatId);
     }
 
     private boolean isCommand(Message message) {

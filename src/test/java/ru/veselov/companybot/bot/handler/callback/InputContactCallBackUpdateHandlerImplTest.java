@@ -18,7 +18,7 @@ import ru.veselov.companybot.bot.handler.callback.impl.InputContactCallBackUpdat
 import ru.veselov.companybot.bot.keyboard.impl.ContactKeyboardHelperImpl;
 import ru.veselov.companybot.bot.util.CallBackButtonUtils;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
-import ru.veselov.companybot.exception.UnexpectedActionException;
+import ru.veselov.companybot.exception.UnexpectedCallbackException;
 import ru.veselov.companybot.util.TestUpdates;
 import ru.veselov.companybot.util.TestUtils;
 
@@ -63,7 +63,7 @@ class InputContactCallBackUpdateHandlerImplTest {
         Update update = TestUpdates.getUpdateWithMessageWithCallbackQueryByUser("string");
 
         Assertions.assertThatThrownBy(() -> inputContactCallBackUpdateHandler.processUpdate(update))
-                .isInstanceOf(UnexpectedActionException.class);
+                .isInstanceOf(UnexpectedCallbackException.class);
     }
 
     private static Stream<Arguments> getFieldNameAndStatus() {

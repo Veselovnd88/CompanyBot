@@ -207,6 +207,24 @@ class ContactBotIntegrationTest extends PostgresTestContainersConfiguration {
         Assertions.assertThat(callbackQuery.getCallbackQueryId()).isEqualTo(TestUtils.CALLBACK_ID);
     }
 
+    @Test
+    void shouldReturnSendMessageForUnexpectedAction() {
+        log.info("User press call command");
+        pressStartCallContact();
+        Update namePressed = UserActionsUtils.userPressCallbackButton(CallBackButtonUtils.SHARED);
+        telegramFacadeUpdateHandler.processUpdate(namePressed);
+        log.info("Set wrong bot state for this");
+        userStateCache.setUserBotState(TestUtils.USER_ID, BotState.AWAIT_DIVISION_FOR_INQUIRY);
+
+        Update messageWithName = UserActionsUtils.userSendMessageWithContact(TestUtils.USER_LAST_NAME);
+        BotApiMethod<?> errorAnswer = telegramFacadeUpdateHandler.processUpdate(messageWithName);
+        log.info("Check if answer is ok");
+        Assertions.assertThat(errorAnswer).isInstanceOf(SendMessage.class);
+        SendMessage sendMessage = (SendMessage) errorAnswer;
+        Assertions.assertThat(sendMessage.getText()).isEqualTo(MessageUtils.ANOTHER_ACTION);
+        Assertions.assertThat(sendMessage.getChatId()).isEqualTo(TestUtils.USER_ID.toString());
+    }
+
     private void pressStartCallContact() {
         Update startPressed = UserActionsUtils.userPressStart();
         BotApiMethod<?> startAnswer = telegramFacadeUpdateHandler.processUpdate(startPressed);

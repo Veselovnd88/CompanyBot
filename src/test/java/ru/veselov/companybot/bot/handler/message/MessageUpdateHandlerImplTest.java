@@ -15,7 +15,7 @@ import ru.veselov.companybot.bot.context.BotStateMessageHandlerContext;
 import ru.veselov.companybot.bot.context.UpdateHandlerFromContext;
 import ru.veselov.companybot.bot.handler.message.impl.MessageUpdateHandlerImpl;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
-import ru.veselov.companybot.exception.UnexpectedActionException;
+import ru.veselov.companybot.exception.UnexpectedCallbackException;
 import ru.veselov.companybot.util.TestUpdates;
 import ru.veselov.companybot.util.TestUtils;
 
@@ -69,7 +69,7 @@ class MessageUpdateHandlerImplTest {
         Update update = TestUpdates.getUpdateWithMessageWithTextContentByUser();
 
         Assertions.assertThatThrownBy(() -> messageUpdateHandler.processUpdate(update))
-                .isInstanceOf(UnexpectedActionException.class);
+                .isInstanceOf(UnexpectedCallbackException.class);
         Mockito.verifyNoInteractions(commandUpdateHandler, commandUpdateHandler);
         Mockito.verify(handlerMock, Mockito.never()).processUpdate(update);
     }
@@ -82,7 +82,7 @@ class MessageUpdateHandlerImplTest {
         Update update = TestUpdates.getUpdateWithMessageWithTextContentByUser();
 
         Assertions.assertThatThrownBy(() -> messageUpdateHandler.processUpdate(update))
-                .isInstanceOf(UnexpectedActionException.class);
+                .isInstanceOf(UnexpectedCallbackException.class);
         Mockito.verifyNoInteractions(commandUpdateHandler, commandUpdateHandler);
     }
 

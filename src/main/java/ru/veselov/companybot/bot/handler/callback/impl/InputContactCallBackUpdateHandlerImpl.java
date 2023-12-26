@@ -9,12 +9,11 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.veselov.companybot.bot.BotState;
 import ru.veselov.companybot.bot.context.CallbackQueryHandlerContext;
 import ru.veselov.companybot.bot.handler.callback.InputContactCallBackUpdateHandler;
-import ru.veselov.companybot.bot.util.CallBackButtonUtils;
 import ru.veselov.companybot.bot.keyboard.impl.ContactKeyboardHelperImpl;
-import ru.veselov.companybot.util.MessageUtils;
+import ru.veselov.companybot.bot.util.CallBackButtonUtils;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
-import ru.veselov.companybot.exception.UnexpectedActionException;
-import ru.veselov.companybot.exception.handler.BotExceptionToMessage;
+import ru.veselov.companybot.exception.UnexpectedCallbackException;
+import ru.veselov.companybot.util.MessageUtils;
 
 import java.util.Set;
 
@@ -38,7 +37,6 @@ public class InputContactCallBackUpdateHandlerImpl implements InputContactCallBa
         context.addToDataContext(CallBackButtonUtils.SHARED, this);
     }
 
-    @BotExceptionToMessage
     @Override
     public EditMessageReplyMarkup processUpdate(Update update) {
         Long userId = update.getCallbackQuery().getFrom().getId();
@@ -62,7 +60,7 @@ public class InputContactCallBackUpdateHandlerImpl implements InputContactCallBa
                 yield contactKeyboardHelper.getEditMessageReplyForChosenCallbackButton(update, CallBackButtonUtils.NAME);
             }
             default ->
-                    throw new UnexpectedActionException(MessageUtils.ANOTHER_ACTION, update.getCallbackQuery().getId());
+                    throw new UnexpectedCallbackException(MessageUtils.ANOTHER_ACTION, update.getCallbackQuery().getId());
         };
     }
 

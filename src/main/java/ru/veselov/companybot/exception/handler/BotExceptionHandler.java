@@ -17,7 +17,8 @@ import ru.veselov.companybot.exception.ContactProcessingException;
 import ru.veselov.companybot.exception.CriticalBotException;
 import ru.veselov.companybot.exception.MessageProcessingException;
 import ru.veselov.companybot.exception.ProcessUpdateException;
-import ru.veselov.companybot.exception.UnexpectedActionException;
+import ru.veselov.companybot.exception.UnexpectedCallbackException;
+import ru.veselov.companybot.exception.UnexpectedMessageException;
 import ru.veselov.companybot.exception.WrongBotStateException;
 import ru.veselov.companybot.exception.WrongContactException;
 import ru.veselov.companybot.exception.util.ExceptionMessageUtils;
@@ -54,11 +55,11 @@ public class BotExceptionHandler {
             return SendMessage.builder().chatId(ex.getChatId())
                     .text(ex.getMessage()).replyMarkup(contactKeyboardHelper.getContactKeyboard())
                     .build();
-        } catch (WrongBotStateException | MessageProcessingException ex) {
+        } catch (WrongBotStateException | MessageProcessingException | UnexpectedMessageException ex) {
             log.warn(ExceptionMessageUtils.HANDLED_EXCEPTION_WITH_MESSAGE,
                     ex.getClass().getSimpleName(), ex.getMessage());
             return SendMessage.builder().chatId(ex.getChatId()).text(ex.getMessage()).build();
-        } catch (UnexpectedActionException ex) {
+        } catch (UnexpectedCallbackException ex) {
             log.warn(ExceptionMessageUtils.HANDLED_EXCEPTION_WITH_MESSAGE,
                     ex.getClass().getSimpleName(), ex.getMessage());
             return AnswerCallbackQuery.builder().callbackQueryId(ex.getChatId()).text(ex.getMessage()).build();
@@ -74,7 +75,7 @@ public class BotExceptionHandler {
     }
 
     @AfterThrowing(pointcut = "handledMethods()", throwing = "ex")
-    public void handleUnexpectedActionExceptionAndConvertToSendMessage(UnexpectedActionException ex) {
+    public void handleUnexpectedActionExceptionAndConvertToSendMessage(UnexpectedCallbackException ex) {
         convertAndSendMessage(ex);
     }
 

@@ -17,7 +17,12 @@ public class BotConfig {
 
     private final CompanyBot companyBot;
 
-    @Bean
+    /**
+     * Create and register bean for telegram api
+     *
+     * @return {@link TelegramBotsApi now we can use our bot}
+     */
+    @Bean //also can use as method with EventListener with Refresh Event
     public TelegramBotsApi telegramBotsApi() {
         try {
             TelegramBotsApi telegramBotsApi = new TelegramBotsApi(DefaultBotSession.class);

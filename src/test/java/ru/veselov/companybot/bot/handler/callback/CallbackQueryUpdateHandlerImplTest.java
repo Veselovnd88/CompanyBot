@@ -15,7 +15,7 @@ import ru.veselov.companybot.bot.context.CallbackQueryHandlerContext;
 import ru.veselov.companybot.bot.context.UpdateHandlerFromContext;
 import ru.veselov.companybot.bot.handler.callback.impl.CallbackQueryUpdateHandlerImpl;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
-import ru.veselov.companybot.exception.UnexpectedActionException;
+import ru.veselov.companybot.exception.UnexpectedCallbackException;
 import ru.veselov.companybot.util.TestUpdates;
 import ru.veselov.companybot.util.TestUtils;
 
@@ -83,7 +83,7 @@ class CallbackQueryUpdateHandlerImplTest {
 
         org.junit.jupiter.api.Assertions.assertAll(
                 () -> Assertions.assertThatThrownBy(() -> callbackQueryUpdateHandler.processUpdate(update))
-                        .isInstanceOf(UnexpectedActionException.class),
+                        .isInstanceOf(UnexpectedCallbackException.class),
                 () -> Mockito.verify(handlerMock, Mockito.never()).processUpdate(update)
         );
     }
@@ -98,7 +98,7 @@ class CallbackQueryUpdateHandlerImplTest {
 
         org.junit.jupiter.api.Assertions.assertAll(
                 () -> Assertions.assertThatThrownBy(() -> callbackQueryUpdateHandler.processUpdate(update))
-                        .isInstanceOf(UnexpectedActionException.class),
+                        .isInstanceOf(UnexpectedCallbackException.class),
                 () -> Mockito.verifyNoInteractions(handlerMock)
         );
     }

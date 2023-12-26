@@ -12,7 +12,6 @@ import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.veselov.companybot.bot.handler.TelegramFacadeUpdateHandler;
-import ru.veselov.companybot.exception.CriticalBotException;
 
 import java.util.List;
 
@@ -69,12 +68,12 @@ public class CompanyBot extends TelegramLongPollingBot {
                 Thread.sleep(50);
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
-                throw new CriticalBotException(e.getMessage(), e.getCause());
+                log.error("Problem with delay sending of message: error: {}", e.getMessage());
             }
             try {
                 execute(telegramFacadeUpdateHandler.processUpdate(update));
             } catch (TelegramApiException e) {
-                throw new CriticalBotException(e.getMessage(), e.getCause());
+                log.error("Can't execute answer message, error: {}", e.getMessage());
             }
 
         }

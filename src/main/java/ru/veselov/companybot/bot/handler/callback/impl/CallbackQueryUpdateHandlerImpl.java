@@ -13,7 +13,7 @@ import ru.veselov.companybot.bot.context.UpdateHandlerFromContext;
 import ru.veselov.companybot.bot.handler.callback.CallbackQueryUpdateHandler;
 import ru.veselov.companybot.bot.util.BotUtils;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
-import ru.veselov.companybot.exception.UnexpectedActionException;
+import ru.veselov.companybot.exception.UnexpectedCallbackException;
 import ru.veselov.companybot.util.MessageUtils;
 
 @Component
@@ -33,7 +33,7 @@ public class CallbackQueryUpdateHandlerImpl implements CallbackQueryUpdateHandle
      *               1) Check {@link CallbackQueryHandlerContext} by callback data
      *               <p>
      *               2) Check {@link BotStateMessageHandlerContext} by current bot state
-     * @throws UnexpectedActionException if suitable handler not found in both contexts
+     * @throws UnexpectedCallbackException if suitable handler not found in both contexts
      */
     @Override
     public BotApiMethod<?> processUpdate(Update update) {
@@ -58,7 +58,7 @@ public class CallbackQueryUpdateHandlerImpl implements CallbackQueryUpdateHandle
                 return updateHandler.processUpdate(update);
             } else {
                 log.warn("No handler for this data or bot state");
-                throw new UnexpectedActionException(MessageUtils.ANOTHER_ACTION, chatId);
+                throw new UnexpectedCallbackException(MessageUtils.ANOTHER_ACTION, chatId);
             }
         }
     }
