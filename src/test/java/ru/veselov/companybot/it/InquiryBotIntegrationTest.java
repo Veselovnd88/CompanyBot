@@ -4,7 +4,6 @@ import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
 import org.awaitility.Awaitility;
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
@@ -140,6 +139,7 @@ class InquiryBotIntegrationTest extends PostgresTestContainersConfiguration {
         BotApiMethod<?> saveAnswer = pressContactInputContactAndPressSave();
         Assertions.assertThat(saveAnswer).isInstanceOf(AnswerCallbackQuery.class);
 
+        Awaitility.setDefaultPollDelay(200, TimeUnit.MILLISECONDS);
         Mockito.verify(bot, Mockito.times(3)).execute(Mockito.any(SendMessage.class));
 
         List<CustomerEntity> customers = customerRepository.findAll();
