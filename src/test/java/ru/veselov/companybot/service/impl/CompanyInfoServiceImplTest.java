@@ -33,6 +33,9 @@ class CompanyInfoServiceImplTest {
     @Test
     void save_saveInfoMessage() {
         Message infoMessage = TestUtils.getTextMessage("Text");
+        CompanyInfoEntity companyInfoEntity = new CompanyInfoEntity();
+        companyInfoEntity.setInfo(infoMessage);
+        Mockito.when(companyInfoRepository.save(Mockito.any())).thenReturn(companyInfoEntity);
 
         companyInfoService.save(infoMessage);
 
