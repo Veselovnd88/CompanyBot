@@ -17,65 +17,7 @@ services:
     volumes:
       - /var/docker-volumes/cbot-pg:/var/lib/postgresql/data/
 
-  #start elastic search container, for initial start
-  #change passwords for elastic, kibana_system, logstash_internal
-  # bin/elasticsearch-reset-password --batch --user elastic
-  # bin/elasticsearch-reset-password --batch --user kibana_system
-  # bin/elasticsearch-reset-password --batch --user logstash_system
-  # then add its passwords to configs
-  elasticsearch:
-    image: elasticsearch:8.11.3
-    container_name: elasticsearch
-    restart: unless-stopped
-    environment:
-      ES_JAVA_OPTS: "-Xms256m -Xmx256m"  # Setting up using JVM memory size
-      ELASTIC_PASSWORD: ${ELASTIC_PASS} #we need after reset password
-    volumes:
-      - /var/docker-volumes/elk/es/plugins:/usr/share/elasticsearch/Plugins # plugin file mount
-      - /var/docker-volumes/elk/es/data:/usr/share/elasticsearch/Data # data file mount
-      - ./config/elasticsearch/elasticsearch.yml:/usr/share/elasticsearch/config/elasticsearch.yml # copy config file
-    ports:
-      - "9200:9200"
-      - "9300:9300"
-    networks:
-      - elk
-
-  kibana:
-    image: kibana:8.11.3
-    container_name: kibana
-    restart: unless-stopped
-    depends_on:
-      - elasticsearch #Kibana starts after Elasticsearch
-    environment:
-      KIBANA_PASS: ${KIBANA_PASS}
-    volumes:
-      - ./config/kibana/kibana.yml:/usr/share/kibana/config/kibana.yml # copy config file
-    ports:
-      - "5601:5601"
-    networks:
-      - elk
-
-  logstash:
-    image: logstash:8.11.3
-    container_name: logstash
-    restart: always
-    volumes:
-      - ./config/logstash/:/logstash_dir
-      - ./log:/logstash_dir
-      - ./config/logstash/config.yml:/usr/share/logstash/config/logstash.yml:ro
-    command: logstash -f /logstash_dir/logstash.conf
-    depends_on:
-      - elasticsearch
-    ports:
-      - "9600:9600"
-    environment:
-      ELASTIC_PASS: ${ELASTIC_PASS}
-      LS_JAVA_OPTS: "-Xmx256m -Xms256m"
-    networks:
-      - elk
-
 networks:
   cbot-pg:
     driver: bridge
-  elk:
 
