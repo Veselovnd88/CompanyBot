@@ -206,7 +206,7 @@ class InquiryBotIntegrationTest extends PostgresTestContainersConfiguration {
         telegramFacadeUpdateHandler.processUpdate(userSendTextMessage);
         divisionRepository.deleteAll();
         pressContactInputContactAndPressSave();
-        Awaitility.await().atLeast(Duration.ofMillis(1000)).until(() -> true);
+        Awaitility.await().pollDelay(Duration.ofMillis(1000)).until(() -> true);
         Mockito.verify(bot, Mockito.times(3)).execute(Mockito.any(SendMessage.class));
 
         List<InquiryEntity> allInquiries = inquiryRepository.findAll();
