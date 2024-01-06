@@ -186,4 +186,17 @@ public class TestUpdates {
         return update;
     }
 
+    public static Update getUpdateWithMessageWithCommandByAdmin(String command) {
+        Update update = new Update();
+        Message message = new Message();
+        MessageEntity botCommandEntity = new MessageEntity();
+        botCommandEntity.setType("bot_command");
+        botCommandEntity.setOffset(0);
+        botCommandEntity.setLength(command.length());
+        message.setEntities(List.of(botCommandEntity));
+        message.setText(command);
+        update.setMessage(message);
+        message.setFrom(TestUtils.getAdminUser());
+        return update;
+    }
 }
