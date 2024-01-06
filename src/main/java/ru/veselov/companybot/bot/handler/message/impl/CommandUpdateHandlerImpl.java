@@ -2,6 +2,7 @@ package ru.veselov.companybot.bot.handler.message.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Update;
@@ -14,7 +15,6 @@ import ru.veselov.companybot.bot.keyboard.ContactKeyboardHelper;
 import ru.veselov.companybot.bot.keyboard.DivisionKeyboardHelper;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
 import ru.veselov.companybot.exception.WrongBotStateException;
-import ru.veselov.companybot.exception.handler.BotExceptionToMessage;
 import ru.veselov.companybot.service.CustomerService;
 import ru.veselov.companybot.util.MessageUtils;
 
@@ -42,6 +42,9 @@ public class CommandUpdateHandlerImpl implements CommandUpdateHandler {
 
     private final ContactKeyboardHelper contactKeyboardHelper;
 
+    @Value("${bot.adminId}")
+    private Long adminId;
+
     /**
      * Processing update from Telegram depends on command from {@link BotCommands},
      * after successful processing set up to according {@link BotState}
@@ -49,7 +52,6 @@ public class CommandUpdateHandlerImpl implements CommandUpdateHandler {
      * @return {@link SendMessage} message for sending to user to Telegram
      * @throws WrongBotStateException if entering with wrong BotState
      */
-    @BotExceptionToMessage
     @Override
     public SendMessage processUpdate(Update update) {
         Long userId = update.getMessage().getFrom().getId();
@@ -75,7 +77,6 @@ public class CommandUpdateHandlerImpl implements CommandUpdateHandler {
                 }
             case BotCommands.CALL:
                 if (botState == BotState.READY) {
-                    //  userDataCacheFacade.setUserBotState(userId, BotState.AWAIT_CONTACT);
                     return contactMessage(userId);
                 } else {
                     throw new WrongBotStateException(MessageUtils.ANOTHER_ACTION, userId.toString());
@@ -88,6 +89,16 @@ public class CommandUpdateHandlerImpl implements CommandUpdateHandler {
             case BotCommands.INFO:
                 return SendMessage.builder().chatId(userId)
                         .text(MessageUtils.INFO).build();
+
+            case BotCommands.UPDATE_INFO:
+                if (botState == BotState.READY && userId.equals(adminId)) {
+                    userDataCacheFacade.setUserBotState(userId, BotState.AWAIT_INFO);
+                    return SendMessage.builder().chatId(userId)
+                            .text(MessageUtils.AWAIT_INFO_MESSAGE)
+                            .build();
+                } else {
+                    throw new WrongBotStateException(MessageUtils.ANOTHER_ACTION_NO_ADMIN, userId.toString());
+                }
             default:
                 throw new WrongBotStateException(MessageUtils.NOT_SUPPORTED_ACTION, userId.toString());
         }

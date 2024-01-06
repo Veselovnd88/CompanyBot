@@ -22,9 +22,10 @@ public class CompanyInfoServiceImpl implements CompanyInfoService {
 
     @Override
     @Transactional
-    public void save(Message message) {
-        companyInfoRepository.save(toEntity(message));
+    public Message save(Message message) {
+        CompanyInfoEntity saved = companyInfoRepository.save(toEntity(message));
         log.info("Company info saved to db");
+        return toMessage(saved);
     }
 
     @Override
@@ -33,11 +34,10 @@ public class CompanyInfoServiceImpl implements CompanyInfoService {
         Message message;
         if (last.isEmpty()) {
             message = new Message();
-            message.setText("Информация о компании еще не установлена");
+            message.setText(MessageUtils.BASE_INFO);
         } else {
             message = toMessage(last.get(0));
         }
-        MessageUtils.setAbout(message);
         log.debug("Retrieved last record for company info");
         return message;
     }

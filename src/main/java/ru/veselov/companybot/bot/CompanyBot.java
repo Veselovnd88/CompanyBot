@@ -9,10 +9,12 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.commands.SetMyCommands;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.commands.BotCommand;
+import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeChat;
 import org.telegram.telegrambots.meta.api.objects.commands.scope.BotCommandScopeDefault;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import ru.veselov.companybot.bot.handler.TelegramFacadeUpdateHandler;
 
+import java.util.LinkedList;
 import java.util.List;
 
 @Component
@@ -40,13 +42,17 @@ public class CompanyBot extends TelegramLongPollingBot {
     @Override
     public void onRegister() {
         super.onRegister();
+        BotCommandScopeChat botCommandScopeChat = new BotCommandScopeChat();
+        botCommandScopeChat.setChatId(Long.valueOf(botProperties.getAdminId()));
         try {
-            this.execute(new SetMyCommands(setUpCommands(), new BotCommandScopeDefault(), null));
+            this.execute(new SetMyCommands(setUpCommands(), new BotCommandScopeDefault(), null)); //set up commands for all
+            this.execute(new SetMyCommands(setUpAdminCommands(), botCommandScopeChat, null)); //set up commands for admin only
             log.info("Menu was set up");
             Long botId = this.getMe().getId();
             botProperties.setBotId(botId);
             log.info("Bot [id: {}]", botId);
-        } catch (TelegramApiException e) {
+        } catch (
+                TelegramApiException e) {
             log.error("Error occurred during starting bot: {}", e.getMessage());
         }
     }
@@ -58,6 +64,13 @@ public class CompanyBot extends TelegramLongPollingBot {
         BotCommand aboutCommand = new BotCommand(BotCommands.ABOUT, "Информация о компании");
         BotCommand infoCommand = new BotCommand(BotCommands.INFO, "Информация о боте");
         return List.of(startCommand, inquiryCommand, callMeCommand, aboutCommand, infoCommand);
+    }
+
+    private List<BotCommand> setUpAdminCommands() {
+        BotCommand adminCommand = new BotCommand(BotCommands.UPDATE_INFO, "Обновить информацию о компании");
+        List<BotCommand> withStandard = new LinkedList<>(setUpCommands());
+        withStandard.add(adminCommand);
+        return withStandard;
     }
 
     @Override

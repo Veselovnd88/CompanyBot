@@ -11,6 +11,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.MessageEntity;
@@ -21,10 +22,10 @@ import ru.veselov.companybot.bot.BotCommands;
 import ru.veselov.companybot.bot.BotState;
 import ru.veselov.companybot.bot.handler.message.impl.CommandUpdateHandlerImpl;
 import ru.veselov.companybot.bot.keyboard.DivisionKeyboardHelper;
-import ru.veselov.companybot.util.MessageUtils;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
 import ru.veselov.companybot.exception.WrongBotStateException;
 import ru.veselov.companybot.service.CustomerService;
+import ru.veselov.companybot.util.MessageUtils;
 import ru.veselov.companybot.util.TestUpdates;
 import ru.veselov.companybot.util.TestUtils;
 
@@ -53,6 +54,7 @@ class CommandUpdateHandlerTest {
     void init() {
         user = TestUtils.getSimpleUser();
         userId = user.getId();
+        ReflectionTestUtils.setField(commandHandler, "adminId", TestUtils.ADMIN_ID, Long.class);
     }
 
     @Test
@@ -145,6 +147,50 @@ class CommandUpdateHandlerTest {
         SendMessage sendMessage = commandHandler.processUpdate(update);
 
         Assertions.assertThat(sendMessage.getText()).isEqualTo(MessageUtils.INFO);
+    }
+
+    @Test
+    @SneakyThrows
+    void shouldSetStateAndInviteToSendCompanyInfoMessage() {
+        /*Check flow case with READY state */
+        Update update = TestUpdates.getUpdateWithMessageWithCommandByUser(BotCommands.UPDATE_INFO);
+        update.getMessage().setFrom(TestUtils.getAdminUser());
+        User adminUser = TestUtils.getAdminUser();
+        Mockito.when(userDataCacheFacade.getUserBotState(adminUser.getId())).thenReturn(BotState.READY);
+
+        SendMessage sendMessage = commandHandler.processUpdate(update);
+
+        org.junit.jupiter.api.Assertions.assertAll(
+                () -> Assertions.assertThat(sendMessage.getText())
+                        .as("Check if message is correct").isEqualTo(MessageUtils.AWAIT_INFO_MESSAGE),
+                () -> Mockito.verify(userDataCacheFacade).setUserBotState(adminUser.getId(), BotState.AWAIT_INFO)
+        );
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = BotState.class, names = {"READY"}, mode = EnumSource.Mode.EXCLUDE)
+    @SneakyThrows
+    void shouldThrowExceptionIfNotCorrectStateForUpdateInfoMessage(BotState wrongState) {
+        /*Check flow case with READY state */
+        Update update = TestUpdates.getUpdateWithMessageWithCommandByUser(BotCommands.UPDATE_INFO);
+        update.getMessage().setFrom(TestUtils.getAdminUser());
+        User adminUser = TestUtils.getAdminUser();
+        Mockito.when(userDataCacheFacade.getUserBotState(adminUser.getId())).thenReturn(wrongState);
+
+        Assertions.assertThatExceptionOfType(WrongBotStateException.class)
+                .as("Check if exception was thrown for wrong state")
+                .isThrownBy(() -> commandHandler.processUpdate(update));
+    }
+
+    @Test
+    @SneakyThrows
+    void shouldThrowExceptionIfNoAdminTryToUpdateInfoMessage() {
+        Update update = TestUpdates.getUpdateWithMessageWithCommandByUser(BotCommands.UPDATE_INFO);
+        Mockito.when(userDataCacheFacade.getUserBotState(userId)).thenReturn(BotState.READY);
+
+        Assertions.assertThatExceptionOfType(WrongBotStateException.class)
+                .as("Check if exception was thrown for wrong state")
+                .isThrownBy(() -> commandHandler.processUpdate(update));
     }
 
     @Test

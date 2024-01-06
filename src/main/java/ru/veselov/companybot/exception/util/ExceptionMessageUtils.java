@@ -9,5 +9,6 @@ public class ExceptionMessageUtils {
 
 
     private ExceptionMessageUtils() {
+        throw new AssertionError("No instances for util class");
     }
 }

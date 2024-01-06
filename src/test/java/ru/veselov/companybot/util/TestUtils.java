@@ -1,6 +1,9 @@
 package ru.veselov.companybot.util;
 
 import net.datafaker.Faker;
+import org.assertj.core.api.Assertions;
+import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Chat;
 import org.telegram.telegrambots.meta.api.objects.Contact;
 import org.telegram.telegrambots.meta.api.objects.Message;
@@ -155,4 +158,11 @@ public class TestUtils {
         message.setPhoto(List.of(photoSize));
         return message;
     }
+
+    public static SendMessage checkSendMessageInstanceAndCast(BotApiMethod<?> botApiMethod) {
+        Assertions.assertThat(botApiMethod).as("Check if answer is SendMessage instance")
+                .isInstanceOf(SendMessage.class);
+        return (SendMessage) botApiMethod;
+    }
+
 }

@@ -19,6 +19,6 @@ public enum BotState {
 
     AWAIT_MESSAGE,
 
-    AWAIT_SAVING
+    AWAIT_INFO, AWAIT_SAVING
 
 }
