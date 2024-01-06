@@ -22,9 +22,10 @@ public class CompanyInfoServiceImpl implements CompanyInfoService {
 
     @Override
     @Transactional
-    public void save(Message message) {
-        companyInfoRepository.save(toEntity(message));
+    public Message save(Message message) {
+        CompanyInfoEntity saved = companyInfoRepository.save(toEntity(message));
         log.info("Company info saved to db");
+        return toMessage(saved);
     }
 
     @Override

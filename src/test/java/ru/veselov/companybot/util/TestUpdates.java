@@ -102,6 +102,15 @@ public class TestUpdates {
         return update;
     }
 
+    public static Update getUpdateWithMessageWithTextContentByAdmin() {
+        Update update = new Update();
+        Message message = new Message();
+        message.setText(STUB_TEXT + UUID.randomUUID());
+        update.setMessage(message);
+        message.setFrom(TestUtils.getAdminUser());
+        return update;
+    }
+
     public static Update getUpdateWithMessageWithPhotoByUser() {
         Update update = new Update();
         Message message = new Message();

@@ -46,6 +46,10 @@ public class AboutInfoUpdateHandlerImpl implements AboutInfoUpdateHandler {
 
     /**
      * Receive company information and save to DB
+     *
+     * @param update {@link Update} from Telegram
+     * @return {@link SendMessage} with success message
+     * @throws MessageProcessingException if smth wrong with message
      */
     @Override
     public SendMessage processUpdate(Update update) {
