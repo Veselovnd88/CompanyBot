@@ -7,6 +7,16 @@ import ru.veselov.companybot.model.ContactModel;
 
 public class MessageUtils {
 
+    public static final String INFO_MSG_IS_TOO_LONG = "Длина информационного сообщения не должна превышать 900 символов";
+    public static final String NEW_INFO_MSG = "Установлено новое описание компании, /info";
+
+    public static final String EMPTY_MESSAGE = "Сообщение не содержит текст";
+    public static final String BASE_INFO = "Информация о компании еще не установлена";
+
+    @Getter
+    @Setter
+    private static Message about;
+
     public static final String NOT_SUPPORTED_ACTION = "Это действие не поддерживается, или бот ожидает другой команды," +
             " нажмите /info для информации";
     public static final String COMMON_DIV = "Общие вопросы";
@@ -16,10 +26,11 @@ public class MessageUtils {
     public static final String ATTACH_CONTACT = "Прикрепить контакт";
     public static final String SAVE_AND_SEND = "Сохранить и отправить контактные данные";
     public static final String MAX_MESSAGES_QNT = "Превышено максимальное количество сообщений (%s)";
+    public static final String AWAIT_INFO_MESSAGE = "Введите новую информацию о компании";
 
-    @Getter
-    @Setter
-    private static Message about;
+    public static final String ANOTHER_ACTION_NO_ADMIN = "Ожидаю другое действие, или вы не Админ, " +
+            "нажмите /start для сброса";
+
 
     public static final String GREETINGS = "Здравствуйте, я бот-ассистент компании, я могу принять и передать Ваш запрос " +
             "или заявку на обратный звонок, нажмите /info для просмотра основных функций";

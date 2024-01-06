@@ -33,11 +33,10 @@ public class CompanyInfoServiceImpl implements CompanyInfoService {
         Message message;
         if (last.isEmpty()) {
             message = new Message();
-            message.setText("Информация о компании еще не установлена");
+            message.setText(MessageUtils.BASE_INFO);
         } else {
             message = toMessage(last.get(0));
         }
-        MessageUtils.setAbout(message);
         log.debug("Retrieved last record for company info");
         return message;
     }

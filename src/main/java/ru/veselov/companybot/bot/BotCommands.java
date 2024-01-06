@@ -12,6 +12,9 @@ public class BotCommands {
 
     public static final String INFO = "/info";
 
+    public static final String UPDATE_INFO = "/update_info";
+
     private BotCommands() {
+        throw new AssertionError("This is private constructor for util class, no instances allowed");
     }
 }
