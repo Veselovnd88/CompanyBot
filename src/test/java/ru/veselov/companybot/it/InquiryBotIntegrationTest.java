@@ -45,6 +45,7 @@ import ru.veselov.companybot.util.TestUpdates;
 import ru.veselov.companybot.util.TestUtils;
 import ru.veselov.companybot.util.UserActionsUtils;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -205,7 +206,7 @@ class InquiryBotIntegrationTest extends PostgresTestContainersConfiguration {
         telegramFacadeUpdateHandler.processUpdate(userSendTextMessage);
         divisionRepository.deleteAll();
         pressContactInputContactAndPressSave();
-        Awaitility.setDefaultPollDelay(1000, TimeUnit.MILLISECONDS);
+        Awaitility.await().atLeast(Duration.ofMillis(1000)).until(() -> true);
         Mockito.verify(bot, Mockito.times(3)).execute(Mockito.any(SendMessage.class));
 
         List<InquiryEntity> allInquiries = inquiryRepository.findAll();
