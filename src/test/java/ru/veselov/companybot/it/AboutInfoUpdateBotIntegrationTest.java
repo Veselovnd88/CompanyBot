@@ -16,7 +16,7 @@ import org.telegram.telegrambots.meta.api.objects.Update;
 import ru.veselov.companybot.bot.BotCommands;
 import ru.veselov.companybot.bot.CompanyBot;
 import ru.veselov.companybot.bot.handler.TelegramFacadeUpdateHandler;
-import ru.veselov.companybot.bot.handler.message.CommandUpdateHandler;
+import ru.veselov.companybot.cache.UserStateCache;
 import ru.veselov.companybot.config.BotConfig;
 import ru.veselov.companybot.config.PostgresTestContainersConfiguration;
 import ru.veselov.companybot.entity.CompanyInfoEntity;
@@ -39,13 +39,13 @@ class AboutInfoUpdateBotIntegrationTest extends PostgresTestContainersConfigurat
     BotConfig botConfig;
 
     @Autowired
-    CommandUpdateHandler commandUpdateHandler;
-
-    @Autowired
     TelegramFacadeUpdateHandler telegramFacadeUpdateHandler;
 
     @Autowired
     CompanyInfoRepository companyInfoRepository;
+
+    @Autowired
+    UserStateCache userStateCache;
 
     @DynamicPropertySource
     static void registerPgProperties(DynamicPropertyRegistry registry) {
@@ -55,6 +55,7 @@ class AboutInfoUpdateBotIntegrationTest extends PostgresTestContainersConfigurat
     @AfterEach
     void clear() {
         companyInfoRepository.deleteAll();
+        userStateCache.reset();
     }
 
     @Test
@@ -63,9 +64,7 @@ class AboutInfoUpdateBotIntegrationTest extends PostgresTestContainersConfigurat
         telegramFacadeUpdateHandler.processUpdate(start);
         Update updatePressCommand = TestUpdates.getUpdateWithMessageWithCommandByAdmin(BotCommands.UPDATE_INFO);
         BotApiMethod<?> commandMessage = telegramFacadeUpdateHandler.processUpdate(updatePressCommand);
-        Assertions.assertThat(commandMessage).as("Check if answer is SendMessage instance")
-                .isInstanceOf(SendMessage.class);
-        SendMessage commandSendMessage = (SendMessage) commandMessage;
+        SendMessage commandSendMessage = TestUtils.checkSendMessageInstanceAndCast(commandMessage);
         Assertions.assertThat(commandSendMessage.getText()).as("Check answer message")
                 .isEqualTo(MessageUtils.AWAIT_INFO_MESSAGE);
         Update updateInfo = TestUpdates.getUpdateWithMessageWithTextContentByAdmin();
@@ -91,5 +90,26 @@ class AboutInfoUpdateBotIntegrationTest extends PostgresTestContainersConfigurat
         Assertions.assertThat(commandSendMessage.getText()).isEqualTo(MessageUtils.ANOTHER_ACTION_NO_ADMIN);
     }
 
+    @Test
+    void processUpdate_ifWrongState_ShouldReturnSendMessageWithErrorAnswer() {
+        Update updatePressCommand = TestUpdates.getUpdateWithMessageWithCommandByUser(BotCommands.UPDATE_INFO);
+        BotApiMethod<?> commandMessage = telegramFacadeUpdateHandler.processUpdate(updatePressCommand);
+        SendMessage commandSendMessage = TestUtils.checkSendMessageInstanceAndCast(commandMessage);
+        Assertions.assertThat(commandSendMessage.getText()).isEqualTo(MessageUtils.ANOTHER_ACTION_NO_ADMIN);
+    }
+
+    @Test
+    void processUpdate_ifVeryLongMessage_ShouldReturnSendMessageWithErrorAnswer() {
+        Update start = TestUpdates.getUpdateWithMessageWithCommandByAdmin(BotCommands.START);
+        telegramFacadeUpdateHandler.processUpdate(start);
+        Update updatePressCommand = TestUpdates.getUpdateWithMessageWithCommandByAdmin(BotCommands.UPDATE_INFO);
+        telegramFacadeUpdateHandler.processUpdate(updatePressCommand);
+        Update updateInfo = TestUpdates.getUpdateWithMessageWithTextContentByAdmin();
+        updateInfo.getMessage().setText("a".repeat(901));
+        BotApiMethod<?> resultMessage = telegramFacadeUpdateHandler.processUpdate(updateInfo);
+        SendMessage resultSendMessage = TestUtils.checkSendMessageInstanceAndCast(resultMessage);
+        Assertions.assertThat(resultSendMessage.getText()).as("Check error message text")
+                .isEqualTo(MessageUtils.INFO_MSG_IS_TOO_LONG);
+    }
 
 }
