@@ -8,9 +8,11 @@ import ru.veselov.companybot.model.ContactModel;
 public class MessageUtils {
 
     public static final String INFO_MSG_IS_TOO_LONG = "Длина информационного сообщения не должна превышать 900 символов";
-    public static final String NEW_INFO_MSG = "Установлено новое описание компании, /info";
+
+    public static final String NEW_INFO_MSG = "Установлено новое описание компании, /about";
 
     public static final String EMPTY_MESSAGE = "Сообщение не содержит текст";
+
     public static final String BASE_INFO = "Информация о компании еще не установлена";
 
     @Getter

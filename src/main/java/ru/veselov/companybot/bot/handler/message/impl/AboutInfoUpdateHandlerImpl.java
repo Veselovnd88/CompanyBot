@@ -1,5 +1,6 @@
 package ru.veselov.companybot.bot.handler.message.impl;
 
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
@@ -31,15 +32,16 @@ public class AboutInfoUpdateHandlerImpl implements AboutInfoUpdateHandler {
     private final UserDataCacheFacade userDataCacheFacade;
 
     @Override
-    public Set<BotState> getAvailableStates() {
-        return Set.of(BotState.AWAIT_INFO);
-    }
-
-    @Override
+    @PostConstruct
     public void registerInContext() {
         for (BotState b : getAvailableStates()) {
             context.addToBotStateContext(b, this);
         }
+    }
+
+    @Override
+    public Set<BotState> getAvailableStates() {
+        return Set.of(BotState.AWAIT_INFO);
     }
 
     /**
