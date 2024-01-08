@@ -11,6 +11,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import ru.veselov.companybot.bot.keyboard.ContactKeyboardHelper;
 import ru.veselov.companybot.bot.util.CallBackButtonUtils;
+import ru.veselov.companybot.exception.util.ExceptionMessageUtils;
 import ru.veselov.companybot.util.MessageUtils;
 
 import java.util.ArrayList;
@@ -53,7 +54,7 @@ public class ContactKeyboardHelperImpl implements ContactKeyboardHelper {
      * @return {@link InlineKeyboardMarkup} keyboard with input field names
      */
     @Override
-    public InlineKeyboardMarkup getContactKeyboard() {
+    public InlineKeyboardMarkup getNewContactKeyboard() {
         var markup = new InlineKeyboardMarkup();
         var inputName = new InlineKeyboardButton();
         inputName.setText(MessageUtils.INPUT_FIO);
@@ -108,7 +109,7 @@ public class ContactKeyboardHelperImpl implements ContactKeyboardHelper {
         if (keyboardMessageCache.containsKey(userId)) {
             inlineKeyboardMarkup = keyboardMessageCache.get(userId).getReplyMarkup();
         } else {
-            inlineKeyboardMarkup = getContactKeyboard();
+            inlineKeyboardMarkup = getNewContactKeyboard();
         }
         for (var keyboard : inlineKeyboardMarkup.getKeyboard()) {
             if (keyboard.get(0).getText().startsWith(LEFT_MARK)) {
@@ -172,6 +173,23 @@ public class ContactKeyboardHelperImpl implements ContactKeyboardHelper {
     }
 
     /**
+     * Return saved keyboard from cache of create for user new
+     *
+     * @param userId id of user
+     * @return {@link InlineKeyboardMarkup} keyboard with marks, or new
+     */
+    @Override
+    public InlineKeyboardMarkup getCurrentContactKeyboard(Long userId) {
+        EditMessageReplyMarkup editMessageReplyMarkup = keyboardMessageCache.get(userId);
+        if (editMessageReplyMarkup == null) {
+            log.warn(ExceptionMessageUtils.NO_KEYBOARD_MESSAGE.formatted(userId));
+            return getNewContactKeyboard();
+        }
+        log.debug("Return current Keyboard Markup for [user: {}]", userId);
+        return editMessageReplyMarkup.getReplyMarkup();
+    }
+
+    /**
      * Clear keyboard cache after
      *
      * @param userId {@link Long} id of user
@@ -204,4 +222,3 @@ public class ContactKeyboardHelperImpl implements ContactKeyboardHelper {
     }
 
 }
-

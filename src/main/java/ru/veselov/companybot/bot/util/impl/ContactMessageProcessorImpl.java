@@ -6,6 +6,7 @@ import org.hibernate.validator.internal.constraintvalidators.bv.EmailValidator;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.objects.Contact;
+import ru.veselov.companybot.bot.keyboard.ContactKeyboardHelper;
 import ru.veselov.companybot.bot.keyboard.impl.ContactKeyboardHelperImpl;
 import ru.veselov.companybot.bot.util.ContactMessageProcessor;
 import ru.veselov.companybot.exception.ContactProcessingException;
@@ -27,7 +28,7 @@ import java.util.regex.Pattern;
 @Slf4j
 public class ContactMessageProcessorImpl implements ContactMessageProcessor {
 
-    private final ContactKeyboardHelperImpl contactKeyboardHelper;
+    private final ContactKeyboardHelper contactKeyboardHelper;
 
     private final EmailValidator emailValidator;
 

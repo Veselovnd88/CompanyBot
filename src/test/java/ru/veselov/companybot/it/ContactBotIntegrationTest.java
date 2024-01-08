@@ -1,5 +1,6 @@
 package ru.veselov.companybot.it;
 
+import com.vdurmont.emoji.EmojiParser;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.assertj.core.api.Assertions;
@@ -19,6 +20,8 @@ import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.methods.updatingmessages.EditMessageReplyMarkup;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import ru.veselov.companybot.bot.BotState;
 import ru.veselov.companybot.bot.CompanyBot;
 import ru.veselov.companybot.bot.handler.TelegramFacadeUpdateHandler;
@@ -143,16 +146,20 @@ class ContactBotIntegrationTest extends PostgresTestContainersConfiguration {
         BotApiMethod<?> errorAnswer = telegramFacadeUpdateHandler.processUpdate(inputValue);
         Assertions.assertThat(errorAnswer).isInstanceOf(SendMessage.class);
         SendMessage sendMessage = (SendMessage) errorAnswer;
-        Assertions.assertThat(sendMessage.getText()).containsAnyOf(
-                MessageUtils.WRONG_EMAIL,
-                MessageUtils.WRONG_PHONE,
-                MessageUtils.NAME_TOO_LONG,
-                MessageUtils.WRONG_CONTACT_FORMAT
-        );
+        Assertions.assertThat(sendMessage.getText())
+                .as("Check if message contains info about wrong input")
+                .containsAnyOf(
+                        MessageUtils.WRONG_EMAIL,
+                        MessageUtils.WRONG_PHONE,
+                        MessageUtils.NAME_TOO_LONG,
+                        MessageUtils.WRONG_CONTACT_FORMAT
+                );
+        Assertions.assertThat(sendMessage.getReplyMarkup()).as("Check if send message has ReplyMarkup keyboard")
+                .isNotNull();
     }
 
     @Test
-    void shouldSendMessageNotEnoughDataForSaving() {
+    void shouldSendMessageNotEnoughDataForSavingWithMarkedKeyboard() {
         pressStartCallContact();
         Update namePressed = UserActionsUtils.userPressCallbackButton(CallBackButtonUtils.NAME);
         telegramFacadeUpdateHandler.processUpdate(namePressed);
@@ -163,8 +170,15 @@ class ContactBotIntegrationTest extends PostgresTestContainersConfiguration {
         BotApiMethod<?> errorAnswer = telegramFacadeUpdateHandler.processUpdate(savePressed);
         Assertions.assertThat(errorAnswer).isInstanceOf(SendMessage.class);
         SendMessage sendMessage = (SendMessage) errorAnswer;
-        Assertions.assertThat(sendMessage.getText())
+        Assertions.assertThat(sendMessage.getText()).as("Check if send message contains info about error")
                 .isEqualTo(MessageUtils.NOT_ENOUGH_CONTACT);
+
+        Assertions.assertThat(sendMessage.getReplyMarkup()).as("Check if message has reply markup keyboard")
+                .isNotNull().isInstanceOf(InlineKeyboardMarkup.class);
+        InlineKeyboardMarkup replyMarkup = (InlineKeyboardMarkup) sendMessage.getReplyMarkup();
+        InlineKeyboardButton inlineKeyboardButton = replyMarkup.getKeyboard().get(0).get(0);
+        Assertions.assertThat(inlineKeyboardButton.getText()).as("Check if returned keyboard with marked button")
+                .startsWith(EmojiParser.parseToUnicode(MessageUtils.WHITE_CHECK_MARK));
     }
 
     @Test
