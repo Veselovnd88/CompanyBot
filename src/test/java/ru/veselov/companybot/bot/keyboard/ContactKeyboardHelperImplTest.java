@@ -60,12 +60,33 @@ class ContactKeyboardHelperImplTest {
     @ParameterizedTest
     @MethodSource("getRowsAndNamesWithMessages")
     void shouldCreateContactKeyboard(String callbackName, Integer buttonRow, String expectedMessage) {
-        InlineKeyboardMarkup inlineKeyboardMarkup = contactKeyboardHelper.getContactKeyboard();
+        InlineKeyboardMarkup inlineKeyboardMarkup = contactKeyboardHelper.getNewContactKeyboard();
         List<List<InlineKeyboardButton>> keyboard = inlineKeyboardMarkup.getKeyboard();
         String callbackData = keyboard.get(buttonRow).get(0).getCallbackData();
         String message = keyboard.get(buttonRow).get(0).getText();
         Assertions.assertThat(callbackData).isEqualTo(callbackName);
         Assertions.assertThat(message).isEqualTo(expectedMessage);
+    }
+
+    @Test
+    void getCurrentContactKeyboard_ifItExists_returnKeyboardMarkupFromCache() {
+        contactKeyboardHelper.getEditMessageReplyForChosenCallbackButton(update, CallBackButtonUtils.NAME);
+        InlineKeyboardMarkup currentContactKeyboard = contactKeyboardHelper.getCurrentContactKeyboard(user.getId());
+        Assertions.assertThat(currentContactKeyboard.getKeyboard().get(0).get(0).getText())
+                .as("Check if we've got keyboard from cache with marked NAME field")
+                .startsWith("<<");
+    }
+
+    @Test
+    void getCurrentContactKeyboard_ifItNotExists_returnNewKeyboardMarkup() {
+        InlineKeyboardMarkup currentContactKeyboard = contactKeyboardHelper.getCurrentContactKeyboard(user.getId());
+        List<List<InlineKeyboardButton>> keyboard = currentContactKeyboard.getKeyboard();
+        for (int i = 0; i < 4; i++) {
+            Assertions.assertThat(keyboard.get(i).get(0).getText())
+                    .as("Check if we received clear keyboard markup")
+                    .doesNotStartWith("<<")
+                    .doesNotStartWith(MessageUtils.WHITE_CHECK_MARK);
+        }
     }
 
     @ParameterizedTest
@@ -148,4 +169,5 @@ class ContactKeyboardHelperImplTest {
         return List.of(CallBackButtonUtils.NAME, CallBackButtonUtils.EMAIL, CallBackButtonUtils.SHARED,
                 CallBackButtonUtils.PHONE);
     }
+
 }

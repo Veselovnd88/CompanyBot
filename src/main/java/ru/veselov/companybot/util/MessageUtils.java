@@ -83,6 +83,8 @@ public class MessageUtils {
 
     public static final String INVITATION_TO_INPUT_INQUIRY = "Введите ваш вопрос или перешлите мне сообщение";
 
+    public static final String WHITE_CHECK_MARK = ":white_check_mark:";
+
     public static String createContactMessage(ContactModel contact, boolean hasInquiry) {
         String message = (contact.getLastName() == null ? "" : (contact.getLastName() + " ")) +
                 (contact.getFirstName() == null ? "" : (contact.getFirstName() + " ")) +

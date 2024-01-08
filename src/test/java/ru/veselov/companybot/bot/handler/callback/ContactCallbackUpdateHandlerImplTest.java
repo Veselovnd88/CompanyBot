@@ -50,7 +50,7 @@ class ContactCallbackUpdateHandlerImplTest {
         org.junit.jupiter.api.Assertions.assertAll(
                 () -> Mockito.verify(userDataCache).setUserBotState(userId, BotState.AWAIT_CONTACT),
                 () -> Mockito.verify(userDataCache).createContact(userId),
-                () -> Mockito.verify(contactKeyboardHelper).getContactKeyboard()
+                () -> Mockito.verify(contactKeyboardHelper).getNewContactKeyboard()
         );
     }
 

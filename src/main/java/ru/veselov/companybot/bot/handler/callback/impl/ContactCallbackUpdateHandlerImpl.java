@@ -60,7 +60,7 @@ public class ContactCallbackUpdateHandlerImpl implements ContactCallbackUpdateHa
         return EditMessageReplyMarkup.builder()
                 .chatId(message.getChatId().toString())
                 .messageId(message.getMessageId())
-                .replyMarkup(contactKeyboardHelper.getContactKeyboard()).build();
+                .replyMarkup(contactKeyboardHelper.getNewContactKeyboard()).build();
     }
 
     @Override
