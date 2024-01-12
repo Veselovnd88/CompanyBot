@@ -2,24 +2,24 @@ server:
   port: 9100
 
 bot:
-  name: ${C_BOT_NAME}
-  token: ${C_BOT_TOKEN}
-  adminId: 101516610
+  name:
+  token:
+  adminId:
   chat-interval: 60000
   max-messages: 14
   caption-length: 1024
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/cbotDB
-    username: admin
-    password: admin
+    url:
+    username:
+    password:
   jpa:
     open-in-view: false
     properties:
       hibernate:
-        show_sql: true
-        use_sql_comments: true
+        show_sql: false
+        use_sql_comments: false
         hbm2ddl:
           auto: validate
 

@@ -2,16 +2,45 @@ version: "3.8"
 
 services:
 
+  cbot:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "9100:9100"
+    env_file:
+      - .env
+    environment:
+      - LOG_PATH=/logs
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://cbot-pg:5432/${POSTGRES_DB}
+      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
+      - SPRING_PROFILES_ACTIVE=prod
+      - BOT_NAME=${C_BOT_NAME}
+      - BOT_TOKEN=${C_BOT_TOKEN}
+      - BOT_ADMINID=${BOT_ADMIN}
+      - BOT_CHAT-INTERVAL=60000
+      - BOT_MAX-MESSAGES=14
+      - BOT_CAPTION-LENGTH=1024
+    depends_on:
+      - cbot-pg
+    networks:
+      - cbot-pg
+    volumes:
+      - ./logs:/logs
+
   cbot-pg:
     container_name: cbot-pg
     image: "postgres:16"
     restart: unless-stopped
+    env_file:
+      - .env
     environment:
-      - POSTGRES_DB=cbotDB
-      - POSTGRES_USER=admin
-      - POSTGRES_PASSWORD=admin
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     ports:
-      - "5433:5432"
+      - "5432:5432"
     networks:
       - cbot-pg
     volumes:
