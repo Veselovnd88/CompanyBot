@@ -11,10 +11,11 @@ bot:
 
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5433/cbotDB
+    url: jdbc:postgresql://localhost:5432/cbotDB
     username: admin
     password: admin
   jpa:
+    open-in-view: false
     properties:
       hibernate:
         show_sql: true
@@ -33,9 +34,5 @@ spring:
 
 logging:
   level:
-    org.springframework: ERROR
+    org.springframework: INFO
     ru.veselov: DEBUG
-    org.hibernate: ERROR
-    #pattern:
-    # console: "%magenta(%d{yyyy-MM-dd HH:mm:ss}) [%yellow(%thread)] %highlight(%-5level) %green(%logger{36}): %msg%n"
-    #file: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36}: %msg%n"
