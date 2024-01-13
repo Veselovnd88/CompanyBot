@@ -1,4 +1,5 @@
-https://img.shields.io/github/commit-activity/w/Veselovnd88/CompanyBot
+<img alt="GitHub commit activity" src="https://img.shields.io/github/commit-activity/w/Veselovnd88/CompanyBot">
+
 
 
 Бот-ассистент для приема заявок от клиентов.<br>
