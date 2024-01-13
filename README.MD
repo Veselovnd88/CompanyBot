@@ -1,5 +1,4 @@
-<img alt="GitHub Actions Workflow Status" src="https://img.shields.io/github/actions/workflow/status/Veselovnd88/CompanyBot/gradle.yml">
-<img alt="GitHub commit activity" src="https://img.shields.io/github/commit-activity/w/Veselovnd88/CompanyBot">
+<img alt="GitHub Actions Workflow Status" src="https://img.shields.io/github/actions/workflow/status/Veselovnd88/CompanyBot/gradle.yml"> <img alt="GitHub commit activity" src="https://img.shields.io/github/commit-activity/w/Veselovnd88/CompanyBot">
 
 
 
