@@ -9,9 +9,12 @@ import org.aspectj.lang.annotation.Pointcut;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.meta.api.methods.AnswerCallbackQuery;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
+import ru.veselov.companybot.bot.CompanyBot;
 import ru.veselov.companybot.bot.keyboard.impl.ContactKeyboardHelperImpl;
 import ru.veselov.companybot.exception.ContactProcessingException;
 import ru.veselov.companybot.exception.CriticalBotException;
+import ru.veselov.companybot.exception.KeyBoardException;
 import ru.veselov.companybot.exception.MessageProcessingException;
 import ru.veselov.companybot.exception.UnexpectedCallbackException;
 import ru.veselov.companybot.exception.UnexpectedMessageException;
@@ -25,6 +28,8 @@ import ru.veselov.companybot.exception.util.ExceptionMessageUtils;
 public class BotExceptionHandler {
 
     private final ContactKeyboardHelperImpl contactKeyboardHelper;
+
+    private final CompanyBot companyBot;
 
     @Pointcut("@annotation(ru.veselov.companybot.exception.handler.BotExceptionToMessage)")
     public void handledMethods() {
@@ -44,12 +49,18 @@ public class BotExceptionHandler {
         } catch (ContactProcessingException ex) {
             log.warn(ExceptionMessageUtils.HANDLED_EXCEPTION_WITH_MESSAGE,
                     ex.getClass().getSimpleName(), ex.getMessage());
-            //return keyboard with saved/filled fields
-            return SendMessage.builder().chatId(ex.getChatId())
-                    .text(ex.getMessage())
-                    .replyMarkup(contactKeyboardHelper.getCurrentContactKeyboard(Long.valueOf(ex.getChatId())))
-                    .build();
-        } catch (WrongBotStateException | MessageProcessingException | UnexpectedMessageException ex) {
+            //return keyboard with saved/filled fields and send message with error
+            try {
+                companyBot.execute(SendMessage.builder().chatId(ex.getChatId())
+                        .text(ex.getMessage())
+                        .build());
+            } catch (TelegramApiException e) {
+                log.error(ex.getMessage());
+                throw new CriticalBotException(ExceptionMessageUtils.SMTH_WENT_WRONG, ex);
+            }
+            return contactKeyboardHelper.getCurrentContactKeyboard(Long.valueOf(ex.getChatId()));
+        } catch (WrongBotStateException | MessageProcessingException | UnexpectedMessageException
+                 | KeyBoardException ex) {
             log.warn(ExceptionMessageUtils.HANDLED_EXCEPTION_WITH_MESSAGE,
                     ex.getClass().getSimpleName(), ex.getMessage());
             return SendMessage.builder().chatId(ex.getChatId()).text(ex.getMessage()).build();
