@@ -72,7 +72,7 @@ class ContactKeyboardHelperImplTest {
     }
 
     @Test
-    void getCurrentContactKeyboard_IfItExists_ReturnEditMessageWithKeyboardMarkupFromCache() {
+    void getCurrentContactKeyboard_IfExists_ReturnEditMessageWithKeyboardMarkupFromCache() {
         contactKeyboardHelper.getEditMessageReplyForChosenCallbackButton(update, CallBackButtonUtils.NAME);
         EditMessageReplyMarkup currentContactKeyboard = contactKeyboardHelper.getCurrentContactKeyboard(user.getId());
         Assertions.assertThat(currentContactKeyboard.getReplyMarkup().getKeyboard().get(0).get(0).getText())

@@ -6,6 +6,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import ru.veselov.companybot.bot.BotState;
+import ru.veselov.companybot.bot.keyboard.ContactKeyboardHelper;
 import ru.veselov.companybot.cache.ContactCache;
 import ru.veselov.companybot.cache.InquiryCache;
 import ru.veselov.companybot.cache.UserStateCache;
@@ -24,6 +25,9 @@ class UserDataCacheFacadeImplTest {
     InquiryCache inquiryCache;
 
     @Mock
+    ContactKeyboardHelper contactKeyboardHelper;
+
+    @Mock
     UserStateCache userStateCache;
 
     @InjectMocks
@@ -36,6 +40,7 @@ class UserDataCacheFacadeImplTest {
         verify(contactCache).clear(TestUtils.USER_ID);
         verify(userStateCache).clear(TestUtils.USER_ID);
         verify(inquiryCache).clear(TestUtils.USER_ID);
+        verify(contactKeyboardHelper).clear(TestUtils.USER_ID);
     }
 
     @Test
