@@ -1,5 +1,6 @@
 [![](https://img.shields.io/badge/Spring%20Boot%20Version-3.2.0-orange)](/build.gradle) [![](https://img.shields.io/badge/Java%20Version-17-orange)](/build.gradle)
-https://img.shields.io/github/actions/workflow/status/Veselovnd88/CompanyBot/gradle.yml?branch=main&label=test-and-build <img alt="GitHub commit activity" src="https://img.shields.io/github/commit-activity/m/Veselovnd88/CompanyBot"> <img alt="GitHub top language" src="https://img.shields.io/github/languages/top/Veselovnd88/CompanyBot">
+https://img.shields.io/github/actions/workflow/status/Veselovnd88/CompanyBot/gradle.yml?branch=main&label=test-and-build https://img.shields.io/github/commit-activity/y/Veselovnd88/CompanyBot
+ <img alt="GitHub top language" src="https://img.shields.io/github/languages/top/Veselovnd88/CompanyBot">
 
 Бот-ассистент для приема заявок от клиентов.<br>
 Пользователь выбирает тему запроса(отдел кому будет адресован запрос), далее вводит сам запрос (любое поддерживаемое
