@@ -11,6 +11,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import ru.veselov.companybot.bot.keyboard.ContactKeyboardHelper;
 import ru.veselov.companybot.bot.util.CallBackButtonUtils;
+import ru.veselov.companybot.exception.KeyBoardException;
 import ru.veselov.companybot.exception.util.ExceptionMessageUtils;
 import ru.veselov.companybot.util.MessageUtils;
 
@@ -179,14 +180,14 @@ public class ContactKeyboardHelperImpl implements ContactKeyboardHelper {
      * @return {@link InlineKeyboardMarkup} keyboard with marks, or new
      */
     @Override
-    public InlineKeyboardMarkup getCurrentContactKeyboard(Long userId) {
+    public EditMessageReplyMarkup getCurrentContactKeyboard(Long userId) {
         EditMessageReplyMarkup editMessageReplyMarkup = keyboardMessageCache.get(userId);
         if (editMessageReplyMarkup == null) {
             log.warn(ExceptionMessageUtils.NO_KEYBOARD_MESSAGE.formatted(userId));
-            return getNewContactKeyboard();
+            throw new KeyBoardException(ExceptionMessageUtils.NO_KEYBOARD_MESSAGE.formatted(userId), userId.toString());
         }
         log.debug("Return current Keyboard Markup for [user: {}]", userId);
-        return editMessageReplyMarkup.getReplyMarkup();
+        return editMessageReplyMarkup;
     }
 
     /**

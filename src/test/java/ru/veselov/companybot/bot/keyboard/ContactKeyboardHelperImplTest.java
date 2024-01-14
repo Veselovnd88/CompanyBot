@@ -21,7 +21,10 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMa
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import ru.veselov.companybot.bot.keyboard.impl.ContactKeyboardHelperImpl;
 import ru.veselov.companybot.bot.util.CallBackButtonUtils;
+import ru.veselov.companybot.exception.KeyBoardException;
+import ru.veselov.companybot.exception.ProcessUpdateException;
 import ru.veselov.companybot.util.MessageUtils;
+import ru.veselov.companybot.util.TestUtils;
 
 import java.util.List;
 import java.util.Map;
@@ -69,24 +72,19 @@ class ContactKeyboardHelperImplTest {
     }
 
     @Test
-    void getCurrentContactKeyboard_ifItExists_returnKeyboardMarkupFromCache() {
+    void getCurrentContactKeyboard_IfExists_ReturnEditMessageWithKeyboardMarkupFromCache() {
         contactKeyboardHelper.getEditMessageReplyForChosenCallbackButton(update, CallBackButtonUtils.NAME);
-        InlineKeyboardMarkup currentContactKeyboard = contactKeyboardHelper.getCurrentContactKeyboard(user.getId());
-        Assertions.assertThat(currentContactKeyboard.getKeyboard().get(0).get(0).getText())
+        EditMessageReplyMarkup currentContactKeyboard = contactKeyboardHelper.getCurrentContactKeyboard(user.getId());
+        Assertions.assertThat(currentContactKeyboard.getReplyMarkup().getKeyboard().get(0).get(0).getText())
                 .as("Check if we've got keyboard from cache with marked NAME field")
                 .startsWith("<<");
     }
 
     @Test
-    void getCurrentContactKeyboard_ifItNotExists_returnNewKeyboardMarkup() {
-        InlineKeyboardMarkup currentContactKeyboard = contactKeyboardHelper.getCurrentContactKeyboard(user.getId());
-        List<List<InlineKeyboardButton>> keyboard = currentContactKeyboard.getKeyboard();
-        for (int i = 0; i < 4; i++) {
-            Assertions.assertThat(keyboard.get(i).get(0).getText())
-                    .as("Check if we received clear keyboard markup")
-                    .doesNotStartWith("<<")
-                    .doesNotStartWith(MessageUtils.WHITE_CHECK_MARK);
-        }
+    void getCurrentContactKeyboard_IfItNotExists_ThrowException() {
+        Assertions.assertThatExceptionOfType(KeyBoardException.class)
+                .isThrownBy(() -> contactKeyboardHelper.getCurrentContactKeyboard(TestUtils.USER_ID))
+                .isInstanceOf(ProcessUpdateException.class);
     }
 
     @ParameterizedTest

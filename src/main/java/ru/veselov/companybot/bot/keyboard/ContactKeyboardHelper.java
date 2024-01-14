@@ -15,6 +15,6 @@ public interface ContactKeyboardHelper extends Clearable {
 
     InlineKeyboardMarkup getInviteInputContactKeyboard(String message);
 
-    InlineKeyboardMarkup getCurrentContactKeyboard(Long userId);
+    EditMessageReplyMarkup getCurrentContactKeyboard(Long userId);
 
 }
