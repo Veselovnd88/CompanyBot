@@ -42,7 +42,4 @@ docker-compose --env-file ./build/.env stop
 #Go
 echo "Starting docker compose"
 docker-compose --env-file ./build/.env up --build -d
-
-#delete config files
-echo "Deleting temp files"
-rm -f ./build/.env .env.config
+echo "Services stared, enjoy"
