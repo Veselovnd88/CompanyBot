@@ -9,6 +9,7 @@ import org.telegram.telegrambots.meta.api.objects.Contact;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.PhotoSize;
 import org.telegram.telegrambots.meta.api.objects.User;
+import ru.veselov.companybot.dto.DivisionCreateDTO;
 import ru.veselov.companybot.model.ContactModel;
 import ru.veselov.companybot.model.DivisionModel;
 import ru.veselov.companybot.model.InquiryModel;
@@ -163,6 +164,13 @@ public class TestUtils {
         Assertions.assertThat(botApiMethod).as("Check if answer is SendMessage instance")
                 .isInstanceOf(SendMessage.class);
         return (SendMessage) botApiMethod;
+    }
+
+    public static DivisionCreateDTO getDivisionDTO() {
+        return new DivisionCreateDTO(
+                "div",
+                faker.elderScrolls().dragon()
+        );
     }
 
 }

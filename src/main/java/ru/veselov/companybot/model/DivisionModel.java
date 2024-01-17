@@ -1,5 +1,6 @@
 package ru.veselov.companybot.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -23,6 +24,7 @@ public class DivisionModel {
 
     private String description;
 
+    @JsonIgnore
     @Builder.Default
     private final Set<InquiryModel> inquiries = new HashSet<>();
 
