@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import ru.veselov.companybot.dto.DivisionCreateDTO;
+import ru.veselov.companybot.dto.DivisionDTO;
 import ru.veselov.companybot.model.DivisionModel;
 import ru.veselov.companybot.service.DivisionService;
 
@@ -21,7 +21,7 @@ public class DivisionController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public DivisionModel addDivision(DivisionCreateDTO divisionDTO) {
+    public DivisionModel addDivision(DivisionDTO divisionDTO) {
         return divisionService.save(divisionDTO);
     }
 

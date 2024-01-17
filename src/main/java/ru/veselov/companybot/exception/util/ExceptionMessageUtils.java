@@ -12,6 +12,8 @@ public class ExceptionMessageUtils {
 
     public static final String DIVISION_ALREADY_EXISTS = "Division with name %s already exists";
 
+    public static final String DIVISION_NOT_FOUND = "Division with [id: %s] not found";
+
     private ExceptionMessageUtils() {
         throw new AssertionError("No instances for util class");
     }

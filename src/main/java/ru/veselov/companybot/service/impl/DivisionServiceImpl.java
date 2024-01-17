@@ -5,7 +5,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
-import ru.veselov.companybot.dto.DivisionCreateDTO;
+import org.springframework.transaction.annotation.Transactional;
+import ru.veselov.companybot.dto.DivisionDTO;
 import ru.veselov.companybot.entity.DivisionEntity;
 import ru.veselov.companybot.exception.DivisionAlreadyExistsException;
 import ru.veselov.companybot.exception.DivisionNotFoundException;
@@ -22,6 +23,7 @@ import java.util.UUID;
 @Service
 @RequiredArgsConstructor
 @Slf4j
+@Transactional(readOnly = true)
 public class DivisionServiceImpl implements DivisionService {
 
     private final DivisionRepository divisionRepository;
@@ -36,7 +38,8 @@ public class DivisionServiceImpl implements DivisionService {
 
     @CacheEvict(value = "division")
     @Override
-    public DivisionModel save(DivisionCreateDTO division) {
+    @Transactional
+    public DivisionModel save(DivisionDTO division) {
         String name = division.getName();
         Optional<DivisionEntity> optionalDivision = divisionRepository.findByName(name);
         if (optionalDivision.isPresent()) {
@@ -53,19 +56,46 @@ public class DivisionServiceImpl implements DivisionService {
         DivisionEntity divisionEntity = divisionRepository.findById(divisionId)
                 .orElseThrow(
                         () -> {
-                            log.warn("Division with [id: {}] not found", divisionId);
-                            return new DivisionNotFoundException("Division with [id: %s] not found"
+                            log.warn(ExceptionMessageUtils.DIVISION_NOT_FOUND.formatted(divisionId));
+                            return new DivisionNotFoundException(ExceptionMessageUtils.DIVISION_NOT_FOUND
                                     .formatted(divisionId));
                         }
                 );
-        log.info("Division with [id: {}] retrieved from repo", divisionId);
+        log.debug("Division with [id: {}] retrieved from repo", divisionId);
         return divisionMapper.toModel(divisionEntity);
     }
 
     @Override
-    public void remove(DivisionModel division) {
-        divisionRepository.deleteById(division.getDivisionId());
-        log.info("Division with [id: {}] successfully removed", division.getDivisionId());
+    @Transactional
+    public DivisionModel update(UUID divisionId, DivisionDTO divisionDTO) {
+        DivisionEntity divisionEntity = divisionRepository.findById(divisionId)
+                .orElseThrow(
+                        () -> {
+                            log.warn(ExceptionMessageUtils.DIVISION_NOT_FOUND.formatted(divisionId));
+                            return new DivisionNotFoundException(ExceptionMessageUtils.DIVISION_NOT_FOUND
+                                    .formatted(divisionId));
+                        }
+                );
+        String name = divisionDTO.getName();
+        if (!divisionEntity.getName().equals(name)) {
+            Optional<DivisionEntity> optionalDivision = divisionRepository.findByName(name);
+            if (optionalDivision.isPresent()) {
+                log.warn(ExceptionMessageUtils.DIVISION_ALREADY_EXISTS.formatted(name));
+                throw new DivisionAlreadyExistsException(ExceptionMessageUtils.DIVISION_ALREADY_EXISTS.formatted(name));
+            }
+        }
+        divisionEntity.setName(name);
+        divisionEntity.setDescription(divisionDTO.getDescription());
+        DivisionEntity saved = divisionRepository.save(divisionEntity);
+        log.info("Division with [id: {}] successfully updated", divisionId);
+        return divisionMapper.toModel(saved);
+    }
+
+    @Override
+    @Transactional
+    public void delete(UUID divisionId) {
+        divisionRepository.deleteById(divisionId);
+        log.info("Division with [id: {}] successfully removed", divisionId);
     }
 
 }

@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class DivisionCreateDTO {
+public class DivisionDTO {
 
     @NotEmpty
     @Size(max = 10)
