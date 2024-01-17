@@ -36,6 +36,8 @@ echo "Build successful"
 echo "$2" >> ./build/.env
 echo "$3" >> ./build/.env
 
+#create volume if not exists
+sudo mkdir -p /var/docker-volumes/cbot-pg
 # ensure start docker-compose stopped
 docker-compose --env-file ./build/.env stop
 
