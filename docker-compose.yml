@@ -7,14 +7,14 @@ services:
       context: .
       dockerfile: Dockerfile
     ports:
-      - "9100:9100"
+      - "${APP_PORT}:${APP_PORT}"
     env_file:
-      - .env
+      - ./build/.env
     environment:
       - LOG_PATH=/logs
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://cbot-pg:5432/${POSTGRES_DB}
-      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER}
-      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD}
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://cbot-pg:5432/${POSTGRES_DB?DbNameNotProvided}
+      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER?dbUserNameNotProvided}
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD?dbPasswordNotProvided}
       - SPRING_PROFILES_ACTIVE=prod
       - BOT_NAME=${C_BOT_NAME}
       - BOT_TOKEN=${C_BOT_TOKEN}
@@ -34,7 +34,7 @@ services:
     image: "postgres:16"
     restart: unless-stopped
     env_file:
-      - .env
+      - ./build/.env
     environment:
       - POSTGRES_DB=${POSTGRES_DB}
       - POSTGRES_USER=${POSTGRES_USER}

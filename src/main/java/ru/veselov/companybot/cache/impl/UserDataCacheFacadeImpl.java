@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import ru.veselov.companybot.bot.BotState;
+import ru.veselov.companybot.bot.keyboard.ContactKeyboardHelper;
 import ru.veselov.companybot.cache.ContactCache;
 import ru.veselov.companybot.cache.InquiryCache;
 import ru.veselov.companybot.cache.UserDataCacheFacade;
@@ -23,12 +24,15 @@ public class UserDataCacheFacadeImpl implements UserDataCacheFacade {
 
     private final ContactCache contactCache;
 
+    private final ContactKeyboardHelper contactKeyboardHelper;
+
 
     @Override
     public void clear(Long userId) {
         userStateCache.clear(userId);
         inquiryCache.clear(userId);
         contactCache.clear(userId);
+        contactKeyboardHelper.clear(userId);
     }
 
     @Override

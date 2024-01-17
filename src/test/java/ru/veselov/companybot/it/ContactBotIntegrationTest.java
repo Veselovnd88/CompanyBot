@@ -9,6 +9,8 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -63,6 +65,9 @@ class ContactBotIntegrationTest extends PostgresTestContainersConfiguration {
 
     @Autowired
     UserStateCache userStateCache;
+
+    @Captor
+    ArgumentCaptor<SendMessage> sendMessageCaptor;
 
     @AfterEach
     void clear() {
@@ -144,9 +149,12 @@ class ContactBotIntegrationTest extends PostgresTestContainersConfiguration {
 
         Update inputValue = UserActionsUtils.userSendMessageWithContact(wrongValue);
         BotApiMethod<?> errorAnswer = telegramFacadeUpdateHandler.processUpdate(inputValue);
-        Assertions.assertThat(errorAnswer).isInstanceOf(SendMessage.class);
-        SendMessage sendMessage = (SendMessage) errorAnswer;
-        Assertions.assertThat(sendMessage.getText())
+        Assertions.assertThat(errorAnswer).isNotNull()
+                .isInstanceOf(EditMessageReplyMarkup.class);
+
+        Mockito.verify(bot, Mockito.times(1)).execute(sendMessageCaptor.capture());
+        SendMessage captured = sendMessageCaptor.getValue();
+        Assertions.assertThat(captured.getText())
                 .as("Check if message contains info about wrong input")
                 .containsAnyOf(
                         MessageUtils.WRONG_EMAIL,
@@ -154,11 +162,10 @@ class ContactBotIntegrationTest extends PostgresTestContainersConfiguration {
                         MessageUtils.NAME_TOO_LONG,
                         MessageUtils.WRONG_CONTACT_FORMAT
                 );
-        Assertions.assertThat(sendMessage.getReplyMarkup()).as("Check if send message has ReplyMarkup keyboard")
-                .isNotNull();
     }
 
     @Test
+    @SneakyThrows
     void shouldSendMessageNotEnoughDataForSavingWithMarkedKeyboard() {
         pressStartCallContact();
         Update namePressed = UserActionsUtils.userPressCallbackButton(CallBackButtonUtils.NAME);
@@ -168,17 +175,19 @@ class ContactBotIntegrationTest extends PostgresTestContainersConfiguration {
 
         Update savePressed = UserActionsUtils.userPressCallbackButton(CallBackButtonUtils.SAVE);
         BotApiMethod<?> errorAnswer = telegramFacadeUpdateHandler.processUpdate(savePressed);
-        Assertions.assertThat(errorAnswer).isInstanceOf(SendMessage.class);
-        SendMessage sendMessage = (SendMessage) errorAnswer;
-        Assertions.assertThat(sendMessage.getText()).as("Check if send message contains info about error")
-                .isEqualTo(MessageUtils.NOT_ENOUGH_CONTACT);
-
-        Assertions.assertThat(sendMessage.getReplyMarkup()).as("Check if message has reply markup keyboard")
+        Assertions.assertThat(errorAnswer).isNotNull()
+                .isInstanceOf(EditMessageReplyMarkup.class);
+        EditMessageReplyMarkup editMessage = (EditMessageReplyMarkup) errorAnswer;
+        Assertions.assertThat(editMessage.getReplyMarkup()).as("Check if message has reply markup keyboard")
                 .isNotNull().isInstanceOf(InlineKeyboardMarkup.class);
-        InlineKeyboardMarkup replyMarkup = (InlineKeyboardMarkup) sendMessage.getReplyMarkup();
+        InlineKeyboardMarkup replyMarkup = editMessage.getReplyMarkup();
         InlineKeyboardButton inlineKeyboardButton = replyMarkup.getKeyboard().get(0).get(0);
         Assertions.assertThat(inlineKeyboardButton.getText()).as("Check if returned keyboard with marked button")
                 .startsWith(EmojiParser.parseToUnicode(MessageUtils.WHITE_CHECK_MARK));
+        Mockito.verify(bot, Mockito.times(1)).execute(sendMessageCaptor.capture());
+        SendMessage sendMessage = sendMessageCaptor.getValue();
+        Assertions.assertThat(sendMessage.getText()).as("Check if send message contains info about error")
+                .isEqualTo(MessageUtils.NOT_ENOUGH_CONTACT);
     }
 
     @Test
