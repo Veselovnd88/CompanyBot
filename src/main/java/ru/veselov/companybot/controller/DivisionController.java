@@ -1,5 +1,8 @@
 package ru.veselov.companybot.controller;
 
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
@@ -15,7 +18,11 @@ import ru.veselov.companybot.service.DivisionService;
 @RequestMapping("/api/v1/division")
 @RequiredArgsConstructor
 @Validated
-public class DivisionController {
+@Tag(name = "Division, Отдел, Департамент", description = "Управление отделами")
+@ApiResponses(value = {
+        @ApiResponse(responseCode = "404", description = "Отдел не найден"),
+        @ApiResponse(responseCode = "409", description = "Отдел с таким названием уже существует")})
+public class DivisionController implements DivisionControllerInterface {
 
     private final DivisionService divisionService;
 
