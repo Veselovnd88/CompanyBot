@@ -1,5 +1,9 @@
 package ru.veselov.companybot.util;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import net.datafaker.Faker;
 import org.assertj.core.api.Assertions;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
@@ -184,6 +188,11 @@ public class TestUtils {
                 .description(DIVISION_DESC)
                 .divisionId(DIVISION_ID)
                 .build();
+    }
+
+    public static String jsonStringFromObject(Object object) throws JsonProcessingException {
+        ObjectMapper objectMapper = JsonMapper.builder().addModule(new JavaTimeModule()).build();
+        return objectMapper.writeValueAsString(object);
     }
 
 }

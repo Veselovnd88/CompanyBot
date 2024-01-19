@@ -137,8 +137,7 @@ class DivisionServiceImplTest {
 
     @Test
     void delete_AllOk_DeleteAndReturnVoid() {
-        Assertions.assertThatNoException()
-                .isThrownBy(() -> divisionService.delete(TestUtils.DIVISION_ID));
+        Assertions.assertThatNoException().isThrownBy(() -> divisionService.delete(TestUtils.DIVISION_ID));
     }
 
 }
