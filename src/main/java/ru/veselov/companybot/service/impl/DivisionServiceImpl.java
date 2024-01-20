@@ -36,7 +36,7 @@ public class DivisionServiceImpl implements DivisionService {
         return divisionMapper.toListModel(divisionRepository.findAll());
     }
 
-    @CacheEvict(value = "division")
+    @CacheEvict(value = "division", allEntries = true)
     @Override
     @Transactional
     public DivisionModel save(DivisionDTO division) {
@@ -65,6 +65,7 @@ public class DivisionServiceImpl implements DivisionService {
         return divisionMapper.toModel(divisionEntity);
     }
 
+    @CacheEvict(value = "division", allEntries = true)
     @Override
     @Transactional
     public DivisionModel update(UUID divisionId, DivisionDTO divisionDTO) {
@@ -91,6 +92,7 @@ public class DivisionServiceImpl implements DivisionService {
         return divisionMapper.toModel(saved);
     }
 
+    @CacheEvict(value = "division", allEntries = true)
     @Override
     @Transactional
     public void delete(UUID divisionId) {

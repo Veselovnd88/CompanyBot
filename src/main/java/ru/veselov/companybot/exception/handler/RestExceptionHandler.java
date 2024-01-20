@@ -1,20 +1,63 @@
 package ru.veselov.companybot.exception.handler;
 
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.ExampleObject;
+import io.swagger.v3.oas.annotations.media.Schema;
+import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.ConstraintViolationException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.springframework.web.bind.annotation.RestControllerAdvice;
 import ru.veselov.companybot.exception.ObjectAlreadyExistsException;
 
 import java.time.Instant;
 import java.util.List;
 
-@RestControllerAdvice
+@ControllerAdvice
 @Slf4j
+@ApiResponse(responseCode = "400", description = "Валидация полей объекта не прошла",
+        content = @Content(
+                schema = @Schema(implementation = ProblemDetail.class),
+                examples = @ExampleObject(value = """
+                        {
+                           "type": "about:blank",
+                           "title": "Validation error",
+                           "status": 400,
+                           "detail": "Validation failed",
+                           "instance": "/api/v1/division",
+                           "timestamp": "2024-01-20T13:55:59.666535500Z",
+                           "errorCode": "VALIDATION",
+                           "violations": [
+                             {
+                               "name": "name",
+                               "message": "размер должен находиться в диапазоне от 0 до 10",
+                               "currentValue": "Commonfasdfasdfasdfasdfasdfdf"
+                             }
+                           ]
+                         }
+                         """),
+                mediaType = MediaType.APPLICATION_JSON_VALUE
+        ))
+@ApiResponse(responseCode = "409", description = "Отдел с таким наименованием уже существует",
+        content = {@Content(mediaType = MediaType.APPLICATION_JSON_VALUE,
+                examples = @ExampleObject(value = """
+                        {
+                          "type": "about:blank",
+                          "title": "Object already exists",
+                          "status": 409,
+                          "detail": "Object with name COMMON already exists",
+                          "instance": "/api/v1/????",
+                          "timestamp": "2024-01-20T13:57:29.576908600Z",
+                          "errorCode": "CONFLICT"
+                        }
+                        """),
+                schema = @Schema(implementation = ProblemDetail.class))
+        })
 public class RestExceptionHandler {
     private static final String LOG_MSG_DETAILS = "[Exception {} with message {}] handled";
 
