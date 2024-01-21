@@ -117,7 +117,6 @@ public class RestExceptionHandler {
         return configuredProblemDetails;
     }
 
-
     private ProblemDetail createProblemDetail(HttpStatus status, Exception e) {
         ProblemDetail problemDetail = ProblemDetail.forStatusAndDetail(status, e.getMessage());
         problemDetail.setProperty(ErrorMessage.TIMESTAMP, Instant.now());

@@ -1,10 +1,14 @@
 package ru.veselov.companybot.util;
 
+import org.hamcrest.Matchers;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import ru.veselov.companybot.exception.handler.ErrorCode;
 import ru.veselov.companybot.exception.handler.ErrorMessage;
+
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 public class ResultCheckUtils {
 
@@ -33,13 +37,21 @@ public class ResultCheckUtils {
                         .value(ErrorCode.VALIDATION.toString()));
     }
 
-    public static void checkNotFoundFields(ResultActions resultActions) throws Exception {
+    public static void checkNotFoundFields(ResultActions resultActions, String detail) throws Exception {
         resultActions.andExpect(MockMvcResultMatchers.status().isNotFound())
                 .andExpect(MockMvcResultMatchers.content().contentType(MediaType.APPLICATION_PROBLEM_JSON_VALUE))
                 .andExpect(MockMvcResultMatchers.jsonPath(ResultCheckUtils.JSON_ERROR_CODE)
                         .value(ErrorCode.NOT_FOUND.toString()))
                 .andExpect(MockMvcResultMatchers.jsonPath(ResultCheckUtils.JSON_TIMESTAMP).isNotEmpty())
-                .andExpect(MockMvcResultMatchers.jsonPath(ResultCheckUtils.JSON_TITLE).isNotEmpty());
+                .andExpect(MockMvcResultMatchers.jsonPath(ResultCheckUtils.JSON_TITLE).isNotEmpty())
+                .andExpect(MockMvcResultMatchers.jsonPath(JSON_DETAIL, Matchers.is(detail)));
+    }
+
+    public static void checkConflictError(ResultActions resultActions, String detail) throws Exception {
+        resultActions.andExpect(status().isConflict())
+                .andExpect(jsonPath(ResultCheckUtils.JSON_TITLE, Matchers.is(ErrorMessage.OBJECT_ALREADY_EXISTS)))
+                .andExpect(jsonPath(ResultCheckUtils.JSON_DETAIL,
+                        Matchers.is(detail)));
     }
 
     private ResultCheckUtils() {

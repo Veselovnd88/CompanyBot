@@ -76,7 +76,6 @@ class DivisionControllerValidationTest {
         ResultCheckUtils.checkWrongTypeFields(resultActions);
     }
 
-
     private static Stream<Arguments> getBadDivisionDTO() {
         DivisionDTO emptyName = new DivisionDTO("", TestUtils.DIVISION_DESC);
         DivisionDTO emptyDesc = new DivisionDTO(TestUtils.DIVISION_NAME, "");
