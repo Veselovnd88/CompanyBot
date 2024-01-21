@@ -13,6 +13,7 @@ import org.springframework.http.ProblemDetail;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import ru.veselov.companybot.exception.ObjectAlreadyExistsException;
 
 import java.time.Instant;
@@ -91,6 +92,15 @@ public class RestExceptionHandler {
         ProblemDetail configuredProblemDetails = setUpValidationDetails(problemDetail, violationErrors);
         log.debug(LOG_MSG_DETAILS, e.getClass(), e.getMessage());
         return configuredProblemDetails;
+    }
+
+    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
+    public ProblemDetail handleMethodArgumentTypeMismatchException(MethodArgumentTypeMismatchException e) {
+        ProblemDetail problemDetail = createProblemDetail(HttpStatus.BAD_REQUEST, e);
+        problemDetail.setTitle(ErrorMessage.WRONG_ARGUMENT_PASSED);
+        problemDetail.setProperty(ErrorMessage.ERROR_CODE, ErrorCode.BAD_REQUEST.toString());
+        log.debug(LOG_MSG_DETAILS, e.getClass(), e.getMessage());
+        return problemDetail;
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
