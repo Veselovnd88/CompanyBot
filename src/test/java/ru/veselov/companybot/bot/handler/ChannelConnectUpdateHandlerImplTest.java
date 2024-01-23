@@ -49,7 +49,9 @@ class ChannelConnectUpdateHandlerImplTest {
         botUser.setId(TestUtils.BOT_ID);
         Update update = TestUpdates.getUpdateWithConnectionBotWithAdministratorStatusToChannelByAdmin();
         Chat chat = update.getMyChatMember().getChat();
+
         SendMessage sendMessage = channelConnectUpdateHandler.processUpdate(update);
+
         Assertions.assertThat(sendMessage.getChatId()).isEqualTo(TestUtils.ADMIN_ID.toString());
         Mockito.verify(chatService).save(chat);
     }
@@ -58,7 +60,9 @@ class ChannelConnectUpdateHandlerImplTest {
     void shouldRemoveChatWhenBotIsRemovedFromChannel() {
         Update update = TestUpdates.getUpdateWithConnectionBotWithLeftStatusToChannelByAdmin();
         Chat chat = update.getMyChatMember().getChat();
+
         channelConnectUpdateHandler.processUpdate(update);
+
         Mockito.verify(chatService).remove(chat.getId());
     }
 
@@ -66,13 +70,16 @@ class ChannelConnectUpdateHandlerImplTest {
     void shouldRemoveChatIfBotWasKickedFromChat() {
         Update update = TestUpdates.getUpdateWithConnectionBotWithKickedStatusToChannelByAdmin();
         Chat chat = update.getMyChatMember().getChat();
+
         channelConnectUpdateHandler.processUpdate(update);
+
         Mockito.verify(chatService).remove(chat.getId());
     }
 
     @Test
     void shouldReturnNullIfUnsupportedCommandOccurred() {
         Update update = TestUpdates.getUpdateWithConnectionBotWithUnsupportedStatusToChannelByAdmin();
+
         SendMessage sendMessage = channelConnectUpdateHandler.processUpdate(update);
 
         Assertions.assertThat(sendMessage).isNull();
@@ -81,6 +88,7 @@ class ChannelConnectUpdateHandlerImplTest {
     @Test
     void shouldThrowExceptionIfNotBotIdWasHandled() {
         Update update = TestUpdates.getUpdateWithConnectionNoBotWithUnsupportedStatusToChannelByAdmin();
+
         SendMessage sendMessage = channelConnectUpdateHandler.processUpdate(update);
 
         Assertions.assertThat(sendMessage).isNull();
