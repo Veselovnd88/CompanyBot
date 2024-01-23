@@ -96,6 +96,10 @@ public class DivisionServiceImpl implements DivisionService {
     @Override
     @Transactional
     public void delete(UUID divisionId) {
+        if (!divisionRepository.existsById(divisionId)) {
+            log.warn(ExceptionMessageUtils.DIVISION_NOT_FOUND.formatted(divisionId));
+            throw new DivisionNotFoundException(ExceptionMessageUtils.DIVISION_NOT_FOUND.formatted(divisionId));
+        }
         divisionRepository.deleteById(divisionId);
         log.info("Division with [id: {}] successfully removed", divisionId);
     }

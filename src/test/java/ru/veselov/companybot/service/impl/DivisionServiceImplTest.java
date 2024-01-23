@@ -17,6 +17,7 @@ import ru.veselov.companybot.entity.DivisionEntity;
 import ru.veselov.companybot.exception.DivisionAlreadyExistsException;
 import ru.veselov.companybot.exception.DivisionNotFoundException;
 import ru.veselov.companybot.exception.ObjectAlreadyExistsException;
+import ru.veselov.companybot.exception.util.ExceptionMessageUtils;
 import ru.veselov.companybot.mapper.DivisionMapperImpl;
 import ru.veselov.companybot.model.DivisionModel;
 import ru.veselov.companybot.repository.DivisionRepository;
@@ -137,7 +138,19 @@ class DivisionServiceImplTest {
 
     @Test
     void delete_AllOk_DeleteAndReturnVoid() {
+        Mockito.when(divisionRepository.existsById(Mockito.any())).thenReturn(true);
+
         Assertions.assertThatNoException().isThrownBy(() -> divisionService.delete(TestUtils.DIVISION_ID));
+    }
+
+    @Test
+    void delete_NoDivisionForDeletion_ThrowException() {
+        Mockito.when(divisionRepository.existsById(Mockito.any())).thenReturn(false);
+
+        Assertions.assertThatExceptionOfType(DivisionNotFoundException.class)
+                .isThrownBy(() -> divisionService.delete(TestUtils.DIVISION_ID))
+                .isInstanceOf(EntityNotFoundException.class)
+                .withMessage(ExceptionMessageUtils.DIVISION_NOT_FOUND.formatted(TestUtils.DIVISION_ID));
     }
 
 }

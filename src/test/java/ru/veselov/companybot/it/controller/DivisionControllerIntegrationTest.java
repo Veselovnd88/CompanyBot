@@ -131,4 +131,26 @@ class DivisionControllerIntegrationTest extends PostgresTestContainersConfigurat
                 ExceptionMessageUtils.DIVISION_ALREADY_EXISTS.formatted("exists"));
     }
 
+    @Test
+    @SneakyThrows
+    void deleteDivision_AllOk_ReturnNoContent() {
+        DivisionEntity division = TestUtils.getDivisionEntity();
+        DivisionEntity savedDivision = divisionRepository.saveAndFlush(division);
+
+        ResultActions resultActions = mockMvc.perform(
+                MockMvcRequestBuilders.delete(RestUrl.DIVISION + "/{divisionId}", savedDivision.getDivisionId()));
+
+        resultActions.andExpect(status().isNoContent());
+    }
+
+    @Test
+    @SneakyThrows
+    void deleteDivision_NoDivision_HandleErrorAndReturnNotFound() {
+        ResultActions resultActions = mockMvc.perform(
+                MockMvcRequestBuilders.delete(RestUrl.DIVISION + "/{divisionId}", TestUtils.DIVISION_ID));
+
+        ResultCheckUtils.checkNotFoundFields(
+                resultActions, ExceptionMessageUtils.DIVISION_NOT_FOUND.formatted(TestUtils.DIVISION_ID));
+    }
+
 }
