@@ -2,8 +2,8 @@ package ru.veselov.companybot.mapper;
 
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
-import org.mapstruct.Mappings;
 import org.mapstruct.ReportingPolicy;
+import ru.veselov.companybot.dto.DivisionDTO;
 import ru.veselov.companybot.entity.DivisionEntity;
 import ru.veselov.companybot.model.DivisionModel;
 
@@ -17,6 +17,6 @@ public interface DivisionMapper {
 
     List<DivisionModel> toListModel(List<DivisionEntity> entities);
 
-    DivisionEntity toEntity(DivisionModel divisionModel);
+    DivisionEntity dtoToEntity(DivisionDTO divisionModel);
 
 }

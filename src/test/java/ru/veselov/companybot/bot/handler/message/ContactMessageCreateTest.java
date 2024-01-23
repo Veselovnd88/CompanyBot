@@ -1,8 +1,9 @@
-package ru.veselov.companybot.util;
+package ru.veselov.companybot.bot.handler.message;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import ru.veselov.companybot.model.ContactModel;
+import ru.veselov.companybot.util.MessageUtils;
 
 class ContactMessageCreateTest {
 

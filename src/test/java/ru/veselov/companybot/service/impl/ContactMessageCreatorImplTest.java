@@ -14,6 +14,7 @@ class ContactMessageCreatorImplTest {
     @Test
     void shouldReturnListWithOneContactMessage() {
         ContactModel userContactModel = TestUtils.getUserContactModel();
+
         ContactMessageCreatorImpl contactMessageCreator = new ContactMessageCreatorImpl();
 
         List<BotApiMethod<?>> messagesToSend = contactMessageCreator
@@ -25,6 +26,7 @@ class ContactMessageCreatorImplTest {
     void shouldReturnListWithOneContactMessageAndSharedContact() {
         ContactModel userContactModel = TestUtils.getUserContactModel();
         userContactModel.setContact(TestUtils.getUserContact());
+
         ContactMessageCreatorImpl contactMessageCreator = new ContactMessageCreatorImpl();
 
         List<BotApiMethod<?>> messagesToSend = contactMessageCreator

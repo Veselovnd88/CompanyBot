@@ -1,5 +1,9 @@
 package ru.veselov.companybot.util;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.json.JsonMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import net.datafaker.Faker;
 import org.assertj.core.api.Assertions;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
@@ -9,6 +13,8 @@ import org.telegram.telegrambots.meta.api.objects.Contact;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.PhotoSize;
 import org.telegram.telegrambots.meta.api.objects.User;
+import ru.veselov.companybot.dto.DivisionDTO;
+import ru.veselov.companybot.entity.DivisionEntity;
 import ru.veselov.companybot.model.ContactModel;
 import ru.veselov.companybot.model.DivisionModel;
 import ru.veselov.companybot.model.InquiryModel;
@@ -19,7 +25,11 @@ import java.util.UUID;
 
 public class TestUtils {
 
+    public static final UUID DIVISION_ID = UUID.randomUUID();
+
     public static Faker faker = new Faker();
+
+    public static final String DIVISION_DESC = faker.elderScrolls().creature();
 
     public static Long BOT_ID = 1L;
 
@@ -163,6 +173,26 @@ public class TestUtils {
         Assertions.assertThat(botApiMethod).as("Check if answer is SendMessage instance")
                 .isInstanceOf(SendMessage.class);
         return (SendMessage) botApiMethod;
+    }
+
+    public static DivisionDTO getDivisionDTO() {
+        return new DivisionDTO(
+                "div",
+                faker.elderScrolls().dragon()
+        );
+    }
+
+    public static DivisionEntity getDivisionEntity() {
+        return DivisionEntity.builder()
+                .name(DIVISION_NAME)
+                .description(DIVISION_DESC)
+                .divisionId(DIVISION_ID)
+                .build();
+    }
+
+    public static String jsonStringFromObject(Object object) throws JsonProcessingException {
+        ObjectMapper objectMapper = JsonMapper.builder().addModule(new JavaTimeModule()).build();
+        return objectMapper.writeValueAsString(object);
     }
 
 }

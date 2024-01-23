@@ -15,7 +15,7 @@ import ru.veselov.companybot.util.MessageUtils;
 @Configuration
 @RequiredArgsConstructor
 @EnableAspectJAutoProxy
-public class Config {
+public class AppConfig {
 
     private final CompanyInfoServiceImpl companyInfoService;
 

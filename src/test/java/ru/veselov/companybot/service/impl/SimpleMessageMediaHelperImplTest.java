@@ -42,9 +42,7 @@ class SimpleMessageMediaHelperImplTest {
         Assertions.assertThat(resultMap.get(2)).isInstanceOf(SendPhoto.class);
 
         Assertions.assertThatNoException().isThrownBy(
-                () -> {
-                    SendMessage sendMessage = (SendMessage) resultMap.get(1);
-                }
+                () -> resultMap.get(1)
         );
         SendMessage sendMessage = (SendMessage) resultMap.get(1);
         Assertions.assertThat(sendMessage.getText()).isEqualTo("text 1");
