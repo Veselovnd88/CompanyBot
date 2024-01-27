@@ -30,7 +30,7 @@ import ru.veselov.companybot.bot.util.BotUtils;
 import ru.veselov.companybot.bot.util.CallBackButtonUtils;
 import ru.veselov.companybot.cache.UserStateCache;
 import ru.veselov.companybot.config.BotConfig;
-import ru.veselov.companybot.config.PostgresTestContainersConfiguration;
+import ru.veselov.companybot.config.EnableTestContainers;
 import ru.veselov.companybot.entity.ContactEntity;
 import ru.veselov.companybot.entity.CustomerEntity;
 import ru.veselov.companybot.entity.DivisionEntity;
@@ -58,7 +58,8 @@ import java.util.stream.Stream;
 @ActiveProfiles("test")
 @DirtiesContext
 @Slf4j
-class InquiryBotIntegrationTest extends PostgresTestContainersConfiguration {
+@EnableTestContainers
+class InquiryBotIntegrationTest {
 
     @Value("${bot.max-messages}")
     private Integer maxMessages;
@@ -206,7 +207,7 @@ class InquiryBotIntegrationTest extends PostgresTestContainersConfiguration {
         telegramFacadeUpdateHandler.processUpdate(userSendTextMessage);
         divisionRepository.deleteAll();
         pressContactInputContactAndPressSave();
-        Awaitility.await().pollDelay(Duration.ofMillis(1000)).until(() -> true);
+        Awaitility.await().pollDelay(Duration.ofMillis(3000)).until(() -> true);
         Mockito.verify(bot, Mockito.times(3)).execute(Mockito.any(SendMessage.class));
 
         List<InquiryEntity> allInquiries = inquiryRepository.findAll();

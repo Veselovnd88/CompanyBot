@@ -30,7 +30,7 @@ import ru.veselov.companybot.bot.handler.TelegramFacadeUpdateHandler;
 import ru.veselov.companybot.bot.util.CallBackButtonUtils;
 import ru.veselov.companybot.cache.UserStateCache;
 import ru.veselov.companybot.config.BotConfig;
-import ru.veselov.companybot.config.PostgresTestContainersConfiguration;
+import ru.veselov.companybot.config.EnableTestContainers;
 import ru.veselov.companybot.entity.ContactEntity;
 import ru.veselov.companybot.entity.CustomerEntity;
 import ru.veselov.companybot.repository.ContactRepository;
@@ -46,7 +46,8 @@ import java.util.stream.Stream;
 @ActiveProfiles("test")
 @DirtiesContext
 @Slf4j
-class ContactBotIntegrationTest extends PostgresTestContainersConfiguration {
+@EnableTestContainers
+class ContactBotIntegrationTest {
 
     @MockBean
     CompanyBot bot;

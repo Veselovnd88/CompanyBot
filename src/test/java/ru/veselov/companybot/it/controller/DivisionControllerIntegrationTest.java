@@ -15,7 +15,7 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import ru.veselov.companybot.config.BotMocks;
-import ru.veselov.companybot.config.PostgresTestContainersConfiguration;
+import ru.veselov.companybot.config.EnableTestContainers;
 import ru.veselov.companybot.dto.DivisionDTO;
 import ru.veselov.companybot.entity.DivisionEntity;
 import ru.veselov.companybot.exception.util.ExceptionMessageUtils;
@@ -32,7 +32,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @DirtiesContext
 @Import({BotMocks.class})
 @ActiveProfiles("test")
-class DivisionControllerIntegrationTest extends PostgresTestContainersConfiguration {
+@EnableTestContainers
+class DivisionControllerIntegrationTest {
 
     @Autowired
     MockMvc mockMvc;
