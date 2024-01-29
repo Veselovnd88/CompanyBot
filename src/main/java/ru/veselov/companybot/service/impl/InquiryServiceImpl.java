@@ -6,10 +6,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import ru.veselov.companybot.bot.util.BotUtils;
+import ru.veselov.companybot.dto.InquiryResponseDTO;
 import ru.veselov.companybot.entity.CustomerEntity;
 import ru.veselov.companybot.entity.CustomerMessageEntity;
 import ru.veselov.companybot.entity.DivisionEntity;
 import ru.veselov.companybot.entity.InquiryEntity;
+import ru.veselov.companybot.mapper.InquiryMapper;
 import ru.veselov.companybot.model.InquiryModel;
 import ru.veselov.companybot.repository.CustomerRepository;
 import ru.veselov.companybot.repository.DivisionRepository;
@@ -31,6 +33,8 @@ public class InquiryServiceImpl implements InquiryService {
     private final CustomerRepository customerRepository;
 
     private final DivisionRepository divisionRepository;
+
+    private final InquiryMapper inquiryMapper;
 
     @Override
     @Transactional
@@ -71,8 +75,10 @@ public class InquiryServiceImpl implements InquiryService {
     }
 
     @Override
-    public List<InquiryEntity> findAll() {
-        return inquiryRepository.findAll();
+    public List<InquiryResponseDTO> findAll() {
+        List<InquiryResponseDTO> inquiryResponseDTOS = inquiryMapper.entitiesToDTOS(inquiryRepository.findAll());
+        log.debug("Retrieved inquiries from DB");
+        return inquiryResponseDTOS;
     }
 
     private InquiryEntity toInquiryEntity(InquiryModel inquiryModel) {
@@ -84,4 +90,5 @@ public class InquiryServiceImpl implements InquiryService {
         }
         return inquiryEntity;
     }
+
 }

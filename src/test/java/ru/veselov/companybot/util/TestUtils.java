@@ -14,6 +14,9 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.PhotoSize;
 import org.telegram.telegrambots.meta.api.objects.User;
 import ru.veselov.companybot.dto.DivisionDTO;
+import ru.veselov.companybot.entity.ContactEntity;
+import ru.veselov.companybot.entity.CustomerEntity;
+import ru.veselov.companybot.entity.CustomerMessageEntity;
 import ru.veselov.companybot.entity.DivisionEntity;
 import ru.veselov.companybot.model.ContactModel;
 import ru.veselov.companybot.model.DivisionModel;
@@ -188,6 +191,27 @@ public class TestUtils {
                 .description(DIVISION_DESC)
                 .divisionId(DIVISION_ID)
                 .build();
+    }
+
+    public static CustomerMessageEntity getCustomerMessageEntity(String message) {
+        CustomerMessageEntity customerMessageEntity = new CustomerMessageEntity();
+        customerMessageEntity.setMessage(TestUtils.getTextMessage(message));
+        return customerMessageEntity;
+    }
+
+    public static CustomerEntity getCustomerEntity() {
+        CustomerEntity customerEntity = new CustomerEntity();
+        customerEntity.setFirstName(TestUtils.USER_FIRST_NAME);
+        customerEntity.setLastName(TestUtils.USER_LAST_NAME);
+        customerEntity.setUserName(TestUtils.USER_NAME);
+        customerEntity.setId(1L);
+        return customerEntity;
+    }
+
+    public static ContactEntity getContactEntity() {
+        return new ContactEntity(UUID.randomUUID(),
+                USER_LAST_NAME, USER_FIRST_NAME, faker.elderScrolls().race(),
+                USER_PHONE, USER_EMAIL, null, getCustomerEntity());
     }
 
     public static String jsonStringFromObject(Object object) throws JsonProcessingException {

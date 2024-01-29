@@ -1,5 +1,6 @@
 package ru.veselov.companybot.service;
 
+import ru.veselov.companybot.dto.InquiryResponseDTO;
 import ru.veselov.companybot.entity.InquiryEntity;
 import ru.veselov.companybot.model.InquiryModel;
 
@@ -13,6 +14,6 @@ public interface InquiryService {
 
     Optional<InquiryEntity> findWithMessages(UUID id);
 
-    List<InquiryEntity> findAll();
+    List<InquiryResponseDTO> findAll();
 
 }

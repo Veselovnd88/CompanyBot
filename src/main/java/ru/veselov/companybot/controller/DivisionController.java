@@ -29,7 +29,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/api/v1/division")
+@RequestMapping("/api/v1/divisions")
 @RequiredArgsConstructor
 @Validated
 @Tag(name = "Division, Отдел, Департамент", description = "Управление отделами")
