@@ -20,13 +20,13 @@ import java.util.UUID;
 @Builder
 public class DivisionModel implements Serializable {
 
-    @Schema(description = "Id of division", example = "3b4cb719-3489-445d-bb01-ef7958aca896")
+    @Schema(description = "Id отдела", example = "3b4cb719-3489-445d-bb01-ef7958aca896")
     private UUID divisionId;
 
-    @Schema(description = "Short name of division", example = "Common")
+    @Schema(description = "Короткое наименование отдела", example = "Common")
     private String name;
 
-    @Schema(description = "Description of division", example = "Common questions here")
+    @Schema(description = "Описание отдела", example = "Common questions here")
     private String description;
 
     @JsonIgnore
