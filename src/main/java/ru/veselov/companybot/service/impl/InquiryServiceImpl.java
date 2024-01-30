@@ -63,7 +63,7 @@ public class InquiryServiceImpl implements InquiryService {
                 }
         );
         InquiryEntity inquiryEntity = toInquiryEntity(inquiry);
-        inquiryEntity.setCustomerEntity(customerEntity);
+        inquiryEntity.setCustomer(customerEntity);
         inquiryEntity.setDivision(divisionEntity);
         log.info("Inquiry of [user: {}] saved", userId);
         return inquiryRepository.save(inquiryEntity);

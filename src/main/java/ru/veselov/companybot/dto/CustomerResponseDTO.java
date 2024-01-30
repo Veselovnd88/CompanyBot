@@ -23,6 +23,6 @@ public class CustomerResponseDTO implements Serializable {
 
     private String userName;
 
-    Set<ContactResponseDto> contacts;
+    private Set<ContactResponseDto> contacts;
 
 }

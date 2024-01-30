@@ -15,7 +15,6 @@ import ru.veselov.companybot.entity.CustomerEntity;
 import ru.veselov.companybot.entity.CustomerMessageEntity;
 import ru.veselov.companybot.entity.DivisionEntity;
 import ru.veselov.companybot.entity.InquiryEntity;
-import ru.veselov.companybot.mapper.InquiryMapperImpl;
 import ru.veselov.companybot.model.DivisionModel;
 import ru.veselov.companybot.repository.CustomerRepository;
 import ru.veselov.companybot.repository.DivisionRepository;
@@ -43,8 +42,8 @@ class InquiryServiceImplTest {
     InquiryServiceImpl inquiryService;
 
     @BeforeEach
-    void init() {
-        ReflectionTestUtils.setField(inquiryService, "inquiryMapper", new InquiryMapperImpl());
+    void setUp() {
+        ReflectionTestUtils.setField(inquiryService, "inquiryMapper", TestUtils.getInquiryMapper());
     }
 
     @Test
@@ -58,7 +57,7 @@ class InquiryServiceImplTest {
         inquiryEntity.addMessage(message);
         CustomerEntity customerEntity = TestUtils.getCustomerEntity();
         customerEntity.setContacts(Set.of(TestUtils.getContactEntity()));
-        inquiryEntity.setCustomerEntity(customerEntity);
+        inquiryEntity.setCustomer(customerEntity);
         Mockito.when(inquiryRepository.findAll()).thenReturn(List.of(inquiryEntity));
 
         List<InquiryResponseDTO> inquiries = inquiryService.findAll();
@@ -66,6 +65,7 @@ class InquiryServiceImplTest {
         Assertions.assertThat(inquiries).hasSize(1).extracting(InquiryResponseDTO::getInquiryId).doesNotContainNull()
                 .containsExactly(inquiryEntity.getInquiryId());
         InquiryResponseDTO inquiryResponseDTO = inquiries.get(0);
+        System.out.println(inquiryResponseDTO);
         Assertions.assertThat(inquiryResponseDTO.getDivision())
                 .extracting(DivisionModel::getDivisionId, DivisionModel::getName, DivisionModel::getDescription)
                 .containsExactly(divisionEntity.getDivisionId(), divisionEntity.getName(), divisionEntity.getDescription());
