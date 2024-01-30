@@ -18,6 +18,7 @@ import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import ru.veselov.companybot.controller.DivisionController;
 import ru.veselov.companybot.dto.DivisionDTO;
 import ru.veselov.companybot.service.DivisionService;
+import ru.veselov.companybot.util.MockMvcUtils;
 import ru.veselov.companybot.util.RestUrl;
 import ru.veselov.companybot.util.ResultCheckUtils;
 import ru.veselov.companybot.util.TestUtils;
@@ -44,9 +45,7 @@ class DivisionControllerValidationTest {
     @MethodSource("getBadDivisionDTO")
     @SneakyThrows
     void addDivision_BadDtoPassed_HandleErrorAndReturnValidationError(DivisionDTO divisionDTO, String field) {
-        ResultActions resultActions = mockMvc.perform(MockMvcRequestBuilders.post(RestUrl.DIVISION)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(TestUtils.jsonStringFromObject(divisionDTO)));
+        ResultActions resultActions = mockMvc.perform(MockMvcUtils.createDivision(divisionDTO));
 
         ResultCheckUtils.checkCommonValidationFields(resultActions);
         resultActions.andExpect(
@@ -57,10 +56,7 @@ class DivisionControllerValidationTest {
     @MethodSource("getBadDivisionDTO")
     @SneakyThrows
     void updateDivision_BadDtoPassed_HandleErrorAndReturnValidationError(DivisionDTO divisionDTO, String field) {
-        ResultActions resultActions = mockMvc
-                .perform(MockMvcRequestBuilders.put(RestUrl.DIVISION + "/" + TestUtils.DIVISION_ID)
-                        .contentType(MediaType.APPLICATION_JSON)
-                        .content(TestUtils.jsonStringFromObject(divisionDTO)));
+        ResultActions resultActions = mockMvc.perform(MockMvcUtils.updateDivision(divisionDTO, TestUtils.DIVISION_ID));
 
         ResultCheckUtils.checkCommonValidationFields(resultActions);
         resultActions.andExpect(
@@ -101,4 +97,5 @@ class DivisionControllerValidationTest {
         MockHttpServletRequestBuilder delete = MockMvcRequestBuilders.delete(RestUrl.DIVISION + "/" + "notUUID");
         return Stream.of(get, put, delete);
     }
+
 }

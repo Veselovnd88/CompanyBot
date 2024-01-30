@@ -62,7 +62,7 @@ public class DivisionController {
                     content = {@Content(array = @ArraySchema(schema = @Schema(implementation = DivisionModel.class)),
                             mediaType = MediaType.APPLICATION_JSON_VALUE)})
     })
-    @GetMapping("/all")
+    @GetMapping
     public List<DivisionModel> getDivisions() {
         return divisionService.findAll();
     }

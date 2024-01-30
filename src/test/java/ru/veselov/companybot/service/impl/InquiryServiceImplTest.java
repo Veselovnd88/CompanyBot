@@ -82,7 +82,7 @@ class InquiryServiceImplTest {
                         CustomerResponseDTO::getLastName, CustomerResponseDTO::getUserName)
                 .containsExactly(customerEntity.getId(), customerEntity.getFirstName(), customerEntity.getLastName(),
                         customerEntity.getUserName());
-        Mockito.verify(customerRepository).findAll();
+        Mockito.verify(inquiryRepository).findAll();
     }
 
 
