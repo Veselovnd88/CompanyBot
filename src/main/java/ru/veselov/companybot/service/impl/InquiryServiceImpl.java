@@ -2,11 +2,15 @@ package ru.veselov.companybot.service.impl;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import ru.veselov.companybot.bot.util.BotUtils;
 import ru.veselov.companybot.dto.InquiryResponseDTO;
+import ru.veselov.companybot.dto.PagingParams;
 import ru.veselov.companybot.entity.CustomerEntity;
 import ru.veselov.companybot.entity.CustomerMessageEntity;
 import ru.veselov.companybot.entity.DivisionEntity;
@@ -19,7 +23,6 @@ import ru.veselov.companybot.repository.InquiryRepository;
 import ru.veselov.companybot.service.InquiryService;
 import ru.veselov.companybot.util.LogMessageUtils;
 
-import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -71,8 +74,9 @@ public class InquiryServiceImpl implements InquiryService {
     }
 
     @Override
-    public List<InquiryResponseDTO> findAll() {
-        List<InquiryResponseDTO> inquiryResponseDTOS = inquiryMapper.entitiesToDTOS(inquiryRepository.findAll());
+    public Page<InquiryResponseDTO> findAll(PagingParams pagingParams) {
+        Pageable pageable = PageRequest.of(pagingParams.getPage(), pagingParams.getSize());
+        Page<InquiryResponseDTO> inquiryResponseDTOS = inquiryMapper.entitiesToDTOS(inquiryRepository.findAll(pageable));
         log.debug("Retrieved inquiries from DB");
         return inquiryResponseDTOS;
     }

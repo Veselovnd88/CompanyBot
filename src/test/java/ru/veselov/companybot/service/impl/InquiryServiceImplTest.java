@@ -10,10 +10,14 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.test.util.ReflectionTestUtils;
 import ru.veselov.companybot.bot.util.BotUtils;
 import ru.veselov.companybot.dto.CustomerResponseDTO;
 import ru.veselov.companybot.dto.InquiryResponseDTO;
+import ru.veselov.companybot.dto.PagingParams;
 import ru.veselov.companybot.entity.CustomerEntity;
 import ru.veselov.companybot.entity.CustomerMessageEntity;
 import ru.veselov.companybot.entity.DivisionEntity;
@@ -66,13 +70,17 @@ class InquiryServiceImplTest {
         CustomerEntity customerEntity = TestUtils.getCustomerEntity();
         customerEntity.setContacts(Set.of(TestUtils.getContactEntity()));
         inquiryEntity.setCustomer(customerEntity);
-        Mockito.when(inquiryRepository.findAll()).thenReturn(List.of(inquiryEntity));
+        PagingParams pagingParams = new PagingParams(0, 100);
+        Page<InquiryEntity> page = new PageImpl<>(List.of(inquiryEntity),
+                PageRequest.of(pagingParams.getPage(), pagingParams.getSize()), 100);
+        Mockito.when(inquiryRepository.findAll(Mockito.any(PageRequest.class))).thenReturn(page);
 
-        List<InquiryResponseDTO> inquiries = inquiryService.findAll();
+        Page<InquiryResponseDTO> inquiries = inquiryService.findAll(pagingParams);
 
-        Assertions.assertThat(inquiries).hasSize(1).extracting(InquiryResponseDTO::getInquiryId).doesNotContainNull()
+        List<InquiryResponseDTO> content = inquiries.getContent();
+        Assertions.assertThat(content).hasSize(1).extracting(InquiryResponseDTO::getInquiryId).doesNotContainNull()
                 .containsExactly(inquiryEntity.getInquiryId());
-        InquiryResponseDTO inquiryResponseDTO = inquiries.get(0);
+        InquiryResponseDTO inquiryResponseDTO = content.get(0);
 
         Assertions.assertThat(inquiryResponseDTO.getDivision())
                 .extracting(DivisionModel::getDivisionId, DivisionModel::getName, DivisionModel::getDescription)
@@ -82,9 +90,8 @@ class InquiryServiceImplTest {
                         CustomerResponseDTO::getLastName, CustomerResponseDTO::getUserName)
                 .containsExactly(customerEntity.getId(), customerEntity.getFirstName(), customerEntity.getLastName(),
                         customerEntity.getUserName());
-        Mockito.verify(inquiryRepository).findAll();
+        Mockito.verify(inquiryRepository).findAll(Mockito.any(PageRequest.class));
     }
-
 
     @Test
     void save_CustomerDivisionFound_SaveAndReturn() {
