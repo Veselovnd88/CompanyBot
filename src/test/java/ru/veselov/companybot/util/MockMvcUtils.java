@@ -13,27 +13,31 @@ import java.util.UUID;
 public class MockMvcUtils {
 
     public static MockHttpServletRequestBuilder createDivision(DivisionDTO divisionDTO) throws JsonProcessingException {
-        return MockMvcRequestBuilders.post(RestUrl.DIVISION)
+        return MockMvcRequestBuilders.post(RestUrl.DIVISIONS)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtils.jsonStringFromObject(divisionDTO));
     }
 
     public static MockHttpServletRequestBuilder updateDivision(DivisionDTO divisionDTO, UUID divisionId) throws JsonProcessingException {
-        return MockMvcRequestBuilders.put(RestUrl.DIVISION + "/{divisionId}", divisionId)
+        return MockMvcRequestBuilders.put(RestUrl.DIVISIONS + "/{divisionId}", divisionId)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtils.jsonStringFromObject(divisionDTO));
     }
 
     public static MockHttpServletRequestBuilder deleteDivision(UUID divisionId) {
-        return MockMvcRequestBuilders.delete(RestUrl.DIVISION + "/{divisionId}", divisionId);
+        return MockMvcRequestBuilders.delete(RestUrl.DIVISIONS + "/{divisionId}", divisionId);
     }
 
     public static MockHttpServletRequestBuilder getDivision(UUID divisionId) {
-        return MockMvcRequestBuilders.get(RestUrl.DIVISION + "/{divisionId}", divisionId);
+        return MockMvcRequestBuilders.get(RestUrl.DIVISIONS + "/{divisionId}", divisionId);
     }
 
     public static MockHttpServletRequestBuilder getDivisions() {
-        return MockMvcRequestBuilders.get(RestUrl.DIVISION);
+        return MockMvcRequestBuilders.get(RestUrl.DIVISIONS);
+    }
+
+    public static MockHttpServletRequestBuilder getInquiries() {
+        return MockMvcRequestBuilders.get(RestUrl.INQUIRIES);
     }
 
 }

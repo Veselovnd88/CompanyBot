@@ -14,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import ru.veselov.companybot.annotation.PagingParam;
@@ -21,7 +22,7 @@ import ru.veselov.companybot.dto.InquiryResponseDTO;
 import ru.veselov.companybot.dto.PagingParams;
 import ru.veselov.companybot.service.InquiryService;
 
-import java.util.List;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/v1/inquiries")
@@ -41,8 +42,17 @@ public class InquiryController {
             content = {@Content(array = @ArraySchema(schema = @Schema(implementation = InquiryResponseDTO.class)),
                     mediaType = MediaType.APPLICATION_JSON_VALUE)})
     @GetMapping
-    public Page<InquiryResponseDTO> getAll(@Schema(hidden = true) @Valid @PagingParam PagingParams pagingParams) {
+    public Page<InquiryResponseDTO> findAll(@Schema(hidden = true) @Valid @PagingParam PagingParams pagingParams) {
         return inquiryService.findAll(pagingParams);
+    }
+
+    @Operation(summary = "Получить запрос по его Id", description = "Ищет и выдает запрос по его Id")
+    @ApiResponse(responseCode = "200", description = "Запрос успешно получены",
+            content = {@Content(schema = @Schema(implementation = InquiryResponseDTO.class),
+                    mediaType = MediaType.APPLICATION_JSON_VALUE)})
+    @GetMapping("/{inquiryId}")
+    public InquiryResponseDTO getById(@PathVariable("inquiryId") UUID inquiryId) {
+        return inquiryService.findById(inquiryId);
     }
 
 }

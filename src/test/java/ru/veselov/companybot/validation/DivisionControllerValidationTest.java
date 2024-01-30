@@ -90,11 +90,11 @@ class DivisionControllerValidationTest {
     }
 
     private static Stream<MockHttpServletRequestBuilder> getMethodWithBadUUID() throws JsonProcessingException {
-        MockHttpServletRequestBuilder get = MockMvcRequestBuilders.get(RestUrl.DIVISION + "/" + "notUUID");
-        MockHttpServletRequestBuilder put = MockMvcRequestBuilders.put(RestUrl.DIVISION + "/" + "notUUID")
+        MockHttpServletRequestBuilder get = MockMvcRequestBuilders.get(RestUrl.DIVISIONS + "/" + "notUUID");
+        MockHttpServletRequestBuilder put = MockMvcRequestBuilders.put(RestUrl.DIVISIONS + "/" + "notUUID")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(TestUtils.jsonStringFromObject(TestUtils.getDivisionDTO()));
-        MockHttpServletRequestBuilder delete = MockMvcRequestBuilders.delete(RestUrl.DIVISION + "/" + "notUUID");
+        MockHttpServletRequestBuilder delete = MockMvcRequestBuilders.delete(RestUrl.DIVISIONS + "/" + "notUUID");
         return Stream.of(get, put, delete);
     }
 

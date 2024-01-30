@@ -15,6 +15,8 @@ import ru.veselov.companybot.entity.CustomerEntity;
 import ru.veselov.companybot.entity.CustomerMessageEntity;
 import ru.veselov.companybot.entity.DivisionEntity;
 import ru.veselov.companybot.entity.InquiryEntity;
+import ru.veselov.companybot.exception.InquiryNotFoundException;
+import ru.veselov.companybot.exception.util.ExceptionMessageUtils;
 import ru.veselov.companybot.mapper.InquiryMapper;
 import ru.veselov.companybot.model.InquiryModel;
 import ru.veselov.companybot.repository.CustomerRepository;
@@ -79,6 +81,16 @@ public class InquiryServiceImpl implements InquiryService {
         Page<InquiryResponseDTO> inquiryResponseDTOS = inquiryMapper.entitiesToDTOS(inquiryRepository.findAll(pageable));
         log.debug("Retrieved inquiries from DB");
         return inquiryResponseDTOS;
+    }
+
+    @Override
+    public InquiryResponseDTO findById(UUID inquiryId) {
+        InquiryEntity inquiryEntity = inquiryRepository.findById(inquiryId)
+                .orElseThrow(() -> {
+                    log.warn(ExceptionMessageUtils.INQUIRY_NOT_FOUND.formatted(inquiryId));
+                    return new InquiryNotFoundException(ExceptionMessageUtils.INQUIRY_NOT_FOUND.formatted(inquiryId));
+                });
+        return inquiryMapper.entityToDTO(inquiryEntity);
     }
 
     private InquiryEntity toInquiryEntity(InquiryModel inquiryModel) {
