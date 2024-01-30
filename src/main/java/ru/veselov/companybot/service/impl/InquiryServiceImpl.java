@@ -17,6 +17,7 @@ import ru.veselov.companybot.repository.CustomerRepository;
 import ru.veselov.companybot.repository.DivisionRepository;
 import ru.veselov.companybot.repository.InquiryRepository;
 import ru.veselov.companybot.service.InquiryService;
+import ru.veselov.companybot.util.LogMessageUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -38,11 +39,11 @@ public class InquiryServiceImpl implements InquiryService {
 
     @Override
     @Transactional
-    public InquiryEntity save(InquiryModel inquiry) {
+    public InquiryResponseDTO save(InquiryModel inquiry) {
         Long userId = inquiry.getUserId();
         CustomerEntity customerEntity = customerRepository.findById(userId).orElseGet(
                 () -> {
-                    log.warn("Customer with {} was not in db, i will create new entity", userId);
+                    log.warn(LogMessageUtils.CUSTOMER_NOT_IN_DB_WARN, userId);
                     CustomerEntity newCustomerEntity = new CustomerEntity();
                     newCustomerEntity.setId(userId);
                     newCustomerEntity.setLastName(userId.toString());
@@ -52,12 +53,12 @@ public class InquiryServiceImpl implements InquiryService {
         Optional<DivisionEntity> divisionOptional = divisionRepository.findById(divisionId);
         DivisionEntity divisionEntity;
         divisionEntity = divisionOptional.orElseGet(() -> {
-                    log.warn("Division with id not found, choose base or will created new");
+                    log.warn(LogMessageUtils.DIVISION_NOT_IN_DB_WARN);
                     return divisionRepository.findByName(BotUtils.BASE_DIVISION)
                             .orElseGet(() -> {
-                                log.warn("Base division is not found, created new");
+                                log.warn(LogMessageUtils.NO_BASE_DIVISION_FOUND);
                                 return DivisionEntity.builder()
-                                        .name(BotUtils.BASE_DIVISION).description("Общ. вопросы")
+                                        .name(BotUtils.BASE_DIVISION).description(BotUtils.BASE_DIVISION_DESC)
                                         .build();
                             });
                 }
@@ -66,12 +67,7 @@ public class InquiryServiceImpl implements InquiryService {
         inquiryEntity.setCustomer(customerEntity);
         inquiryEntity.setDivision(divisionEntity);
         log.info("Inquiry of [user: {}] saved", userId);
-        return inquiryRepository.save(inquiryEntity);
-    }
-
-    @Override
-    public Optional<InquiryEntity> findWithMessages(UUID id) {
-        return inquiryRepository.findByIdWithMessages(id);
+        return inquiryMapper.entityToDTO(inquiryRepository.save(inquiryEntity));
     }
 
     @Override

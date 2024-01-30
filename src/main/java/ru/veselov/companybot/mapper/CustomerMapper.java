@@ -7,8 +7,7 @@ import org.telegram.telegrambots.meta.api.objects.User;
 import ru.veselov.companybot.dto.CustomerResponseDTO;
 import ru.veselov.companybot.entity.CustomerEntity;
 
-@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE,
-        uses = ContactMapper.class)
+@Mapper(componentModel = "spring", unmappedTargetPolicy = ReportingPolicy.IGNORE, uses = ContactMapper.class)
 public interface CustomerMapper {
 
     CustomerEntity toEntity(User user);
