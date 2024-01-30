@@ -44,7 +44,7 @@ public class CustomerEntity {
     private Set<ContactEntity> contacts = new HashSet<>();
 
     //mappedBy - to this object we bind list
-    @OneToMany(mappedBy = "customerEntity", orphanRemoval = true, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "customer", orphanRemoval = true, cascade = CascadeType.ALL)
     private Set<InquiryEntity> inquiries = new HashSet<>();
 
 }

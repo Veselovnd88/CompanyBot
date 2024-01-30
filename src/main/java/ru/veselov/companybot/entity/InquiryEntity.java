@@ -46,7 +46,7 @@ public class InquiryEntity {
 
     @ManyToOne
     @JoinColumn(name = "customer_id", referencedColumnName = "id")
-    private CustomerEntity customerEntity;
+    private CustomerEntity customer;
 
     public void addMessage(CustomerMessageEntity message) {
         messages.add(message);
@@ -59,12 +59,12 @@ public class InquiryEntity {
         if (o == null || getClass() != o.getClass()) return false;
         InquiryEntity inquiryEntity = (InquiryEntity) o;
         return date.equals(inquiryEntity.date) && division == inquiryEntity.division
-                && messages.equals(inquiryEntity.messages) && customerEntity.equals(inquiryEntity.customerEntity);
+                && messages.equals(inquiryEntity.messages) && customer.equals(inquiryEntity.customer);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(date, division, messages, customerEntity);
+        return Objects.hash(date, division, messages, customer);
     }
 
 }

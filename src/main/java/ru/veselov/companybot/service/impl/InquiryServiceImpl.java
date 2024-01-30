@@ -6,15 +6,18 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.telegram.telegrambots.meta.api.objects.Message;
 import ru.veselov.companybot.bot.util.BotUtils;
+import ru.veselov.companybot.dto.InquiryResponseDTO;
 import ru.veselov.companybot.entity.CustomerEntity;
 import ru.veselov.companybot.entity.CustomerMessageEntity;
 import ru.veselov.companybot.entity.DivisionEntity;
 import ru.veselov.companybot.entity.InquiryEntity;
+import ru.veselov.companybot.mapper.InquiryMapper;
 import ru.veselov.companybot.model.InquiryModel;
 import ru.veselov.companybot.repository.CustomerRepository;
 import ru.veselov.companybot.repository.DivisionRepository;
 import ru.veselov.companybot.repository.InquiryRepository;
 import ru.veselov.companybot.service.InquiryService;
+import ru.veselov.companybot.util.LogMessageUtils;
 
 import java.util.List;
 import java.util.Optional;
@@ -32,13 +35,15 @@ public class InquiryServiceImpl implements InquiryService {
 
     private final DivisionRepository divisionRepository;
 
+    private final InquiryMapper inquiryMapper;
+
     @Override
     @Transactional
-    public InquiryEntity save(InquiryModel inquiry) {
+    public InquiryResponseDTO save(InquiryModel inquiry) {
         Long userId = inquiry.getUserId();
         CustomerEntity customerEntity = customerRepository.findById(userId).orElseGet(
                 () -> {
-                    log.warn("Customer with {} was not in db, i will create new entity", userId);
+                    log.warn(LogMessageUtils.CUSTOMER_NOT_IN_DB_WARN, userId);
                     CustomerEntity newCustomerEntity = new CustomerEntity();
                     newCustomerEntity.setId(userId);
                     newCustomerEntity.setLastName(userId.toString());
@@ -48,31 +53,28 @@ public class InquiryServiceImpl implements InquiryService {
         Optional<DivisionEntity> divisionOptional = divisionRepository.findById(divisionId);
         DivisionEntity divisionEntity;
         divisionEntity = divisionOptional.orElseGet(() -> {
-                    log.warn("Division with id not found, choose base or will created new");
+                    log.warn(LogMessageUtils.DIVISION_NOT_IN_DB_WARN);
                     return divisionRepository.findByName(BotUtils.BASE_DIVISION)
                             .orElseGet(() -> {
-                                log.warn("Base division is not found, created new");
+                                log.warn(LogMessageUtils.NO_BASE_DIVISION_FOUND);
                                 return DivisionEntity.builder()
-                                        .name(BotUtils.BASE_DIVISION).description("Общ. вопросы")
+                                        .name(BotUtils.BASE_DIVISION).description(BotUtils.BASE_DIVISION_DESC)
                                         .build();
                             });
                 }
         );
         InquiryEntity inquiryEntity = toInquiryEntity(inquiry);
-        inquiryEntity.setCustomerEntity(customerEntity);
+        inquiryEntity.setCustomer(customerEntity);
         inquiryEntity.setDivision(divisionEntity);
         log.info("Inquiry of [user: {}] saved", userId);
-        return inquiryRepository.save(inquiryEntity);
+        return inquiryMapper.entityToDTO(inquiryRepository.save(inquiryEntity));
     }
 
     @Override
-    public Optional<InquiryEntity> findWithMessages(UUID id) {
-        return inquiryRepository.findByIdWithMessages(id);
-    }
-
-    @Override
-    public List<InquiryEntity> findAll() {
-        return inquiryRepository.findAll();
+    public List<InquiryResponseDTO> findAll() {
+        List<InquiryResponseDTO> inquiryResponseDTOS = inquiryMapper.entitiesToDTOS(inquiryRepository.findAll());
+        log.debug("Retrieved inquiries from DB");
+        return inquiryResponseDTOS;
     }
 
     private InquiryEntity toInquiryEntity(InquiryModel inquiryModel) {
@@ -84,4 +86,5 @@ public class InquiryServiceImpl implements InquiryService {
         }
         return inquiryEntity;
     }
+
 }

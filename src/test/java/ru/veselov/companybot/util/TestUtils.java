@@ -6,6 +6,7 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import net.datafaker.Faker;
 import org.assertj.core.api.Assertions;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.telegram.telegrambots.meta.api.methods.BotApiMethod;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.Chat;
@@ -14,7 +15,17 @@ import org.telegram.telegrambots.meta.api.objects.Message;
 import org.telegram.telegrambots.meta.api.objects.PhotoSize;
 import org.telegram.telegrambots.meta.api.objects.User;
 import ru.veselov.companybot.dto.DivisionDTO;
+import ru.veselov.companybot.entity.ContactEntity;
+import ru.veselov.companybot.entity.CustomerEntity;
+import ru.veselov.companybot.entity.CustomerMessageEntity;
 import ru.veselov.companybot.entity.DivisionEntity;
+import ru.veselov.companybot.mapper.ContactMapper;
+import ru.veselov.companybot.mapper.ContactMapperImpl;
+import ru.veselov.companybot.mapper.CustomerMapper;
+import ru.veselov.companybot.mapper.CustomerMapperImpl;
+import ru.veselov.companybot.mapper.InquiryMapper;
+import ru.veselov.companybot.mapper.InquiryMapperImpl;
+import ru.veselov.companybot.mapper.MessageMapperImpl;
 import ru.veselov.companybot.model.ContactModel;
 import ru.veselov.companybot.model.DivisionModel;
 import ru.veselov.companybot.model.InquiryModel;
@@ -188,6 +199,44 @@ public class TestUtils {
                 .description(DIVISION_DESC)
                 .divisionId(DIVISION_ID)
                 .build();
+    }
+
+    public static CustomerMessageEntity getCustomerMessageEntity(String message) {
+        CustomerMessageEntity customerMessageEntity = new CustomerMessageEntity();
+        customerMessageEntity.setMessage(TestUtils.getTextMessage(message));
+        return customerMessageEntity;
+    }
+
+    public static CustomerEntity getCustomerEntity() {
+        CustomerEntity customerEntity = new CustomerEntity();
+        customerEntity.setFirstName(TestUtils.USER_FIRST_NAME);
+        customerEntity.setLastName(TestUtils.USER_LAST_NAME);
+        customerEntity.setUserName(TestUtils.USER_NAME);
+        customerEntity.setId(1L);
+        return customerEntity;
+    }
+
+    public static ContactEntity getContactEntity() {
+        return new ContactEntity(UUID.randomUUID(),
+                USER_LAST_NAME, USER_FIRST_NAME, faker.elderScrolls().race(),
+                USER_PHONE, USER_EMAIL, null, getCustomerEntity());
+    }
+
+    public static InquiryMapper getInquiryMapper() {
+        InquiryMapperImpl inquiryMapper = new InquiryMapperImpl();
+        ReflectionTestUtils.setField(inquiryMapper, "messageMapper", new MessageMapperImpl());
+        ReflectionTestUtils.setField(inquiryMapper, "customerMapper", getCustomerMapper());
+        return inquiryMapper;
+    }
+
+    public static ContactMapper getContactMapper() {
+        return new ContactMapperImpl();
+    }
+
+    public static CustomerMapper getCustomerMapper() {
+        CustomerMapperImpl customerMapper = new CustomerMapperImpl();
+        ReflectionTestUtils.setField(customerMapper, "contactMapper", getContactMapper());
+        return customerMapper;
     }
 
     public static String jsonStringFromObject(Object object) throws JsonProcessingException {

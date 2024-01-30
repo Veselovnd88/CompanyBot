@@ -27,6 +27,7 @@ public class PostgresTestContainersInitializer implements ApplicationContextInit
     public void initialize(ConfigurableApplicationContext ctx) {
         TestPropertyValues.of(
                 "spring.liquibase.enabled=true",
+                "spring.liquibase.label-filter=!insert-divisions-01-08",
                 "spring.datasource.url=" + postgresContainer.getJdbcUrl(),
                 "spring.datasource.username=" + postgresContainer.getUsername(),
                 "spring.datasource.password=" + postgresContainer.getPassword()).applyTo(ctx.getEnvironment());
