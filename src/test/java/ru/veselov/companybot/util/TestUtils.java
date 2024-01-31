@@ -203,10 +203,10 @@ public class TestUtils {
                 .build();
     }
 
-    public static InquiryEntity getInquiryEntityWithBaseDivisionCustomerMessage(CustomerEntity customerEntity) {
+    public static InquiryEntity getInquiryEntityWithBaseMessage(CustomerEntity customerEntity,
+                                                                DivisionEntity divisionEntity) {
         InquiryEntity inquiryEntity = new InquiryEntity();
         inquiryEntity.setInquiryId(UUID.randomUUID());
-        DivisionEntity divisionEntity = TestUtils.getDivisionEntity();
         inquiryEntity.setDivision(divisionEntity);
         inquiryEntity.setDate(LocalDateTime.now());
         CustomerMessageEntity message = TestUtils.getCustomerMessageEntity("message");
