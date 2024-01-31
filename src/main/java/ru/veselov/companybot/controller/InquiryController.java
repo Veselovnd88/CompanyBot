@@ -11,12 +11,14 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import ru.veselov.companybot.annotation.PagingParam;
 import ru.veselov.companybot.dto.InquiryResponseDTO;
@@ -48,7 +50,7 @@ public class InquiryController {
     }
 
     @Operation(summary = "Получить запрос по его Id", description = "Ищет и выдает запрос по его Id")
-    @ApiResponse(responseCode = "200", description = "Запрос успешно получены",
+    @ApiResponse(responseCode = "200", description = "Запрос успешно получен",
             content = {@Content(schema = @Schema(implementation = InquiryResponseDTO.class),
                     mediaType = MediaType.APPLICATION_JSON_VALUE)})
     @GetMapping("/{inquiryId}")
@@ -56,6 +58,9 @@ public class InquiryController {
         return inquiryService.findById(inquiryId);
     }
 
+    @Operation(summary = "Удаление запроса по его Id", description = "Удаляет запрос по Id, если он существует")
+    @ApiResponse(responseCode = "204", description = "Удаление прошло успешно")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     @DeleteMapping("/{inquiryId}")
     public void delete(@PathVariable("inquiryId") UUID inquiryId) {
         inquiryService.deleteById(inquiryId);

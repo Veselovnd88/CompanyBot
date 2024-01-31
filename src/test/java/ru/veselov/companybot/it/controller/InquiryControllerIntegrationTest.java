@@ -1,6 +1,7 @@
 package ru.veselov.companybot.it.controller;
 
 import lombok.SneakyThrows;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -132,6 +133,33 @@ class InquiryControllerIntegrationTest {
     @SneakyThrows
     void findById_NotFound_ReturnNotFound() {
         ResultActions resultActions = mockMvc.perform(MockMvcUtils.getInquiryById(TestUtils.INQUIRY_ID));
+
+        resultActions.andDo(MockMvcResultHandlers.print());
+        ResultCheckUtils.checkNotFoundFields(resultActions,
+                ExceptionMessageUtils.INQUIRY_NOT_FOUND.formatted(TestUtils.INQUIRY_ID));
+    }
+
+    @Test
+    @SneakyThrows
+    void delete_AllOk_ReturnNoContent() {
+        DivisionEntity divisionEntity = TestUtils.getDivisionEntity();
+        DivisionEntity savedDivision = divisionRepository.saveAndFlush(divisionEntity);
+        CustomerEntity customerEntity = TestUtils.getCustomerEntity();
+        customerEntity.setContacts(Set.of(TestUtils.getContactEntity()));
+        CustomerEntity savedCustomer = customerRepository.saveAndFlush(customerEntity);
+        InquiryEntity inquiryEntity = TestUtils.getInquiryEntityWithBaseMessage(savedCustomer, savedDivision);
+        InquiryEntity savedInquiry = inquiryRepository.saveAndFlush(inquiryEntity);
+
+        ResultActions resultActions = mockMvc.perform(MockMvcUtils.deleteById(savedInquiry.getInquiryId()));
+        resultActions.andDo(MockMvcResultHandlers.print());
+        resultActions.andExpect(MockMvcResultMatchers.status().isNoContent());
+        Assertions.assertThat(inquiryRepository.findAll()).isEmpty();
+    }
+
+    @Test
+    @SneakyThrows
+    void delete_NotFound_ReturnNotFound() {
+        ResultActions resultActions = mockMvc.perform(MockMvcUtils.deleteById(TestUtils.INQUIRY_ID));
 
         resultActions.andDo(MockMvcResultHandlers.print());
         ResultCheckUtils.checkNotFoundFields(resultActions,

@@ -94,6 +94,7 @@ public class InquiryServiceImpl implements InquiryService {
     }
 
     @Override
+    @Transactional
     public void deleteById(UUID inquiryId) {
         if (!inquiryRepository.existsById(inquiryId)) {
             log.warn(ExceptionMessageUtils.INQUIRY_NOT_FOUND.formatted(inquiryId));
