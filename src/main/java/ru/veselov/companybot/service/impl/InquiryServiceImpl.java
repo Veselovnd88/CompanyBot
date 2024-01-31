@@ -93,6 +93,16 @@ public class InquiryServiceImpl implements InquiryService {
         return inquiryMapper.entityToDTO(inquiryEntity);
     }
 
+    @Override
+    public void deleteById(UUID inquiryId) {
+        if (!inquiryRepository.existsById(inquiryId)) {
+            log.warn(ExceptionMessageUtils.INQUIRY_NOT_FOUND.formatted(inquiryId));
+            throw new InquiryNotFoundException(ExceptionMessageUtils.INQUIRY_NOT_FOUND.formatted(inquiryId));
+        }
+        inquiryRepository.deleteById(inquiryId);
+        log.info("Inquiry with [id: {}] deleted", inquiryId);
+    }
+
     private InquiryEntity toInquiryEntity(InquiryModel inquiryModel) {
         InquiryEntity inquiryEntity = new InquiryEntity();
         for (Message message : inquiryModel.getMessages()) {

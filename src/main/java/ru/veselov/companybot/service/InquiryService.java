@@ -15,4 +15,5 @@ public interface InquiryService {
 
     InquiryResponseDTO findById(UUID inquiryId);
 
+    void deleteById(UUID inquiryId);
 }

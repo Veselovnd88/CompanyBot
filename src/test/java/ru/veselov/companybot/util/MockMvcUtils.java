@@ -44,4 +44,8 @@ public class MockMvcUtils {
         return MockMvcRequestBuilders.get(RestUrl.INQUIRIES + "/{id}", id);
     }
 
+    public static MockHttpServletRequestBuilder deleteById(UUID id) {
+        return MockMvcRequestBuilders.delete(RestUrl.INQUIRIES + "/{id}", id);
+    }
+
 }

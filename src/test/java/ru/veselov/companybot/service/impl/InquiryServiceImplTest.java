@@ -184,6 +184,30 @@ class InquiryServiceImplTest {
                 .isThrownBy(() -> inquiryService.findById(TestUtils.INQUIRY_ID))
                 .isInstanceOf(EntityNotFoundException.class)
                 .withMessage(ExceptionMessageUtils.INQUIRY_NOT_FOUND.formatted(TestUtils.INQUIRY_ID));
+        Mockito.verify(inquiryRepository).findById(Mockito.any());
+    }
+
+    @Test
+    void deleteById_AllOk_Delete() {
+        Mockito.when(inquiryRepository.existsById(TestUtils.INQUIRY_ID)).thenReturn(true);
+
+        inquiryService.deleteById(TestUtils.INQUIRY_ID);
+
+        Mockito.verify(inquiryRepository).existsById(TestUtils.INQUIRY_ID);
+        Mockito.verify(inquiryRepository).deleteById(TestUtils.INQUIRY_ID);
+    }
+
+    @Test
+    void deleteById_NotFound_Delete() {
+        Mockito.when(inquiryRepository.existsById(TestUtils.INQUIRY_ID)).thenReturn(false);
+
+        Assertions.assertThatExceptionOfType(InquiryNotFoundException.class)
+                .isThrownBy(() -> inquiryService.deleteById(TestUtils.INQUIRY_ID))
+                .isInstanceOf(EntityNotFoundException.class)
+                .withMessage(ExceptionMessageUtils.INQUIRY_NOT_FOUND.formatted(TestUtils.INQUIRY_ID));
+
+        Mockito.verify(inquiryRepository).existsById(TestUtils.INQUIRY_ID);
+        Mockito.verify(inquiryRepository, Mockito.never()).deleteById(TestUtils.INQUIRY_ID);
     }
 
 }
