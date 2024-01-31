@@ -39,6 +39,7 @@ import java.util.UUID;
 public class TestUtils {
 
     public static final UUID DIVISION_ID = UUID.randomUUID();
+    public static final UUID INQUIRY_ID = UUID.randomUUID();
 
     public static Faker faker = new Faker();
 

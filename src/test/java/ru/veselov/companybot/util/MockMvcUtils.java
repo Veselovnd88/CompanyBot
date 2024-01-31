@@ -40,4 +40,8 @@ public class MockMvcUtils {
         return MockMvcRequestBuilders.get(RestUrl.INQUIRIES);
     }
 
+    public static MockHttpServletRequestBuilder getInquiryById(UUID id) {
+        return MockMvcRequestBuilders.get(RestUrl.INQUIRIES + "/{id}", id);
+    }
+
 }
