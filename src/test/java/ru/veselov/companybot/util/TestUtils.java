@@ -19,6 +19,7 @@ import ru.veselov.companybot.entity.ContactEntity;
 import ru.veselov.companybot.entity.CustomerEntity;
 import ru.veselov.companybot.entity.CustomerMessageEntity;
 import ru.veselov.companybot.entity.DivisionEntity;
+import ru.veselov.companybot.entity.InquiryEntity;
 import ru.veselov.companybot.mapper.ContactMapper;
 import ru.veselov.companybot.mapper.ContactMapperImpl;
 import ru.veselov.companybot.mapper.CustomerMapper;
@@ -30,6 +31,7 @@ import ru.veselov.companybot.model.ContactModel;
 import ru.veselov.companybot.model.DivisionModel;
 import ru.veselov.companybot.model.InquiryModel;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Random;
 import java.util.UUID;
@@ -37,6 +39,7 @@ import java.util.UUID;
 public class TestUtils {
 
     public static final UUID DIVISION_ID = UUID.randomUUID();
+    public static final UUID INQUIRY_ID = UUID.randomUUID();
 
     public static Faker faker = new Faker();
 
@@ -199,6 +202,18 @@ public class TestUtils {
                 .description(DIVISION_DESC)
                 .divisionId(DIVISION_ID)
                 .build();
+    }
+
+    public static InquiryEntity getInquiryEntityWithBaseMessage(CustomerEntity customerEntity,
+                                                                DivisionEntity divisionEntity) {
+        InquiryEntity inquiryEntity = new InquiryEntity();
+        inquiryEntity.setInquiryId(UUID.randomUUID());
+        inquiryEntity.setDivision(divisionEntity);
+        inquiryEntity.setDate(LocalDateTime.now());
+        CustomerMessageEntity message = TestUtils.getCustomerMessageEntity("message");
+        inquiryEntity.addMessage(message);
+        inquiryEntity.setCustomer(customerEntity);
+        return inquiryEntity;
     }
 
     public static CustomerMessageEntity getCustomerMessageEntity(String message) {

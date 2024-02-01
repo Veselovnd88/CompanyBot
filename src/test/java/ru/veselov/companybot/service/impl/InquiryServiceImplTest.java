@@ -1,5 +1,6 @@
 package ru.veselov.companybot.service.impl;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -22,6 +23,8 @@ import ru.veselov.companybot.entity.CustomerEntity;
 import ru.veselov.companybot.entity.CustomerMessageEntity;
 import ru.veselov.companybot.entity.DivisionEntity;
 import ru.veselov.companybot.entity.InquiryEntity;
+import ru.veselov.companybot.exception.InquiryNotFoundException;
+import ru.veselov.companybot.exception.util.ExceptionMessageUtils;
 import ru.veselov.companybot.model.DivisionModel;
 import ru.veselov.companybot.model.InquiryModel;
 import ru.veselov.companybot.repository.CustomerRepository;
@@ -159,6 +162,52 @@ class InquiryServiceImplTest {
                 .extracting(InquiryEntity::getDivision, InquiryEntity::getCustomer).doesNotContainNull();
         Assertions.assertThat(captured.getDivision()).extracting(DivisionEntity::getName, DivisionEntity::getDescription)
                 .containsExactly(BotUtils.BASE_DIVISION, BotUtils.BASE_DIVISION_DESC);
+    }
+
+    @Test
+    void findById_AllOk_ReturnInquiryDTO() {
+        InquiryEntity inquiry = TestUtils.getInquiryEntityWithBaseMessage(TestUtils.getCustomerEntity(),
+                TestUtils.getDivisionEntity());
+        Mockito.when(inquiryRepository.findById(Mockito.any())).thenReturn(Optional.of(inquiry));
+
+        InquiryResponseDTO inquiryResponseDTO = inquiryService.findById(TestUtils.INQUIRY_ID);
+
+        Assertions.assertThat(inquiryResponseDTO).isNotNull();
+        Mockito.verify(inquiryRepository).findById(TestUtils.INQUIRY_ID);
+    }
+
+    @Test
+    void findById_NotFound_ReturnNotFound() {
+        Mockito.when(inquiryRepository.findById(Mockito.any())).thenReturn(Optional.empty());
+
+        Assertions.assertThatExceptionOfType(InquiryNotFoundException.class)
+                .isThrownBy(() -> inquiryService.findById(TestUtils.INQUIRY_ID))
+                .isInstanceOf(EntityNotFoundException.class)
+                .withMessage(ExceptionMessageUtils.INQUIRY_NOT_FOUND.formatted(TestUtils.INQUIRY_ID));
+        Mockito.verify(inquiryRepository).findById(Mockito.any());
+    }
+
+    @Test
+    void deleteById_AllOk_Delete() {
+        Mockito.when(inquiryRepository.existsById(TestUtils.INQUIRY_ID)).thenReturn(true);
+
+        inquiryService.deleteById(TestUtils.INQUIRY_ID);
+
+        Mockito.verify(inquiryRepository).existsById(TestUtils.INQUIRY_ID);
+        Mockito.verify(inquiryRepository).deleteById(TestUtils.INQUIRY_ID);
+    }
+
+    @Test
+    void deleteById_NotFound_Delete() {
+        Mockito.when(inquiryRepository.existsById(TestUtils.INQUIRY_ID)).thenReturn(false);
+
+        Assertions.assertThatExceptionOfType(InquiryNotFoundException.class)
+                .isThrownBy(() -> inquiryService.deleteById(TestUtils.INQUIRY_ID))
+                .isInstanceOf(EntityNotFoundException.class)
+                .withMessage(ExceptionMessageUtils.INQUIRY_NOT_FOUND.formatted(TestUtils.INQUIRY_ID));
+
+        Mockito.verify(inquiryRepository).existsById(TestUtils.INQUIRY_ID);
+        Mockito.verify(inquiryRepository, Mockito.never()).deleteById(TestUtils.INQUIRY_ID);
     }
 
 }

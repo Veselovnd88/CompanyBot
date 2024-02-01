@@ -14,6 +14,8 @@ public class ExceptionMessageUtils {
 
     public static final String DIVISION_NOT_FOUND = "Division with [id: %s] not found";
 
+    public static final String INQUIRY_NOT_FOUND = "Inquiry with [id: %s] not found";
+
     private ExceptionMessageUtils() {
         throw new AssertionError("No instances for util class");
     }

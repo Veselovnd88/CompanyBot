@@ -41,7 +41,7 @@ public class InquiryEntity {
     @JoinColumn(name = "division_id", referencedColumnName = "division_id")
     private DivisionEntity division;
 
-    @OneToMany(mappedBy = "inquiryEntity", orphanRemoval = true, cascade = CascadeType.ALL)
+    @OneToMany(mappedBy = "inquiryEntity", fetch = FetchType.EAGER, orphanRemoval = true, cascade = CascadeType.ALL)
     private final Set<CustomerMessageEntity> messages = new LinkedHashSet<>();
 
     @ManyToOne
